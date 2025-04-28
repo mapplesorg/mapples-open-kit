@@ -1,0 +1,14 @@
+{
+  "name": "@mapplesorg/mapples-kit",
+  "version": "0.0.0",
+  "description": "Mapples kit",
+  "repository": "https://github.com/mapplesorg/mapples-kit.git",
+  "author": "Oleksandr Soloviov <oleksolv@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/@mapplesorg/*"
+  ],
+  "packageManager": "yarn@4.9.1"
+}
