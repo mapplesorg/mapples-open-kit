@@ -7017,14 +7017,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-video@npm:~2.2.2":
-  version: 2.2.2
-  resolution: "expo-video@npm:2.2.2"
+"expo-video@npm:~3.0.11":
+  version: 3.0.11
+  resolution: "expo-video@npm:3.0.11"
   peerDependencies:
     expo: "*"
     react: "*"
     react-native: "*"
-  checksum: 10c0/d7b4060748b69750c0afa4300ac8830ff90fe34057dbe9efcdb3a31d7c73d3b3f88087a3ae546e4da497577446a00d0602f7521e6a3150ba8998d94a0e9585ff
+  checksum: 10c0/bee15a5b87cf1ceeec46519e8d863c671483edeeab22ed907c820b15af617f9162fe5f26ee38d89eec054d0a7308f700d166872400a76c556d45cedc80d906f2
   languageName: node
   linkType: hard
 
@@ -8957,7 +8957,7 @@ __metadata:
     expo: "npm:~53.0.22"
     expo-image: "npm:~2.4.0"
     expo-router: "npm:~5.1.6"
-    expo-video: "npm:~2.2.2"
+    expo-video: "npm:~3.0.11"
     husky: "npm:^9.1.7"
     i18next: "npm:^25.1.1"
     lint-staged: "npm:^16.1.6"
