@@ -4,8 +4,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --p tsconfig.build.json",
-    "lint": "eslint ."
+    "build": "tsc -b tsconfig.build.json",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "author": {
     "name": "Oleksandr Soloviov",
@@ -20,5 +22,8 @@
   "peerDependencies": {
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3"
   }
 }

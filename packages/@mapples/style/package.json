@@ -4,8 +4,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --p tsconfig.build.json",
-    "lint": "eslint ."
+    "build": "tsc -b tsconfig.build.json",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "author": {
     "name": "Oleksandr Soloviov",
@@ -21,9 +23,9 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
+    "@react-navigation/native": ">=6.0.0",
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0",
-    "@react-navigation/native": ">=6.0.0",
     "react-native-safe-area-context": ">=4.0.0"
   },
   "devDependencies": {

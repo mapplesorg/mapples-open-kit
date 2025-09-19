@@ -10,7 +10,6 @@ A powerful React rendering system that enables dynamic component rendering from 
 - 🌳 **Nested Components**: Support for complex component hierarchies
 - ⚡ **Performance Optimized**: Memoized components for optimal rendering performance
 - 📘 **TypeScript Support**: Full TypeScript support with comprehensive type definitions
-- 🎯 **Canvas Support**: Special context for canvas-based rendering with drag-and-drop
 
 ## Installation
 
@@ -66,20 +65,20 @@ Create a component definition object:
 const rootComponent = {
   id: 'root',
   type: 'View',
-  props: { 
-    style: { flex: 1, padding: 20 } 
+  props: {
+    style: { flex: 1, padding: 20 },
   },
   children: ['header', 'content'],
   childComponents: {
     header: {
       id: 'header',
       type: 'Text',
-      props: { 
+      props: {
         children: 'Welcome to Mapples Render!',
-        style: { fontSize: 24, fontWeight: 'bold' }
+        style: { fontSize: 24, fontWeight: 'bold' },
       },
       children: [],
-      childComponents: {}
+      childComponents: {},
     },
     content: {
       id: 'content',
@@ -90,16 +89,16 @@ const rootComponent = {
         button: {
           id: 'button',
           type: 'Button',
-          props: { 
+          props: {
             title: 'Click Me',
-            onPress: () => console.log('Button pressed!')
+            onPress: () => console.log('Button pressed!'),
           },
           children: [],
-          childComponents: {}
-        }
-      }
-    }
-  }
+          childComponents: {},
+        },
+      },
+    },
+  },
 };
 ```
 
@@ -110,9 +109,7 @@ Use the `Render` component to render your component tree:
 ```tsx
 import { Render } from '@mapples/render';
 
-const YourAppContent = () => (
-  <Render root={rootComponent} />
-);
+const YourAppContent = () => <Render root={rootComponent} />;
 ```
 
 ## API Reference
@@ -124,10 +121,12 @@ const YourAppContent = () => (
 The main component for rendering component trees from definitions.
 
 **Props:**
+
 - `root: RenderComponentType` - The root component definition to render
 - `CustomRenderComponent?: FC<RenderComponentType>` - Optional custom render component
 
 **Example:**
+
 ```tsx
 <Render root={componentDefinition} />
 ```
@@ -137,10 +136,12 @@ The main component for rendering component trees from definitions.
 Provider component that makes registered components available to the render system.
 
 **Props:**
+
 - `components: RegisteredComponents` - Map of registered components
 - `children: ReactNode` - Child components
 
 **Example:**
+
 ```tsx
 <RenderProvider components={registeredComponents}>
   <App />
@@ -158,9 +159,11 @@ Default implementation for rendering individual components. This is used interna
 Hook to access the render context and registered components.
 
 **Returns:**
+
 - `RenderContextType` - The render context containing registered components
 
 **Example:**
+
 ```tsx
 const { components } = useRender();
 const ButtonComponent = components['Button']?.Component;
@@ -174,14 +177,13 @@ Core interface representing a renderable component:
 
 ```tsx
 interface RenderComponentType {
-  id: string;                    // Unique identifier
-  type: string;                  // Component type name
+  id: string; // Unique identifier
+  type: string; // Component type name
   props: AnyObject & { zIndex?: number }; // Component props
-  _canvasProps?: DropTargetConfig;        // Canvas-specific props
-  children: string[];            // Child component IDs
-  childComponents: ChildComponents;       // Child component definitions
-  dataProps?: DataProps;         // Data property bindings
-  actionProps?: ActionPropsMap;  // Action property configurations
+  children: string[]; // Child component IDs
+  childComponents: ChildComponents; // Child component definitions
+  dataProps?: DataProps; // Data property bindings
+  actionProps?: ActionPropsMap; // Action property configurations
 }
 ```
 
@@ -191,8 +193,8 @@ Configuration for data properties:
 
 ```tsx
 interface DataProp {
-  key: string;      // Data key identifier
-  active: boolean;  // Whether the property is active
+  key: string; // Data key identifier
+  active: boolean; // Whether the property is active
 }
 ```
 
@@ -202,8 +204,8 @@ Configuration for action properties:
 
 ```tsx
 interface ActionProps {
-  type?: string;      // Action type
-  dataProp?: string;  // Data property key
+  type?: string; // Action type
+  dataProp?: string; // Data property key
 }
 ```
 
@@ -219,13 +221,13 @@ const componentWithData = {
   type: 'Text',
   props: { children: 'Default Text' },
   dataProps: {
-    children: { 
-      key: 'userName', 
-      active: true 
-    }
+    children: {
+      key: 'userName',
+      active: true,
+    },
   },
   children: [],
-  childComponents: {}
+  childComponents: {},
 };
 ```
 
@@ -240,22 +242,7 @@ const CustomRenderer = ({ type, props, children }) => (
   </div>
 );
 
-<Render 
-  root={componentDefinition} 
-  CustomRenderComponent={CustomRenderer} 
-/>
-```
-
-### Canvas Context
-
-For canvas-based rendering with drag-and-drop support:
-
-```tsx
-import { RenderCanvasContextProvider } from '@mapples/render';
-
-<RenderCanvasContextProvider value={{ components: canvasComponents }}>
-  <CanvasRenderer />
-</RenderCanvasContextProvider>
+<Render root={componentDefinition} CustomRenderComponent={CustomRenderer} />;
 ```
 
 ## Performance Considerations
@@ -274,7 +261,6 @@ The render system gracefully handles missing components by returning `null` inst
 This package integrates seamlessly with other Mapples packages:
 
 - **@mapples/state**: For data binding and state management
-- **@mapples/dnd**: For drag-and-drop functionality in canvas contexts
 - **@mapples/types**: For shared type definitions
 - **@mapples/ui**: For pre-built UI components
 
@@ -294,29 +280,29 @@ const formComponent = {
       type: 'Text',
       props: { children: 'Contact Form', style: { fontSize: 20 } },
       children: [],
-      childComponents: {}
+      childComponents: {},
     },
     input: {
       id: 'input',
       type: 'TextInput',
-      props: { 
+      props: {
         placeholder: 'Enter your name',
-        style: { borderWidth: 1, padding: 10, marginVertical: 10 }
+        style: { borderWidth: 1, padding: 10, marginVertical: 10 },
       },
       children: [],
-      childComponents: {}
+      childComponents: {},
     },
     button: {
       id: 'button',
       type: 'Button',
-      props: { 
+      props: {
         title: 'Submit',
-        onPress: () => console.log('Form submitted')
+        onPress: () => console.log('Form submitted'),
       },
       children: [],
-      childComponents: {}
-    }
-  }
+      childComponents: {},
+    },
+  },
 };
 ```
 
@@ -338,18 +324,21 @@ const layoutComponent = {
         'header-text': {
           id: 'header-text',
           type: 'Text',
-          props: { children: 'Header', style: { textAlign: 'center', marginTop: 20 } },
+          props: {
+            children: 'Header',
+            style: { textAlign: 'center', marginTop: 20 },
+          },
           children: [],
-          childComponents: {}
-        }
-      }
+          childComponents: {},
+        },
+      },
     },
     content: {
       id: 'content',
       type: 'View',
       props: { style: { flex: 1, padding: 20 } },
       children: [],
-      childComponents: {}
+      childComponents: {},
     },
     footer: {
       id: 'footer',
@@ -360,13 +349,16 @@ const layoutComponent = {
         'footer-text': {
           id: 'footer-text',
           type: 'Text',
-          props: { children: 'Footer', style: { textAlign: 'center', marginTop: 20 } },
+          props: {
+            children: 'Footer',
+            style: { textAlign: 'center', marginTop: 20 },
+          },
           children: [],
-          childComponents: {}
-        }
-      }
-    }
-  }
+          childComponents: {},
+        },
+      },
+    },
+  },
 };
 ```
 

@@ -6,12 +6,12 @@ import { PropsFormField, StyleFormType } from './forms';
 
 /**
  * Represents a style key configuration for component styling.
- * 
+ *
  * @interface StyleKey
  * @property {string} label - Human-readable label for the style key
  * @property {string} value - The actual CSS property name or identifier
  * @property {StyleFormType[]} forms - Array of form types that can be used to configure this style
- * 
+ *
  * @example
  * ```typescript
  * const backgroundColorStyle: StyleKey = {
@@ -31,10 +31,10 @@ export interface StyleKey {
  * Represents a registered component in the Mapples component system.
  * This interface defines all the metadata and configuration needed to register
  * a component for use in the visual editor.
- * 
+ *
  * @interface RegisteredComponent
  * @template T - The props type for the component (must extend object)
- * 
+ *
  * @property {string} type - Unique identifier for the component type
  * @property {string} groupId - ID of the group this component belongs to
  * @property {string} label - Human-readable display name for the component
@@ -46,7 +46,7 @@ export interface StyleKey {
  * @property {string[]} actionProps - List of prop names that can trigger actions
  * @property {boolean} [hidden] - Whether the component should be hidden from the palette
  * @property {boolean} [hasChildren] - Whether the component can contain child components
- * 
+ *
  * @example
  * ```typescript
  * const buttonComponent: RegisteredComponent<ButtonProps> = {
@@ -79,12 +79,12 @@ export interface RegisteredComponent<T extends object = object> {
 /**
  * Represents a group of registered components in the component palette.
  * Groups are used to organize components into logical categories.
- * 
+ *
  * @interface RegisteredComponentsGroup
  * @property {string} id - Unique identifier for the group
  * @property {string} label - Human-readable display name for the group
  * @property {ComponentType<SvgProps>} Icon - SVG icon component for the group
- * 
+ *
  * @example
  * ```typescript
  * const inputsGroup: RegisteredComponentsGroup = {
@@ -103,7 +103,7 @@ export interface RegisteredComponentsGroup {
 /**
  * A record type that maps component type strings to their registered component definitions.
  * This is the main registry structure for all available components in the system.
- * 
+ *
  * @type RegisteredComponents
  * @example
  * ```typescript
@@ -115,3 +115,21 @@ export interface RegisteredComponentsGroup {
  * ```
  */
 export type RegisteredComponents = Record<string, RegisteredComponent>;
+
+/**
+ * Configuration for data properties that can be bound to components.
+ *
+ * @interface DataProp
+ * @property {string} key - The key identifier for the data property
+ * @property {boolean} active - Whether this data property is currently active
+ */
+export interface DataProp {
+  key: string;
+  active: boolean;
+}
+
+/**
+ * A map of data properties indexed by their names.
+ * Each entry contains configuration for binding data to components.
+ */
+export type DataProps = Partial<Record<string, DataProp>>;
