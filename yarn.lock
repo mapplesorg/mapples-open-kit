@@ -8972,7 +8972,7 @@ __metadata:
     react-native-reanimated: "npm:~3.17.4"
     react-native-safe-area-context: "npm:5.4.0"
     react-native-svg: "npm:15.11.2"
-    reanimated-color-picker: "npm:^4.0.1"
+    reanimated-color-picker: "npm:^4.1.1"
     rxjs: "npm:^7.8.2"
     toastify-react-native: "npm:^7.2.3"
     turbo: "npm:^2.3.3"
@@ -10567,19 +10567,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reanimated-color-picker@npm:^4.0.1":
-  version: 4.1.0
-  resolution: "reanimated-color-picker@npm:4.1.0"
+"reanimated-color-picker@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "reanimated-color-picker@npm:4.1.1"
   peerDependencies:
     expo: ">=44.0.0"
     react: "*"
     react-native: "*"
     react-native-gesture-handler: ">=2.0.0"
-    react-native-reanimated: ^2.0.0 || ^3.0.0
+    react-native-reanimated: ">=2.0.0"
   peerDependenciesMeta:
     expo:
       optional: true
-  checksum: 10c0/ff88f7052fc0e02cdbe1ab9cd7d25254dfc8057da7831ffc81bb38da03329fbce2f4080451bf928b073a7148d4ba8aa5ec6cdae4284da7db051844b7305e247f
+  checksum: 10c0/a9c7180819dabe8abc843cb48382fc59454c2bd670fe04d8ff957a3b4f6982914071a8dcdfa4d19a3a881d1240255bdb8635d3d784e17014be1b5ce6540ad1c1
   languageName: node
   linkType: hard
 
