@@ -31,5 +31,10 @@
     "@types/lodash": "^4.17.0",
     "@types/react": "~19.0.10",
     "typescript": "~5.8.3"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ]
 }
