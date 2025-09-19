@@ -18,7 +18,7 @@
     "directory": "packages/@mapples/state"
   },
   "peerDependencies": {
-    "react": "~19.0.0",
-    "react-native": "~0.79.0"
+    "react": ">=18.0.0 <20.0.0",
+    "react-native": ">=0.71.0"
   }
 }
