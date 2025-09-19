@@ -11,7 +11,7 @@ import type {
  * FormState manages the state of a form including values, validation, history, and subscriptions.
  * It provides methods to get/set values, validate data, manage history for undo/redo functionality,
  * and subscribe to value changes.
- * 
+ *
  * @template T - The type of the form data object
  * @public
  */
@@ -32,7 +32,7 @@ class FormState<T extends object> {
 
   /**
    * Creates a new FormState instance.
-   * 
+   *
    * @param initialValues - The initial values for the form
    * @param validationSchema - Optional Yup validation schema
    * @param historyItems - Number of history items to keep for undo/redo (0 to disable)
@@ -60,7 +60,7 @@ class FormState<T extends object> {
 
   /**
    * Gets a deep copy of all form values.
-   * 
+   *
    * @returns A deep copy of the current form values
    */
   getValues() {
@@ -69,7 +69,7 @@ class FormState<T extends object> {
 
   /**
    * Sets validation errors for the form.
-   * 
+   *
    * @param errors - Validation errors organized by field path
    */
   setErrors(errors: Record<string, ValidationError[]>) {
@@ -78,7 +78,7 @@ class FormState<T extends object> {
 
   /**
    * Gets the current validation errors.
-   * 
+   *
    * @returns Current validation errors or null if no errors
    */
   getErrors() {
@@ -87,7 +87,7 @@ class FormState<T extends object> {
 
   /**
    * Sets all form values and triggers subscriptions.
-   * 
+   *
    * @param values - New values to set for the form
    */
   setValues(values: T) {
@@ -104,7 +104,7 @@ class FormState<T extends object> {
 
   /**
    * Sets a value at a specific path and triggers subscriptions.
-   * 
+   *
    * @template V - The type of value being set
    * @param path - Dot notation path to the field (e.g., 'user.name')
    * @param value - The value to set at the specified path
@@ -130,7 +130,7 @@ class FormState<T extends object> {
 
   /**
    * Subscribes to form value changes.
-   * 
+   *
    * @template V - The type of value being subscribed to
    * @param cb - Callback function to execute when values change
    * @param path - Optional path to subscribe to a specific field
@@ -149,7 +149,7 @@ class FormState<T extends object> {
 
   /**
    * Subscribes to form history changes (undo/redo operations).
-   * 
+   *
    * @param cb - Callback function to execute when history changes
    * @returns Unsubscribe function to remove the subscription
    */
@@ -163,7 +163,7 @@ class FormState<T extends object> {
 
   /**
    * Gets a value at a specific path or all values if no path is provided.
-   * 
+   *
    * @template V - The type of value to return
    * @param path - Optional dot notation path to the field
    * @returns The value at the specified path or all form values
@@ -174,7 +174,7 @@ class FormState<T extends object> {
 
   /**
    * Validates the form using the provided validation schema.
-   * 
+   *
    * @throws {Record<string, ValidationError[]>} Throws validation errors if validation fails
    */
   async validate() {
@@ -219,7 +219,7 @@ class FormState<T extends object> {
 
   /**
    * Moves to the previous state in the form history (undo operation).
-   * 
+   *
    * @returns True if the operation was successful, false if no previous state exists
    */
   prev() {
@@ -233,7 +233,7 @@ class FormState<T extends object> {
 
   /**
    * Moves to the next state in the form history (redo operation).
-   * 
+   *
    * @returns True if the operation was successful, false if no next state exists
    */
   next() {
@@ -247,7 +247,7 @@ class FormState<T extends object> {
 
   /**
    * Checks if there is a previous state available for undo operation.
-   * 
+   *
    * @returns True if undo operation is possible
    */
   canPrev() {
@@ -256,7 +256,7 @@ class FormState<T extends object> {
 
   /**
    * Checks if there is a next state available for redo operation.
-   * 
+   *
    * @returns True if redo operation is possible
    */
   canNext() {

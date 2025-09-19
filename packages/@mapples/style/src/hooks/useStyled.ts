@@ -10,26 +10,26 @@ import useTheme from './useTheme';
 
 /**
  * Hook to process styled objects with theme and sizing interpolation and responsive parsing.
- * 
+ *
  * @param styled - The styled object containing theme and sizing references
  * @returns Processed styled object with resolved theme colors, sizing values, and responsive styles
- * 
+ *
  * @example
  * ```tsx
  * const MyComponent = () => {
  *   const { getStyled } = useStyled();
- *   
+ *
  *   const processedStyle = getStyled({
  *     backgroundColor: 'theme.colors.primary',
  *     padding: 'sizing.md',
  *     fontSize: '2*', // 2 times base size
  *     '&:tablet': { fontSize: '3*' }
  *   });
- *   
+ *
  *   return <View style={processedStyle}>Styled content</View>;
  * };
  * ```
- * 
+ *
  * @example
  * ```tsx
  * const MyComponent = () => {
@@ -44,7 +44,7 @@ import useTheme from './useTheme';
  *       fontSize: 'sizing.base'
  *     }
  *   });
- *   
+ *
  *   return (
  *     <View style={styled.container}>
  *       <Text style={styled.text}>Responsive styled content</Text>

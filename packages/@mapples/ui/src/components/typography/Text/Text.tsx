@@ -6,7 +6,7 @@ import { TextProps as RNTextProps } from 'react-native';
 
 /**
  * Props for the Text component.
- * 
+ *
  * @public
  */
 export type TextProps = PropsWithChildren<
@@ -18,32 +18,32 @@ export type TextProps = PropsWithChildren<
 
 /**
  * A customizable text component with built-in styling support.
- * 
+ *
  * The Text component extends React Native's Text with additional styling
  * capabilities through the @mapples/style system. It can display text content
  * either through the `text` prop or as children.
- * 
+ *
  * @example
  * ```tsx
- * <Text 
+ * <Text
  *   text="Hello World"
  *   styled={{
- *     style: { 
- *       fontSize: 18, 
- *       color: 'blue', 
- *       fontWeight: 'bold' 
+ *     style: {
+ *       fontSize: 18,
+ *       color: 'blue',
+ *       fontWeight: 'bold'
  *     }
  *   }}
  * />
  * ```
- * 
+ *
  * @example
  * ```tsx
  * <Text styled={{ style: { fontSize: 16, color: 'black' } }}>
  *   This is text content as children
  * </Text>
  * ```
- * 
+ *
  * @public
  */
 const Text = forwardRef(

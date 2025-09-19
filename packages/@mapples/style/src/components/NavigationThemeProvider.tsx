@@ -22,15 +22,15 @@ export interface NavigationThemeProviderProps {
  * Provider component that integrates the style system with React Navigation theming.
  * This component automatically applies the current theme colors to React Navigation components
  * and provides theme-aware navigation styling.
- * 
+ *
  * @param props - The component props
  * @param props.themeColors - Custom theme colors to override navigation defaults
  * @param props.children - Child components to be wrapped with navigation theme
- * 
+ *
  * @example
  * ```tsx
  * import { NavigationThemeProvider } from '@mapples/style';
- * 
+ *
  * const App = () => {
  *   return (
  *     <NavigationThemeProvider

@@ -33,13 +33,13 @@ const App = () => {
       email: 'john@example.com',
       profile: {
         age: 30,
-        location: 'New York'
-      }
+        location: 'New York',
+      },
     },
     settings: {
       theme: 'dark',
-      language: 'en'
-    }
+      language: 'en',
+    },
   };
 
   return (
@@ -80,9 +80,9 @@ The main provider component that makes state available to child components.
 
 #### Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `value` | `object` | The state object to provide to child components |
+| Prop       | Type        | Description                                         |
+| ---------- | ----------- | --------------------------------------------------- |
+| `value`    | `object`    | The state object to provide to child components     |
 | `children` | `ReactNode` | Child components that will have access to the state |
 
 #### Example
@@ -99,15 +99,15 @@ Hook for accessing and retrieving values from the application state.
 
 #### Returns
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property   | Type                                          | Description                            |
+| ---------- | --------------------------------------------- | -------------------------------------- |
 | `getValue` | `(dataProp: DataProp, altValue?: any) => any` | Function to retrieve values from state |
 
 #### DataProp Interface
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `key` | `string` | The key path(s) to retrieve from state |
+| Property | Type      | Description                                                       |
+| -------- | --------- | ----------------------------------------------------------------- |
+| `key`    | `string`  | The key path(s) to retrieve from state                            |
 | `active` | `boolean` | Whether the data prop is active (inactive props return undefined) |
 
 #### Key Patterns
@@ -115,6 +115,7 @@ Hook for accessing and retrieving values from the application state.
 The `getValue` function supports various key patterns:
 
 ##### Simple Keys
+
 ```tsx
 // Access nested properties using dot notation
 const name = getValue({ key: 'user.name', active: true });
@@ -122,20 +123,29 @@ const age = getValue({ key: 'user.profile.age', active: true });
 ```
 
 ##### Multiple Keys with Separator
+
 ```tsx
 // Join multiple values with a custom separator
 // Format: 'key1;key2;separator'
-const fullName = getValue({ key: 'user.firstName;user.lastName; ', active: true });
-const address = getValue({ key: 'user.street;user.city;user.state; ', active: true });
+const fullName = getValue({
+  key: 'user.firstName;user.lastName; ',
+  active: true,
+});
+const address = getValue({
+  key: 'user.street;user.city;user.state; ',
+  active: true,
+});
 ```
 
 ##### Special Key: '(this)'
+
 ```tsx
 // Get the entire state object
 const entireState = getValue({ key: '(this)', active: true });
 ```
 
 ##### With Fallback Values
+
 ```tsx
 // Provide a fallback value if the key is not found
 const age = getValue({ key: 'user.age', active: true }, 'Unknown');
@@ -148,9 +158,9 @@ const UserProfile = () => {
   const { getValue } = useDataState();
 
   const name = getValue({ key: 'user.name', active: true });
-  const fullAddress = getValue({ 
-    key: 'user.street;user.city;user.state; ', 
-    active: true 
+  const fullAddress = getValue({
+    key: 'user.street;user.city;user.state; ',
+    active: true,
   });
   const theme = getValue({ key: 'settings.theme', active: true }, 'light');
 
@@ -170,9 +180,9 @@ Hook for processing multiple data properties and returning resolved values.
 
 #### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `data` | `DataProps` | Optional object containing DataProp configurations |
+| Parameter | Type        | Description                                        |
+| --------- | ----------- | -------------------------------------------------- |
+| `data`    | `DataProps` | Optional object containing DataProp configurations |
 
 #### Returns
 
@@ -187,13 +197,13 @@ const UserCard = () => {
     email: { key: 'user.email', active: true },
     age: { key: 'user.age', active: false }, // This will be filtered out
     address: { key: 'user.street;user.city; ', active: true },
-    theme: { key: 'settings.theme', active: true }
+    theme: { key: 'settings.theme', active: true },
   };
 
   const resolvedProps = useDataProps(dataProps);
-  // Result: { 
-  //   name: 'John Doe', 
-  //   email: 'john@example.com', 
+  // Result: {
+  //   name: 'John Doe',
+  //   email: 'john@example.com',
   //   address: '123 Main St New York',
   //   theme: 'dark'
   // }
@@ -218,13 +228,13 @@ Since the state is provided through React Context, you can update it by changing
 const App = () => {
   const [appState, setAppState] = useState({
     user: { name: 'John', email: 'john@example.com' },
-    settings: { theme: 'light' }
+    settings: { theme: 'light' },
   });
 
   const updateUser = (newUser) => {
-    setAppState(prev => ({
+    setAppState((prev) => ({
       ...prev,
-      user: { ...prev.user, ...newUser }
+      user: { ...prev.user, ...newUser },
     }));
   };
 
@@ -264,18 +274,18 @@ The state can contain any JavaScript object structure:
 const complexState = {
   users: [
     { id: 1, name: 'John', role: 'admin' },
-    { id: 2, name: 'Jane', role: 'user' }
+    { id: 2, name: 'Jane', role: 'user' },
   ],
   permissions: {
     admin: ['read', 'write', 'delete'],
-    user: ['read']
+    user: ['read'],
   },
   config: {
     api: {
       baseUrl: 'https://api.example.com',
-      timeout: 5000
-    }
-  }
+      timeout: 5000,
+    },
+  },
 };
 
 // Access array elements
@@ -295,7 +305,7 @@ import { StateProvider, useDataState, useDataProps } from '@mapples/state';
 // StateProvider is fully typed
 const App: React.FC = () => {
   const state: Record<string, any> = {
-    user: { name: 'John', age: 30 }
+    user: { name: 'John', age: 30 },
   };
 
   return (
@@ -308,10 +318,10 @@ const App: React.FC = () => {
 // Hooks are fully typed
 const MyComponent: React.FC = () => {
   const { getValue } = useDataState();
-  
+
   // getValue is properly typed
   const name: string | undefined = getValue({ key: 'user.name', active: true });
-  
+
   return <div>{name}</div>;
 };
 ```
@@ -326,7 +336,7 @@ const MyComponent: React.FC = () => {
 const OptimizedComponent = React.memo(() => {
   const { getValue } = useDataState();
   const name = getValue({ key: 'user.name', active: true });
-  
+
   return <div>{name}</div>;
 });
 ```
@@ -347,7 +357,7 @@ const OptimizedComponent = React.memo(() => {
 // Before (Redux)
 const mapStateToProps = (state) => ({
   userName: state.user.name,
-  userEmail: state.user.email
+  userEmail: state.user.email,
 });
 
 // After (@mapples/state)
@@ -355,8 +365,12 @@ const MyComponent = () => {
   const { getValue } = useDataState();
   const userName = getValue({ key: 'user.name', active: true });
   const userEmail = getValue({ key: 'user.email', active: true });
-  
-  return <div>{userName} - {userEmail}</div>;
+
+  return (
+    <div>
+      {userName} - {userEmail}
+    </div>
+  );
 };
 ```
 
@@ -379,4 +393,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 MIT © [Mapples](https://mapples.org)
-

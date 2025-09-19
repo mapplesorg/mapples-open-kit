@@ -7,18 +7,18 @@ import { Action, ActionProviderProps } from './types';
 
 /**
  * ActionProvider component that manages the action store and provides it to child components.
- * 
+ *
  * This component:
  * - Creates and manages an RxJS Subject for action emissions
  * - Subscribes to actions and calls the provided onAction callback
  * - Provides the action store to child components via React context
  * - Automatically cleans up subscriptions when the component unmounts
- * 
+ *
  * @component
  * @param props - The component props
  * @param props.children - Child components that will have access to the action store
  * @param props.onAction - Callback function called whenever an action is emitted
- * 
+ *
  * @example
  * ```tsx
  * function App() {
@@ -26,7 +26,7 @@ import { Action, ActionProviderProps } from './types';
  *     console.log('Action received:', action);
  *     // Handle analytics, logging, etc.
  *   };
- * 
+ *
  *   return (
  *     <ActionProvider onAction={handleAction}>
  *       <MyApp />

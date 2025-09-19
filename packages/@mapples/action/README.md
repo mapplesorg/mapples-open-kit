@@ -68,16 +68,12 @@ function MyComponent() {
       type: 'BUTTON_PRESSED',
       payload: {
         data: { buttonId: 'submit' },
-        originalEventData: ['button', 'press']
-      }
+        originalEventData: ['button', 'press'],
+      },
     });
   };
 
-  return (
-    <button onPress={handleButtonPress}>
-      Submit
-    </button>
-  );
+  return <button onPress={handleButtonPress}>Submit</button>;
 }
 ```
 
@@ -87,14 +83,14 @@ The package provides the following TypeScript interfaces:
 
 ```typescript
 interface Action {
-  time: number;           // Timestamp when action occurred
-  type?: string;          // Action type identifier
+  time: number; // Timestamp when action occurred
+  type?: string; // Action type identifier
   payload?: ActionPayload; // Optional payload data
 }
 
 interface ActionPayload {
   originalEventData?: any[]; // Original event data
-  data?: any;                // Custom data payload
+  data?: any; // Custom data payload
 }
 ```
 
@@ -105,6 +101,7 @@ interface ActionPayload {
 A React context provider that manages the action store and handles action subscriptions.
 
 **Props:**
+
 - `onAction: (action: Action) => void` - Callback function called when an action is emitted
 - `children: ReactNode` - Child components
 
@@ -113,9 +110,11 @@ A React context provider that manages the action store and handles action subscr
 A React hook that provides access to the action store.
 
 **Returns:**
+
 - `Subject<Action>` - RxJS Subject for emitting and subscribing to actions
 
 **Example:**
+
 ```tsx
 const actionStore = useActionStore();
 
@@ -123,15 +122,15 @@ const actionStore = useActionStore();
 actionStore.next({
   time: Date.now(),
   type: 'USER_LOGIN',
-  payload: { data: { userId: '123' } }
+  payload: { data: { userId: '123' } },
 });
 
 // Subscribe to actions (if needed)
 useEffect(() => {
-  const subscription = actionStore.subscribe(action => {
+  const subscription = actionStore.subscribe((action) => {
     console.log('New action:', action);
   });
-  
+
   return () => subscription.unsubscribe();
 }, [actionStore]);
 ```
@@ -143,7 +142,7 @@ useEffect(() => {
 Define custom action types for better type safety:
 
 ```tsx
-type CustomActionType = 
+type CustomActionType =
   | 'USER_LOGIN'
   | 'USER_LOGOUT'
   | 'BUTTON_PRESSED'
@@ -166,12 +165,12 @@ You can create middleware to process actions before they reach the main handler:
 function createActionMiddleware(store: Subject<Action>) {
   return store.pipe(
     // Add timestamp if missing
-    map(action => ({
+    map((action) => ({
       ...action,
-      time: action.time || Date.now()
+      time: action.time || Date.now(),
     })),
     // Filter out invalid actions
-    filter(action => action.type && action.type.length > 0)
+    filter((action) => action.type && action.type.length > 0),
   );
 }
 ```

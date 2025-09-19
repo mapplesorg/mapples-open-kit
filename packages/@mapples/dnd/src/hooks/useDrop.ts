@@ -12,7 +12,7 @@ import useDropContext from './useDropContext';
 /**
  * Hook that makes a view a drop target within the drag and drop system.
  * This hook registers the view as a drop target and tracks drop state.
- * 
+ *
  * @template DragData - The type of data being dragged
  * @template DropData - The type of data for drop targets (defaults to DragData)
  * @param ref - Reference to the view element that should be a drop target

@@ -59,8 +59,11 @@ const UserForm = () => (
 
 // Individual field components
 const NameField = () => {
-  const { value, error, isTouched, setValue, touch } = useFormField<string>('name', '');
-  
+  const { value, error, isTouched, setValue, touch } = useFormField<string>(
+    'name',
+    '',
+  );
+
   return (
     <div>
       <input
@@ -76,7 +79,7 @@ const NameField = () => {
 
 const SubmitButton = () => {
   const { submitting, submitForm } = useFormSubmit();
-  
+
   return (
     <button onClick={submitForm} disabled={submitting}>
       {submitting ? 'Submitting...' : 'Submit'}
@@ -94,6 +97,7 @@ const SubmitButton = () => {
 The main form component that provides form context to its children.
 
 **Props:**
+
 - `initialValues: T` - Initial values for the form
 - `validationSchema?: ObjectSchema<T>` - Optional Yup validation schema
 - `onSubmit?: (values: T) => void | Promise<void>` - Form submission handler
@@ -110,7 +114,15 @@ The main form component that provides form context to its children.
 Access the form context containing form state and methods.
 
 ```tsx
-const { form, submitting, submitForm, validationErrors, validate, touch, touched } = useFormContext();
+const {
+  form,
+  submitting,
+  submitForm,
+  validationErrors,
+  validate,
+  touch,
+  touched,
+} = useFormContext();
 ```
 
 #### `useFormField<T>(fieldPath, fallbackValue?, subscribe?)`
@@ -118,10 +130,12 @@ const { form, submitting, submitForm, validationErrors, validate, touch, touched
 Manage a single form field with value, validation, and touch state.
 
 ```tsx
-const { value, error, errors, isTouched, setValue, validate, touch } = useFormField<string>('name', '');
+const { value, error, errors, isTouched, setValue, validate, touch } =
+  useFormField<string>('name', '');
 ```
 
 **Parameters:**
+
 - `fieldPath: string` - Dot notation path to the field (e.g., 'user.name')
 - `fallbackValue?: T` - Default value if field is undefined
 - `subscribe?: boolean` - Whether to subscribe to real-time changes (default: true)
@@ -191,7 +205,7 @@ Bind a form field with optional fallback path synchronization.
 const { value, error, setValue } = useBindFormField<string>(
   'user.name',
   'displayName', // Also updates displayName when user.name changes
-  ''
+  '',
 );
 ```
 
@@ -204,7 +218,7 @@ const formRef = useRef<FormState<UserForm>>(null);
 
 <Form ref={formRef} initialValues={initialValues}>
   {/* form content */}
-</Form>
+</Form>;
 
 // Access FormState methods
 formRef.current?.getValues();
@@ -213,6 +227,7 @@ formRef.current?.validate();
 ```
 
 **FormState Methods:**
+
 - `getValues()` - Get all form values
 - `setValues(values)` - Set all form values
 - `getValue<V>(path?)` - Get value at specific path
@@ -288,11 +303,15 @@ const FormWithHistory = () => (
 
 const HistoryControls = () => {
   const { prev, next, canPrev, canNext } = useFormHistory();
-  
+
   return (
     <div>
-      <button onClick={prev} disabled={!canPrev}>Undo</button>
-      <button onClick={next} disabled={!canNext}>Redo</button>
+      <button onClick={prev} disabled={!canPrev}>
+        Undo
+      </button>
+      <button onClick={next} disabled={!canNext}>
+        Redo
+      </button>
     </div>
   );
 };
@@ -303,7 +322,7 @@ const HistoryControls = () => {
 ```tsx
 const TagsField = () => {
   const { value, api } = useFormArrayField<string>('tags', []);
-  
+
   return (
     <div>
       {value.map((tag, index) => (
@@ -331,14 +350,18 @@ const TagsField = () => {
 ```tsx
 const customSchema = yup.object({
   password: yup.string().required('Password is required'),
-  confirmPassword: yup.string()
+  confirmPassword: yup
+    .string()
     .oneOf([yup.ref('password')], 'Passwords must match')
     .required('Confirm password is required'),
 });
 
 const PasswordField = () => {
-  const { value, error, setValue, touch } = useFormField<string>('password', '');
-  
+  const { value, error, setValue, touch } = useFormField<string>(
+    'password',
+    '',
+  );
+
   return (
     <div>
       <input
@@ -371,7 +394,7 @@ interface MyFormData {
 <Form<MyFormData> initialValues={initialValues}>
   {/* Type-safe field access */}
   <MyFormFields />
-</Form>
+</Form>;
 
 // Type-safe field hooks
 const { value } = useFormField<string>('name'); // value is typed as string

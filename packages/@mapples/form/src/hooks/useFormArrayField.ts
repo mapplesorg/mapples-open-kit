@@ -7,17 +7,17 @@ import FormContext from '../context';
 /**
  * Hook to manage array fields with specialized array manipulation methods.
  * This hook provides methods to add, remove, and manipulate array items in a form field.
- * 
+ *
  * @template T - The type of items in the array
  * @param fieldPath - Dot notation path to the array field
  * @param fallbackValue - Default array value to use if field is undefined
  * @returns Object containing array value and manipulation methods
- * 
+ *
  * @example
  * ```tsx
  * const TagsField = () => {
  *   const { value, api } = useFormArrayField<string>('tags', []);
- *   
+ *
  *   return (
  *     <div>
  *       {value.map((tag, index) => (
@@ -31,7 +31,7 @@ import FormContext from '../context';
  *   );
  * };
  * ```
- * 
+ *
  * @public
  */
 const useFormArrayField = <T>(fieldPath: string, fallbackValue?: T[]) => {

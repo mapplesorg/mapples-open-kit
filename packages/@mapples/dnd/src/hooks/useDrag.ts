@@ -10,7 +10,7 @@ import useDnD from './useDnD';
 /**
  * Hook that makes a view draggable within the drag and drop system.
  * This hook registers the view as a drag source and tracks its drag state.
- * 
+ *
  * @template DragData - The type of data being dragged
  * @template DropData - The type of data for drop targets (defaults to DragData)
  * @param ref - Reference to the view element that should be draggable

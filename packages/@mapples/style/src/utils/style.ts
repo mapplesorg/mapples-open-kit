@@ -16,10 +16,10 @@ import {
 
 /**
  * Creates a styled styles object with enhanced sizing support.
- * 
+ *
  * @param style - The styles object to create
  * @returns The created styles object with enhanced sizing capabilities
- * 
+ *
  * @example
  * ```tsx
  * const styles = Styler.create({
@@ -38,10 +38,10 @@ const create = <T extends StyledNamedStyles<T> | StyledNamedStyles<any>>(
 
 /**
  * Initializes a complete style configuration by merging custom settings with defaults.
- * 
+ *
  * @param style - Optional partial style configuration to merge with defaults
  * @returns Complete style configuration with all required properties
- * 
+ *
  * @example
  * ```tsx
  * const styleConfig = Styler.init({
@@ -71,10 +71,10 @@ export const init = (
 
 /**
  * Flattens a style prop into a single style object.
- * 
+ *
  * @param style - The style prop to flatten
  * @returns Flattened style object
- * 
+ *
  * @example
  * ```tsx
  * const flattenedStyle = Styler.flatten([

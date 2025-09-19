@@ -5,14 +5,14 @@ import FormContext from '../context';
 /**
  * Hook to manage form history for undo/redo functionality.
  * This hook provides methods to navigate through form history and check availability of undo/redo operations.
- * 
+ *
  * @returns Object containing history navigation methods and state
- * 
+ *
  * @example
  * ```tsx
  * const HistoryControls = () => {
  *   const { prev, next, canPrev, canNext } = useFormHistory();
- *   
+ *
  *   return (
  *     <div>
  *       <button onClick={prev} disabled={!canPrev}>Undo</button>
@@ -21,7 +21,7 @@ import FormContext from '../context';
  *   );
  * };
  * ```
- * 
+ *
  * @public
  */
 const useFormHistory = () => {

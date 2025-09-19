@@ -13,11 +13,11 @@ import { CalcValue, HEX, MultiplyValue, RGB, RGBA, ThemeMap } from '../types';
 
 /**
  * Recursively extracts all key paths from a nested object.
- * 
+ *
  * @param object - The object to extract paths from
  * @param prevKey - The previous key path (used for recursion)
  * @returns Array of dot-notation paths to all leaf values
- * 
+ *
  * @example
  * ```tsx
  * const paths = getKeysPaths({
@@ -48,10 +48,10 @@ export const getKeysPaths = <T extends object, K extends keyof T>(
 
 /**
  * Checks if a string value is a valid HEX color.
- * 
+ *
  * @param value - The string to check
  * @returns True if the value is a valid HEX color
- * 
+ *
  * @example
  * ```tsx
  * isColorValue('#FF0000'); // true
@@ -65,10 +65,10 @@ export const isColorValue = (value: string) => {
 
 /**
  * Normalizes text styles for web compatibility by converting numeric values to pixel strings.
- * 
+ *
  * @param textStyle - The text style to normalize
  * @returns Normalized text style with web-compatible values
- * 
+ *
  * @example
  * ```tsx
  * const normalized = normalizeTextStyleWeb({
@@ -99,10 +99,10 @@ export const normalizeTextStyleWeb = (
 
 /**
  * Creates a regular expression pattern for matching theme and sizing references in strings.
- * 
+ *
  * @param theme - The theme object to extract paths from
  * @returns Regular expression for matching theme/sizing references
- * 
+ *
  * @example
  * ```tsx
  * const regex = getThemeRegexp({ colors: { primary: '#007AFF' } });
@@ -124,10 +124,10 @@ export const getThemeRegexp = <T extends object>(theme: T) => {
 
 /**
  * Type guard to check if a value is a valid color string (RGB, RGBA, or HEX).
- * 
+ *
  * @param color - The value to check
  * @returns True if the value is a valid color string
- * 
+ *
  * @example
  * ```tsx
  * isColorString('#FF0000'); // true
@@ -152,10 +152,10 @@ export const isColorString = (
 
 /**
  * Type guard to check if a value is a multiplier expression (e.g., '*2', '*3').
- * 
+ *
  * @param value - The value to check
  * @returns True if the value is a multiplier expression
- * 
+ *
  * @example
  * ```tsx
  * isMultiply('*2'); // true
@@ -171,10 +171,10 @@ export const isMultiply = <T extends string>(
 
 /**
  * Type guard to check if a value is a calc expression (e.g., 'calc(100% - 20px)').
- * 
+ *
  * @param value - The value to check
  * @returns True if the value is a calc expression
- * 
+ *
  * @example
  * ```tsx
  * isCalc('calc(100% - 20px)'); // true
@@ -195,11 +195,11 @@ export const isCalc = <T extends string>(
 /**
  * Parses a calc expression and evaluates it with the given base value.
  * Supports simple operations like addition and subtraction with multipliers.
- * 
+ *
  * @param value - The calc expression to parse
  * @param base - The base value to use for calculations
  * @returns The calculated numeric result
- * 
+ *
  * @example
  * ```tsx
  * parseCalc('calc(*2 - 10)', 20); // Returns: 30 (20*2 - 10)

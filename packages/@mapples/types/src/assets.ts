@@ -1,6 +1,6 @@
 /**
  * Represents the different types of assets that can be used in the Mapples system.
- * 
+ *
  * @example
  * ```typescript
  * const imageAsset: AssetType = 'image';

@@ -6,7 +6,7 @@ import { DropAreaProps } from '../types';
 /**
  * Component that creates a drop area context for its children.
  * This component establishes a parent-child relationship in the drop target hierarchy.
- * 
+ *
  * @param props - The component props
  * @returns The rendered drop area with context
  * @public

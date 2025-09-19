@@ -16,20 +16,20 @@ export type StyledFlatListProps<T extends object> = FlatListProps<T> & {
 /**
  * Styled FlatList component that supports theme and responsive styling.
  * This component extends the standard FlatList with styled props support.
- * 
+ *
  * @param props - The component props
  * @param props.styled - Styled props for advanced styling
  * @param props.data - Array of data items to render
  * @param props.renderItem - Function to render each item
  * @param props.children - Child components (if using as a container)
- * 
+ *
  * @example
  * ```tsx
  * import { StyledFlatList } from '@mapples/style';
- * 
+ *
  * const MyComponent = () => {
  *   const data = [{ id: 1, title: 'Item 1' }, { id: 2, title: 'Item 2' }];
- * 
+ *
  *   return (
  *     <StyledFlatList
  *       data={data}

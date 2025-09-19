@@ -5,11 +5,11 @@ import { TextInputProps, TextInput as RNTextInput } from 'react-native';
 
 /**
  * A customizable text input component with built-in styling support.
- * 
+ *
  * The TextInput component extends React Native's TextInput with additional styling
  * capabilities through the @mapples/style system. It supports all standard
  * TextInput properties and behaviors.
- * 
+ *
  * @example
  * ```tsx
  * <TextInput
@@ -26,7 +26,7 @@ import { TextInputProps, TextInput as RNTextInput } from 'react-native';
  *   }}
  * />
  * ```
- * 
+ *
  * @public
  */
 const TextInput = forwardRef<RNTextInput, PropsWithChildren<TextInputProps>>(

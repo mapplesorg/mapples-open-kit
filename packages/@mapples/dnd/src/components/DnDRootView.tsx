@@ -21,7 +21,7 @@ import { filterEvents } from '../utils';
 /**
  * Root component that provides drag and drop functionality to its children.
  * This component sets up the gesture handling, context, and monitor for the entire drag and drop system.
- * 
+ *
  * @template T - The type of data being dragged
  * @param props - The component props
  * @returns The rendered drag and drop root view

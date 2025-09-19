@@ -10,23 +10,23 @@ import useStyle from './useStyle';
 
 /**
  * Hook to access and manage theme configuration with automatic color scheme detection.
- * 
+ *
  * @param customStyleConfig - Optional custom style configuration to override the context value
  * @returns Object containing theme utilities and current theme state
- * 
+ *
  * @returns theme - The current active theme object (light or dark)
  * @returns themeConfig - The complete theme configuration
  * @returns colorScheme - The current device color scheme ('light' | 'dark' | null)
  * @returns getColor - Function to resolve color values from theme paths
  * @returns getColors - Function to resolve multiple color values at once
- * 
+ *
  * @example
  * ```tsx
  * const MyComponent = () => {
  *   const { theme, getColor, colorScheme } = useTheme();
- *   
+ *
  *   return (
- *     <View style={{ 
+ *     <View style={{
  *       backgroundColor: getColor('theme.colors.background'),
  *       color: getColor('theme.colors.text')
  *     }}>
@@ -35,7 +35,7 @@ import useStyle from './useStyle';
  *   );
  * };
  * ```
- * 
+ *
  * @example
  * ```tsx
  * const MyComponent = () => {
@@ -45,7 +45,7 @@ import useStyle from './useStyle';
  *     'theme.colors.text',
  *     'theme.colors.border'
  *   );
- *   
+ *
  *   return (
  *     <View style={{ backgroundColor: bgColor, borderColor }}>
  *       <Text style={{ color: textColor }}>Multiple colors</Text>

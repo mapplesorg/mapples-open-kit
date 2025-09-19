@@ -17,18 +17,18 @@ import { FormProps } from '../types';
 /**
  * Form component that provides form state management, validation, and submission functionality.
  * It creates a FormState instance and provides it to child components through React Context.
- * 
+ *
  * @template T - The type of the form data object
  * @param props - Form component props
  * @returns JSX element that provides form context to children
- * 
+ *
  * @example
  * ```tsx
  * interface UserForm {
  *   name: string;
  *   email: string;
  * }
- * 
+ *
  * const MyForm = () => (
  *   <Form<UserForm>
  *     initialValues={{ name: '', email: '' }}
@@ -43,7 +43,7 @@ import { FormProps } from '../types';
  *   </Form>
  * );
  * ```
- * 
+ *
  * @public
  */
 const Form = <T extends object>({

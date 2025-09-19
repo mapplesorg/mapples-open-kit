@@ -2,7 +2,7 @@ import { Subject } from 'rxjs';
 
 /**
  * Represents the payload data that can be attached to an action.
- * 
+ *
  * @interface ActionPayload
  */
 export interface ActionPayload {
@@ -15,7 +15,7 @@ export interface ActionPayload {
 /**
  * Represents a user action that occurred in the application.
  * Actions are used for tracking user interactions, analytics, and state management.
- * 
+ *
  * @interface Action
  */
 export interface Action {
@@ -30,7 +30,7 @@ export interface Action {
 /**
  * Context type for the Action context provider.
  * Contains the RxJS Subject that manages action emissions and subscriptions.
- * 
+ *
  * @interface ActionContextType
  */
 export interface ActionContextType {
@@ -40,7 +40,7 @@ export interface ActionContextType {
 
 /**
  * Props for the ActionProvider component.
- * 
+ *
  * @interface ActionProviderProps
  */
 export interface ActionProviderProps {

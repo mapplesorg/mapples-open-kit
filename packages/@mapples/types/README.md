@@ -27,6 +27,7 @@ type AssetType = 'image' | 'video' | 'icon' | 'font' | 'json';
 ```
 
 **Example:**
+
 ```typescript
 import { AssetType } from '@mapples/types';
 
@@ -42,21 +43,22 @@ Defines the structure for registering components in the Mapples component system
 
 ```typescript
 interface RegisteredComponent<T extends object = object> {
-  type: string;                    // Unique component identifier
-  groupId: string;                 // Group this component belongs to
-  label: string;                   // Display name
+  type: string; // Unique component identifier
+  groupId: string; // Group this component belongs to
+  label: string; // Display name
   Component: ComponentType<PropsWithChildren<T>>; // React component
-  Icon: ComponentType<SvgProps>;   // Icon for component palette
-  initialProps: T;                 // Default props
-  styleKeys: StyleKey[];           // Available style properties
-  props: PropsFormField[];         // Property form fields
-  actionProps: string[];           // Action-triggering properties
-  hidden?: boolean;                // Hide from palette
-  hasChildren?: boolean;           // Can contain children
+  Icon: ComponentType<SvgProps>; // Icon for component palette
+  initialProps: T; // Default props
+  styleKeys: StyleKey[]; // Available style properties
+  props: PropsFormField[]; // Property form fields
+  actionProps: string[]; // Action-triggering properties
+  hidden?: boolean; // Hide from palette
+  hasChildren?: boolean; // Can contain children
 }
 ```
 
 **Example:**
+
 ```typescript
 import { RegisteredComponent } from '@mapples/types';
 
@@ -75,7 +77,7 @@ const buttonComponent: RegisteredComponent<ButtonProps> = {
   initialProps: { text: 'Click me' },
   styleKeys: [backgroundColorStyle, textColorStyle],
   props: [textField, disabledField],
-  actionProps: ['onPress']
+  actionProps: ['onPress'],
 };
 ```
 
@@ -85,9 +87,9 @@ Represents a group of components in the component palette.
 
 ```typescript
 interface RegisteredComponentsGroup {
-  id: string;                      // Unique group identifier
-  label: string;                   // Display name
-  Icon: ComponentType<SvgProps>;   // Group icon
+  id: string; // Unique group identifier
+  label: string; // Display name
+  Icon: ComponentType<SvgProps>; // Group icon
 }
 ```
 
@@ -105,9 +107,9 @@ Defines a style property configuration.
 
 ```typescript
 interface StyleKey {
-  label: string;           // Human-readable label
-  value: string;           // CSS property name
-  forms: StyleFormType[];  // Applicable form types
+  label: string; // Human-readable label
+  value: string; // CSS property name
+  forms: StyleFormType[]; // Applicable form types
 }
 ```
 
@@ -119,17 +121,17 @@ Enum representing different categories of style forms.
 
 ```typescript
 enum StyleFormType {
-  Dimension = 'Dimension',       // Width, height, min/max dimensions
-  Image = 'Image',              // Background images, object fit
-  Text = 'Text',                // Text color, alignment
-  Typography = 'Typography',    // Font family, size, weight
-  Position = 'Position',        // Top, left, right, bottom
-  Surface = 'Surface',          // Background color, opacity
+  Dimension = 'Dimension', // Width, height, min/max dimensions
+  Image = 'Image', // Background images, object fit
+  Text = 'Text', // Text color, alignment
+  Typography = 'Typography', // Font family, size, weight
+  Position = 'Position', // Top, left, right, bottom
+  Surface = 'Surface', // Background color, opacity
   ScrollSurface = 'ScrollSurface', // Scrollable surface properties
-  Borders = 'Borders',          // Border width, color, radius
-  Shadow = 'Shadow',            // Box shadow, elevation
-  Spacing = 'Spacing',          // Margin, padding
-  Svg = 'Svg',                  // SVG-related properties
+  Borders = 'Borders', // Border width, color, radius
+  Shadow = 'Shadow', // Box shadow, elevation
+  Spacing = 'Spacing', // Margin, padding
+  Svg = 'Svg', // SVG-related properties
 }
 ```
 
@@ -139,9 +141,9 @@ Enum for property form field types.
 
 ```typescript
 enum PropsFormType {
-  Text = 'Text',           // Text input field
-  Select = 'Select',       // Single selection dropdown
-  Switch = 'Switch',       // Boolean toggle
+  Text = 'Text', // Text input field
+  Select = 'Select', // Single selection dropdown
+  Switch = 'Switch', // Boolean toggle
   MultiSelect = 'MultiSelect', // Multiple selection dropdown
 }
 ```
@@ -152,22 +154,23 @@ Configuration for component property form fields.
 
 ```typescript
 interface PropsFormField {
-  propsKey: string;                    // Property key in component props
-  label: string;                       // Form field label
-  options?: PropsFormFieldOptions;     // Options for select fields
-  type: PropsFormType;                 // Form field type
-  dataProp?: boolean;                  // Can be bound to data sources
+  propsKey: string; // Property key in component props
+  label: string; // Form field label
+  options?: PropsFormFieldOptions; // Options for select fields
+  type: PropsFormType; // Form field type
+  dataProp?: boolean; // Can be bound to data sources
 }
 ```
 
 **Example:**
+
 ```typescript
 import { PropsFormField, PropsFormType } from '@mapples/types';
 
 const textField: PropsFormField = {
   propsKey: 'text',
   label: 'Button Text',
-  type: PropsFormType.Text
+  type: PropsFormType.Text,
 };
 
 const sizeField: PropsFormField = {
@@ -177,8 +180,8 @@ const sizeField: PropsFormField = {
   options: [
     { label: 'Small', value: 'sm' },
     { label: 'Medium', value: 'md' },
-    { label: 'Large', value: 'lg' }
-  ]
+    { label: 'Large', value: 'lg' },
+  ],
 };
 ```
 
@@ -188,8 +191,8 @@ Represents an option in select/multi-select fields.
 
 ```typescript
 interface PropsFormFieldOption {
-  label: string;  // Display text
-  value: string;  // Stored value
+  label: string; // Display text
+  value: string; // Stored value
 }
 ```
 
@@ -199,9 +202,9 @@ Union type for form field options.
 
 ```typescript
 type PropsFormFieldOptions =
-  | PropsFormFieldOption[]  // Array of options
-  | 'typography'            // Special typography type
-  | AssetType;              // Asset type for asset selection
+  | PropsFormFieldOption[] // Array of options
+  | 'typography' // Special typography type
+  | AssetType; // Asset type for asset selection
 ```
 
 #### `ActionFormProps`
@@ -210,8 +213,8 @@ Configuration for action properties.
 
 ```typescript
 interface ActionFormProps {
-  propsKey: string;  // Action property key
-  label: string;     // Form field label
+  propsKey: string; // Action property key
+  label: string; // Form field label
 }
 ```
 
@@ -228,12 +231,12 @@ type PropsFieldConfig = Record<PropsFormType, ComponentType<PropsFormField>>;
 ### Registering a Component
 
 ```typescript
-import { 
-  RegisteredComponent, 
-  PropsFormField, 
-  PropsFormType, 
+import {
+  RegisteredComponent,
+  PropsFormField,
+  PropsFormType,
   StyleFormType,
-  StyleKey 
+  StyleKey,
 } from '@mapples/types';
 
 // Define component props
@@ -247,14 +250,14 @@ interface MyButtonProps {
 const backgroundColorStyle: StyleKey = {
   label: 'Background Color',
   value: 'backgroundColor',
-  forms: [StyleFormType.Surface]
+  forms: [StyleFormType.Surface],
 };
 
 // Create form fields
 const textField: PropsFormField = {
   propsKey: 'text',
   label: 'Button Text',
-  type: PropsFormType.Text
+  type: PropsFormType.Text,
 };
 
 const variantField: PropsFormField = {
@@ -263,8 +266,8 @@ const variantField: PropsFormField = {
   type: PropsFormType.Select,
   options: [
     { label: 'Primary', value: 'primary' },
-    { label: 'Secondary', value: 'secondary' }
-  ]
+    { label: 'Secondary', value: 'secondary' },
+  ],
 };
 
 // Register the component
@@ -276,11 +279,11 @@ const myButtonComponent: RegisteredComponent<MyButtonProps> = {
   Icon: MyButtonIcon,
   initialProps: {
     text: 'Click me',
-    variant: 'primary'
+    variant: 'primary',
   },
   styleKeys: [backgroundColorStyle],
   props: [textField, variantField],
-  actionProps: ['onPress']
+  actionProps: ['onPress'],
 };
 ```
 
@@ -292,24 +295,24 @@ import { RegisteredComponentsGroup } from '@mapples/types';
 const customGroup: RegisteredComponentsGroup = {
   id: 'custom',
   label: 'Custom Components',
-  Icon: CustomIcon
+  Icon: CustomIcon,
 };
 ```
 
 ### Working with Form Fields
 
 ```typescript
-import { 
-  PropsFormField, 
-  PropsFormType, 
-  PropsFormFieldOptions 
+import {
+  PropsFormField,
+  PropsFormType,
+  PropsFormFieldOptions,
 } from '@mapples/types';
 
 // Text field
 const nameField: PropsFormField = {
   propsKey: 'name',
   label: 'Name',
-  type: PropsFormType.Text
+  type: PropsFormType.Text,
 };
 
 // Select field with options
@@ -320,8 +323,8 @@ const statusField: PropsFormField = {
   options: [
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
-    { label: 'Pending', value: 'pending' }
-  ]
+    { label: 'Pending', value: 'pending' },
+  ],
 };
 
 // Asset selection field
@@ -329,7 +332,7 @@ const imageField: PropsFormField = {
   propsKey: 'image',
   label: 'Image',
   type: PropsFormType.Select,
-  options: 'image' // AssetType
+  options: 'image', // AssetType
 };
 
 // Typography field
@@ -337,7 +340,7 @@ const fontField: PropsFormField = {
   propsKey: 'font',
   label: 'Font',
   type: PropsFormType.Select,
-  options: 'typography'
+  options: 'typography',
 };
 ```
 
@@ -372,4 +375,3 @@ When adding new types to this package:
 ## License
 
 MIT
-

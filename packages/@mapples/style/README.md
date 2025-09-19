@@ -156,7 +156,7 @@ const primaryColor = getColor('theme.colors.primary');
 // Get multiple colors
 const [bgColor, textColor] = getColors(
   'theme.colors.background',
-  'theme.colors.text'
+  'theme.colors.text',
 );
 ```
 
@@ -192,12 +192,12 @@ const calculatedSize = getSize('calc(*2 - 10)');
 Access responsive utilities and breakpoint information.
 
 ```tsx
-const { 
-  currentBreakpoint, 
-  isBreakpoint, 
-  isSmaller, 
-  isLarger, 
-  getResponsiveStyle 
+const {
+  currentBreakpoint,
+  isBreakpoint,
+  isSmaller,
+  isLarger,
+  getResponsiveStyle,
 } = useResponsive();
 
 // Check current breakpoint
@@ -307,7 +307,9 @@ const styles = Styler.create({
 
 // Initialize style configuration
 const config = Styler.init({
-  themeConfig: { /* custom theme */ },
+  themeConfig: {
+    /* custom theme */
+  },
 });
 
 // Flatten style arrays
@@ -450,7 +452,7 @@ const MyComponent = ({ styled }) => {
       fontSize: 'sizing.base',
     },
   }}
-/>
+/>;
 ```
 
 ## Type Definitions
@@ -480,4 +482,3 @@ Contributions are welcome! Please read our contributing guidelines and submit pu
 ## License
 
 MIT License - see the LICENSE file for details.
-

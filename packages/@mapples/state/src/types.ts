@@ -1,6 +1,6 @@
 /**
  * Configuration interface for the state context.
- * 
+ *
  * @interface StateContextType
  */
 export interface StateContextType {

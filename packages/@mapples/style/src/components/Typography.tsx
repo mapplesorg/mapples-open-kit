@@ -27,7 +27,7 @@ export interface TypographyProps extends Omit<TextProps, 'style'> {
 /**
  * Typography component that provides consistent text styling with theme and responsive support.
  * This component automatically applies typography styles based on the configured typography system.
- * 
+ *
  * @param props - The component props
  * @param props.variant - The typography variant to apply
  * @param props.color - Custom color override
@@ -35,11 +35,11 @@ export interface TypographyProps extends Omit<TextProps, 'style'> {
  * @param props.styled - Styled props for advanced styling
  * @param props.selectable - Whether text should be selectable
  * @param props.children - The text content
- * 
+ *
  * @example
  * ```tsx
  * import { Typography } from '@mapples/style';
- * 
+ *
  * const MyComponent = () => {
  *   return (
  *     <View>

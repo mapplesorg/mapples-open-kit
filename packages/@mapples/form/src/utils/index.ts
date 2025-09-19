@@ -8,7 +8,7 @@
  * @param obj2 - Second object to compare
  * @param excludeKeys - Array of keys to exclude from comparison (optional)
  * @returns Object containing diff keys and values, empty object if no differences
- * 
+ *
  * @example
  * ```tsx
  * const obj1 = { name: 'John', age: 30, city: 'NYC' };
@@ -16,7 +16,7 @@
  * const diff = objectDiff(obj1, obj2, ['age']); // Excludes age from comparison
  * // Result: { name: { _value: { from: 'John', to: 'Jane' } }, city: { _value: { from: 'NYC', to: 'LA' } } }
  * ```
- * 
+ *
  * @public
  */
 export function objectDiff<T>(
@@ -102,14 +102,14 @@ export function objectDiff<T>(
  *
  * @param obj - Object to check
  * @returns True if object is empty (no enumerable properties), false otherwise
- * 
+ *
  * @example
  * ```tsx
  * isEmpty({}); // true
  * isEmpty({ name: 'John' }); // false
  * isEmpty({ length: 0 }); // false (has enumerable property)
  * ```
- * 
+ *
  * @public
  */
 export function isEmpty(obj: Record<string, any>): boolean {

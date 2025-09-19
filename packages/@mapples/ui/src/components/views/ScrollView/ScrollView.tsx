@@ -5,18 +5,18 @@ import { ViewProps as RNViewProps } from 'react-native';
 
 /**
  * Props for the ScrollView component.
- * 
+ *
  * @public
  */
 export type ViewProps = PropsWithChildren<WithStyledProps<RNViewProps>>;
 
 /**
  * A customizable scrollable view component with built-in styling support.
- * 
+ *
  * The ScrollView component extends React Native's ScrollView with additional styling
  * capabilities through the @mapples/style system. It provides a scrollable container
  * with hidden scroll indicators by default.
- * 
+ *
  * @example
  * ```tsx
  * <ScrollView
@@ -31,7 +31,7 @@ export type ViewProps = PropsWithChildren<WithStyledProps<RNViewProps>>;
  *   <Text>More content...</Text>
  * </ScrollView>
  * ```
- * 
+ *
  * @public
  */
 const ScrollView = forwardRef(

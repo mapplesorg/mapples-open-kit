@@ -19,7 +19,7 @@ import {
 /**
  * Core monitor class that manages drag and drop operations.
  * This class tracks drag elements, drop targets, handles hit detection, and emits events.
- * 
+ *
  * @template DragData - The type of data being dragged
  * @template DropData - The type of data for drop targets (defaults to DragData)
  * @public

@@ -17,15 +17,15 @@ export interface StyleProviderProps {
  * Provider component that wraps the application with style configuration and responsive context.
  * This component should be placed at the root of your application to provide style context
  * to all child components.
- * 
+ *
  * @param props - The component props
  * @param props.style - The style configuration object
  * @param props.children - Child components to be wrapped with style context
- * 
+ *
  * @example
  * ```tsx
  * import { StyleProvider } from '@mapples/style';
- * 
+ *
  * const App = () => {
  *   const styleConfig = {
  *     themeConfig: {
@@ -40,7 +40,7 @@ export interface StyleProviderProps {
  *       typography: { body: { fontSize: 16 } }
  *     }
  *   };
- * 
+ *
  *   return (
  *     <StyleProvider style={styleConfig}>
  *       <MyApp />

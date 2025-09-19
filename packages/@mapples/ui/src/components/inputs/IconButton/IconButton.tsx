@@ -15,7 +15,7 @@ import MockIcon from './MockIcon';
 
 /**
  * Props for the IconButton component.
- * 
+ *
  * @public
  */
 export type IconProps = PropsWithChildren<
@@ -35,11 +35,11 @@ const StyledSvgUri = styled(SvgUri);
 
 /**
  * A customizable icon button component with SVG support.
- * 
+ *
  * The IconButton component displays an SVG icon that can be pressed.
  * It supports both remote SVG URIs and fallback mock icons, with
  * comprehensive styling support for both the button container and the icon.
- * 
+ *
  * @example
  * ```tsx
  * <IconButton
@@ -60,7 +60,7 @@ const StyledSvgUri = styled(SvgUri);
  *   }}
  * />
  * ```
- * 
+ *
  * @public
  */
 const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(

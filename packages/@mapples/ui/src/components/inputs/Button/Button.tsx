@@ -10,7 +10,7 @@ import { PressableProps, TextStyle, View } from 'react-native';
 
 /**
  * Props for the Button component.
- * 
+ *
  * @public
  */
 export interface ButtonProps extends PressableProps {
@@ -27,15 +27,15 @@ export interface ButtonProps extends PressableProps {
 
 /**
  * A customizable button component with built-in styling support.
- * 
+ *
  * The Button component extends React Native's Pressable with additional styling
  * capabilities and typography support. It can display a text label and supports
  * all standard pressable interactions.
- * 
+ *
  * @example
  * ```tsx
- * <Button 
- *   label="Click me" 
+ * <Button
+ *   label="Click me"
  *   onPress={() => console.log('Button pressed')}
  *   styled={{
  *     style: { backgroundColor: 'blue', padding: 16 },
@@ -43,7 +43,7 @@ export interface ButtonProps extends PressableProps {
  *   }}
  * />
  * ```
- * 
+ *
  * @public
  */
 const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(

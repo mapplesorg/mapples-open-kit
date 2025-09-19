@@ -1,9 +1,9 @@
 /**
  * @fileoverview Main schematics configuration for UI components
- * 
+ *
  * This module exports the complete registry of UI components and their organizational groups
  * for use in visual editors and component libraries.
- * 
+ *
  * @public
  */
 
@@ -20,10 +20,10 @@ import { ViewsSchematics } from '../components/views';
 
 /**
  * Complete registry of all available UI components.
- * 
+ *
  * This object contains all component schematics organized by component type,
  * including Views, Typography, Inputs, and Media components.
- * 
+ *
  * @public
  */
 export const Components: RegisteredComponents = {
@@ -35,10 +35,10 @@ export const Components: RegisteredComponents = {
 
 /**
  * Component groups for organizing UI components in visual editors.
- * 
+ *
  * Each group represents a category of related components with an associated
  * icon and label for display purposes.
- * 
+ *
  * @public
  */
 export const Groups: RegisteredComponentsGroup[] = [

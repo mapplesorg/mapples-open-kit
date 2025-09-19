@@ -2,7 +2,7 @@ import FormState from './state';
 
 /**
  * @mapples/form - A comprehensive form management library for React and React Native
- * 
+ *
  * This package provides a powerful and flexible form state management solution with:
  * - Type-safe form handling with TypeScript support
  * - Yup validation integration
@@ -11,17 +11,17 @@ import FormState from './state';
  * - Comprehensive hook-based API for form field management
  * - Support for nested objects and arrays
  * - Touch state tracking for better UX
- * 
+ *
  * @example
  * ```tsx
  * import { Form, useFormField, useFormSubmit } from '@mapples/form';
  * import * as yup from 'yup';
- * 
+ *
  * const schema = yup.object({
  *   name: yup.string().required('Name is required'),
  *   email: yup.string().email().required('Email is required'),
  * });
- * 
+ *
  * const MyForm = () => (
  *   <Form
  *     initialValues={{ name: '', email: '' }}
@@ -36,7 +36,7 @@ import FormState from './state';
  *   </Form>
  * );
  * ```
- * 
+ *
  * @public
  */
 

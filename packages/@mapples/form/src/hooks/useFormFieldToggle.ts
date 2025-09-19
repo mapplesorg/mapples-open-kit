@@ -5,15 +5,15 @@ import FormContext from '../context';
 /**
  * Hook to manage boolean toggle fields.
  * This hook provides a simple way to handle boolean fields with toggle functionality.
- * 
+ *
  * @param fieldPath - Dot notation path to the boolean field
  * @returns Object containing current value and toggle function
- * 
+ *
  * @example
  * ```tsx
  * const ToggleField = () => {
  *   const { value, toggleValue } = useFormFieldToggle('isActive');
- *   
+ *
  *   return (
  *     <label>
  *       <input
@@ -26,7 +26,7 @@ import FormContext from '../context';
  *   );
  * };
  * ```
- * 
+ *
  * @public
  */
 const useFormFieldToggle = (fieldPath: string) => {

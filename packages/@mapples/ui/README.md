@@ -35,6 +35,7 @@ This package requires the following peer dependencies:
 ## Component Categories
 
 ### Views
+
 Container components for layout and structure:
 
 - **View**: Basic container component with styling support
@@ -44,12 +45,14 @@ Container components for layout and structure:
 - **ImageBackgroundView**: Container with background image support
 
 ### Typography
+
 Text display components:
 
 - **Text**: Customizable text component with styling support
 - **Typography**: Advanced typography component with variant support
 
 ### Inputs
+
 Interactive input components:
 
 - **Button**: Customizable button with label and styling support
@@ -58,6 +61,7 @@ Interactive input components:
 - **Pressable**: Enhanced pressable component with styling
 
 ### Media
+
 Media display components:
 
 - **Image**: Image component with styling support (uses Expo Image)
@@ -300,5 +304,3 @@ For support and questions:
 - 📧 Email: support@mapples.org
 - 🌐 Website: https://mapples.org
 - 📖 Documentation: https://docs.mapples.org
-
-

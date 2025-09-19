@@ -1,9 +1,9 @@
 /**
  * @fileoverview Type declarations for SVG modules
- * 
+ *
  * This file provides TypeScript declarations for SVG imports,
  * allowing SVG files to be imported as React components.
- * 
+ *
  * @public
  */
 

@@ -1,6 +1,6 @@
 /**
  * System color palette for consistent theming across UI components.
- * 
+ *
  * @public
  */
 export const SystemPalette = {
