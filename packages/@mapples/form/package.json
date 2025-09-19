@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mapplesorg/mapples-kit.git",
+    "url": "https://github.com/mapplesorg/mapples-open-kit.git",
     "directory": "packages/@mapples/form"
   },
   "dependencies": {
