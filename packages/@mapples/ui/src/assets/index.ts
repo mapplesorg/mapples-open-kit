@@ -1,3 +1,12 @@
+/**
+ * @fileoverview SVG icon assets for UI components
+ * 
+ * This module exports all SVG icons used throughout the UI package,
+ * organized by component type and functionality.
+ * 
+ * @public
+ */
+
 import Button from './Button.svg';
 import Checkbox from './Checkbox.svg';
 import Container from './Container.svg';
@@ -20,6 +29,14 @@ import VideoBackground from './VideoBackground.svg';
 import View from './View.svg';
 import Views from './Views.svg';
 
+/**
+ * Collection of SVG icons for UI components.
+ * 
+ * Each icon is a React component that can be used in visual editors
+ * and component libraries to represent different UI elements.
+ * 
+ * @public
+ */
 const Icon = {
   Media,
   Views,
@@ -44,6 +61,11 @@ const Icon = {
   Grid4,
 };
 
+/**
+ * Type representing all available icon names.
+ * 
+ * @public
+ */
 export type IconType = keyof typeof Icon;
 
 export default Icon;
