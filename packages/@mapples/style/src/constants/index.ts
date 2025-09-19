@@ -5,6 +5,10 @@ import {
   ResponsiveConfig,
 } from '../types';
 
+/**
+ * Default theme configuration with automatic variant switching.
+ * Provides empty light and dark theme objects that can be extended.
+ */
 export const DefaultThemeConfig: ThemeConfig = {
   variant: 'auto',
   defaultColor: '#000000',
@@ -13,6 +17,10 @@ export const DefaultThemeConfig: ThemeConfig = {
   _displayTheme: 'light',
 };
 
+/**
+ * Default typography configuration with system font family.
+ * Provides basic typography setup that can be extended with custom variants.
+ */
 export const DefaultTypographyConfig: TypographyConfig = {
   fontFamily: 'System',
   color: '#000000',
@@ -20,11 +28,19 @@ export const DefaultTypographyConfig: TypographyConfig = {
   typography: {},
 };
 
+/**
+ * Default sizing configuration with base size of 4.
+ * Provides a base sizing system that can be extended with custom size values.
+ */
 export const DefaultSizingConfig: SizingConfig = {
   base: 4,
   sizing: {},
 };
 
+/**
+ * Default responsive configuration with mobile, tablet, and desktop breakpoints.
+ * Provides standard breakpoint ranges for responsive design.
+ */
 export const DefaultResponsiveConfig: ResponsiveConfig = {
   default: 'mobile',
   breakpoints: {
