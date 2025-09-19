@@ -1,10 +1,11 @@
 import { ComponentType } from 'react';
-import {AssetType} from "./assets";
+
+import { AssetType } from './assets';
 
 /**
  * Enum representing different types of style forms available in the Mapples system.
  * Each form type corresponds to a specific category of styling properties.
- * 
+ *
  * @enum StyleFormType
  * @example
  * ```typescript
@@ -40,7 +41,7 @@ export enum StyleFormType {
 /**
  * Enum representing different types of property forms for component configuration.
  * These forms are used to create UI controls for editing component properties.
- * 
+ *
  * @enum PropsFormType
  * @example
  * ```typescript
@@ -61,11 +62,11 @@ export enum PropsFormType {
 
 /**
  * Represents an option in a select or multi-select form field.
- * 
+ *
  * @interface PropsFormFieldOption
  * @property {string} label - Human-readable display text for the option
  * @property {string} value - The actual value that will be stored
- * 
+ *
  * @example
  * ```typescript
  * const sizeOption: PropsFormFieldOption = {
@@ -82,7 +83,7 @@ export interface PropsFormFieldOption {
 /**
  * Union type for form field options. Can be an array of options, a special 'typography' type,
  * or an asset type for asset selection fields.
- * 
+ *
  * @type PropsFormFieldOptions
  * @example
  * ```typescript
@@ -92,10 +93,10 @@ export interface PropsFormFieldOption {
  *   { label: 'Medium', value: 'md' },
  *   { label: 'Large', value: 'lg' }
  * ];
- * 
+ *
  * // Special typography type
  * const typographyOptions: PropsFormFieldOptions = 'typography';
- * 
+ *
  * // Asset type
  * const imageOptions: PropsFormFieldOptions = 'image';
  * ```
@@ -108,14 +109,14 @@ export type PropsFormFieldOptions =
 /**
  * Represents a form field configuration for component property editing.
  * This interface defines how a component property should be rendered in the property panel.
- * 
+ *
  * @interface PropsFormField
  * @property {string} propsKey - The key of the property in the component's props object
  * @property {string} label - Human-readable label for the form field
  * @property {PropsFormFieldOptions} [options] - Options for select/multi-select fields
  * @property {PropsFormType} type - The type of form field to render
  * @property {boolean} [dataProp] - Whether this property is a data property (can be bound to data sources)
- * 
+ *
  * @example
  * ```typescript
  * const textField: PropsFormField = {
@@ -123,7 +124,7 @@ export type PropsFormFieldOptions =
  *   label: 'Button Text',
  *   type: PropsFormType.Text
  * };
- * 
+ *
  * const sizeField: PropsFormField = {
  *   propsKey: 'size',
  *   label: 'Size',
@@ -147,11 +148,11 @@ export interface PropsFormField {
 /**
  * Represents a form field configuration for action properties.
  * Action properties are special properties that can trigger actions when interacted with.
- * 
+ *
  * @interface ActionFormProps
  * @property {string} propsKey - The key of the action property in the component's props object
  * @property {string} label - Human-readable label for the action form field
- * 
+ *
  * @example
  * ```typescript
  * const onPressAction: ActionFormProps = {
@@ -168,7 +169,7 @@ export interface ActionFormProps {
 /**
  * Configuration mapping for form field components.
  * Maps each PropsFormType to its corresponding React component for rendering.
- * 
+ *
  * @type PropsFieldConfig
  * @example
  * ```typescript
