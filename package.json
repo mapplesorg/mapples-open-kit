@@ -28,7 +28,7 @@
   "dependencies": {
     "@react-native-picker/picker": "^2.11.0",
     "aws-amplify": "^6.15.0",
-    "axios": "^1.12.1",
+    "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "expo": "~53.0.22",
     "expo-image": "~2.4.0",
