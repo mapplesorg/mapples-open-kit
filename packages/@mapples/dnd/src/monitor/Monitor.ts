@@ -16,23 +16,45 @@ import {
   MonitorConfig,
 } from '../types';
 
+/**
+ * Core monitor class that manages drag and drop operations.
+ * This class tracks drag elements, drop targets, handles hit detection, and emits events.
+ * 
+ * @template DragData - The type of data being dragged
+ * @template DropData - The type of data for drop targets (defaults to DragData)
+ * @public
+ */
 class Monitor<DragData extends object, DropData extends object = DragData> {
+  /** Observable stream of drag and drop events */
   events = new Subject<DnDEvent<DragData, DropData>>();
 
+  /** Padding around drop targets for hit detection */
   private readonly padding: number = 0;
 
+  /** Counter for generating unique drag element IDs */
   private dragElementIds = 0;
+  /** Counter for generating unique drop element IDs */
   private dropElementIds = 0;
 
+  /** Map of registered drag elements by ID */
   private dragElements = new Map<number, DragElementTarget<DragData>>();
+  /** Tree structure of registered drop elements */
   private dropElementsTree: DropTree<DropData> = new Map();
 
+  /** ID of the currently active drag target */
   private dragTargetId: number | null = null;
+  /** Currently active drop target */
   private dropTarget: DropTarget<DropData> | null = null;
 
+  /** Index position within the current drop target */
   private dropTargetIndex: number | null = null;
+  /** Whether to track drag operations outside the root element */
   private trackOutside: boolean = false;
 
+  /**
+   * Creates a new Monitor instance.
+   * @param config - Configuration options for the monitor
+   */
   constructor(config: MonitorConfig) {
     this.padding = config?.padding;
     if (config.trackOutside) {
@@ -40,51 +62,99 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     }
   }
 
+  /**
+   * Gets the ID of the currently active drag target.
+   * @returns The drag target ID or null if no drag is active
+   */
   getDragTargetId() {
     return this.dragTargetId;
   }
 
+  /**
+   * Sets the ID of the currently active drag target.
+   * @param id - The drag target ID or null
+   */
   private setDragTargetId(id: number | null) {
     this.dragTargetId = id;
   }
 
+  /**
+   * Triggers a force layout update event.
+   * This causes all registered elements to recalculate their layout information.
+   */
   triggerForceLayoutUpdate() {
     this.events.next({
       type: DnDEventType.LayoutForceUpdate,
     });
   }
 
+  /**
+   * Gets the currently active drop target.
+   * @returns The drop target or null if no drop target is active
+   */
   getDropTarget() {
     return this.dropTarget;
   }
 
+  /**
+   * Sets the currently active drop target.
+   * @param target - The drop target or null
+   */
   setDropTarget(target: DropTarget<DropData> | null) {
     this.dropTarget = target;
   }
 
+  /**
+   * Gets the drag target data for a specific ID.
+   * @param id - The drag target ID
+   * @returns The drag element target data or undefined if not found
+   */
   getDragTargetData(id: number) {
     return this.dragElements.get(id);
   }
 
+  /**
+   * Sets the index position within the current drop target.
+   * @param index - The index position or null
+   */
   setDropTargetIndex(index: number | null) {
     this.dropTargetIndex = index;
   }
 
+  /**
+   * Gets the index position within the current drop target.
+   * @returns The index position or null if no drop target is active
+   */
   getDropTargetIndex() {
     return this.dropTargetIndex;
   }
 
-  // drag monitor
+  /**
+   * Registers a new drag element with the monitor.
+   * @param layout - The layout rectangle of the drag element
+   * @param item - The drag item configuration
+   * @returns The unique ID assigned to the drag element
+   */
   registerDragElement(layout: LayoutRectangle, item: DragItem<DragData>) {
     this.dragElementIds++;
     this.dragElements.set(this.dragElementIds, { ...layout, item });
     return this.dragElementIds;
   }
 
+  /**
+   * Unregisters a drag element from the monitor.
+   * @param id - The ID of the drag element to unregister
+   */
   unregisterDragElement(id: number) {
     this.dragElements.delete(id);
   }
 
+  /**
+   * Updates the layout and item data for a registered drag element.
+   * @param id - The ID of the drag element
+   * @param layout - The new layout rectangle
+   * @param item - The new drag item configuration
+   */
   updateDragElement(
     id: number,
     layout: LayoutRectangle,
@@ -98,6 +168,11 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     this.dragElements.set(id, { ...layout, item });
   }
 
+  /**
+   * Updates only the layout information for a registered drag element.
+   * @param id - The ID of the drag element
+   * @param layout - The new layout rectangle
+   */
   updateDragElementLayout(id: number, layout: LayoutRectangle) {
     const element = this.dragElements.get(id);
     if (!element) {
@@ -107,6 +182,10 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     this.dragElements.set(id, { ...layout, item: element.item });
   }
 
+  /**
+   * Handles the start of a drag operation.
+   * @param dragCoords - The coordinates where the drag started
+   */
   onDragStart(dragCoords: DragCoords) {
     const dragTargetId = this.getDragTarget(dragCoords);
 
@@ -123,6 +202,10 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     });
   }
 
+  /**
+   * Handles drag movement during a drag operation.
+   * @param dragCoords - The current coordinates of the drag
+   */
   onDrag(dragCoords: DragCoords) {
     const dragTargetId = this.getDragTargetId();
 
@@ -150,6 +233,10 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     });
   }
 
+  /**
+   * Handles selection/tap events.
+   * @param dragCoords - The coordinates where the selection occurred
+   */
   onSelect(dragCoords: DragCoords) {
     if (!this.isInsideFirstRootElement(dragCoords) && !this.trackOutside)
       return;
@@ -163,6 +250,12 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     });
   }
 
+  /**
+   * Checks if the given coordinates are inside the first root element.
+   * @param dragCoords - The coordinates to check
+   * @returns True if inside the first root element
+   * @private
+   */
   private isInsideFirstRootElement(dragCoords: DragCoords): boolean {
     const firstRootElement = this.dropElementsTree.entries().next().value;
     if (!firstRootElement) return false;
@@ -177,6 +270,10 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     );
   }
 
+  /**
+   * Handles external selection by data query.
+   * @param dataQuery - Partial data to match against drop targets
+   */
   onExternalSelect(dataQuery: Partial<DropData>) {
     const dropTarget = this.findDropTargetByData(
       dataQuery,
@@ -189,6 +286,9 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     });
   }
 
+  /**
+   * Handles the end of a drag operation.
+   */
   onDragEnd() {
     const dropTarget = this.getDropTarget();
 
@@ -206,6 +306,14 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     this.setDropTargetIndex(null);
   }
 
+  /**
+   * Registers a new drop element with the monitor.
+   * @param layout - The layout rectangle of the drop element
+   * @param parent - The ID of the parent drop element, or null for root level
+   * @param config - Optional configuration for the drop target
+   * @param data - Optional data associated with the drop target
+   * @returns The unique ID assigned to the drop element
+   */
   registerDropElement(
     layout: LayoutRectangle,
     parent: number | null,
@@ -249,6 +357,10 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return this.dropElementIds;
   }
 
+  /**
+   * Unregisters a drop element from the monitor.
+   * @param id - The ID of the drop element to unregister
+   */
   unregisterDropElement(id: number) {
     if (this.dropElementsTree.has(id)) {
       this.dropElementsTree.delete(id);
@@ -258,6 +370,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     parent?.children?.delete(id);
   }
 
+  /**
+   * Updates the layout and configuration for a registered drop element.
+   * @param id - The ID of the drop element
+   * @param layout - The new layout rectangle
+   * @param config - Optional new configuration
+   * @param data - Optional new data
+   */
   updateDropElement(
     id: number,
     layout: LayoutRectangle,
@@ -301,6 +420,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     }
   }
 
+  /**
+   * Finds a drop target by ID in the tree structure.
+   * @param id - The ID to search for
+   * @param tree - The tree to search in
+   * @returns The drop item or null if not found
+   * @private
+   */
   private findDropTarget(
     id: number,
     tree?: DropTree<DropData>,
@@ -325,6 +451,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return null;
   }
 
+  /**
+   * Finds a drop target by matching data properties.
+   * @param dataQuery - Partial data to match against
+   * @param tree - The tree to search in
+   * @returns The drop target or null if not found
+   * @private
+   */
   private findDropTargetByData(
     dataQuery: Partial<DropData>,
     tree?: DropTree<DropData>,
@@ -362,6 +495,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return null;
   }
 
+  /**
+   * Performs a partial match between target data and query data.
+   * @param targetData - The target data to match against
+   * @param query - The query data to match
+   * @returns True if the query matches the target data
+   * @private
+   */
   private partialMatch(targetData: any, query: any): boolean {
     if (query === targetData) {
       return true;
@@ -396,6 +536,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return true;
   }
 
+  /**
+   * Finds the parent of a drop target by ID.
+   * @param id - The ID of the child drop target
+   * @param tree - The tree to search in
+   * @returns The parent drop item or null if not found
+   * @private
+   */
   private findDropTargetParent(
     id: number,
     tree?: DropTree<DropData>,
@@ -418,6 +565,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return null;
   }
 
+  /**
+   * Gets all drop targets that contain the given coordinates.
+   * @param dropCoords - The coordinates to check
+   * @param tree - The tree to search in
+   * @returns Array of drop targets or null if none found
+   * @private
+   */
   private getDropTargets(dropCoords: DragCoords, tree?: DropTree<DropData>) {
     const targets: DropTarget<DropData>[] = [];
 
@@ -454,6 +608,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return targets;
   }
 
+  /**
+   * Gets the shallowest (topmost) drop target from a list of targets.
+   * @param targets - Array of drop targets
+   * @param dragCoords - The current drag coordinates
+   * @returns The shallowest drop target or null
+   * @private
+   */
   private getShallowTarget(
     targets: DropTarget<DropData>[] | null,
     dragCoords: DragCoords,
@@ -483,6 +644,13 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return lastTarget;
   }
 
+  /**
+   * Calculates the drop target index based on drag coordinates and target layout.
+   * @param dragCoords - The current drag coordinates
+   * @param target - The drop target to calculate index for
+   * @returns The calculated index or null
+   * @private
+   */
   private getDropTargetIndexData(
     dragCoords: DragCoords,
     target: DropTarget<DropData> | null,
@@ -534,6 +702,12 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return nearestLayout.layout.index;
   }
 
+  /**
+   * Gets the drag target ID for the given coordinates.
+   * @param dragCoords - The coordinates to check
+   * @returns The drag target ID or null if none found
+   * @private
+   */
   private getDragTarget(dragCoords: DragCoords) {
     for (const [id, layout] of this.dragElements) {
       if (

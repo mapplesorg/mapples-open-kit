@@ -18,6 +18,15 @@ import { Monitor } from '../monitor';
 import { DnDEventType, DnDRootViewProps } from '../types';
 import { filterEvents } from '../utils';
 
+/**
+ * Root component that provides drag and drop functionality to its children.
+ * This component sets up the gesture handling, context, and monitor for the entire drag and drop system.
+ * 
+ * @template T - The type of data being dragged
+ * @param props - The component props
+ * @returns The rendered drag and drop root view
+ * @public
+ */
 const DnDRootView = <T extends object>({
   children,
   DragElement,
@@ -55,6 +64,11 @@ const DnDRootView = <T extends object>({
     };
   }, [monitor, onDrop]);
 
+  /**
+   * Handles pan gesture events for drag operations.
+   * @param type - The type of pan event (start, end, or drag)
+   * @param e - The gesture event payload
+   */
   const handlePanEvents = (
     type: 'onDragStart' | 'onDragEnd' | 'onDrag',
     e:
@@ -64,6 +78,10 @@ const DnDRootView = <T extends object>({
     monitor[type]({ x: e.absoluteX, y: e.absoluteY });
   };
 
+  /**
+   * Handles tap gesture events for selection.
+   * @param e - The tap gesture event payload
+   */
   const handleSelect = (
     e: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
   ) => {

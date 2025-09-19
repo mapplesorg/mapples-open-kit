@@ -7,6 +7,17 @@ import { DnDEventType, DragItem } from '../types';
 
 import useDnD from './useDnD';
 
+/**
+ * Hook that makes a view draggable within the drag and drop system.
+ * This hook registers the view as a drag source and tracks its drag state.
+ * 
+ * @template DragData - The type of data being dragged
+ * @template DropData - The type of data for drop targets (defaults to DragData)
+ * @param ref - Reference to the view element that should be draggable
+ * @param item - The drag item configuration with data and metadata
+ * @returns Object containing drag state and utilities
+ * @public
+ */
 const useDrag = <DragData extends object, DropData extends object = DragData>(
   ref: RefObject<View | null>,
   item: DragItem<DragData>,
@@ -39,6 +50,10 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
     };
   }, [monitor]);
 
+  /**
+   * Updates the layout information for the drag element.
+   * This function should be called when the element's position or size changes.
+   */
   const updateLayout = useRef(() => {
     ref.current?.measureInWindow?.((x, y, width, height) => {
       layoutRef.current = { x, y, width, height };
@@ -69,8 +84,11 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
   }, [monitor.events]);
 
   return {
+    /** The unique ID of the drag element */
     id: idRef.current,
+    /** Function to update the element's layout information */
     updateLayout,
+    /** Whether this element is currently being dragged */
     isDragging,
   };
 };

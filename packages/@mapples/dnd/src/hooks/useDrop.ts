@@ -9,6 +9,18 @@ import { filterEvents } from '../utils';
 import useDnD from './useDnD';
 import useDropContext from './useDropContext';
 
+/**
+ * Hook that makes a view a drop target within the drag and drop system.
+ * This hook registers the view as a drop target and tracks drop state.
+ * 
+ * @template DragData - The type of data being dragged
+ * @template DropData - The type of data for drop targets (defaults to DragData)
+ * @param ref - Reference to the view element that should be a drop target
+ * @param config - Optional configuration for the drop target behavior
+ * @param data - Optional data associated with this drop target
+ * @returns Object containing drop state and utilities
+ * @public
+ */
 const useDrop = <DragData extends object, DropData extends object = DragData>(
   ref: RefObject<View | null>,
   config?: DropTargetConfig,
@@ -80,6 +92,10 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
     };
   }, [monitor, monitor.events]);
 
+  /**
+   * Updates the layout information for the drop element.
+   * This function should be called when the element's position or size changes.
+   */
   const updateLayout = useRef(() => {
     ref.current?.measureInWindow?.((x, y, width, height) => {
       layoutRef.current = { x, y, width, height };
@@ -109,11 +125,17 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
   }, [width, height, updateLayout]);
 
   return {
+    /** The unique ID of the drop element */
     id,
+    /** Whether a drag is currently over this drop target */
     isOver,
+    /** The current drop target information */
     dropTarget,
+    /** The index position within the drop target */
     dropTargetIndex,
+    /** Whether any drag operation is currently active */
     isDragging,
+    /** Function to update the element's layout information */
     updateLayout,
   };
 };
