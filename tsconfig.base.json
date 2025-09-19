@@ -1,0 +1,23 @@
+{
+  "extends": "expo/tsconfig.base.json",
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@mapples/dnd": ["./packages/@mapples/dnd/src/index.ts"],
+      "@mapples/form": ["./packages/@mapples/form/src/index.ts"],
+      "@mapples/render": ["./packages/@mapples/render/src/index.ts"],
+      "@mapples/style": ["./packages/@mapples/style/src/index.ts"],
+      "@mapples/types": ["./packages/@mapples/types/src/index.ts"],
+      "@mapples/ui": ["./packages/@mapples/ui/src/index.ts"],
+      "@mapples/state": ["./packages/@mapples/state/src/index.ts"],
+      "@mapples/action": ["./packages/@mapples/action/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

@@ -4,11 +4,47 @@
   "description": "Mapples kit",
   "repository": "https://github.com/mapplesorg/mapples-kit.git",
   "author": "Oleksandr Soloviov <oleksolv@gmail.com>",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/@mapplesorg/*"
+    "packages/@mapples/*",
+    "example/module"
   ],
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "yarn@4.9.1",
+  "dependencies": {
+    "@react-native-picker/picker": "^2.11.0",
+    "aws-amplify": "^6.15.0",
+    "axios": "^1.12.1",
+    "date-fns": "^4.1.0",
+    "expo": "~53.0.22",
+    "i18next": "^25.1.1",
+    "lodash": "^4.17.21",
+    "react": "19.0.0",
+    "react-i18next": "^15.5.1",
+    "react-native": "0.79.5",
+    "react-native-json-tree": "^1.5.0",
+    "react-native-qrcode-svg": "^6.3.15",
+    "reanimated-color-picker": "^4.0.1",
+    "rxjs": "^7.8.2",
+    "toastify-react-native": "^7.2.3",
+    "uuid": "^11.1.0",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.16",
+    "eslint": "^9.25.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "typescript": "~5.8.3"
+  },
+  "resolutions": {
+    "uuid": "^11.1.0"
+  },
+  "scripts": {
+    "android": "expo run:android",
+    "ios": "expo run:ios"
+  }
 }
