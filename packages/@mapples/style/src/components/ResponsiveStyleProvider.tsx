@@ -3,14 +3,13 @@ import { FC, PropsWithChildren, useCallback, useEffect, useState } from 'react';
 import { find, keys } from 'lodash';
 import { useWindowDimensions } from 'react-native';
 
-import { useStyle } from '@mapples/style';
-
 import { ResponsiveContextProvider } from '../context';
+import { useStyle } from '../hooks';
 import { BreakpointConfig } from '../types';
 
 /**
  * Checks if a value is between the min and max values of a breakpoint configuration.
- * 
+ *
  * @param value - The value to check
  * @param config - The breakpoint configuration with min and max values
  * @returns True if the value is within the breakpoint range
@@ -23,14 +22,14 @@ const isBetween = (value: number, { min, max }: BreakpointConfig) => {
  * Provider component that manages responsive breakpoint detection and provides responsive context.
  * This component automatically detects the current breakpoint based on window dimensions
  * and provides responsive utilities to child components.
- * 
+ *
  * @param props - The component props
  * @param props.children - Child components to be wrapped with responsive context
- * 
+ *
  * @example
  * ```tsx
  * import { ResponsiveStyleProvider } from '@mapples/style';
- * 
+ *
  * const App = () => {
  *   return (
  *     <ResponsiveStyleProvider>
