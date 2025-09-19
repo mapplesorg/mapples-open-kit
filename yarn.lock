@@ -2999,15 +2999,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mapples/module@workspace:example/module":
-  version: 0.0.0-use.local
-  resolution: "@mapples/module@workspace:example/module"
-  peerDependencies:
-    react: ~18.3.0
-    react-native: ~0.76.0
-  languageName: unknown
-  linkType: soft
-
 "@mapples/render@workspace:packages/@mapples/render":
   version: 0.0.0-use.local
   resolution: "@mapples/render@workspace:packages/@mapples/render"
