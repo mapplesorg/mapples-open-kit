@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 
+import { DataProps } from '@mapples/types';
 import { isUndefined, mapValues, omitBy } from 'lodash';
 
 import useDataState from './useDataState';
-import { DataProps } from '@mapples/types';
 
 /**
  * Hook for processing multiple data properties and returning resolved values.

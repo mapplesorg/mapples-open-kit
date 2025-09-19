@@ -6,7 +6,7 @@ import { DataProps, RegisteredComponents } from '@mapples/types';
  * A generic object type that can hold any key-value pairs.
  * Used for component props and other dynamic data structures.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export type AnyObject = Record<string, any>;
 
 /**

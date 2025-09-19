@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 
+import { DataProp } from '@mapples/types';
 import { get, join } from 'lodash';
 
 import StateContext from '../context';
-import { DataProp } from '@mapples/types';
 
 /**
  * Hook for accessing and retrieving values from the application state.

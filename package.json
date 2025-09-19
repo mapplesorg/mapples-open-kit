@@ -10,6 +10,20 @@
     "packages/@mapples/*"
   ],
   "packageManager": "yarn@4.9.1",
+  "scripts": {
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=!@mapplesorg/mapples-kit && changeset publish",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
   "dependencies": {
     "@react-native-picker/picker": "^2.11.0",
     "aws-amplify": "^6.15.0",
@@ -41,6 +55,7 @@
     "@types/lodash": "^4.17.16",
     "@types/react": "~19.0.10",
     "eslint": "^9.25.0",
+    "eslint-config-expo": "^10.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
@@ -51,19 +66,5 @@
   },
   "resolutions": {
     "uuid": "^11.1.0"
-  },
-  "scripts": {
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "type-check": "turbo run type-check",
-    "clean": "turbo run clean",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
-    "release": "turbo run build --filter=!@mapplesorg/mapples-kit && changeset publish",
-    "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   }
 }
