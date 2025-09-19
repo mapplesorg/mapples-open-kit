@@ -49,6 +49,7 @@ yarn changeset
 ```
 
 This will prompt you to:
+
 1. Select which packages changed
 2. Choose the type of change (patch, minor, major)
 3. Write a description of the changes

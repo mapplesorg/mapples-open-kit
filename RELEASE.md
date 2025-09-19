@@ -38,10 +38,11 @@ When you run `yarn changeset`, you'll be prompted to:
 3. **Write description**: Describe what changed
 
 Example changeset:
+
 ```markdown
 ---
-"@mapples/ui": minor
-"@mapples/form": patch
+'@mapples/ui': minor
+'@mapples/form': patch
 ---
 
 Add new Button component and fix form validation bug
@@ -59,18 +60,21 @@ When changes are merged to the `main` branch:
 ## Release Types
 
 ### Patch Release (0.0.X)
+
 - Bug fixes
 - Documentation updates
 - Internal refactoring
 - Performance improvements
 
 ### Minor Release (0.X.0)
+
 - New features
 - New components
 - New utilities
 - Backwards compatible API changes
 
 ### Major Release (X.0.0)
+
 - Breaking changes
 - API removals
 - Significant architectural changes
