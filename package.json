@@ -1,5 +1,5 @@
 {
-  "name": "@mapplesorg/mapples-kit",
+  "name": "mapples-open-kit",
   "version": "0.0.0",
   "description": "Mapples kit",
   "repository": "https://github.com/mapplesorg/mapples-kit.git",
@@ -19,7 +19,7 @@
     "clean": "turbo run clean",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=!@mapplesorg/mapples-kit && changeset publish",
+    "release": "turbo run build --filter=!mapples-open-kit && changeset publish",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
