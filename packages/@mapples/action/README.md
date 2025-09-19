@@ -4,11 +4,11 @@ A React Native action management package that provides a centralized way to hand
 
 ## Features
 
-- **Action Tracking**: Centralized action store using RxJS Subject for reactive action handling
-- **Type Safety**: Full TypeScript support with comprehensive type definitions
-- **React Integration**: Seamless integration with React hooks and context
-- **Flexible Payload**: Support for custom action payloads and event data
-- **Provider Pattern**: Easy setup with ActionProvider component
+- 🎯 **Action Tracking**: Centralized action store using RxJS Subject for reactive action handling
+- 🔒 **Type Safety**: Full TypeScript support with comprehensive type definitions
+- ⚛️ **React Integration**: Seamless integration with React hooks and context
+- 🎁 **Flexible Payload**: Support for custom action payloads and event data
+- 🏗️ **Provider Pattern**: Easy setup with ActionProvider component
 
 ## Installation
 
