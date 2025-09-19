@@ -4,6 +4,38 @@ import { first } from 'lodash';
 
 import FormContext from '../context';
 
+/**
+ * Hook to bind a form field with optional fallback path synchronization.
+ * This hook is similar to useFormField but allows binding a field to a fallback path,
+ * useful for creating field aliases or synchronized fields.
+ * 
+ * @template T - The type of the field value
+ * @param fieldPath - Primary dot notation path to the field
+ * @param fallBackPath - Optional fallback path to synchronize with
+ * @param fallbackValue - Default value to use if field is undefined
+ * @param subscribe - Whether to subscribe to real-time value changes (default: true)
+ * @returns Object containing field value, error state, and control methods
+ * 
+ * @example
+ * ```tsx
+ * const NameField = () => {
+ *   const { value, error, setValue } = useBindFormField<string>(
+ *     'user.name',
+ *     'displayName', // Also update displayName when user.name changes
+ *     ''
+ *   );
+ *   
+ *   return (
+ *     <input
+ *       value={value}
+ *       onChange={(e) => setValue(e.target.value)}
+ *     />
+ *   );
+ * };
+ * ```
+ * 
+ * @public
+ */
 const useBindFormField = <T>(
   fieldPath: string,
   fallBackPath?: string,

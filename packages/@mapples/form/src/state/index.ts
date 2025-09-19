@@ -7,6 +7,14 @@ import type {
   ValueSubscription,
 } from '../types';
 
+/**
+ * FormState manages the state of a form including values, validation, history, and subscriptions.
+ * It provides methods to get/set values, validate data, manage history for undo/redo functionality,
+ * and subscribe to value changes.
+ * 
+ * @template T - The type of the form data object
+ * @public
+ */
 class FormState<T extends object> {
   private values: T;
 
@@ -22,6 +30,15 @@ class FormState<T extends object> {
   private saveCounter: number = 0;
   private readonly filterHistoryKeys: string[];
 
+  /**
+   * Creates a new FormState instance.
+   * 
+   * @param initialValues - The initial values for the form
+   * @param validationSchema - Optional Yup validation schema
+   * @param historyItems - Number of history items to keep for undo/redo (0 to disable)
+   * @param historyItemThrottle - Throttle for saving history items (every Nth change)
+   * @param filterHistoryKeys - Array of field paths to exclude from history tracking
+   */
   constructor(
     initialValues: T,
     validationSchema?: ObjectSchema<T>,
@@ -41,18 +58,38 @@ class FormState<T extends object> {
     }
   }
 
+  /**
+   * Gets a deep copy of all form values.
+   * 
+   * @returns A deep copy of the current form values
+   */
   getValues() {
     return cloneDeep(this.values);
   }
 
+  /**
+   * Sets validation errors for the form.
+   * 
+   * @param errors - Validation errors organized by field path
+   */
   setErrors(errors: Record<string, ValidationError[]>) {
     this.errors = errors;
   }
 
+  /**
+   * Gets the current validation errors.
+   * 
+   * @returns Current validation errors or null if no errors
+   */
   getErrors() {
     return this.errors;
   }
 
+  /**
+   * Sets all form values and triggers subscriptions.
+   * 
+   * @param values - New values to set for the form
+   */
   setValues(values: T) {
     this.values = cloneDeep(values);
     this.saveToHistory();
@@ -65,6 +102,13 @@ class FormState<T extends object> {
     });
   }
 
+  /**
+   * Sets a value at a specific path and triggers subscriptions.
+   * 
+   * @template V - The type of value being set
+   * @param path - Dot notation path to the field (e.g., 'user.name')
+   * @param value - The value to set at the specified path
+   */
   setValue<V>(path: string, value?: V) {
     set(this.values, path, value);
 
@@ -84,6 +128,14 @@ class FormState<T extends object> {
     });
   }
 
+  /**
+   * Subscribes to form value changes.
+   * 
+   * @template V - The type of value being subscribed to
+   * @param cb - Callback function to execute when values change
+   * @param path - Optional path to subscribe to a specific field
+   * @returns Unsubscribe function to remove the subscription
+   */
   subscribeOnChange<V>(cb: SubscriptionCallBack<V>, path?: string) {
     const id = this.generateListenerId();
 
@@ -95,6 +147,12 @@ class FormState<T extends object> {
     return this.unsubscribeOnChange(id);
   }
 
+  /**
+   * Subscribes to form history changes (undo/redo operations).
+   * 
+   * @param cb - Callback function to execute when history changes
+   * @returns Unsubscribe function to remove the subscription
+   */
   subscribeOnHistoryChange(cb: () => void) {
     const id = this.generateListenerId();
 
@@ -103,10 +161,22 @@ class FormState<T extends object> {
     return this.unsubscribeOnHistoryChange(id);
   }
 
+  /**
+   * Gets a value at a specific path or all values if no path is provided.
+   * 
+   * @template V - The type of value to return
+   * @param path - Optional dot notation path to the field
+   * @returns The value at the specified path or all form values
+   */
   getValue<V>(path?: string): V {
     return cloneDeep(path ? get(this.getValues(), path) : this.getValues());
   }
 
+  /**
+   * Validates the form using the provided validation schema.
+   * 
+   * @throws {Record<string, ValidationError[]>} Throws validation errors if validation fails
+   */
   async validate() {
     try {
       await this.validationSchema?.validate(this.getValues(), {
@@ -147,6 +217,11 @@ class FormState<T extends object> {
     }
   }
 
+  /**
+   * Moves to the previous state in the form history (undo operation).
+   * 
+   * @returns True if the operation was successful, false if no previous state exists
+   */
   prev() {
     if (!this.canPrev()) return false;
     this.historyIndex--;
@@ -156,6 +231,11 @@ class FormState<T extends object> {
     return true;
   }
 
+  /**
+   * Moves to the next state in the form history (redo operation).
+   * 
+   * @returns True if the operation was successful, false if no next state exists
+   */
   next() {
     if (!this.canNext()) return false;
     this.historyIndex++;
@@ -165,10 +245,20 @@ class FormState<T extends object> {
     return true;
   }
 
+  /**
+   * Checks if there is a previous state available for undo operation.
+   * 
+   * @returns True if undo operation is possible
+   */
   canPrev() {
     return this.historyItems > 0 && this.historyIndex > 0;
   }
 
+  /**
+   * Checks if there is a next state available for redo operation.
+   * 
+   * @returns True if redo operation is possible
+   */
   canNext() {
     return this.historyItems > 0 && this.historyIndex < this.history.length - 1;
   }

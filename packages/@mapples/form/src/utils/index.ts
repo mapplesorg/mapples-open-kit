@@ -1,10 +1,23 @@
 /**
- * Compares two objects and returns the differences between them
+ * Compares two objects and returns the differences between them.
+ * This utility function performs a deep comparison and returns an object
+ * containing the differences between the two input objects.
  *
+ * @template T - The type of objects being compared
  * @param obj1 - First object to compare
  * @param obj2 - Second object to compare
  * @param excludeKeys - Array of keys to exclude from comparison (optional)
- * @returns object - object containing diff keys and values, empty object if no differences
+ * @returns Object containing diff keys and values, empty object if no differences
+ * 
+ * @example
+ * ```tsx
+ * const obj1 = { name: 'John', age: 30, city: 'NYC' };
+ * const obj2 = { name: 'Jane', age: 30, city: 'LA' };
+ * const diff = objectDiff(obj1, obj2, ['age']); // Excludes age from comparison
+ * // Result: { name: { _value: { from: 'John', to: 'Jane' } }, city: { _value: { from: 'NYC', to: 'LA' } } }
+ * ```
+ * 
+ * @public
  */
 export function objectDiff<T>(
   obj1: T,
@@ -84,10 +97,20 @@ export function objectDiff<T>(
 }
 
 /**
- * Checks if an object is empty
+ * Checks if an object is empty (has no enumerable properties).
+ * This utility function determines whether an object has any own enumerable properties.
  *
  * @param obj - Object to check
- * @returns boolean - true if object is empty, false otherwise
+ * @returns True if object is empty (no enumerable properties), false otherwise
+ * 
+ * @example
+ * ```tsx
+ * isEmpty({}); // true
+ * isEmpty({ name: 'John' }); // false
+ * isEmpty({ length: 0 }); // false (has enumerable property)
+ * ```
+ * 
+ * @public
  */
 export function isEmpty(obj: Record<string, any>): boolean {
   return Object.keys(obj).length === 0;

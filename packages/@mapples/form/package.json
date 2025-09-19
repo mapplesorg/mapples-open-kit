@@ -17,9 +17,17 @@
     "url": "https://github.com/mapplesorg/mapples-kit.git",
     "directory": "packages/@mapples/form"
   },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
   "peerDependencies": {
-    "react": "~19.0.0",
-    "react-native": "~0.79.0",
+    "react": ">=18.0.0 <20.0.0",
+    "react-native": ">=0.71.0",
     "yup": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.0",
+    "@types/react": "~19.0.10",
+    "typescript": "~5.8.3"
   }
 }
