@@ -1,6 +1,5 @@
 import { ComponentType } from 'react';
-
-import { AssetType } from '@mapplesorg/api';
+import {AssetType} from "./assets";
 
 export enum StyleFormType {
   Dimension = 'Dimension',
