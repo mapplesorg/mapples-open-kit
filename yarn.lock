@@ -3190,13 +3190,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-picker/picker@npm:^2.11.0":
-  version: 2.11.1
-  resolution: "@react-native-picker/picker@npm:2.11.1"
+"@react-native-picker/picker@npm:^2.11.2":
+  version: 2.11.2
+  resolution: "@react-native-picker/picker@npm:2.11.2"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/d2e9aeb32ae80f2ab56fa025f1afd6d8ff8051e7078bfd17c6794ff0cc1538d4a2f548098826eb652e6cb64d998070b0111777c78de4dcb468cb71e7e4d93097
+  checksum: 10c0/f9a6449797311367d52c5a0ef692fd76784ff151696db3702b21e8e94ddbd209494c0362281a55f197c43d5da67d5337046f95c4e79fdb63a493ff3565cb689e
   languageName: node
   linkType: hard
 
@@ -8942,7 +8942,7 @@ __metadata:
   resolution: "mapples-open-kit@workspace:."
   dependencies:
     "@changesets/cli": "npm:^2.27.9"
-    "@react-native-picker/picker": "npm:^2.11.0"
+    "@react-native-picker/picker": "npm:^2.11.2"
     "@types/lodash": "npm:^4.17.16"
     "@types/react": "npm:~19.0.10"
     aws-amplify: "npm:^6.15.0"
