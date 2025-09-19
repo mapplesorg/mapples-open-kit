@@ -19,7 +19,7 @@
     "clean": "turbo run clean",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=!mapples-open-kit && changeset publish",
+    "release": "turbo run build && changeset publish",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
