@@ -16,6 +16,81 @@ The `@mapples/types` package contains essential TypeScript interfaces and types 
 
 ## Core Types
 
+### Action Types
+
+#### `Action`
+
+Represents a user action that occurred in the application. Actions are used for tracking user interactions, analytics, and state management.
+
+```typescript
+interface Action {
+  time: number; // Timestamp when the action occurred (in milliseconds since epoch)
+  type?: string; // Optional string identifier for the type of action
+  payload?: ActionPayload; // Optional payload containing additional data about the action
+}
+```
+
+#### `ActionPayload`
+
+Represents the payload data that can be attached to an action.
+
+```typescript
+interface ActionPayload {
+  originalEventData?: any[]; // Original event data from the source event
+  data?: any; // Custom data payload specific to the action
+}
+```
+
+**Example:**
+
+```typescript
+import { Action, ActionPayload } from '@mapples/types';
+
+const userAction: Action = {
+  time: Date.now(),
+  type: 'BUTTON_PRESSED',
+  payload: {
+    data: { buttonId: 'submit', userId: '123' },
+    originalEventData: ['button', 'press', { x: 100, y: 200 }],
+  },
+};
+```
+
+### Mapplet Types
+
+#### `MappletType<State>`
+
+Represents the configuration interface for a Mapplet application. A Mapplet is a self-contained application that can be embedded or run standalone.
+
+```typescript
+interface MappletType<State extends object = object> {
+  state?: State; // Optional initial state object for the Mapplet
+  onAction?: (action: Action) => void; // Optional callback function to handle actions
+}
+```
+
+**Example:**
+
+```typescript
+import { MappletType, Action } from '@mapples/types';
+
+interface MyAppState {
+  user: { name: string; email: string };
+  settings: { theme: string };
+}
+
+const myMapplet: MappletType<MyAppState> = {
+  state: {
+    user: { name: 'John', email: 'john@example.com' },
+    settings: { theme: 'dark' },
+  },
+  onAction: (action: Action) => {
+    console.log('Mapplet action:', action);
+    // Handle analytics, logging, etc.
+  },
+};
+```
+
 ### Asset Types
 
 #### `AssetType`
@@ -348,6 +423,8 @@ const fontField: PropsFormField = {
 
 This types package is used throughout the Mapples ecosystem:
 
+- **@mapples/action**: Uses `Action` and `ActionPayload` types for action management
+- **@mapples/state**: Uses state-related types for state management
 - **@mapples/ui**: Uses `RegisteredComponent` and related types for component registration
 - **@mapples/form**: Uses `PropsFormField` and form-related types for property editing
 - **@mapples/style**: Uses `StyleKey` and `StyleFormType` for styling configuration
