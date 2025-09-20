@@ -1,5 +1,11 @@
 # @mapples/ui
 
+## 1.0.1
+
+### Patch Changes
+
+- d04a2d6: fix(ui): resolve types issue after update
+
 ## 1.0.0
 
 ### Major Changes

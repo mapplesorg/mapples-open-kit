@@ -1,5 +1,11 @@
 # @mapples/state
 
+## 1.0.1
+
+### Patch Changes
+
+- d04a2d6: refactor(state): make state prop optional
+
 ## 1.0.0
 
 ### Major Changes
