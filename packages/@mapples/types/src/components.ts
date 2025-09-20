@@ -1,7 +1,5 @@
 import { ComponentType, PropsWithChildren } from 'react';
 
-import { SvgProps } from 'react-native-svg';
-
 /**
  * Represents a registered component in the Mapples component system.
  * This interface defines all the metadata and configuration needed to register

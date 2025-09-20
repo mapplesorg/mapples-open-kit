@@ -17,7 +17,7 @@
  *   };
  *
  *   return (
- *     <StateProvider value={appState}>
+ *     <StateProvider state={appState}>
  *       <MyComponent />
  *     </StateProvider>
  *   );

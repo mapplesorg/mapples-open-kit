@@ -5,7 +5,7 @@ A lightweight and efficient state management solution for React and React Native
 ## Features
 
 - 🚀 **Simple API** - Easy to use with minimal boilerplate
-- 📦 **Lightweight** - Small bundle size with no external dependencies
+- 📦 **Lightweight** - Small bundle size with minimal external dependencies
 - 🔄 **React Context** - Built on React's built-in context system
 - 🎯 **TypeScript** - Full TypeScript support with comprehensive type definitions
 - 🧩 **Flexible** - Works with any data structure and supports complex key patterns
@@ -18,6 +18,14 @@ npm install @mapples/state
 # or
 yarn add @mapples/state
 ```
+
+## Dependencies
+
+This package has the following dependencies:
+
+- **lodash** (^4.17.21) - Used for object manipulation and utility functions
+- **react** (>=18.0.0 <20.0.0) - Peer dependency for React Context
+- **react-native** (>=0.71.0) - Peer dependency for React Native support
 
 ## Quick Start
 
