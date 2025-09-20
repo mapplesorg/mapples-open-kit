@@ -1,9 +1,10 @@
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
 
+import { Action } from '@mapples/types';
 import { Subject } from 'rxjs';
 
 import { ActionContextProvider } from './context';
-import { Action, ActionProviderProps } from './types';
+import { ActionProviderProps } from './types';
 
 /**
  * ActionProvider component that manages the action store and provides it to child components.
