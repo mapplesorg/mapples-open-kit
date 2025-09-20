@@ -1,7 +1,7 @@
 import { FC, PropsWithChildren } from 'react';
 
 import { StateContextProvider } from './context';
-import { StateContextType } from './types';
+import { StateProviderProps } from './types';
 
 /**
  * State provider component that makes state data available to child components.
@@ -12,7 +12,7 @@ import { StateContextType } from './types';
  *
  * @param props - The component props
  * @param props.children - Child components that will have access to the state
- * @param props.value - The state object to provide to child components
+ * @param props.state - The state object to provide to child components
  *
  * @example
  * ```tsx
@@ -30,12 +30,14 @@ import { StateContextType } from './types';
  * };
  * ```
  */
-const StateProvider: FC<PropsWithChildren & StateContextType> = ({
+const StateProvider: FC<PropsWithChildren<StateProviderProps>> = ({
   children,
-  value,
+  state,
 }) => {
   return (
-    <StateContextProvider value={{ value }}>{children}</StateContextProvider>
+    <StateContextProvider value={{ value: state || {} }}>
+      {children}
+    </StateContextProvider>
   );
 };
 

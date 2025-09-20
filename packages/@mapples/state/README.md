@@ -24,7 +24,7 @@ yarn add @mapples/state
 ### 1. Wrap your app with StateProvider
 
 ```tsx
-import { StateProvider } from '@mapples/state';
+import StateProvider from '@mapples/state';
 
 const App = () => {
   const appState = {
@@ -43,7 +43,7 @@ const App = () => {
   };
 
   return (
-    <StateProvider value={appState}>
+    <StateProvider state={appState}>
       <MyComponent />
     </StateProvider>
   );
@@ -82,13 +82,13 @@ The main provider component that makes state available to child components.
 
 | Prop       | Type        | Description                                         |
 | ---------- | ----------- | --------------------------------------------------- |
-| `value`    | `object`    | The state object to provide to child components     |
+| `state`    | `object`    | The state object to provide to child components     |
 | `children` | `ReactNode` | Child components that will have access to the state |
 
 #### Example
 
 ```tsx
-<StateProvider value={{ user: { name: 'John' } }}>
+<StateProvider state={{ user: { name: 'John' } }}>
   <App />
 </StateProvider>
 ```
@@ -222,7 +222,7 @@ const UserCard = () => {
 
 ### Dynamic State Updates
 
-Since the state is provided through React Context, you can update it by changing the `value` prop of `StateProvider`:
+Since the state is provided through React Context, you can update it by changing the `state` prop of `StateProvider`:
 
 ```tsx
 const App = () => {
@@ -239,7 +239,7 @@ const App = () => {
   };
 
   return (
-    <StateProvider value={appState}>
+    <StateProvider state={appState}>
       <UserForm onUpdate={updateUser} />
     </StateProvider>
   );
@@ -300,7 +300,7 @@ const apiUrl = getValue({ key: 'config.api.baseUrl', active: true });
 The package includes comprehensive TypeScript definitions:
 
 ```tsx
-import { StateProvider, useDataState, useDataProps } from '@mapples/state';
+import StateProvider, { useDataState, useDataProps } from '@mapples/state';
 
 // StateProvider is fully typed
 const App: React.FC = () => {
@@ -309,7 +309,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <StateProvider value={state}>
+    <StateProvider state={state}>
       <MyComponent />
     </StateProvider>
   );
