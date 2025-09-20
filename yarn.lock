@@ -3035,6 +3035,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@mapples/state@workspace:packages/@mapples/state"
   dependencies:
+    lodash: "npm:^4.17.21"
     typescript: "npm:~5.8.3"
   peerDependencies:
     react: ">=18.0.0 <20.0.0"
