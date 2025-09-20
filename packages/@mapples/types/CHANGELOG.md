@@ -1,5 +1,11 @@
 # @mapples/types
 
+## 1.1.0
+
+### Minor Changes
+
+- d04a2d6: feat(types): introduce new mapplet type
+
 ## 1.0.0
 
 ### Major Changes

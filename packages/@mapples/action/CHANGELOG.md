@@ -1,5 +1,11 @@
 # @mapples/action
 
+## 1.1.0
+
+### Minor Changes
+
+- d04a2d6: chore(action): migrate action type to global types
+
 ## 1.0.0
 
 ### Major Changes
