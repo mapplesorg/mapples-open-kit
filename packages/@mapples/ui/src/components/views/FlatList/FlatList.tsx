@@ -31,7 +31,7 @@ const FlatListComponent = forwardRef(
     const renderItem: ListRenderItem<any> = ({ item }) => {
       return (
         <Fragment>
-          <StateProvider value={item}>{children}</StateProvider>
+          <StateProvider state={item}>{children}</StateProvider>
         </Fragment>
       );
     };

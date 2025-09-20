@@ -34,7 +34,7 @@ Wrap your app with the `ActionProvider` to enable action tracking:
 
 ```tsx
 import React from 'react';
-import { ActionProvider } from '@mapples/action';
+import ActionProvider from '@mapples/action';
 
 function App() {
   const handleAction = (action) => {
