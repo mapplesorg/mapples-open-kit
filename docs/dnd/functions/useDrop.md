@@ -1,0 +1,92 @@
+[**@mapples/dnd**](../README.md)
+
+***
+
+[@mapples/dnd](../globals.md) / useDrop
+
+# Function: useDrop()
+
+> **useDrop**\<`DragData`, `DropData`\>(`ref`, `config?`, `data?`): `object`
+
+Defined in: [hooks/useDrop.ts:24](https://github.com/mapplesorg/mapples-open-kit/blob/7269e2f3db19cefc33c161be49fb467b233e4994/packages/@mapples/dnd/src/hooks/useDrop.ts#L24)
+
+Hook that makes a view a drop target within the drag and drop system.
+This hook registers the view as a drop target and tracks drop state.
+
+## Type Parameters
+
+### DragData
+
+`DragData` *extends* `object`
+
+The type of data being dragged
+
+### DropData
+
+`DropData` *extends* `object` = `DragData`
+
+The type of data for drop targets (defaults to DragData)
+
+## Parameters
+
+### ref
+
+`RefObject`\<`null` \| `View`\>
+
+Reference to the view element that should be a drop target
+
+### config?
+
+[`DropTargetConfig`](../interfaces/DropTargetConfig.md)
+
+Optional configuration for the drop target behavior
+
+### data?
+
+`DropData`
+
+Optional data associated with this drop target
+
+## Returns
+
+Object containing drop state and utilities
+
+### dropTarget
+
+> **dropTarget**: `null` \| [`DropTarget`](../interfaces/DropTarget.md)\<`DropData`\>
+
+The current drop target information
+
+### dropTargetIndex
+
+> **dropTargetIndex**: `null` \| `number`
+
+The index position within the drop target
+
+### id
+
+> **id**: `null` \| `number`
+
+The unique ID of the drop element
+
+### isDragging
+
+> **isDragging**: `boolean`
+
+Whether any drag operation is currently active
+
+### isOver
+
+> **isOver**: `boolean`
+
+Whether a drag is currently over this drop target
+
+### updateLayout()
+
+> **updateLayout**: () => `void`
+
+Function to update the element's layout information
+
+#### Returns
+
+`void`
