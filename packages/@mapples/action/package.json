@@ -27,8 +27,8 @@
     "react-native": ">=0.71.0"
   },
   "devDependencies": {
-    "@types/react": "~19.0.10",
-    "typescript": "~5.8.3"
+    "@types/react": ">=18.0.0 <20.0.0",
+    "typescript": "~5.9.2"
   },
   "files": [
     "dist",
