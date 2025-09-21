@@ -1,0 +1,55 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "packages/@mapples/types/src/index.ts"
+  ],
+  "out": "docs/types",
+  "theme": "default",
+  "name": "Mapples Open Kit - Types",
+  "readme": "README.md",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Variable",
+    "Function",
+    "Accessor"
+  ],
+  "plugin": ["typedoc-plugin-markdown"],
+  "hidePageHeader": false,
+  "hideBreadcrumbs": false,
+  "flattenOutputFiles": false,
+  "fileExtension": ".md",
+  "indexFormat": "table",
+  "enumMembersFormat": "table",
+  "typeDeclarationFormat": "table",
+  "parametersFormat": "table",
+  "propertiesFormat": "table",
+  "groupOrder": "alphabetical",
+  "sortEntryPoints": "alphabetical",
+  "visibilityFilters": {
+    "protected": false,
+    "private": false,
+    "inherited": true,
+    "external": false
+  },
+  "searchInComments": true,
+  "cleanOutputDir": true,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  }
+}

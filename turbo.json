@@ -26,6 +26,9 @@
     },
     "format:check": {
       "outputs": []
+    },
+    "docs": {
+      "outputs": ["docs/**"]
     }
   }
 }
