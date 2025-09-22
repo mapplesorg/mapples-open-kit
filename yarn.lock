@@ -6930,9 +6930,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-image@npm:~2.4.0":
-  version: 2.4.0
-  resolution: "expo-image@npm:2.4.0"
+"expo-image@npm:~3.0.8":
+  version: 3.0.8
+  resolution: "expo-image@npm:3.0.8"
   peerDependencies:
     expo: "*"
     react: "*"
@@ -6941,7 +6941,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-web:
       optional: true
-  checksum: 10c0/820499d8ce633566ee07ff75f0d90f205c59ad1dd67135ada54ccf453c65227eaf95158be9327bac290bcb829b030bed65f7f5d7faf9e78cafafd76c92223ef8
+  checksum: 10c0/d02cedb90b45e6098f5ba064862d613ac95f27a9c0332cacbfb7138600565538ef5e5afa28c7b7f15867ea7e5fbbc8197fbeccce13605b9a8b92461ea5238ba0
   languageName: node
   linkType: hard
 
@@ -8956,7 +8956,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-prettier: "npm:^5.5.4"
     expo: "npm:~53.0.22"
-    expo-image: "npm:~2.4.0"
+    expo-image: "npm:~3.0.8"
     expo-router: "npm:~5.1.6"
     expo-video: "npm:~2.2.2"
     husky: "npm:^9.1.7"
