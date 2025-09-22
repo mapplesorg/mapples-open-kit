@@ -66,7 +66,7 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            packages/*/dist/
+            packages/@mapples/*/dist/
           retention-days: 1
 
   test:
