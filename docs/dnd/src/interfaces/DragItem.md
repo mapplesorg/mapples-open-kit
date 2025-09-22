@@ -6,7 +6,7 @@
 
 # Interface: DragItem\<T\>
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:88](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L88)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:88](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L88)
 
 Interface representing a draggable item with metadata and data.
 
@@ -24,7 +24,7 @@ The type of data associated with the drag item
 
 > **type**: `string`
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:90](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L90)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:90](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L90)
 
 The type identifier for the drag item
 
@@ -34,7 +34,7 @@ The type identifier for the drag item
 
 > **label**: `string`
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:92](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L92)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:92](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L92)
 
 The display label for the drag item
 
@@ -44,7 +44,7 @@ The display label for the drag item
 
 > `optional` **icon**: `FC`\<`SvgProps`\>
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:94](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L94)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:94](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L94)
 
 Optional icon component for the drag item
 
@@ -54,6 +54,6 @@ Optional icon component for the drag item
 
 > **data**: `T`
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:96](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L96)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:96](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L96)
 
 The data payload associated with the drag item

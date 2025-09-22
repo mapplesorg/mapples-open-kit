@@ -6,7 +6,7 @@
 
 # Interface: MappletType\<State\>
 
-Defined in: [packages/@mapples/types/src/mapplet.ts:32](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/types/src/mapplet.ts#L32)
+Defined in: [packages/@mapples/types/src/mapplet.ts:32](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/types/src/mapplet.ts#L32)
 
 Represents the configuration interface for a Mapplet application.
 A Mapplet is a self-contained application that can be embedded or run standalone.
@@ -47,7 +47,7 @@ The type of the application state (must extend object)
 
 > `optional` **state**: `State`
 
-Defined in: [packages/@mapples/types/src/mapplet.ts:34](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/types/src/mapplet.ts#L34)
+Defined in: [packages/@mapples/types/src/mapplet.ts:34](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/types/src/mapplet.ts#L34)
 
 Optional initial state object for the Mapplet
 
@@ -57,7 +57,7 @@ Optional initial state object for the Mapplet
 
 > `optional` **onAction**: (`action`) => `void`
 
-Defined in: [packages/@mapples/types/src/mapplet.ts:36](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/types/src/mapplet.ts#L36)
+Defined in: [packages/@mapples/types/src/mapplet.ts:36](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/types/src/mapplet.ts#L36)
 
 Optional callback function to handle actions emitted by the Mapplet
 

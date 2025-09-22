@@ -8,7 +8,7 @@
 
 > `const` **RenderProvider**: `FC`\<`PropsWithChildren`\<[`RenderContextType`](../interfaces/RenderContextType.md)\>\>
 
-Defined in: [packages/@mapples/render/src/components/RenderProvider.tsx:32](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/render/src/components/RenderProvider.tsx#L32)
+Defined in: [packages/@mapples/render/src/components/RenderProvider.tsx:32](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/render/src/components/RenderProvider.tsx#L32)
 
 Provider component that makes registered components available to the render system.
 

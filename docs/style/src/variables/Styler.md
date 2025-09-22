@@ -8,7 +8,7 @@
 
 > `const` **Styler**: `object`
 
-Defined in: [packages/@mapples/style/src/utils/style.ts:96](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/utils/style.ts#L96)
+Defined in: [packages/@mapples/style/src/utils/style.ts:96](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/utils/style.ts#L96)
 
 Styler utility object providing style creation and management functions.
 

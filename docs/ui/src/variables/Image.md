@@ -8,7 +8,7 @@
 
 > `const` **Image**: `ForwardRefExoticComponent`\<`Omit`\<[`WithStyledProps`](../../../style/src/type-aliases/WithStyledProps.md)\<`ImageProps`\>, `"styled"`\> & `object` & `object` & `RefAttributes`\<`unknown`\>\>
 
-Defined in: [packages/@mapples/ui/src/components/media/Image/Image.tsx:59](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/ui/src/components/media/Image/Image.tsx#L59)
+Defined in: [packages/@mapples/ui/src/components/media/Image/Image.tsx:59](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/ui/src/components/media/Image/Image.tsx#L59)
 
 A customizable image component with built-in styling support.
 

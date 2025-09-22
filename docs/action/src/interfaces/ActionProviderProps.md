@@ -6,7 +6,7 @@
 
 # Interface: ActionProviderProps
 
-Defined in: [packages/@mapples/action/src/types.ts:20](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/action/src/types.ts#L20)
+Defined in: [packages/@mapples/action/src/types.ts:20](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/action/src/types.ts#L20)
 
 Props for the ActionProvider component.
 
@@ -18,7 +18,7 @@ Props for the ActionProvider component.
 
 > `optional` **onAction**: (`action`) => `void`
 
-Defined in: [packages/@mapples/action/src/types.ts:22](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/action/src/types.ts#L22)
+Defined in: [packages/@mapples/action/src/types.ts:22](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/action/src/types.ts#L22)
 
 Callback function that will be called whenever an action is emitted
 

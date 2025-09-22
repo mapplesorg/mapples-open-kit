@@ -8,7 +8,7 @@
 
 > **useFormFieldToggle**(`fieldPath`): `object`
 
-Defined in: [packages/@mapples/form/src/hooks/useFormFieldToggle.ts:32](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/form/src/hooks/useFormFieldToggle.ts#L32)
+Defined in: [packages/@mapples/form/src/hooks/useFormFieldToggle.ts:32](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/form/src/hooks/useFormFieldToggle.ts#L32)
 
 Hook to manage boolean toggle fields.
 This hook provides a simple way to handle boolean fields with toggle functionality.

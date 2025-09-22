@@ -8,7 +8,7 @@
 
 > **isColorString**(`color`): color is \`rgb($\{number\}, $\{number\}, $\{number\})\` \| \`rgba($\{number\}, $\{number\}, $\{number\}, $\{number\})\` \| \`#$\{string\}\`
 
-Defined in: [packages/@mapples/style/src/utils/system.ts:139](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/utils/system.ts#L139)
+Defined in: [packages/@mapples/style/src/utils/system.ts:139](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/utils/system.ts#L139)
 
 Type guard to check if a value is a valid color string (RGB, RGBA, or HEX).
 

@@ -8,7 +8,7 @@
 
 > **Render**(`props`): `Element`
 
-Defined in: [packages/@mapples/render/src/components/Render.tsx:50](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/render/src/components/Render.tsx#L50)
+Defined in: [packages/@mapples/render/src/components/Render.tsx:50](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/render/src/components/Render.tsx#L50)
 
 Main render component that renders a component tree from a root component definition.
 

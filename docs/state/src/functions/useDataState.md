@@ -8,7 +8,7 @@
 
 > **useDataState**(): `object`
 
-Defined in: [packages/@mapples/state/src/hooks/useDataState.ts:34](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/state/src/hooks/useDataState.ts#L34)
+Defined in: [packages/@mapples/state/src/hooks/useDataState.ts:34](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/state/src/hooks/useDataState.ts#L34)
 
 Hook for accessing and retrieving values from the application state.
 

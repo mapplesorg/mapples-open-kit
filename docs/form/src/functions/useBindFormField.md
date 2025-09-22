@@ -8,7 +8,7 @@
 
 > **useBindFormField**\<`T`\>(`fieldPath`, `fallBackPath?`, `fallbackValue?`, `subscribe?`): `object`
 
-Defined in: [packages/@mapples/form/src/hooks/useBindFormField.ts:39](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/form/src/hooks/useBindFormField.ts#L39)
+Defined in: [packages/@mapples/form/src/hooks/useBindFormField.ts:39](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/form/src/hooks/useBindFormField.ts#L39)
 
 Hook to bind a form field with optional fallback path synchronization.
 This hook is similar to useFormField but allows binding a field to a fallback path,

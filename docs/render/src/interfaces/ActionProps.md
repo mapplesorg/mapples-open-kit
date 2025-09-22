@@ -6,7 +6,7 @@
 
 # Interface: ActionProps
 
-Defined in: [packages/@mapples/render/src/types/index.ts:25](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/render/src/types/index.ts#L25)
+Defined in: [packages/@mapples/render/src/types/index.ts:25](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/render/src/types/index.ts#L25)
 
 Configuration for action properties that define component interactions.
 
@@ -18,7 +18,7 @@ Configuration for action properties that define component interactions.
 
 > `optional` **type**: `string`
 
-Defined in: [packages/@mapples/render/src/types/index.ts:26](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/render/src/types/index.ts#L26)
+Defined in: [packages/@mapples/render/src/types/index.ts:26](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/render/src/types/index.ts#L26)
 
 The type of action to perform
 
@@ -28,6 +28,6 @@ The type of action to perform
 
 > `optional` **dataProp**: `string`
 
-Defined in: [packages/@mapples/render/src/types/index.ts:27](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/render/src/types/index.ts#L27)
+Defined in: [packages/@mapples/render/src/types/index.ts:27](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/render/src/types/index.ts#L27)
 
 The data property key to bind to this action

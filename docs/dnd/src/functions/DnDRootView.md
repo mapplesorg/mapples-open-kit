@@ -8,7 +8,7 @@
 
 > **DnDRootView**\<`T`\>(`props`): `Element`
 
-Defined in: [packages/@mapples/dnd/src/components/DnDRootView.tsx:30](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/components/DnDRootView.tsx#L30)
+Defined in: [packages/@mapples/dnd/src/components/DnDRootView.tsx:30](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/components/DnDRootView.tsx#L30)
 
 Root component that provides drag and drop functionality to its children.
 This component sets up the gesture handling, context, and monitor for the entire drag and drop system.

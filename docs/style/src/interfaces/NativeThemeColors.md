@@ -6,7 +6,7 @@
 
 # Interface: NativeThemeColors
 
-Defined in: [packages/@mapples/style/src/types/system.ts:13](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/system.ts#L13)
+Defined in: [packages/@mapples/style/src/types/system.ts:13](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/system.ts#L13)
 
 React Navigation theme colors interface.
 Defines the color properties used by React Navigation components.
@@ -17,7 +17,7 @@ Defines the color properties used by React Navigation components.
 
 > **primary**: `string`
 
-Defined in: [packages/@mapples/style/src/types/system.ts:15](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/system.ts#L15)
+Defined in: [packages/@mapples/style/src/types/system.ts:15](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/system.ts#L15)
 
 Primary color for navigation elements
 
@@ -27,7 +27,7 @@ Primary color for navigation elements
 
 > **background**: `string`
 
-Defined in: [packages/@mapples/style/src/types/system.ts:17](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/system.ts#L17)
+Defined in: [packages/@mapples/style/src/types/system.ts:17](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/system.ts#L17)
 
 Background color for navigation screens
 
@@ -37,7 +37,7 @@ Background color for navigation screens
 
 > **card**: `string`
 
-Defined in: [packages/@mapples/style/src/types/system.ts:19](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/system.ts#L19)
+Defined in: [packages/@mapples/style/src/types/system.ts:19](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/system.ts#L19)
 
 Card background color
 
@@ -47,7 +47,7 @@ Card background color
 
 > **text**: `string`
 
-Defined in: [packages/@mapples/style/src/types/system.ts:21](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/system.ts#L21)
+Defined in: [packages/@mapples/style/src/types/system.ts:21](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/system.ts#L21)
 
 Text color for navigation elements
 
@@ -57,7 +57,7 @@ Text color for navigation elements
 
 > **border**: `string`
 
-Defined in: [packages/@mapples/style/src/types/system.ts:23](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/system.ts#L23)
+Defined in: [packages/@mapples/style/src/types/system.ts:23](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/system.ts#L23)
 
 Border color for navigation elements
 
@@ -67,6 +67,6 @@ Border color for navigation elements
 
 > **notification**: `string`
 
-Defined in: [packages/@mapples/style/src/types/system.ts:25](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/system.ts#L25)
+Defined in: [packages/@mapples/style/src/types/system.ts:25](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/system.ts#L25)
 
 Notification badge color

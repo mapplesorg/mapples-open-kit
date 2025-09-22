@@ -8,7 +8,7 @@
 
 > **filterEvents**(...`events`): \<`DragTarget`, `DropTarget`\>(`event`) => `boolean`
 
-Defined in: [packages/@mapples/dnd/src/utils/index.ts:14](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/utils/index.ts#L14)
+Defined in: [packages/@mapples/dnd/src/utils/index.ts:14](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/utils/index.ts#L14)
 
 Creates a filter function for drag and drop events.
 This utility function returns a predicate that checks if an event matches any of the specified event types.

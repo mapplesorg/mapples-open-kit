@@ -8,6 +8,6 @@
 
 > **MultiplyValue** = `` `*${number}` ``
 
-Defined in: [packages/@mapples/style/src/types/sizing.ts:4](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/sizing.ts#L4)
+Defined in: [packages/@mapples/style/src/types/sizing.ts:4](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/sizing.ts#L4)
 
 Multiplier value format: `*number` (e.g., `*2` for 2 times base size)

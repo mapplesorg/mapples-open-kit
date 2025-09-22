@@ -8,7 +8,7 @@
 
 > **DragCoords** = `object`
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:56](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L56)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:56](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L56)
 
 Type representing the coordinates of a drag operation.
 
@@ -18,7 +18,7 @@ Type representing the coordinates of a drag operation.
 
 > **x**: `number`
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:58](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L58)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:58](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L58)
 
 The x-coordinate
 
@@ -28,6 +28,6 @@ The x-coordinate
 
 > **y**: `number`
 
-Defined in: [packages/@mapples/dnd/src/types/index.ts:60](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/types/index.ts#L60)
+Defined in: [packages/@mapples/dnd/src/types/index.ts:60](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/dnd/src/types/index.ts#L60)
 
 The y-coordinate

@@ -6,7 +6,7 @@
 
 # Interface: SizingConfig
 
-Defined in: [packages/@mapples/style/src/types/sizing.ts:24](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/sizing.ts#L24)
+Defined in: [packages/@mapples/style/src/types/sizing.ts:24](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/sizing.ts#L24)
 
 Sizing configuration for consistent spacing and sizing across the application.
 Defines base size and sizing scale for components.
@@ -17,7 +17,7 @@ Defines base size and sizing scale for components.
 
 > **base**: `number`
 
-Defined in: [packages/@mapples/style/src/types/sizing.ts:26](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/sizing.ts#L26)
+Defined in: [packages/@mapples/style/src/types/sizing.ts:26](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/sizing.ts#L26)
 
 Base size value used for calculations and multipliers
 
@@ -27,6 +27,6 @@ Base size value used for calculations and multipliers
 
 > **sizing**: [`SizingMap`](SizingMap.md)
 
-Defined in: [packages/@mapples/style/src/types/sizing.ts:28](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/sizing.ts#L28)
+Defined in: [packages/@mapples/style/src/types/sizing.ts:28](https://github.com/mapplesorg/mapples-open-kit/blob/940ecb2c1a584fde5076b098ca4233efd1dc453b/packages/@mapples/style/src/types/sizing.ts#L28)
 
 Map of size names to their corresponding values
