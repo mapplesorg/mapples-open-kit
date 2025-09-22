@@ -36,7 +36,7 @@
     "expo-video": "~2.2.2",
     "i18next": "^25.1.1",
     "lodash": "^4.17.21",
-    "react": "19.0.0",
+    "react": "19.1.1",
     "react-i18next": "^15.5.1",
     "react-native": "0.79.5",
     "react-native-gesture-handler": "~2.24.0",
@@ -54,7 +54,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.9",
     "@types/lodash": "^4.17.16",
-    "@types/react": "~19.0.10",
+    "@types/react": "~19.1.13",
     "eslint": "^9.25.0",
     "eslint-config-expo": "^10.0.0",
     "eslint-config-prettier": "^10.1.8",
