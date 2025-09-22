@@ -34,7 +34,7 @@
     "expo-image": "~2.4.0",
     "expo-router": "~5.1.6",
     "expo-video": "~2.2.2",
-    "i18next": "^25.1.1",
+    "i18next": "^25.5.2",
     "lodash": "^4.17.21",
     "react": "19.0.0",
     "react-i18next": "^15.5.1",

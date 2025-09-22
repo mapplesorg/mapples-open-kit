@@ -7788,9 +7788,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:^25.1.1":
-  version: 25.5.1
-  resolution: "i18next@npm:25.5.1"
+"i18next@npm:^25.5.2":
+  version: 25.5.2
+  resolution: "i18next@npm:25.5.2"
   dependencies:
     "@babel/runtime": "npm:^7.27.6"
   peerDependencies:
@@ -7798,7 +7798,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/56d35a709356676e72d2ddf7c45f88ccffef27c240a7578428b3692ac3d43368aadb75b06a1a58903ce8eb7e1e0353fb692e94d0f76ca6c8deb69c7a15fca23c
+  checksum: 10c0/25db34d17e8f11f0cd52d9ddc9c2e5942800aaaa20d0f40563aa1c50e958abd553d82ab3acf2b50ed46530c8d5cf0d5d5ccaf4d75df660c96083f78c83553438
   languageName: node
   linkType: hard
 
@@ -8960,7 +8960,7 @@ __metadata:
     expo-router: "npm:~5.1.6"
     expo-video: "npm:~2.2.2"
     husky: "npm:^9.1.7"
-    i18next: "npm:^25.1.1"
+    i18next: "npm:^25.5.2"
     lint-staged: "npm:^16.1.6"
     lodash: "npm:^4.17.21"
     prettier: "npm:^3.6.2"
