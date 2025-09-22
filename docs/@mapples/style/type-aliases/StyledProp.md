@@ -1,0 +1,20 @@
+[**Mapples Open Kit - Types**](../../../README.md)
+
+***
+
+[Mapples Open Kit - Types](../../../packages.md) / [@mapples/style](../README.md) / StyledProp
+
+# Type Alias: StyledProp\<T\>
+
+> **StyledProp**\<`T`\> = `StyleProp`\<[`SizableStyleProps`](SizableStyleProps.md)\<`T`\>\>
+
+Defined in: [types/style.ts:20](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/style.ts#L20)
+
+Enhanced style prop that supports sizing values and theme interpolation.
+Extends React Native's StyleProp with sizing and theme capabilities.
+
+## Type Parameters
+
+### T
+
+`T`
