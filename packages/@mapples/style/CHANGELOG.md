@@ -1,5 +1,11 @@
 # @mapples/style
 
+## 1.0.1
+
+### Patch Changes
+
+- 09b7fd9: chore: bump version
+
 ## 1.0.0
 
 ### Major Changes
