@@ -1,5 +1,11 @@
 # @mapples/types
 
+## 1.0.2
+
+### Patch Changes
+
+- e9657a1: chore:sync versions
+
 ## 1.0.1
 
 ### Patch Changes
