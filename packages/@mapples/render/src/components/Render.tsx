@@ -10,8 +10,6 @@ import RenderComponent from './RenderComponent';
  * RenderComponent implementation.
  *
  * @param {RenderProps} props - The render props
- * @param {RenderComponentType} props.root - The root component to render
- * @param {FC<RenderComponentType>} [props.CustomRenderComponent] - Optional custom render component
  *
  * @example
  * ```tsx

@@ -1,13 +1,13 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
 import { StyledPressable } from '@mapples/style';
-import { PressableProps, View } from 'react-native';
+import { PressableProps as RNPressableProps, View } from 'react-native';
 
-export interface ButtonProps extends PressableProps {
+export interface PressableProps extends RNPressableProps {
   label?: string;
 }
 
-const Pressable = forwardRef<View, PropsWithChildren<ButtonProps>>(
+const Pressable = forwardRef<View, PropsWithChildren<PressableProps>>(
   ({ label, children, ...props }, ref) => {
     return (
       <StyledPressable onPress={console.log} ref={ref} {...props}>

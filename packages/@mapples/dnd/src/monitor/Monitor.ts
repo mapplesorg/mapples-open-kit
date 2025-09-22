@@ -724,4 +724,5 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
   }
 }
 
+export { Monitor };
 export default Monitor;

@@ -1,1 +1,2 @@
-export { default as Monitor } from './Monitor';
+export { Monitor } from './Monitor';
+export { default } from './Monitor';

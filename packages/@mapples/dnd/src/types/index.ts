@@ -6,6 +6,8 @@ import { SvgProps } from 'react-native-svg';
 
 import { Monitor } from '../monitor';
 
+export { Monitor };
+
 /**
  * Enum representing the different types of drag and drop events.
  * @public

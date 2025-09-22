@@ -19,13 +19,6 @@ npm install @mapples/render
 yarn add @mapples/render
 ```
 
-## Peer Dependencies
-
-This package requires the following peer dependencies:
-
-- `react`: ~19.0.0
-- `react-native`: ~0.79.0
-
 ## Quick Start
 
 ### 1. Register Components

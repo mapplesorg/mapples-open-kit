@@ -23,15 +23,6 @@ npm install @mapples/ui
 yarn add @mapples/ui
 ```
 
-## Peer Dependencies
-
-This package requires the following peer dependencies:
-
-- `react`: ~19.0.0
-- `react-native`: ~0.79.0
-- `@mapples/style`: For styling support
-- `@mapples/types`: For TypeScript definitions
-
 ## Component Categories
 
 ### Views

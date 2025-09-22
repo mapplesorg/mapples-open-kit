@@ -1,5 +1,5 @@
 /** Breakpoint identifier type - can be predefined or custom string */
-type Breakpoint = 'mobile' | 'tablet' | 'desktop' | string;
+export type Breakpoint = 'mobile' | 'tablet' | 'desktop' | string;
 
 /**
  * Configuration for a single breakpoint with min and max width values.
