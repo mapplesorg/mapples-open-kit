@@ -1,0 +1,120 @@
+[**Mapples Open Kit - Types**](../../../README.md)
+
+***
+
+[Mapples Open Kit - Types](../../../modules.md) / [form/src](../README.md) / useFormField
+
+# Function: useFormField()
+
+> **useFormField**\<`T`\>(`fieldPath`, `fallbackValue?`, `subscribe?`): `object`
+
+Defined in: [packages/@mapples/form/src/hooks/useFormField.ts:38](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/form/src/hooks/useFormField.ts#L38)
+
+Hook to manage a single form field with value, validation, and touch state.
+This hook provides reactive access to a form field's value, errors, and touch state,
+along with methods to update the value and trigger validation.
+
+## Type Parameters
+
+### T
+
+`T`
+
+The type of the field value
+
+## Parameters
+
+### fieldPath
+
+`string`
+
+Dot notation path to the field (e.g., 'user.name')
+
+### fallbackValue?
+
+`T`
+
+Default value to use if field is undefined
+
+### subscribe?
+
+`boolean`
+
+Whether to subscribe to real-time value changes (default: true)
+
+## Returns
+
+`object`
+
+Object containing field value, error state, and control methods
+
+### value
+
+> **value**: `undefined` \| `T`
+
+### error
+
+> **error**: `undefined` \| `string`
+
+### errors
+
+> **errors**: `undefined` \| `ValidationError`[]
+
+### isTouched
+
+> **isTouched**: `boolean`
+
+### validate()
+
+> **validate**: () => `void`
+
+#### Returns
+
+`void`
+
+### touch()
+
+> **touch**: (`fieldName`) => `void`
+
+#### Parameters
+
+##### fieldName
+
+`string`
+
+#### Returns
+
+`void`
+
+### setValue()
+
+> **setValue**: (`newValue`) => `void` = `handleSetValue`
+
+#### Parameters
+
+##### newValue
+
+`T`
+
+#### Returns
+
+`void`
+
+## Example
+
+```tsx
+const NameField = () => {
+  const { value, error, isTouched, setValue, touch } = useFormField<string>('name', '');
+
+  return (
+    <div>
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={() => touch('name')}
+      />
+      {isTouched && error && <span className="error">{error}</span>}
+    </div>
+  );
+};
+```

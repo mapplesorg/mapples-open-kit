@@ -1,0 +1,48 @@
+[**Mapples Open Kit - Types**](../../../README.md)
+
+***
+
+[Mapples Open Kit - Types](../../../modules.md) / [dnd/src](../README.md) / filterEvents
+
+# Function: filterEvents()
+
+> **filterEvents**(...`events`): \<`DragTarget`, `DropTarget`\>(`event`) => `boolean`
+
+Defined in: [packages/@mapples/dnd/src/utils/index.ts:14](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/dnd/src/utils/index.ts#L14)
+
+Creates a filter function for drag and drop events.
+This utility function returns a predicate that checks if an event matches any of the specified event types.
+
+## Parameters
+
+### events
+
+...[`DnDEventType`](../enumerations/DnDEventType.md)[]
+
+The event types to filter for
+
+## Returns
+
+A predicate function that returns true if the event matches any of the specified types
+
+> \<`DragTarget`, `DropTarget`\>(`event`): `boolean`
+
+### Type Parameters
+
+#### DragTarget
+
+`DragTarget` *extends* `object`
+
+#### DropTarget
+
+`DropTarget` *extends* `object` = `DragTarget`
+
+### Parameters
+
+#### event
+
+[`DnDEvent`](../interfaces/DnDEvent.md)\<`DragTarget`, `DropTarget`\>
+
+### Returns
+
+`boolean`

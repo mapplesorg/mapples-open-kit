@@ -1,0 +1,158 @@
+[**Mapples Open Kit - Types**](../../../README.md)
+
+***
+
+[Mapples Open Kit - Types](../../../modules.md) / [form/src](../README.md) / useFormArrayField
+
+# Function: useFormArrayField()
+
+> **useFormArrayField**\<`T`\>(`fieldPath`, `fallbackValue?`): `object`
+
+Defined in: [packages/@mapples/form/src/hooks/useFormArrayField.ts:37](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/form/src/hooks/useFormArrayField.ts#L37)
+
+Hook to manage array fields with specialized array manipulation methods.
+This hook provides methods to add, remove, and manipulate array items in a form field.
+
+## Type Parameters
+
+### T
+
+`T`
+
+The type of items in the array
+
+## Parameters
+
+### fieldPath
+
+`string`
+
+Dot notation path to the array field
+
+### fallbackValue?
+
+`T`[]
+
+Default array value to use if field is undefined
+
+## Returns
+
+`object`
+
+Object containing array value and manipulation methods
+
+### value
+
+> **value**: `undefined` \| `T`[]
+
+### api
+
+> **api**: `object`
+
+#### api.push()
+
+> **push**: (`item`) => `void` = `fieldPush`
+
+##### Parameters
+
+###### item
+
+`T`
+
+##### Returns
+
+`void`
+
+#### api.dropLeft()
+
+> **dropLeft**: (`count?`) => `void` = `fieldDropLeft`
+
+##### Parameters
+
+###### count?
+
+`number`
+
+##### Returns
+
+`void`
+
+#### api.dropRight()
+
+> **dropRight**: (`count?`) => `void` = `fieldDropRight`
+
+##### Parameters
+
+###### count?
+
+`number`
+
+##### Returns
+
+`void`
+
+#### api.remove()
+
+> **remove**: (`index`) => `void` = `fieldRemove`
+
+##### Parameters
+
+###### index
+
+`number`
+
+##### Returns
+
+`void`
+
+#### api.paste()
+
+> **paste**: (`item`, `index`) => `void` = `fieldPaste`
+
+##### Parameters
+
+###### item
+
+`T`
+
+###### index
+
+`number`
+
+##### Returns
+
+`void`
+
+#### api.toggle()
+
+> **toggle**: (`item`) => `void` = `fieldToggle`
+
+##### Parameters
+
+###### item
+
+`T`
+
+##### Returns
+
+`void`
+
+## Example
+
+```tsx
+const TagsField = () => {
+  const { value, api } = useFormArrayField<string>('tags', []);
+
+  return (
+    <div>
+      {value.map((tag, index) => (
+        <div key={index}>
+          {tag}
+          <button onClick={() => api.remove(index)}>Remove</button>
+        </div>
+      ))}
+      <button onClick={() => api.push('New Tag')}>Add Tag</button>
+    </div>
+  );
+};
+```

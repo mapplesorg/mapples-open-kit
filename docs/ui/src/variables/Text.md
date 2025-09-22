@@ -1,0 +1,38 @@
+[**Mapples Open Kit - Types**](../../../README.md)
+
+***
+
+[Mapples Open Kit - Types](../../../modules.md) / [ui/src](../README.md) / Text
+
+# Variable: Text
+
+> `const` **Text**: `ForwardRefExoticComponent`\<`object` & `TextProps` & `object` & `object` & `RefAttributes`\<`unknown`\>\>
+
+Defined in: [packages/@mapples/ui/src/components/typography/Text/Text.tsx:49](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/ui/src/components/typography/Text/Text.tsx#L49)
+
+A customizable text component with built-in styling support.
+
+The Text component extends React Native's Text with additional styling
+capabilities through the @mapples/style system. It can display text content
+either through the `text` prop or as children.
+
+## Examples
+
+```tsx
+<Text
+  text="Hello World"
+  styled={{
+    style: {
+      fontSize: 18,
+      color: 'blue',
+      fontWeight: 'bold'
+    }
+  }}
+/>
+```
+
+```tsx
+<Text styled={{ style: { fontSize: 16, color: 'black' } }}>
+  This is text content as children
+</Text>
+```

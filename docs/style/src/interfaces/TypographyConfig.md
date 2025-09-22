@@ -1,0 +1,52 @@
+[**Mapples Open Kit - Types**](../../../README.md)
+
+***
+
+[Mapples Open Kit - Types](../../../modules.md) / [style/src](../README.md) / TypographyConfig
+
+# Interface: TypographyConfig
+
+Defined in: [packages/@mapples/style/src/types/typography.ts:10](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/typography.ts#L10)
+
+Typography configuration for consistent text styling across the application.
+Defines font family, default color, and typography variants.
+
+## Properties
+
+### fontFamily
+
+> **fontFamily**: `string`
+
+Defined in: [packages/@mapples/style/src/types/typography.ts:12](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/typography.ts#L12)
+
+Default font family to use for all typography variants
+
+***
+
+### color
+
+> **color**: `string`
+
+Defined in: [packages/@mapples/style/src/types/typography.ts:14](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/typography.ts#L14)
+
+Default text color for typography variants
+
+***
+
+### default
+
+> **default**: `string`
+
+Defined in: [packages/@mapples/style/src/types/typography.ts:16](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/typography.ts#L16)
+
+Default typography variant to use when no variant is specified
+
+***
+
+### typography
+
+> **typography**: [`TypographyMap`](../type-aliases/TypographyMap.md)
+
+Defined in: [packages/@mapples/style/src/types/typography.ts:18](https://github.com/mapplesorg/mapples-open-kit/blob/f8dd61e68dff17d513e02dca2868b3984ba36786/packages/@mapples/style/src/types/typography.ts#L18)
+
+Map of typography variants with their corresponding styles
