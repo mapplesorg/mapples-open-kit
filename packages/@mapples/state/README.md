@@ -19,17 +19,9 @@ npm install @mapples/state
 yarn add @mapples/state
 ```
 
-## Dependencies
-
-This package has the following dependencies:
-
-- **lodash** (^4.17.21) - Used for object manipulation and utility functions
-- **react** (>=18.0.0 <20.0.0) - Peer dependency for React Context
-- **react-native** (>=0.71.0) - Peer dependency for React Native support
-
 ## Quick Start
 
-### 1. Wrap your app with StateProvider
+### 1: Wrap your app with StateProvider
 
 ```tsx
 import StateProvider from '@mapples/state';
@@ -58,7 +50,7 @@ const App = () => {
 };
 ```
 
-### 2. Access state in components
+### 2: Access state in components
 
 ```tsx
 import { useDataState } from '@mapples/state';

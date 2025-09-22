@@ -18,14 +18,6 @@ npm install @mapples/action
 yarn add @mapples/action
 ```
 
-## Peer Dependencies
-
-This package requires the following peer dependencies:
-
-- `react`: ~19.0.0
-- `react-native`: ~0.79.0
-- `rxjs`: For observable functionality
-
 ## Usage
 
 ### Basic Setup
