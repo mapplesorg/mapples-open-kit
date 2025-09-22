@@ -1,6 +1,6 @@
 {
   "name": "@mapples/dnd",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A powerful and flexible drag and drop library for React Native applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
