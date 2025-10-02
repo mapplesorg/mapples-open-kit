@@ -6,7 +6,6 @@ import { DataProps, RegisteredComponents } from '@mapples/types';
  * A generic object type that can hold any key-value pairs.
  * Used for component props and other dynamic data structures.
  */
-
 export type AnyObject = Record<string, any>;
 
 /**
@@ -34,6 +33,12 @@ export interface ActionProps {
 export type ActionPropsMap = Partial<Record<string, ActionProps>>;
 
 /**
+ * A map of ref properties indexed by their names.
+ * Each entry has ref link in format ref(assetType:uuid:name)
+ */
+export type RefPropsMap = Partial<Record<string, string>>;
+
+/**
  * Represents a renderable component with all its configuration and children.
  * This is the core type used throughout the render system.
  *
@@ -56,6 +61,7 @@ export interface RenderComponentType {
   childComponents: ChildComponents;
   dataProps?: DataProps;
   actionProps?: ActionPropsMap;
+  refProps?: RefPropsMap;
 }
 
 /**

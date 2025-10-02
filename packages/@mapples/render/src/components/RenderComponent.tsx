@@ -46,6 +46,7 @@ const RenderComponent: FC<RenderComponentType> = ({
   props,
   dataProps,
   children,
+  refProps,
   childComponents,
 }) => {
   const { components } = useRender();
@@ -68,7 +69,7 @@ const RenderComponent: FC<RenderComponentType> = ({
   };
 
   return (
-    <Component {...props} {...propsWithData}>
+    <Component {...props} {...propsWithData} {...refProps}>
       {map(children, renderChildren)}
     </Component>
   );
