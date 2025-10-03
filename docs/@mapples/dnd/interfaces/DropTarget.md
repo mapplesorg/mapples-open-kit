@@ -6,7 +6,7 @@
 
 # Interface: DropTarget\<T\>
 
-Defined in: [types/index.ts:217](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L217)
+Defined in: [types/index.ts:217](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L217)
 
 Interface representing a drop target with all its properties.
 
@@ -24,7 +24,7 @@ The type of data associated with the drop target
 
 > **id**: `number`
 
-Defined in: [types/index.ts:219](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L219)
+Defined in: [types/index.ts:219](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L219)
 
 Unique identifier for the drop target
 
@@ -34,7 +34,7 @@ Unique identifier for the drop target
 
 > **layout**: [`LayoutPosition`](../type-aliases/LayoutPosition.md)
 
-Defined in: [types/index.ts:221](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L221)
+Defined in: [types/index.ts:221](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L221)
 
 Layout position and configuration
 
@@ -44,7 +44,7 @@ Layout position and configuration
 
 > **index**: `number`
 
-Defined in: [types/index.ts:223](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L223)
+Defined in: [types/index.ts:223](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L223)
 
 Index position within the parent
 
@@ -54,7 +54,7 @@ Index position within the parent
 
 > `optional` **canDrop**: `boolean`
 
-Defined in: [types/index.ts:225](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L225)
+Defined in: [types/index.ts:225](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L225)
 
 Whether this target can accept drops
 
@@ -64,7 +64,7 @@ Whether this target can accept drops
 
 > `optional` **children**: [`DropTree`](../type-aliases/DropTree.md)\<`T`\>
 
-Defined in: [types/index.ts:227](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L227)
+Defined in: [types/index.ts:227](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L227)
 
 Optional child drop targets
 
@@ -74,6 +74,6 @@ Optional child drop targets
 
 > `optional` **data**: `T`
 
-Defined in: [types/index.ts:229](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L229)
+Defined in: [types/index.ts:229](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L229)
 
 Optional data associated with this drop target

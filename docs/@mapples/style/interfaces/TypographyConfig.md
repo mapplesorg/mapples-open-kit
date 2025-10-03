@@ -6,7 +6,7 @@
 
 # Interface: TypographyConfig
 
-Defined in: [types/typography.ts:10](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/typography.ts#L10)
+Defined in: [types/typography.ts:10](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/typography.ts#L10)
 
 Typography configuration for consistent text styling across the application.
 Defines font family, default color, and typography variants.
@@ -17,7 +17,7 @@ Defines font family, default color, and typography variants.
 
 > **fontFamily**: `string`
 
-Defined in: [types/typography.ts:12](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/typography.ts#L12)
+Defined in: [types/typography.ts:12](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/typography.ts#L12)
 
 Default font family to use for all typography variants
 
@@ -27,7 +27,7 @@ Default font family to use for all typography variants
 
 > **color**: `string`
 
-Defined in: [types/typography.ts:14](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/typography.ts#L14)
+Defined in: [types/typography.ts:14](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/typography.ts#L14)
 
 Default text color for typography variants
 
@@ -37,7 +37,7 @@ Default text color for typography variants
 
 > **default**: `string`
 
-Defined in: [types/typography.ts:16](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/typography.ts#L16)
+Defined in: [types/typography.ts:16](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/typography.ts#L16)
 
 Default typography variant to use when no variant is specified
 
@@ -47,6 +47,6 @@ Default typography variant to use when no variant is specified
 
 > **typography**: [`TypographyMap`](../type-aliases/TypographyMap.md)
 
-Defined in: [types/typography.ts:18](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/typography.ts#L18)
+Defined in: [types/typography.ts:18](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/typography.ts#L18)
 
 Map of typography variants with their corresponding styles

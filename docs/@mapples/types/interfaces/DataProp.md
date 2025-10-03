@@ -6,7 +6,7 @@
 
 # Interface: DataProp
 
-Defined in: [components.ts:50](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/types/src/components.ts#L50)
+Defined in: [components.ts:52](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/types/src/components.ts#L52)
 
 Configuration for data properties that can be bound to components.
 
@@ -18,7 +18,7 @@ Configuration for data properties that can be bound to components.
 
 > **key**: `string`
 
-Defined in: [components.ts:51](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/types/src/components.ts#L51)
+Defined in: [components.ts:53](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/types/src/components.ts#L53)
 
 The key identifier for the data property
 
@@ -28,6 +28,6 @@ The key identifier for the data property
 
 > **active**: `boolean`
 
-Defined in: [components.ts:52](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/types/src/components.ts#L52)
+Defined in: [components.ts:54](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/types/src/components.ts#L54)
 
 Whether this data property is currently active

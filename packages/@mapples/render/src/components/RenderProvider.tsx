@@ -32,9 +32,10 @@ import { RenderContextType } from '../types';
 const RenderProvider: FC<PropsWithChildren<RenderContextType>> = ({
   components,
   children,
+  assets,
 }) => {
   return (
-    <RenderContextProvider value={{ components }}>
+    <RenderContextProvider value={{ components, assets }}>
       {children}
     </RenderContextProvider>
   );

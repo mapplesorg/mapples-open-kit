@@ -1,15 +1,16 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import { ComponentType, forwardRef, PropsWithChildren } from 'react';
 
 import {
-  styled,
+  styled as makeStyled,
   StyledProp,
   StyledProps,
   StyledView,
   Styler,
   WithStyledProps,
 } from '@mapples/style';
+import { SvgSource } from '@mapples/types';
 import { TextStyle, View, ViewProps } from 'react-native';
-import { SvgUri } from 'react-native-svg';
+import { SvgUri, SvgProps } from 'react-native-svg';
 
 import MockIcon from './MockIcon';
 
@@ -20,10 +21,10 @@ export type IconProps = PropsWithChildren<
     };
   }
 > & {
-  uri?: string;
+  uri?: string | SvgSource;
 };
 
-const StyledSvgUri = styled(SvgUri);
+const StyledSvgUri = makeStyled(SvgUri);
 
 const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
   ({ styled, uri, ...props }, ref) => {
@@ -31,18 +32,39 @@ const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
 
     const ejectStyle = Styler.flatten(styleSvg);
 
+    const getUriComponent = (Uri: { default: ComponentType<SvgProps> }) => {
+      const StyledSvg = makeStyled(Uri.default);
+
+      return (
+        <StyledSvg
+          styled={{
+            width: ejectStyle?.width as string | number,
+            height: ejectStyle?.height as string | number,
+            color: ejectStyle?.color,
+            style: styleSvg,
+          }}
+        />
+      );
+    };
+
     return (
       <StyledView ref={ref} styled={styledViewProps} {...props}>
         {uri ? (
-          <StyledSvgUri
-            uri={uri}
-            styled={{
-              width: ejectStyle?.width as string | number,
-              height: ejectStyle?.height as string | number,
-              color: ejectStyle?.color,
-              style: styleSvg,
-            }}
-          />
+          <>
+            {typeof uri === 'string' ? (
+              <StyledSvgUri
+                uri={uri}
+                styled={{
+                  width: ejectStyle?.width as string | number,
+                  height: ejectStyle?.height as string | number,
+                  color: ejectStyle?.color,
+                  style: styleSvg,
+                }}
+              />
+            ) : (
+              getUriComponent(uri)
+            )}
+          </>
         ) : (
           <MockIcon
             styled={{

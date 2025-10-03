@@ -4,6 +4,7 @@ import { useDataProps } from '@mapples/state';
 import { map } from 'lodash';
 
 import { useRender } from '../hooks';
+import useRefProps from '../hooks/useRefProps';
 import { RenderComponentType } from '../types';
 
 /**
@@ -46,10 +47,12 @@ const RenderComponent: FC<RenderComponentType> = ({
   props,
   dataProps,
   children,
+  refProps,
   childComponents,
 }) => {
   const { components } = useRender();
   const propsWithData = useDataProps(dataProps);
+  const resolvedRefProps = useRefProps(refProps);
 
   const Component = components[type as keyof typeof components].Component;
 
@@ -68,7 +71,7 @@ const RenderComponent: FC<RenderComponentType> = ({
   };
 
   return (
-    <Component {...props} {...propsWithData}>
+    <Component {...props} {...propsWithData} {...resolvedRefProps}>
       {map(children, renderChildren)}
     </Component>
   );

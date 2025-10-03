@@ -6,7 +6,7 @@
 
 # Interface: RenderContextType
 
-Defined in: [types/index.ts:90](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L90)
+Defined in: [types/index.ts:96](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L96)
 
 Context type for the render system.
 Provides access to registered components throughout the component tree.
@@ -19,6 +19,14 @@ Provides access to registered components throughout the component tree.
 
 > **components**: [`RegisteredComponents`](../../types/type-aliases/RegisteredComponents.md)
 
-Defined in: [types/index.ts:91](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L91)
+Defined in: [types/index.ts:97](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L97)
 
 Map of registered components available for rendering
+
+***
+
+### assets
+
+> **assets**: [`AnyObject`](../type-aliases/AnyObject.md)
+
+Defined in: [types/index.ts:98](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L98)

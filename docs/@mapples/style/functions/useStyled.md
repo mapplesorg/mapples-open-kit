@@ -8,7 +8,7 @@
 
 > **useStyled**\<`T`\>(`styled?`): `object`
 
-Defined in: [hooks/useStyled.ts:56](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/hooks/useStyled.ts#L56)
+Defined in: [hooks/useStyled.ts:56](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/hooks/useStyled.ts#L56)
 
 Hook to process styled objects with theme and sizing interpolation and responsive parsing.
 

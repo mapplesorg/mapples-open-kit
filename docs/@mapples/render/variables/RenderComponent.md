@@ -8,7 +8,7 @@
 
 > `const` **RenderComponent**: `FC`\<[`RenderComponentType`](../interfaces/RenderComponentType.md)\>
 
-Defined in: [components/RenderComponent.tsx:44](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/components/RenderComponent.tsx#L44)
+Defined in: [components/RenderComponent.tsx:45](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/components/RenderComponent.tsx#L45)
 
 Default implementation of a renderable component.
 

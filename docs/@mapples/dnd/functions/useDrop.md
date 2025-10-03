@@ -8,7 +8,7 @@
 
 > **useDrop**\<`DragData`, `DropData`\>(`ref`, `config?`, `data?`): `object`
 
-Defined in: [hooks/useDrop.ts:24](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/hooks/useDrop.ts#L24)
+Defined in: [hooks/useDrop.ts:24](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/hooks/useDrop.ts#L24)
 
 Hook that makes a view a drop target within the drag and drop system.
 This hook registers the view as a drop target and tracks drop state.

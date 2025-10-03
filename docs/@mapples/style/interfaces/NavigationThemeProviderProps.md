@@ -6,7 +6,7 @@
 
 # Interface: NavigationThemeProviderProps
 
-Defined in: [components/NavigationThemeProvider.tsx:16](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/NavigationThemeProvider.tsx#L16)
+Defined in: [components/NavigationThemeProvider.tsx:16](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/NavigationThemeProvider.tsx#L16)
 
 Props for the NavigationThemeProvider component.
 
@@ -16,6 +16,6 @@ Props for the NavigationThemeProvider component.
 
 > **themeColors**: `Partial`\<[`NativeThemeColors`](NativeThemeColors.md)\>
 
-Defined in: [components/NavigationThemeProvider.tsx:18](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/NavigationThemeProvider.tsx#L18)
+Defined in: [components/NavigationThemeProvider.tsx:18](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/NavigationThemeProvider.tsx#L18)
 
 Custom theme colors to override the default navigation theme colors

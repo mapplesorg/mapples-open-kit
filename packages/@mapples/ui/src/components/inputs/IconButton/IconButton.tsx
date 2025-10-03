@@ -1,6 +1,7 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import { ComponentType, forwardRef, PropsWithChildren } from 'react';
 
 import {
+  styled as makeStyled,
   styled,
   StyledPressable,
   StyledProp,
@@ -8,8 +9,9 @@ import {
   Styler,
   WithStyledProps,
 } from '@mapples/style';
+import { SvgSource } from '@mapples/types';
 import { PressableProps, TextStyle, View, ViewProps } from 'react-native';
-import { SvgUri } from 'react-native-svg';
+import { SvgProps, SvgUri } from 'react-native-svg';
 
 import MockIcon from './MockIcon';
 
@@ -28,7 +30,7 @@ export type IconProps = PropsWithChildren<
   }
 > & {
   /** URI for the SVG icon to display */
-  uri?: string;
+  uri?: string | SvgSource;
 };
 
 const StyledSvgUri = styled(SvgUri);
@@ -69,18 +71,39 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
 
     const ejectStyle = Styler.flatten(styleSvg);
 
+    const getUriComponent = (Uri: { default: ComponentType<SvgProps> }) => {
+      const StyledSvg = makeStyled(Uri.default);
+
+      return (
+        <StyledSvg
+          styled={{
+            width: ejectStyle?.width as string | number,
+            height: ejectStyle?.height as string | number,
+            color: ejectStyle?.color,
+            style: styleSvg,
+          }}
+        />
+      );
+    };
+
     return (
       <StyledPressable ref={ref} styled={styledViewProps} {...props}>
         {uri ? (
-          <StyledSvgUri
-            uri={uri}
-            styled={{
-              width: ejectStyle?.width as string | number,
-              height: ejectStyle?.height as string | number,
-              color: ejectStyle?.color,
-              style: styleSvg,
-            }}
-          />
+          <>
+            {typeof uri === 'string' ? (
+              <StyledSvgUri
+                uri={uri}
+                styled={{
+                  width: ejectStyle?.width as string | number,
+                  height: ejectStyle?.height as string | number,
+                  color: ejectStyle?.color,
+                  style: styleSvg,
+                }}
+              />
+            ) : (
+              getUriComponent(uri)
+            )}
+          </>
         ) : (
           <MockIcon
             styled={{

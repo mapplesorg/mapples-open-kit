@@ -6,7 +6,7 @@
 
 # Interface: ButtonProps
 
-Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:16](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L16)
+Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:16](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L16)
 
 Props for the Button component.
 
@@ -20,7 +20,7 @@ Props for the Button component.
 
 > `optional` **label**: `string`
 
-Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:18](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L18)
+Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:18](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L18)
 
 The text label to display on the button
 
@@ -30,7 +30,7 @@ The text label to display on the button
 
 > `optional` **styled**: [`StyledProps`](../../style/type-aliases/StyledProps.md)\<`PressableProps`\> & `object`
 
-Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:20](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L20)
+Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:20](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L20)
 
 Styling configuration for the button and its typography
 
@@ -48,6 +48,6 @@ Typography-specific styling for the button label
 
 > `optional` **typographyVariant**: `string`
 
-Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:25](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L25)
+Defined in: [packages/@mapples/ui/src/components/inputs/Button/Button.tsx:25](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/ui/src/components/inputs/Button/Button.tsx#L25)
 
 Typography variant to apply to the button label

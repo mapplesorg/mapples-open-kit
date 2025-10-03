@@ -465,6 +465,7 @@ MIT
 - [Action](interfaces/Action.md)
 - [RegisteredComponent](interfaces/RegisteredComponent.md)
 - [DataProp](interfaces/DataProp.md)
+- [SvgSource](interfaces/SvgSource.md)
 - [MappletType](interfaces/MappletType.md)
 
 ## Type Aliases

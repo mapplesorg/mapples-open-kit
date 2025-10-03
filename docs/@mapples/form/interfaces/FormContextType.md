@@ -6,7 +6,7 @@
 
 # Interface: FormContextType\<T\>
 
-Defined in: [types/index.ts:38](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L38)
+Defined in: [types/index.ts:38](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L38)
 
 Context type that provides form state and methods to child components.
 
@@ -24,7 +24,7 @@ The type of the form data object
 
 > **form**: `null` \| [`FormState`](../classes/FormState.md)\<`T`\>
 
-Defined in: [types/index.ts:40](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L40)
+Defined in: [types/index.ts:40](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L40)
 
 The form state instance containing all form data and methods
 
@@ -34,7 +34,7 @@ The form state instance containing all form data and methods
 
 > **touched**: `Record`\<keyof `T`, `boolean`\>
 
-Defined in: [types/index.ts:42](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L42)
+Defined in: [types/index.ts:42](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L42)
 
 Object tracking which fields have been touched by the user
 
@@ -44,7 +44,7 @@ Object tracking which fields have been touched by the user
 
 > **submitForm**: () => `void`
 
-Defined in: [types/index.ts:44](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L44)
+Defined in: [types/index.ts:44](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L44)
 
 Function to submit the form, triggering validation and onSubmit callback
 
@@ -58,7 +58,7 @@ Function to submit the form, triggering validation and onSubmit callback
 
 > **submitting**: `boolean`
 
-Defined in: [types/index.ts:46](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L46)
+Defined in: [types/index.ts:46](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L46)
 
 Boolean indicating if the form is currently being submitted
 
@@ -68,7 +68,7 @@ Boolean indicating if the form is currently being submitted
 
 > **validationErrors**: `null` \| `Record`\<`string`, `ValidationError`[]\>
 
-Defined in: [types/index.ts:48](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L48)
+Defined in: [types/index.ts:48](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L48)
 
 Validation errors organized by field path
 
@@ -78,7 +78,7 @@ Validation errors organized by field path
 
 > **validate**: () => `void`
 
-Defined in: [types/index.ts:50](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L50)
+Defined in: [types/index.ts:50](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L50)
 
 Function to validate the form without submitting
 
@@ -92,7 +92,7 @@ Function to validate the form without submitting
 
 > **touch**: (`fieldName`) => `void`
 
-Defined in: [types/index.ts:52](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/form/src/types/index.ts#L52)
+Defined in: [types/index.ts:52](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/form/src/types/index.ts#L52)
 
 Function to mark a specific field as touched
 

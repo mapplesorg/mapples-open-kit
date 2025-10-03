@@ -6,7 +6,7 @@
 
 # Interface: MonitorConfig
 
-Defined in: [types/index.ts:205](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L205)
+Defined in: [types/index.ts:205](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L205)
 
 Interface for configuring the drag and drop monitor.
 
@@ -16,7 +16,7 @@ Interface for configuring the drag and drop monitor.
 
 > **padding**: `number`
 
-Defined in: [types/index.ts:207](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L207)
+Defined in: [types/index.ts:207](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L207)
 
 Padding around drop targets for hit detection
 
@@ -26,6 +26,6 @@ Padding around drop targets for hit detection
 
 > `optional` **trackOutside**: `boolean`
 
-Defined in: [types/index.ts:209](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L209)
+Defined in: [types/index.ts:209](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L209)
 
 Whether to track drag operations outside the root element

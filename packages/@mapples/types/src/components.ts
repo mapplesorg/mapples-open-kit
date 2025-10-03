@@ -1,5 +1,7 @@
 import { ComponentType, PropsWithChildren } from 'react';
 
+import { SvgProps } from 'react-native-svg';
+
 /**
  * Represents a registered component in the Mapples component system.
  * This interface defines all the metadata and configuration needed to register
@@ -57,3 +59,7 @@ export interface DataProp {
  * Each entry contains configuration for binding data to components.
  */
 export type DataProps = Partial<Record<string, DataProp>>;
+
+export interface SvgSource {
+  default: ComponentType<SvgProps>;
+}

@@ -24,7 +24,10 @@ import {
  * @template DropData - The type of data for drop targets (defaults to DragData)
  * @public
  */
-class Monitor<DragData extends object, DropData extends object = DragData> {
+export class Monitor<
+  DragData extends object,
+  DropData extends object = DragData,
+> {
   /** Observable stream of drag and drop events */
   events = new Subject<DnDEvent<DragData, DropData>>();
 
@@ -723,6 +726,3 @@ class Monitor<DragData extends object, DropData extends object = DragData> {
     return null;
   }
 }
-
-export { Monitor };
-export default Monitor;
