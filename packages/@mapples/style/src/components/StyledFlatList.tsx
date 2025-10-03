@@ -1,4 +1,4 @@
-import { forwardRef, LegacyRef, ReactElement } from 'react';
+import { ForwardedRef, forwardRef, ReactElement, Ref } from 'react';
 
 import { FlatList, FlatListProps } from 'react-native';
 
@@ -48,7 +48,7 @@ export type StyledFlatListProps<T extends object> = FlatListProps<T> & {
 const StyledFlatListComponent = forwardRef(
   <T extends object>(
     { styled, ...props }: StyledFlatListProps<T>,
-    ref: LegacyRef<FlatList<T>>,
+    ref: ForwardedRef<FlatList<T>>,
   ) => {
     const styledProps = useStyled(styled);
 
@@ -58,7 +58,7 @@ const StyledFlatListComponent = forwardRef(
 StyledFlatListComponent.displayName = 'Styled(FlatList)';
 
 const StyledFlatList = StyledFlatListComponent as <T extends object>(
-  props: StyledFlatListProps<T> & { ref?: LegacyRef<FlatList<T>> },
+  props: StyledFlatListProps<T> & { ref?: Ref<FlatList<T>> },
 ) => ReactElement;
 
 export default StyledFlatList;
