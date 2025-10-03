@@ -1,5 +1,11 @@
 # @mapples/render
 
+## 1.0.0
+
+### Major Changes
+
+- 8763b36: Add app initiator package
+
 ## 1.0.2
 
 ### Patch Changes
