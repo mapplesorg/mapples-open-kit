@@ -1,14 +1,16 @@
 # @mapples/app
 
-A powerful Expo plugin for the Mapples ecosystem that provides essential app configuration and utilities. This package includes a "Hello World" plugin that demonstrates how to extend Expo's configuration system.
+A React Native component library that provides the core Mapples ecosystem functionality. This package includes the main MapplesApp component and utility functions for asset management and font loading.
 
 ## Features
 
-- 🚀 **Expo Plugin System**: Built-in Expo plugin for app configuration
-- 📱 **Cross-Platform Support**: Works with both iOS and Android
-- 🔧 **Configurable**: Customizable plugin options
-- 📘 **TypeScript Support**: Full TypeScript support with comprehensive type definitions
-- 🎯 **Mapples Integration**: Seamlessly integrates with the Mapples ecosystem
+- 🚀 **Core Mapples Integration**: Main entry point for the Mapples ecosystem
+- 📱 **Font Loading**: Automatic font loading with expo-font integration
+- 🎨 **Style Provider**: Built-in styling system integration
+- 🧩 **Render Provider**: Dynamic component rendering capabilities
+- 📦 **Asset Management**: Utility functions for processing Mapples asset references
+- 🔧 **TypeScript Support**: Full TypeScript support with comprehensive type definitions
+- ⚛️ **React Integration**: Seamless integration with React Native applications
 
 ## Installation
 
@@ -18,196 +20,296 @@ npm install @mapples/app
 yarn add @mapples/app
 ```
 
-## Quick Start
+## Usage
 
-### 1. Add to app.json/app.config.js
+### Basic Setup
 
-Add the plugin to your Expo configuration:
+Wrap your app with the `MapplesApp` component to enable the Mapples ecosystem:
 
-```json
-{
-  "expo": {
-    "name": "My App",
-    "plugins": [
-      [
-        "@mapples/app",
-        {
-          "message": "Hello from my app!",
-          "enableLogging": true
-        }
-      ]
-    ]
-  }
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+
+function App() {
+  return (
+    <MapplesApp>
+      {/* Your app components */}
+    </MapplesApp>
+  );
 }
+
+export default App;
 ```
 
-Or in `app.config.js`:
+### With Custom Configuration
 
-```javascript
-export default {
-  expo: {
-    name: "My App",
-    plugins: [
-      [
-        "@mapples/app",
-        {
-          message: "Hello from my app!",
-          enableLogging: true
-        }
-      ]
-    ]
-  }
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+
+function App() {
+  return (
+    <MapplesApp
+      showFontLoadingIndicator={true}
+      FontLoadingIndicator={<LoadingSpinner />}
+    >
+      {/* Your app components */}
+    </MapplesApp>
+  );
+}
+
+export default App;
+```
+
+### With Custom Assets and Styles
+
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+
+const customAssets = {
+  'ref(font:123:CustomFont.ttf)': require('./fonts/CustomFont.ttf'),
+  'ref(image:456:logo.png)': require('./images/logo.png'),
 };
+
+const customStyle = {
+  // Your custom style configuration
+};
+
+function App() {
+  return (
+    <MapplesApp
+      assets={customAssets}
+      style={customStyle}
+    >
+      {/* Your app components */}
+    </MapplesApp>
+  );
+}
+
+export default App;
 ```
 
-### 2. Run Expo Prebuild
+## API Reference
 
-After adding the plugin, run:
+### MapplesApp
 
-```bash
-npx expo prebuild --clean
+The main component that provides the core Mapples ecosystem functionality.
+
+**Props:**
+
+- `children` - Child components
+- `style?` - Optional custom style configuration to override the default Mapples styling
+- `assets?` - Optional custom assets configuration to override the default Mapples assets
+- `showFontLoadingIndicator?` - Whether to show a loading indicator while fonts are loading
+- `FontLoadingIndicator?` - Custom loading indicator component to display while fonts are loading
+
+**Example:**
+
+```tsx
+<MapplesApp
+  showFontLoadingIndicator={true}
+  FontLoadingIndicator={<ActivityIndicator size="large" />}
+>
+  <YourAppContent />
+</MapplesApp>
 ```
 
-The plugin will:
-- Log a "Hello World" message during the build process
-- Add custom configuration to your app's plist files
-- Include metadata about the plugin usage
+### Utility Functions
 
-## Plugin Configuration
+#### `normalizeKey(key)`
 
-The plugin accepts the following configuration options:
+Normalizes a reference key by extracting type, id, and name information.
 
-### `HelloWorldPluginProps`
+**Parameters:**
+
+- `key` - The reference key to normalize, either in `ref(type:id:name)` format or a plain string
+
+**Returns:**
+
+- An object containing the parsed type, id, and normalized name, or undefined if the key format is invalid
+
+**Example:**
 
 ```typescript
-interface HelloWorldPluginProps {
-  message?: string;        // Custom message to display (default: "Hello world, from Mapples Expo plugin!")
-  enableLogging?: boolean; // Whether to enable console logging (default: true)
-}
+import { normalizeKey } from '@mapples/app';
+
+const result = normalizeKey('ref(font:123:MyFont.ttf)');
+// Returns: { type: 'font', id: '123', name: 'MyFont' }
 ```
 
-### Configuration Examples
+#### `remapFonts(assets)`
 
-#### Basic Usage
+Remaps font assets from the Mapples asset configuration format to a format compatible with expo-font.
 
-```json
-{
-  "expo": {
-    "plugins": ["@mapples/app"]
-  }
-}
-```
+**Parameters:**
 
-#### With Custom Message
+- `assets` - The assets configuration object containing font references
 
-```json
-{
-  "expo": {
-    "plugins": [
-      [
-        "@mapples/app",
-        {
-          "message": "Welcome to my awesome app!"
-        }
-      ]
-    ]
-  }
-}
-```
+**Returns:**
 
-#### Disable Logging
+- A new object containing only the font assets in expo-font compatible format
 
-```json
-{
-  "expo": {
-    "plugins": [
-      [
-        "@mapples/app",
-        {
-          "enableLogging": false
-        }
-      ]
-    ]
-  }
-}
-```
+**Example:**
 
-## What the Plugin Does
+```typescript
+import { remapFonts } from '@mapples/app';
 
-When you add this plugin to your Expo app, it will:
+const assets = {
+  'ref(font:123:MyFont.ttf)': require('./fonts/MyFont.ttf'),
+  'ref(image:456:logo.png)': require('./images/logo.png'),
+};
 
-1. **Log Information**: Display a welcome message and app details during the build process
-2. **Add Metadata**: Insert plugin information into your app's configuration files:
-   - iOS: Adds to `Info.plist`
-   - Android: Adds to `app.json`/`app.config.js`
-3. **Track Usage**: Records when the plugin was used and its version
-
-### Example Output
-
-When you run `npx expo prebuild`, you'll see:
-
-```
-🚀 Mapples Hello World Plugin initialized
-📝 Message: Hello world, from Mapples Expo plugin!
-📱 App name: My App
-📦 App version: 1.0.0
-```
-
-### Generated Configuration
-
-The plugin adds the following to your app's configuration:
-
-```json
-{
-  "MapplesHelloWorldPlugin": {
-    "message": "Hello world, from Mapples Expo plugin!",
-    "timestamp": "2024-01-15T10:30:00.000Z",
-    "version": "1.0.0"
-  }
-}
+const fonts = remapFonts(assets);
+// Returns: { MyFont: require('./fonts/MyFont.ttf') }
 ```
 
 ## Advanced Usage
 
-### Programmatic Usage
+### Custom Font Loading
 
-You can also use the plugin programmatically in your `app.config.js`:
+```tsx
+import React from 'react';
+import MapplesApp, { remapFonts } from '@mapples/app';
 
-```javascript
-import withHelloWorld from '@mapples/app';
-
-export default {
-  expo: {
-    name: "My App",
-    // ... other config
-  },
-  plugins: [
-    [
-      withHelloWorld,
-      {
-        message: "Custom message from config!",
-        enableLogging: true
-      }
-    ]
-  ]
+const customAssets = {
+  'ref(font:123:CustomFont.ttf)': require('./fonts/CustomFont.ttf'),
+  'ref(font:124:AnotherFont.ttf)': require('./fonts/AnotherFont.ttf'),
 };
-```
 
-### Integration with Other Plugins
-
-The plugin works well alongside other Expo plugins:
-
-```json
-{
-  "expo": {
-    "plugins": [
-      "@mapples/app",
-      "expo-camera",
-      "expo-location"
-    ]
-  }
+function App() {
+  return (
+    <MapplesApp assets={customAssets}>
+      <YourAppContent />
+    </MapplesApp>
+  );
 }
 ```
+
+### Asset Processing
+
+```tsx
+import { normalizeKey, remapFonts } from '@mapples/app';
+
+// Process individual asset keys
+const assetKey = 'ref(font:123:MyFont.ttf)';
+const normalized = normalizeKey(assetKey);
+console.log(normalized); // { type: 'font', id: '123', name: 'MyFont' }
+
+// Process entire asset configuration
+const assets = {
+  'ref(font:123:MyFont.ttf)': require('./fonts/MyFont.ttf'),
+  'ref(image:456:logo.png)': require('./images/logo.png'),
+};
+
+const fonts = remapFonts(assets);
+console.log(fonts); // { MyFont: require('./fonts/MyFont.ttf') }
+```
+
+### Integration with Other Mapples Packages
+
+The MapplesApp component automatically integrates with other Mapples packages:
+
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+import { useForm } from '@mapples/form';
+import { useDnD } from '@mapples/dnd';
+
+function App() {
+  return (
+    <MapplesApp>
+      <FormExample />
+      <DnDExample />
+    </MapplesApp>
+  );
+}
+
+function FormExample() {
+  const form = useForm();
+  // Form functionality is available
+  return <div>Form content</div>;
+}
+
+function DnDExample() {
+  const { isDragging } = useDnD();
+  // Drag and drop functionality is available
+  return <div>DnD content</div>;
+}
+```
+
+## TypeScript Support
+
+This package is written in TypeScript and provides full type safety. All APIs are documented with TSDoc comments for excellent IDE support and IntelliSense.
+
+### Type Definitions
+
+```typescript
+interface MapplesAppProps {
+  style?: StyleContextType;
+  assets?: AnyObject;
+  showFontLoadingIndicator?: boolean;
+  FontLoadingIndicator?: JSX.Element;
+}
+```
+
+## Best Practices
+
+1. **Always wrap your app**: Use MapplesApp as the root component to ensure all Mapples functionality is available
+
+2. **Font loading**: Consider using `showFontLoadingIndicator` for better user experience during font loading
+
+3. **Asset organization**: Keep your asset references organized and use the utility functions for processing
+
+4. **Performance**: The component handles font loading efficiently and only re-renders when necessary
+
+5. **Testing**: Test your app with different asset configurations to ensure proper loading
+
+## Metro Configuration
+
+This package requires Metro configuration to work properly with Expo applications. Update your `metro.config.js`:
+
+```javascript
+const { getDefaultConfig } = require('expo/metro-config');
+const { mapplesResolver } = require('@mapples/app/expo');
+
+module.exports = (() => {
+  const config = getDefaultConfig(__dirname);
+
+  const { transformer, resolver } = config;
+
+  config.transformer = {
+    ...transformer,
+    babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
+  };
+  config.resolver = {
+    ...resolver,
+    assetExts: resolver.assetExts.filter((ext) => ext !== 'svg'),
+    sourceExts: [...resolver.sourceExts, 'svg'],
+  };
+
+  config.resolver.resolveRequest = mapplesResolver(
+    (context, moduleName, platform) => {
+      // add your custom resolvers here
+      return context.resolveRequest(context, moduleName, platform);
+    },
+  );
+
+  return config;
+})();
+```
+
+### Dependencies
+
+Make sure you have the required dependencies installed:
+
+```bash
+npm install react-native-svg react-native-svg-transformer
+# or
+yarn add react-native-svg react-native-svg-transformer
+```
+
+For more information about SVG transformation, see the [react-native-svg-transformer documentation](https://github.com/kristerkari/react-native-svg-transformer).
 
 ## Development
 
@@ -229,39 +331,19 @@ npm run type-check
 npm run lint
 ```
 
-## Integration with Other Mapples Packages
-
-This package integrates seamlessly with other Mapples packages:
-
-- **@mapples/types**: For shared type definitions
-- **@mapples/ui**: For pre-built UI components
-- **@mapples/state**: For state management
-- **@mapples/render**: For dynamic component rendering
-
-## Troubleshooting
-
-### Plugin Not Working
-
-1. Make sure you've added the plugin to your `app.json` or `app.config.js`
-2. Run `npx expo prebuild --clean` to regenerate native files
-3. Check that the plugin is properly installed: `npm list @mapples/app`
-
-### Build Errors
-
-If you encounter build errors:
-
-1. Clear your build cache: `npx expo prebuild --clean`
-2. Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
-3. Check your Expo SDK version compatibility
-
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines and submit pull requests to our repository.
+Contributions are welcome! Please ensure that:
+
+1. All new APIs include comprehensive TSDoc documentation
+2. TypeScript types are properly defined
+3. Tests are added for new functionality
+4. The README is updated for any new features
 
 ## License
 
-MIT License - see the LICENSE file for details.
+MIT License - see LICENSE file for details.
 
-## Support
+## Author
 
-For support and questions, please visit our [GitHub repository](https://github.com/mapplesorg/mapples-kit) or contact us at [mapples.org](https://mapples.org).
+Oleksandr Soloviov - [mapples.org](https://mapples.org/people/olek_soloviov)
