@@ -57,3 +57,7 @@ export interface DataProp {
  * Each entry contains configuration for binding data to components.
  */
 export type DataProps = Partial<Record<string, DataProp>>;
+
+export interface SvgSource {
+  default: ComponentType<SvgProps>;
+}
