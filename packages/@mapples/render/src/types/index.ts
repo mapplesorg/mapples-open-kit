@@ -95,4 +95,5 @@ export type RenderProps = Pick<RenderDom, 'root'> & {
  */
 export interface RenderContextType {
   components: RegisteredComponents;
+  assets: AnyObject;
 }

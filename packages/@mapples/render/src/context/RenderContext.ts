@@ -17,6 +17,7 @@ import { RenderContextType } from '../types';
  */
 const RenderContext = createContext<RenderContextType>({
   components: {},
+  assets: {},
 });
 
 /**
