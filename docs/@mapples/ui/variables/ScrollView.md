@@ -8,7 +8,7 @@
 
 > `const` **ScrollView**: `ForwardRefExoticComponent`\<`object` & `ViewProps` & `object` & `RefAttributes`\<`unknown`\>\>
 
-Defined in: [packages/@mapples/ui/src/components/views/ScrollView/ScrollView.tsx:37](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/ui/src/components/views/ScrollView/ScrollView.tsx#L37)
+Defined in: [packages/@mapples/ui/src/components/views/ScrollView/ScrollView.tsx:37](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/ui/src/components/views/ScrollView/ScrollView.tsx#L37)
 
 A customizable scrollable view component with built-in styling support.
 

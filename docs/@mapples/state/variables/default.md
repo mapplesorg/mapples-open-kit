@@ -8,7 +8,7 @@
 
 > `const` **default**: `FC`\<`PropsWithChildren`\<[`StateProviderProps`](../interfaces/StateProviderProps.md)\>\>
 
-Defined in: [StateProvider.tsx:33](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/state/src/StateProvider.tsx#L33)
+Defined in: [StateProvider.tsx:33](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/state/src/StateProvider.tsx#L33)
 
 State provider component that makes state data available to child components.
 

@@ -8,7 +8,7 @@
 
 > **flatten**\<`T`\>(`style?`): [`SizableStyleProps`](../type-aliases/SizableStyleProps.md)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.md)\<`T`\>
 
-Defined in: [utils/style.ts:87](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/utils/style.ts#L87)
+Defined in: [utils/style.ts:87](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/utils/style.ts#L87)
 
 Flattens a style prop into a single style object.
 

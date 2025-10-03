@@ -7,6 +7,7 @@
 ## Packages
 
 - [@mapples/action](@mapples/action/README.md)
+- [@mapples/app](@mapples/app/README.md)
 - [@mapples/dnd](@mapples/dnd/README.md)
 - [@mapples/form](@mapples/form/README.md)
 - [@mapples/render](@mapples/render/README.md)

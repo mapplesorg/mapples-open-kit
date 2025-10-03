@@ -6,7 +6,7 @@
 
 # Interface: RenderComponentType
 
-Defined in: [types/index.ts:50](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L50)
+Defined in: [types/index.ts:55](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L55)
 
 Represents a renderable component with all its configuration and children.
 This is the core type used throughout the render system.
@@ -19,7 +19,7 @@ This is the core type used throughout the render system.
 
 > **id**: `string`
 
-Defined in: [types/index.ts:51](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L51)
+Defined in: [types/index.ts:56](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L56)
 
 Unique identifier for this component instance
 
@@ -29,7 +29,7 @@ Unique identifier for this component instance
 
 > **type**: `string`
 
-Defined in: [types/index.ts:52](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L52)
+Defined in: [types/index.ts:57](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L57)
 
 The component type name (must be registered in components)
 
@@ -39,7 +39,7 @@ The component type name (must be registered in components)
 
 > **props**: [`AnyObject`](../type-aliases/AnyObject.md) & `object`
 
-Defined in: [types/index.ts:53](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L53)
+Defined in: [types/index.ts:58](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L58)
 
 Component props including optional zIndex
 
@@ -55,7 +55,7 @@ Component props including optional zIndex
 
 > `optional` **\_canvasProps**: [`AnyObject`](../type-aliases/AnyObject.md)
 
-Defined in: [types/index.ts:54](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L54)
+Defined in: [types/index.ts:59](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L59)
 
 Optional drag-and-drop configuration for canvas interactions
 
@@ -65,7 +65,7 @@ Optional drag-and-drop configuration for canvas interactions
 
 > **children**: `string`[]
 
-Defined in: [types/index.ts:55](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L55)
+Defined in: [types/index.ts:60](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L60)
 
 Array of child component IDs
 
@@ -75,7 +75,7 @@ Array of child component IDs
 
 > **childComponents**: [`ChildComponents`](../type-aliases/ChildComponents.md)
 
-Defined in: [types/index.ts:56](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L56)
+Defined in: [types/index.ts:61](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L61)
 
 Map of child components by their IDs
 
@@ -85,7 +85,7 @@ Map of child components by their IDs
 
 > `optional` **dataProps**: `Partial`\<`Record`\<`string`, [`DataProp`](../../types/interfaces/DataProp.md)\>\>
 
-Defined in: [types/index.ts:57](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L57)
+Defined in: [types/index.ts:62](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L62)
 
 Optional data property bindings
 
@@ -95,6 +95,14 @@ Optional data property bindings
 
 > `optional` **actionProps**: `Partial`\<`Record`\<`string`, [`ActionProps`](ActionProps.md)\>\>
 
-Defined in: [types/index.ts:58](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L58)
+Defined in: [types/index.ts:63](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L63)
 
 Optional action property configurations
+
+***
+
+### refProps?
+
+> `optional` **refProps**: `Partial`\<`Record`\<`string`, `string`\>\>
+
+Defined in: [types/index.ts:64](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L64)

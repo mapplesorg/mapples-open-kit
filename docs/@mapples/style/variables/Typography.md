@@ -8,7 +8,7 @@
 
 > `const` **Typography**: `ForwardRefExoticComponent`\<[`TypographyProps`](../interfaces/TypographyProps.md) & `RefAttributes`\<`Text`\>\>
 
-Defined in: [components/Typography.tsx:58](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/Typography.tsx#L58)
+Defined in: [components/Typography.tsx:58](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/Typography.tsx#L58)
 
 Typography component that provides consistent text styling with theme and responsive support.
 This component automatically applies typography styles based on the configured typography system.

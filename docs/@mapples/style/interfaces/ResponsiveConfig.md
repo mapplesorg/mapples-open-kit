@@ -6,7 +6,7 @@
 
 # Interface: ResponsiveConfig
 
-Defined in: [types/responsive.ts:19](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/responsive.ts#L19)
+Defined in: [types/responsive.ts:19](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/responsive.ts#L19)
 
 Responsive configuration for breakpoint management.
 Defines available breakpoints and their width ranges.
@@ -21,7 +21,7 @@ Defines available breakpoints and their width ranges.
 
 > **default**: `string`
 
-Defined in: [types/responsive.ts:21](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/responsive.ts#L21)
+Defined in: [types/responsive.ts:21](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/responsive.ts#L21)
 
 Default breakpoint to use when no breakpoint matches
 
@@ -31,6 +31,6 @@ Default breakpoint to use when no breakpoint matches
 
 > **breakpoints**: `Record`\<[`Breakpoint`](../type-aliases/Breakpoint.md), [`BreakpointConfig`](BreakpointConfig.md)\>
 
-Defined in: [types/responsive.ts:23](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/types/responsive.ts#L23)
+Defined in: [types/responsive.ts:23](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/types/responsive.ts#L23)
 
 Map of breakpoint names to their configuration

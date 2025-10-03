@@ -8,7 +8,7 @@
 
 > **useDataProps**(`data?`): `Dictionary`\<`boolean`\>
 
-Defined in: [hooks/useDataProps.ts:35](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/state/src/hooks/useDataProps.ts#L35)
+Defined in: [hooks/useDataProps.ts:35](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/state/src/hooks/useDataProps.ts#L35)
 
 Hook for processing multiple data properties and returning resolved values.
 

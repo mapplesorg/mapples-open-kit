@@ -6,7 +6,7 @@
 
 # Interface: ActionContextType
 
-Defined in: [types.ts:10](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/action/src/types.ts#L10)
+Defined in: [types.ts:10](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/action/src/types.ts#L10)
 
 Context type for the Action context provider.
 Contains the RxJS Subject that manages action emissions and subscriptions.
@@ -19,6 +19,6 @@ Contains the RxJS Subject that manages action emissions and subscriptions.
 
 > **actionStore**: `Subject`\<[`Action`](../../types/interfaces/Action.md)\>
 
-Defined in: [types.ts:12](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/action/src/types.ts#L12)
+Defined in: [types.ts:12](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/action/src/types.ts#L12)
 
 RxJS Subject for emitting and subscribing to actions

@@ -6,7 +6,7 @@
 
 # Interface: DropTargetConfig
 
-Defined in: [types/index.ts:167](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L167)
+Defined in: [types/index.ts:167](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L167)
 
 Interface for configuring drop target behavior and layout.
 
@@ -20,7 +20,7 @@ Interface for configuring drop target behavior and layout.
 
 > `optional` **index**: `number`
 
-Defined in: [types/index.ts:156](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L156)
+Defined in: [types/index.ts:156](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L156)
 
 The index position within the parent container
 
@@ -34,7 +34,7 @@ The index position within the parent container
 
 > `optional` **zIndex**: `number`
 
-Defined in: [types/index.ts:158](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L158)
+Defined in: [types/index.ts:158](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L158)
 
 The z-index for layering
 
@@ -48,7 +48,7 @@ The z-index for layering
 
 > `optional` **flexDirection**: [`FlexDirection`](../enumerations/FlexDirection.md)
 
-Defined in: [types/index.ts:160](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L160)
+Defined in: [types/index.ts:160](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L160)
 
 The flex direction for child elements
 
@@ -62,6 +62,6 @@ The flex direction for child elements
 
 > `optional` **canDrop**: `boolean`
 
-Defined in: [types/index.ts:169](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L169)
+Defined in: [types/index.ts:169](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L169)
 
 Whether this drop target can accept drops

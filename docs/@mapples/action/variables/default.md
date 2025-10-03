@@ -8,7 +8,7 @@
 
 > `const` **default**: `FC`\<`PropsWithChildren`\<[`ActionProviderProps`](../interfaces/ActionProviderProps.md)\>\>
 
-Defined in: [ActionProvider.tsx:39](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/action/src/ActionProvider.tsx#L39)
+Defined in: [ActionProvider.tsx:39](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/action/src/ActionProvider.tsx#L39)
 
 ActionProvider component that manages the action store and provides it to child components.
 

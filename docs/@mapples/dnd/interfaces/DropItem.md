@@ -6,7 +6,7 @@
 
 # Interface: DropItem\<T\>
 
-Defined in: [types/index.ts:183](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L183)
+Defined in: [types/index.ts:183](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L183)
 
 Interface representing a drop item with layout and data information.
 
@@ -24,7 +24,7 @@ The type of data associated with the drop item
 
 > **layout**: [`LayoutPosition`](../type-aliases/LayoutPosition.md)
 
-Defined in: [types/index.ts:185](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L185)
+Defined in: [types/index.ts:185](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L185)
 
 The layout position and configuration
 
@@ -34,7 +34,7 @@ The layout position and configuration
 
 > `optional` **children**: [`DropTree`](../type-aliases/DropTree.md)\<`T`\>
 
-Defined in: [types/index.ts:187](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L187)
+Defined in: [types/index.ts:187](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L187)
 
 Optional child drop items
 
@@ -44,7 +44,7 @@ Optional child drop items
 
 > `optional` **canDrop**: `boolean`
 
-Defined in: [types/index.ts:189](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L189)
+Defined in: [types/index.ts:189](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L189)
 
 Whether this item can accept drops
 
@@ -54,6 +54,6 @@ Whether this item can accept drops
 
 > `optional` **data**: `T`
 
-Defined in: [types/index.ts:191](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/dnd/src/types/index.ts#L191)
+Defined in: [types/index.ts:191](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/dnd/src/types/index.ts#L191)
 
 Optional data associated with this drop item

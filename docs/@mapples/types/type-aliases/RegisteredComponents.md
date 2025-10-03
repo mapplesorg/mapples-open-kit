@@ -8,7 +8,7 @@
 
 > **RegisteredComponents** = `Record`\<`string`, [`RegisteredComponent`](../interfaces/RegisteredComponent.md)\>
 
-Defined in: [components.ts:41](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/types/src/components.ts#L41)
+Defined in: [components.ts:43](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/types/src/components.ts#L43)
 
 A record type that maps component type strings to their registered component definitions.
 This is the main registry structure for all available components in the system.

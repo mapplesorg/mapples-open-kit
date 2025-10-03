@@ -385,6 +385,7 @@ For support and questions, please visit our [GitHub repository](https://github.c
 - [AnyObject](type-aliases/AnyObject.md)
 - [ChildComponents](type-aliases/ChildComponents.md)
 - [ActionPropsMap](type-aliases/ActionPropsMap.md)
+- [RefPropsMap](type-aliases/RefPropsMap.md)
 - [RenderProps](type-aliases/RenderProps.md)
 
 ## Variables

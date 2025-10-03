@@ -6,7 +6,7 @@
 
 # Interface: RenderDom
 
-Defined in: [types/index.ts:68](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L68)
+Defined in: [types/index.ts:74](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L74)
 
 Represents the complete render DOM structure.
 Extends ChildComponents with a special 'root' component.
@@ -27,6 +27,6 @@ Extends ChildComponents with a special 'root' component.
 
 > **root**: [`RenderComponentType`](RenderComponentType.md)
 
-Defined in: [types/index.ts:69](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/render/src/types/index.ts#L69)
+Defined in: [types/index.ts:75](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/render/src/types/index.ts#L75)
 
 The root component of the render tree

@@ -6,7 +6,7 @@
 
 # Interface: TypographyProps
 
-Defined in: [components/Typography.tsx:14](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/Typography.tsx#L14)
+Defined in: [components/Typography.tsx:14](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/Typography.tsx#L14)
 
 Props for the Typography component.
 
@@ -20,7 +20,7 @@ Props for the Typography component.
 
 > `optional` **variant**: `string`
 
-Defined in: [components/Typography.tsx:16](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/Typography.tsx#L16)
+Defined in: [components/Typography.tsx:16](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/Typography.tsx#L16)
 
 The typography variant to apply (e.g., 'heading1', 'body', 'caption')
 
@@ -30,7 +30,7 @@ The typography variant to apply (e.g., 'heading1', 'body', 'caption')
 
 > `optional` **color**: `string` \| `false`
 
-Defined in: [components/Typography.tsx:18](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/Typography.tsx#L18)
+Defined in: [components/Typography.tsx:18](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/Typography.tsx#L18)
 
 Custom color to override the typography color, or false to disable color
 
@@ -40,7 +40,7 @@ Custom color to override the typography color, or false to disable color
 
 > `optional` **style**: [`StyledProp`](../type-aliases/StyledProp.md)\<`TextStyle`\>
 
-Defined in: [components/Typography.tsx:20](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/Typography.tsx#L20)
+Defined in: [components/Typography.tsx:20](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/Typography.tsx#L20)
 
 Additional styles to apply to the text
 
@@ -50,7 +50,7 @@ Additional styles to apply to the text
 
 > `optional` **styled**: [`StyledProps`](../type-aliases/StyledProps.md)\<`TextProps`\>
 
-Defined in: [components/Typography.tsx:22](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/Typography.tsx#L22)
+Defined in: [components/Typography.tsx:22](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/Typography.tsx#L22)
 
 Styled props for advanced styling with theme and responsive support
 
@@ -60,7 +60,7 @@ Styled props for advanced styling with theme and responsive support
 
 > `optional` **selectable**: `boolean`
 
-Defined in: [components/Typography.tsx:24](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/Typography.tsx#L24)
+Defined in: [components/Typography.tsx:24](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/Typography.tsx#L24)
 
 Whether the text should be selectable by the user
 

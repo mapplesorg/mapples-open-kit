@@ -8,7 +8,7 @@
 
 > `const` **NavigationThemeProvider**: `FC`\<`PropsWithChildren`\<[`NavigationThemeProviderProps`](../interfaces/NavigationThemeProviderProps.md)\>\>
 
-Defined in: [components/NavigationThemeProvider.tsx:53](https://github.com/mapplesorg/mapples-open-kit/blob/dd963146bbe11b4162ad27f5187c1779c86867a0/packages/@mapples/style/src/components/NavigationThemeProvider.tsx#L53)
+Defined in: [components/NavigationThemeProvider.tsx:53](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/style/src/components/NavigationThemeProvider.tsx#L53)
 
 Provider component that integrates the style system with React Navigation theming.
 This component automatically applies the current theme colors to React Navigation components

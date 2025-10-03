@@ -1,0 +1,42 @@
+[**Mapples Open Kit - Types**](../../../README.md)
+
+***
+
+[Mapples Open Kit - Types](../../../packages.md) / [@mapples/app](../README.md) / remapFonts
+
+# Function: remapFonts()
+
+> **remapFonts**(`assets`): `object`
+
+Defined in: [utils.ts:67](https://github.com/mapplesorg/mapples-open-kit/blob/8763b367e2a12f993555d9a72e4732e58951d927/packages/@mapples/app/src/utils.ts#L67)
+
+Remaps font assets from the Mapples asset configuration format to a format compatible with expo-font.
+
+This function processes the assets object and extracts only font-type assets, converting them
+from the Mapples reference format to a simple key-value mapping that expo-font can use.
+
+## Parameters
+
+### assets
+
+[`AnyObject`](../../render/type-aliases/AnyObject.md)
+
+The assets configuration object containing font references
+
+## Returns
+
+`object`
+
+A new object containing only the font assets in expo-font compatible format
+
+## Example
+
+```typescript
+const assets = {
+  'ref(font:123:MyFont.ttf)': require('./fonts/MyFont.ttf'),
+  'ref(image:456:logo.png)': require('./images/logo.png'),
+};
+
+const fonts = remapFonts(assets);
+// Returns: { MyFont: require('./fonts/MyFont.ttf') }
+```
