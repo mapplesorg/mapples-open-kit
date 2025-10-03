@@ -15,7 +15,7 @@ import { remapFonts } from './utils';
 
 /**
  * Props for the MapplesApp component.
- * 
+ *
  * @interface MapplesAppProps
  */
 export interface MapplesAppProps {
@@ -31,19 +31,19 @@ export interface MapplesAppProps {
 
 /**
  * The main MapplesApp component that provides the core Mapples ecosystem functionality.
- * 
+ *
  * This component sets up the essential providers for styling, rendering, and asset management
  * that are required for all Mapples applications. It handles font loading and provides
  * a unified entry point for the Mapples ecosystem.
- * 
+ *
  * @component
  * @param props - The component props
  * @returns The configured Mapples app with all necessary providers
- * 
+ *
  * @example
  * ```tsx
  * import MapplesApp from '@mapples/app';
- * 
+ *
  * function App() {
  *   return (
  *     <MapplesApp>
@@ -52,11 +52,11 @@ export interface MapplesAppProps {
  *   );
  * }
  * ```
- * 
+ *
  * @example
  * ```tsx
  * import MapplesApp from '@mapples/app';
- * 
+ *
  * function App() {
  *   return (
  *     <MapplesApp
