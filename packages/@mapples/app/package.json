@@ -20,10 +20,6 @@
     "url": "https://github.com/mapplesorg/mapples-open-kit.git",
     "directory": "packages/@mapples/app"
   },
-  "dependencies": {
-    "expo": "~51.0.0",
-    "lodash": "^4.17.21"
-  },
   "peerDependencies": {
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0"

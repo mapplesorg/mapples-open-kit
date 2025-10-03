@@ -11,10 +11,13 @@
   },
   "references": [
     {
-      "path": "../types/tsconfig.build.json"
+      "path": "../ui/tsconfig.build.json"
     },
     {
-      "path": "../state/tsconfig.build.json"
+      "path": "../render/tsconfig.build.json"
+    },
+    {
+      "path": "../style/tsconfig.build.json"
     }
   ]
 }

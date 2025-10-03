@@ -1,19 +1,28 @@
 import { FC, PropsWithChildren } from 'react';
 
-import { RenderProvider } from '@mapples/render';
-import { StyleProvider, Styler } from '@mapples/style';
+import { AnyObject, RenderProvider } from '@mapples/render';
+import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { Components } from '@mapples/ui';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import assets from 'mapples::assets';
+import assetsConfig from 'mapples::assets';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import style from 'mapples::style';
+import styleConfig from 'mapples::style';
 
-const MapplesApp: FC<PropsWithChildren> = ({ children }) => {
+export interface MapplesAppProps {
+  style?: StyleContextType;
+  assets?: AnyObject;
+}
+
+const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
+  children,
+  style,
+  assets,
+}) => {
   return (
-    <StyleProvider style={Styler.init()}>
-      <RenderProvider components={Components} assets={{}}>
+    <StyleProvider style={Styler.init(style || styleConfig)}>
+      <RenderProvider components={Components} assets={assets || assetsConfig}>
         {children}
       </RenderProvider>
     </StyleProvider>
