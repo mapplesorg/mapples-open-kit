@@ -1,10 +1,6 @@
-[**Mapples Open Kit - Types**](../../../index.mdx)
-
-***
-
 # Class: Monitor\<DragData, DropData\>
 
-Defined in: [monitor/Monitor.ts:27](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L27)
+Defined in: [monitor/Monitor.ts:27](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L27)
 
 Core monitor class that manages drag and drop operations.
 This class tracks drag elements, drop targets, handles hit detection, and emits events.
@@ -29,7 +25,7 @@ The type of data for drop targets (defaults to DragData)
 
 > **new Monitor**\<`DragData`, `DropData`\>(`config`): `Monitor`\<`DragData`, `DropData`\>
 
-Defined in: [monitor/Monitor.ts:61](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L61)
+Defined in: [monitor/Monitor.ts:61](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L61)
 
 Creates a new Monitor instance.
 
@@ -51,7 +47,7 @@ Configuration options for the monitor
 
 > **events**: `Subject`\<[`DnDEvent`](../interfaces/DnDEvent.mdx)\<`DragData`, `DropData`\>\>
 
-Defined in: [monitor/Monitor.ts:32](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L32)
+Defined in: [monitor/Monitor.ts:32](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L32)
 
 Observable stream of drag and drop events
 
@@ -61,7 +57,7 @@ Observable stream of drag and drop events
 
 > **getDragTargetId**(): `null` \| `number`
 
-Defined in: [monitor/Monitor.ts:72](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L72)
+Defined in: [monitor/Monitor.ts:72](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L72)
 
 Gets the ID of the currently active drag target.
 
@@ -77,7 +73,7 @@ The drag target ID or null if no drag is active
 
 > **triggerForceLayoutUpdate**(): `void`
 
-Defined in: [monitor/Monitor.ts:88](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L88)
+Defined in: [monitor/Monitor.ts:88](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L88)
 
 Triggers a force layout update event.
 This causes all registered elements to recalculate their layout information.
@@ -92,7 +88,7 @@ This causes all registered elements to recalculate their layout information.
 
 > **getDropTarget**(): `null` \| [`DropTarget`](../interfaces/DropTarget.mdx)\<`DropData`\>
 
-Defined in: [monitor/Monitor.ts:98](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L98)
+Defined in: [monitor/Monitor.ts:98](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L98)
 
 Gets the currently active drop target.
 
@@ -108,7 +104,7 @@ The drop target or null if no drop target is active
 
 > **setDropTarget**(`target`): `void`
 
-Defined in: [monitor/Monitor.ts:106](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L106)
+Defined in: [monitor/Monitor.ts:106](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L106)
 
 Sets the currently active drop target.
 
@@ -130,7 +126,7 @@ The drop target or null
 
 > **getDragTargetData**(`id`): `undefined` \| [`DragElementTarget`](../type-aliases/DragElementTarget.mdx)\<`DragData`\>
 
-Defined in: [monitor/Monitor.ts:115](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L115)
+Defined in: [monitor/Monitor.ts:115](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L115)
 
 Gets the drag target data for a specific ID.
 
@@ -154,7 +150,7 @@ The drag element target data or undefined if not found
 
 > **setDropTargetIndex**(`index`): `void`
 
-Defined in: [monitor/Monitor.ts:123](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L123)
+Defined in: [monitor/Monitor.ts:123](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L123)
 
 Sets the index position within the current drop target.
 
@@ -176,7 +172,7 @@ The index position or null
 
 > **getDropTargetIndex**(): `null` \| `number`
 
-Defined in: [monitor/Monitor.ts:131](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L131)
+Defined in: [monitor/Monitor.ts:131](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L131)
 
 Gets the index position within the current drop target.
 
@@ -192,7 +188,7 @@ The index position or null if no drop target is active
 
 > **registerDragElement**(`layout`, `item`): `number`
 
-Defined in: [monitor/Monitor.ts:141](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L141)
+Defined in: [monitor/Monitor.ts:141](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L141)
 
 Registers a new drag element with the monitor.
 
@@ -222,7 +218,7 @@ The unique ID assigned to the drag element
 
 > **unregisterDragElement**(`id`): `void`
 
-Defined in: [monitor/Monitor.ts:151](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L151)
+Defined in: [monitor/Monitor.ts:151](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L151)
 
 Unregisters a drag element from the monitor.
 
@@ -244,7 +240,7 @@ The ID of the drag element to unregister
 
 > **updateDragElement**(`id`, `layout`, `item`): `void`
 
-Defined in: [monitor/Monitor.ts:161](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L161)
+Defined in: [monitor/Monitor.ts:161](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L161)
 
 Updates the layout and item data for a registered drag element.
 
@@ -278,7 +274,7 @@ The new drag item configuration
 
 > **updateDragElementLayout**(`id`, `layout`): `void`
 
-Defined in: [monitor/Monitor.ts:179](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L179)
+Defined in: [monitor/Monitor.ts:179](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L179)
 
 Updates only the layout information for a registered drag element.
 
@@ -306,7 +302,7 @@ The new layout rectangle
 
 > **onDragStart**(`dragCoords`): `void`
 
-Defined in: [monitor/Monitor.ts:192](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L192)
+Defined in: [monitor/Monitor.ts:192](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L192)
 
 Handles the start of a drag operation.
 
@@ -328,7 +324,7 @@ The coordinates where the drag started
 
 > **onDrag**(`dragCoords`): `void`
 
-Defined in: [monitor/Monitor.ts:212](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L212)
+Defined in: [monitor/Monitor.ts:212](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L212)
 
 Handles drag movement during a drag operation.
 
@@ -350,7 +346,7 @@ The current coordinates of the drag
 
 > **onSelect**(`dragCoords`): `void`
 
-Defined in: [monitor/Monitor.ts:243](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L243)
+Defined in: [monitor/Monitor.ts:243](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L243)
 
 Handles selection/tap events.
 
@@ -372,7 +368,7 @@ The coordinates where the selection occurred
 
 > **onExternalSelect**(`dataQuery`): `void`
 
-Defined in: [monitor/Monitor.ts:280](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L280)
+Defined in: [monitor/Monitor.ts:280](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L280)
 
 Handles external selection by data query.
 
@@ -394,7 +390,7 @@ Partial data to match against drop targets
 
 > **onDragEnd**(): `void`
 
-Defined in: [monitor/Monitor.ts:295](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L295)
+Defined in: [monitor/Monitor.ts:295](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L295)
 
 Handles the end of a drag operation.
 
@@ -408,7 +404,7 @@ Handles the end of a drag operation.
 
 > **registerDropElement**(`layout`, `parent`, `config?`, `data?`): `number`
 
-Defined in: [monitor/Monitor.ts:320](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L320)
+Defined in: [monitor/Monitor.ts:320](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L320)
 
 Registers a new drop element with the monitor.
 
@@ -450,7 +446,7 @@ The unique ID assigned to the drop element
 
 > **unregisterDropElement**(`id`): `void`
 
-Defined in: [monitor/Monitor.ts:367](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L367)
+Defined in: [monitor/Monitor.ts:367](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L367)
 
 Unregisters a drop element from the monitor.
 
@@ -472,7 +468,7 @@ The ID of the drop element to unregister
 
 > **updateDropElement**(`id`, `layout`, `config?`, `data?`): `void`
 
-Defined in: [monitor/Monitor.ts:383](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/dnd/src/monitor/Monitor.ts#L383)
+Defined in: [monitor/Monitor.ts:383](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/dnd/src/monitor/Monitor.ts#L383)
 
 Updates the layout and configuration for a registered drop element.
 
