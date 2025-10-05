@@ -1,0 +1,50 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Interface: RegisteredComponent\<T\>
+
+Defined in: [components.ts:24](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/types/src/components.ts#L24)
+
+Represents a registered component in the Mapples component system.
+This interface defines all the metadata and configuration needed to register
+a component for use in the visual editor.
+
+ RegisteredComponent
+
+## Example
+
+```typescript
+const buttonComponent: RegisteredComponent<ButtonProps> = {
+  type: 'Button',
+  Component: Button,
+};
+```
+
+## Type Parameters
+
+### T
+
+`T` *extends* `object` = `object`
+
+The props type for the component (must extend object)
+
+## Properties
+
+### type
+
+> **type**: `string`
+
+Defined in: [components.ts:25](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/types/src/components.ts#L25)
+
+Unique identifier for the component type
+
+***
+
+### Component
+
+> **Component**: `ComponentType`\<`PropsWithChildren`\<`T`\>\>
+
+Defined in: [components.ts:26](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/types/src/components.ts#L26)
+
+The actual React component

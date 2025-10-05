@@ -1,0 +1,35 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Function: normalizeTextStyleWeb()
+
+> **normalizeTextStyleWeb**(`textStyle?`): `undefined` \| `TextStyle`
+
+Defined in: [utils/system.ts:81](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/style/src/utils/system.ts#L81)
+
+Normalizes text styles for web compatibility by converting numeric values to pixel strings.
+
+## Parameters
+
+### textStyle?
+
+`StyleProp`\<`TextStyle`\>
+
+The text style to normalize
+
+## Returns
+
+`undefined` \| `TextStyle`
+
+Normalized text style with web-compatible values
+
+## Example
+
+```tsx
+const normalized = normalizeTextStyleWeb({
+  lineHeight: 20,
+  letterSpacing: 1
+});
+// Returns: { lineHeight: '20px', letterSpacing: '1px' }
+```

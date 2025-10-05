@@ -1,0 +1,43 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Variable: RenderProvider
+
+> `const` **RenderProvider**: `FC`\<`PropsWithChildren`\<[`RenderContextType`](../interfaces/RenderContextType.mdx)\>\>
+
+Defined in: [components/RenderProvider.tsx:32](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/render/src/components/RenderProvider.tsx#L32)
+
+Provider component that makes registered components available to the render system.
+
+This component wraps your application and provides the registered components
+to all child components through React context. It's essential for the render
+system to function properly as it makes components available for dynamic rendering.
+
+## Param
+
+The component props
+
+## Param
+
+Map of registered components
+
+## Param
+
+Child components to render
+
+## Example
+
+```tsx
+const registeredComponents = {
+  Button: { Component: MyButton },
+  Text: { Component: MyText },
+  View: { Component: MyView }
+};
+
+const App = () => (
+  <RenderProvider components={registeredComponents}>
+    <Render root={rootComponent} />
+  </RenderProvider>
+);
+```

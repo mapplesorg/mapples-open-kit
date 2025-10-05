@@ -1,0 +1,38 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Function: getThemeRegexp()
+
+> **getThemeRegexp**\<`T`\>(`theme`): `RegExp`
+
+Defined in: [utils/system.ts:112](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/style/src/utils/system.ts#L112)
+
+Creates a regular expression pattern for matching theme and sizing references in strings.
+
+## Type Parameters
+
+### T
+
+`T` *extends* `object`
+
+## Parameters
+
+### theme
+
+`T`
+
+The theme object to extract paths from
+
+## Returns
+
+`RegExp`
+
+Regular expression for matching theme/sizing references
+
+## Example
+
+```tsx
+const regex = getThemeRegexp({ colors: { primary: '#007AFF' } });
+const match = 'theme.colors.primary'.match(regex);
+```

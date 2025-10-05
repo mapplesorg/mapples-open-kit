@@ -1,0 +1,48 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Variable: default
+
+> `const` **default**: `FC`\<`PropsWithChildren`\<[`ActionProviderProps`](../interfaces/ActionProviderProps.mdx)\>\>
+
+Defined in: [ActionProvider.tsx:39](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/action/src/ActionProvider.tsx#L39)
+
+ActionProvider component that manages the action store and provides it to child components.
+
+This component:
+- Creates and manages an RxJS Subject for action emissions
+- Subscribes to actions and calls the provided onAction callback
+- Provides the action store to child components via React context
+- Automatically cleans up subscriptions when the component unmounts
+
+## Component
+
+## Param
+
+The component props
+
+## Param
+
+Child components that will have access to the action store
+
+## Param
+
+Callback function called whenever an action is emitted
+
+## Example
+
+```tsx
+function App() {
+  const handleAction = (action: Action) => {
+    console.log('Action received:', action);
+    // Handle analytics, logging, etc.
+  };
+
+  return (
+    <ActionProvider onAction={handleAction}>
+      <MyApp />
+    </ActionProvider>
+  );
+}
+```

@@ -1,0 +1,39 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Function: parseCalc()
+
+> **parseCalc**(`value`, `base`): `number`
+
+Defined in: [utils/system.ts:209](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/style/src/utils/system.ts#L209)
+
+Parses a calc expression and evaluates it with the given base value.
+Supports simple operations like addition and subtraction with multipliers.
+
+## Parameters
+
+### value
+
+`string`
+
+The calc expression to parse
+
+### base
+
+`number`
+
+The base value to use for calculations
+
+## Returns
+
+`number`
+
+The calculated numeric result
+
+## Example
+
+```tsx
+parseCalc('calc(*2 - 10)', 20); // Returns: 30 (20*2 - 10)
+parseCalc('calc(*3 + 5)', 10); // Returns: 35 (10*3 + 5)
+```

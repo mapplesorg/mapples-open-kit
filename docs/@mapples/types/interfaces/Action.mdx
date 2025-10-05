@@ -1,0 +1,42 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Interface: Action
+
+Defined in: [action.ts:19](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/types/src/action.ts#L19)
+
+Represents a user action that occurred in the application.
+Actions are used for tracking user interactions, analytics, and state management.
+
+ Action
+
+## Properties
+
+### time
+
+> **time**: `number`
+
+Defined in: [action.ts:21](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/types/src/action.ts#L21)
+
+Timestamp when the action occurred (in milliseconds since epoch)
+
+***
+
+### type?
+
+> `optional` **type**: `string`
+
+Defined in: [action.ts:23](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/types/src/action.ts#L23)
+
+Optional string identifier for the type of action (e.g., 'BUTTON_PRESSED', 'FORM_SUBMITTED')
+
+***
+
+### payload?
+
+> `optional` **payload**: [`ActionPayload`](ActionPayload.mdx)
+
+Defined in: [action.ts:25](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/types/src/action.ts#L25)
+
+Optional payload containing additional data about the action

@@ -11,6 +11,9 @@ const config = {
     exclude: ['**/node_modules/**', '**/dist/**', '**/__tests__/**'],
   },
   readme: 'README.md',
+  fileExtension: '.mdx',
+  entryFileName: 'index',
+  hideBreadcrumbs: true,
   plugin: ['typedoc-plugin-markdown'],
   visibilityFilters: {
     protected: false,

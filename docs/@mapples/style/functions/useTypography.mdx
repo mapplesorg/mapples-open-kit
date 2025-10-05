@@ -1,0 +1,63 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Function: useTypography()
+
+> **useTypography**(): `object`
+
+Defined in: [hooks/useTypography.ts:41](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/style/src/hooks/useTypography.ts#L41)
+
+Hook to access and manage typography configuration and styles.
+
+## Returns
+
+`object`
+
+Object containing typography utilities
+
+### typographyConfig
+
+> **typographyConfig**: [`TypographyConfig`](../interfaces/TypographyConfig.mdx)
+
+### getTypographyStyle()
+
+> **getTypographyStyle**: (`key`) => `object`
+
+#### Parameters
+
+##### key
+
+`string` = `typographyConfig.default`
+
+#### Returns
+
+`object`
+
+## Examples
+
+```tsx
+const MyComponent = () => {
+  const { getTypographyStyle } = useTypography();
+
+  return (
+    <Text style={getTypographyStyle('heading1')}>
+      Large Heading
+    </Text>
+  );
+};
+```
+
+```tsx
+const MyComponent = () => {
+  const { typographyConfig, getTypographyStyle } = useTypography();
+
+  return (
+    <View>
+      <Text style={getTypographyStyle('heading1')}>Title</Text>
+      <Text style={getTypographyStyle('body')}>Body text</Text>
+      <Text style={getTypographyStyle('caption')}>Caption</Text>
+    </View>
+  );
+};
+```

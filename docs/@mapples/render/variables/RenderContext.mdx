@@ -1,0 +1,22 @@
+[**Mapples Open Kit - Types**](../../../index.mdx)
+
+***
+
+# Variable: RenderContext
+
+> `const` **RenderContext**: `Context`\<[`RenderContextType`](../interfaces/RenderContextType.mdx)\>
+
+Defined in: [context/RenderContext.ts:18](https://github.com/mapplesorg/mapples-open-kit/blob/2cf247e3716d7da57d20142515c42c35223f2b70/packages/@mapples/render/src/context/RenderContext.ts#L18)
+
+React context for the render system.
+Provides access to registered components throughout the component tree.
+
+This context is used by the RenderProvider to make registered components
+available to all child components in the render tree.
+
+## Example
+
+```tsx
+const { components } = useContext(RenderContext);
+const Component = components['Button']?.Component;
+```
