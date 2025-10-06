@@ -1,0 +1,18 @@
+# Type Alias: RegisteredComponents
+
+> **RegisteredComponents** = `Record`\<`string`, [`RegisteredComponent`](../interfaces/RegisteredComponent.mdx)\>
+
+Defined in: [components.ts:43](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/types/src/components.ts#L43)
+
+A record type that maps component type strings to their registered component definitions.
+This is the main registry structure for all available components in the system.
+
+## Example
+
+```typescript
+const components: RegisteredComponents = {
+  'Button': buttonComponent,
+  'TextInput': textInputComponent,
+  'View': viewComponent
+};
+```

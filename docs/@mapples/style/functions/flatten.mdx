@@ -1,0 +1,37 @@
+# Function: flatten()
+
+> **flatten**\<`T`\>(`style?`): [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\>
+
+Defined in: [utils/style.ts:87](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/style/src/utils/style.ts#L87)
+
+Flattens a style prop into a single style object.
+
+## Type Parameters
+
+### T
+
+`T` *extends* `object`
+
+## Parameters
+
+### style?
+
+`StyleProp`\<[`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\>\>
+
+The style prop to flatten
+
+## Returns
+
+[`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\>
+
+Flattened style object
+
+## Example
+
+```tsx
+const flattenedStyle = Styler.flatten([
+  { padding: 10 },
+  { margin: 5 },
+  { backgroundColor: 'red' }
+]);
+```

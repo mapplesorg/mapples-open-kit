@@ -1,0 +1,95 @@
+# Function: useTheme()
+
+> **useTheme**(`customStyleConfig?`): `object`
+
+Defined in: [hooks/useTheme.ts:57](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/style/src/hooks/useTheme.ts#L57)
+
+Hook to access and manage theme configuration with automatic color scheme detection.
+
+## Parameters
+
+### customStyleConfig?
+
+[`StyleContextType`](../interfaces/StyleContextType.mdx)
+
+Optional custom style configuration to override the context value
+
+## Returns
+
+`object`
+
+Object containing theme utilities and current theme state
+
+### theme
+
+> **theme**: [`ThemeMap`](../interfaces/ThemeMap.mdx)
+
+### themeConfig
+
+> **themeConfig**: [`ThemeConfig`](../interfaces/ThemeConfig.mdx)
+
+### colorScheme
+
+> **colorScheme**: `ColorSchemeName`
+
+### getColor()
+
+> **getColor**: (`color`) => [`Color`](../type-aliases/Color.mdx)
+
+#### Parameters
+
+##### color
+
+`string`
+
+#### Returns
+
+[`Color`](../type-aliases/Color.mdx)
+
+### getColors()
+
+> **getColors**: (...`colors`) => [`Color`](../type-aliases/Color.mdx)[]
+
+#### Parameters
+
+##### colors
+
+...`string`[]
+
+#### Returns
+
+[`Color`](../type-aliases/Color.mdx)[]
+
+## Examples
+
+```tsx
+const MyComponent = () => {
+  const { theme, getColor, colorScheme } = useTheme();
+
+  return (
+    <View style={{
+      backgroundColor: getColor('theme.colors.background'),
+      color: getColor('theme.colors.text')
+    }}>
+      <Text>Current scheme: {colorScheme}</Text>
+    </View>
+  );
+};
+```
+
+```tsx
+const MyComponent = () => {
+  const { getColors } = useTheme();
+  const [bgColor, textColor, borderColor] = getColors(
+    'theme.colors.background',
+    'theme.colors.text',
+    'theme.colors.border'
+  );
+
+  return (
+    <View style={{ backgroundColor: bgColor, borderColor }}>
+      <Text style={{ color: textColor }}>Multiple colors</Text>
+    </View>
+  );
+};
+```

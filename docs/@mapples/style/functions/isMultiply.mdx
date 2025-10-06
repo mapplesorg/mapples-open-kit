@@ -1,0 +1,35 @@
+# Function: isMultiply()
+
+> **isMultiply**\<`T`\>(`value`): `` value is `*${number}` ``
+
+Defined in: [utils/system.ts:166](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/style/src/utils/system.ts#L166)
+
+Type guard to check if a value is a multiplier expression (e.g., '*2', '*3').
+
+## Type Parameters
+
+### T
+
+`T` *extends* `string`
+
+## Parameters
+
+### value
+
+The value to check
+
+`` `*${number}` `` | `T`
+
+## Returns
+
+`` value is `*${number}` ``
+
+True if the value is a multiplier expression
+
+## Example
+
+```tsx
+isMultiply('*2'); // true
+isMultiply('2*'); // false
+isMultiply('calc(2 * 4)'); // false
+```

@@ -1,0 +1,14 @@
+# Type Alias: DeepPartial\<T\>
+
+> **DeepPartial**\<`T`\> = `{ [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P] }`
+
+Defined in: [types/system.ts:5](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/style/src/types/system.ts#L5)
+
+Utility type that makes all properties of an object type optional recursively.
+Useful for creating partial configurations where nested objects are also optional.
+
+## Type Parameters
+
+### T
+
+`T`

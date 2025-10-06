@@ -1,0 +1,367 @@
+# @mapples/app
+
+A React Native component library that provides the core Mapples ecosystem functionality. This package includes the main MapplesApp component and utility functions for asset management and font loading.
+
+## Features
+
+- 🚀 **Core Mapples Integration**: Main entry point for the Mapples ecosystem
+- 📱 **Font Loading**: Automatic font loading with expo-font integration
+- 🎨 **Style Provider**: Built-in styling system integration
+- 🧩 **Render Provider**: Dynamic component rendering capabilities
+- 📦 **Asset Management**: Utility functions for processing Mapples asset references
+- 🔧 **TypeScript Support**: Full TypeScript support with comprehensive type definitions
+- ⚛️ **React Integration**: Seamless integration with React Native applications
+
+## Installation
+
+```bash
+npm install @mapples/app
+# or
+yarn add @mapples/app
+```
+
+## Usage
+
+### Basic Setup
+
+Wrap your app with the `MapplesApp` component to enable the Mapples ecosystem:
+
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+
+function App() {
+  return (
+    <MapplesApp>
+      {/* Your app components */}
+    </MapplesApp>
+  );
+}
+
+export default App;
+```
+
+### With Custom Configuration
+
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+
+function App() {
+  return (
+    <MapplesApp
+      showFontLoadingIndicator={true}
+      FontLoadingIndicator={<LoadingSpinner />}
+    >
+      {/* Your app components */}
+    </MapplesApp>
+  );
+}
+
+export default App;
+```
+
+### With Custom Assets and Styles
+
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+
+const customAssets = {
+  'ref(font:123:CustomFont.ttf)': require('./fonts/CustomFont.ttf'),
+  'ref(image:456:logo.png)': require('./images/logo.png'),
+};
+
+const customStyle = {
+  // Your custom style configuration
+};
+
+function App() {
+  return (
+    <MapplesApp
+      assets={customAssets}
+      style={customStyle}
+    >
+      {/* Your app components */}
+    </MapplesApp>
+  );
+}
+
+export default App;
+```
+
+## API Reference
+
+### MapplesApp
+
+The main component that provides the core Mapples ecosystem functionality.
+
+**Props:**
+
+- `children` - Child components
+- `style?` - Optional custom style configuration to override the default Mapples styling
+- `assets?` - Optional custom assets configuration to override the default Mapples assets
+- `showFontLoadingIndicator?` - Whether to show a loading indicator while fonts are loading
+- `FontLoadingIndicator?` - Custom loading indicator component to display while fonts are loading
+
+**Example:**
+
+```tsx
+<MapplesApp
+  showFontLoadingIndicator={true}
+  FontLoadingIndicator={<ActivityIndicator size="large" />}
+>
+  <YourAppContent />
+</MapplesApp>
+```
+
+### Utility Functions
+
+#### `normalizeKey(key)`
+
+Normalizes a reference key by extracting type, id, and name information.
+
+**Parameters:**
+
+- `key` - The reference key to normalize, either in `ref(type:id:name)` format or a plain string
+
+**Returns:**
+
+- An object containing the parsed type, id, and normalized name, or undefined if the key format is invalid
+
+**Example:**
+
+```typescript
+import { normalizeKey } from '@mapples/app';
+
+const result = normalizeKey('ref(font:123:MyFont.ttf)');
+// Returns: { type: 'font', id: '123', name: 'MyFont' }
+```
+
+#### `remapFonts(assets)`
+
+Remaps font assets from the Mapples asset configuration format to a format compatible with expo-font.
+
+**Parameters:**
+
+- `assets` - The assets configuration object containing font references
+
+**Returns:**
+
+- A new object containing only the font assets in expo-font compatible format
+
+**Example:**
+
+```typescript
+import { remapFonts } from '@mapples/app';
+
+const assets = {
+  'ref(font:123:MyFont.ttf)': require('./fonts/MyFont.ttf'),
+  'ref(image:456:logo.png)': require('./images/logo.png'),
+};
+
+const fonts = remapFonts(assets);
+// Returns: { MyFont: require('./fonts/MyFont.ttf') }
+```
+
+## Advanced Usage
+
+### Custom Font Loading
+
+```tsx
+import React from 'react';
+import MapplesApp, { remapFonts } from '@mapples/app';
+
+const customAssets = {
+  'ref(font:123:CustomFont.ttf)': require('./fonts/CustomFont.ttf'),
+  'ref(font:124:AnotherFont.ttf)': require('./fonts/AnotherFont.ttf'),
+};
+
+function App() {
+  return (
+    <MapplesApp assets={customAssets}>
+      <YourAppContent />
+    </MapplesApp>
+  );
+}
+```
+
+### Asset Processing
+
+```tsx
+import { normalizeKey, remapFonts } from '@mapples/app';
+
+// Process individual asset keys
+const assetKey = 'ref(font:123:MyFont.ttf)';
+const normalized = normalizeKey(assetKey);
+console.log(normalized); // { type: 'font', id: '123', name: 'MyFont' }
+
+// Process entire asset configuration
+const assets = {
+  'ref(font:123:MyFont.ttf)': require('./fonts/MyFont.ttf'),
+  'ref(image:456:logo.png)': require('./images/logo.png'),
+};
+
+const fonts = remapFonts(assets);
+console.log(fonts); // { MyFont: require('./fonts/MyFont.ttf') }
+```
+
+### Integration with Other Mapples Packages
+
+The MapplesApp component automatically integrates with other Mapples packages:
+
+```tsx
+import React from 'react';
+import MapplesApp from '@mapples/app';
+import { useForm } from '@mapples/form';
+import { useDnD } from '@mapples/dnd';
+
+function App() {
+  return (
+    <MapplesApp>
+      <FormExample />
+      <DnDExample />
+    </MapplesApp>
+  );
+}
+
+function FormExample() {
+  const form = useForm();
+  // Form functionality is available
+  return <div>Form content</div>;
+}
+
+function DnDExample() {
+  const { isDragging } = useDnD();
+  // Drag and drop functionality is available
+  return <div>DnD content</div>;
+}
+```
+
+## TypeScript Support
+
+This package is written in TypeScript and provides full type safety. All APIs are documented with TSDoc comments for excellent IDE support and IntelliSense.
+
+### Type Definitions
+
+```typescript
+interface MapplesAppProps {
+  style?: StyleContextType;
+  assets?: AnyObject;
+  showFontLoadingIndicator?: boolean;
+  FontLoadingIndicator?: JSX.Element;
+}
+```
+
+## Best Practices
+
+1. **Always wrap your app**: Use MapplesApp as the root component to ensure all Mapples functionality is available
+
+2. **Font loading**: Consider using `showFontLoadingIndicator` for better user experience during font loading
+
+3. **Asset organization**: Keep your asset references organized and use the utility functions for processing
+
+4. **Performance**: The component handles font loading efficiently and only re-renders when necessary
+
+5. **Testing**: Test your app with different asset configurations to ensure proper loading
+
+## Metro Configuration
+
+This package requires Metro configuration to work properly with Expo applications. Update your `metro.config.js`:
+
+```javascript
+const { getDefaultConfig } = require('expo/metro-config');
+const { mapplesResolver } = require('@mapples/app/expo');
+
+module.exports = (() => {
+  const config = getDefaultConfig(__dirname);
+
+  const { transformer, resolver } = config;
+
+  config.transformer = {
+    ...transformer,
+    babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
+  };
+  config.resolver = {
+    ...resolver,
+    assetExts: resolver.assetExts.filter((ext) => ext !== 'svg'),
+    sourceExts: [...resolver.sourceExts, 'svg'],
+  };
+
+  config.resolver.resolveRequest = mapplesResolver(
+    (context, moduleName, platform) => {
+      // add your custom resolvers here
+      return context.resolveRequest(context, moduleName, platform);
+    },
+  );
+
+  return config;
+})();
+```
+
+### Dependencies
+
+Make sure you have the required dependencies installed:
+
+```bash
+npm install react-native-svg react-native-svg-transformer
+# or
+yarn add react-native-svg react-native-svg-transformer
+```
+
+For more information about SVG transformation, see the [react-native-svg-transformer documentation](https://github.com/kristerkari/react-native-svg-transformer).
+
+## Development
+
+### Building the Package
+
+```bash
+npm run build
+```
+
+### Type Checking
+
+```bash
+npm run type-check
+```
+
+### Linting
+
+```bash
+npm run lint
+```
+
+## Contributing
+
+Contributions are welcome! Please ensure that:
+
+1. All new APIs include comprehensive TSDoc documentation
+2. TypeScript types are properly defined
+3. Tests are added for new functionality
+4. The README is updated for any new features
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Author
+
+Oleksandr Soloviov - [mapples.org](https://mapples.org/people/olek_soloviov)
+
+@mapples/app
+
+A React Native component library that provides the core Mapples ecosystem functionality.
+This package includes the main MapplesApp component and utility functions for asset management.
+
+## Interfaces
+
+- [MapplesAppProps](interfaces/MapplesAppProps.mdx)
+
+## Variables
+
+- [default](variables/default.mdx)
+
+## Functions
+
+- [normalizeKey](functions/normalizeKey.mdx)
+- [remapFonts](functions/remapFonts.mdx)
