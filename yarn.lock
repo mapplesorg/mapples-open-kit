@@ -9532,7 +9532,7 @@ __metadata:
     lodash: "npm:^4.17.21"
     prettier: "npm:^3.6.2"
     react: "npm:19.1.0"
-    react-i18next: "npm:^15.5.1"
+    react-i18next: "npm:^16.1.0"
     react-native: "npm:0.81.4"
     react-native-gesture-handler: "npm:~2.28.0"
     react-native-json-tree: "npm:^1.5.0"
@@ -11153,14 +11153,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-i18next@npm:^15.5.1":
-  version: 15.7.3
-  resolution: "react-i18next@npm:15.7.3"
+"react-i18next@npm:^16.1.0":
+  version: 16.1.0
+  resolution: "react-i18next@npm:16.1.0"
   dependencies:
     "@babel/runtime": "npm:^7.27.6"
     html-parse-stringify: "npm:^3.0.1"
   peerDependencies:
-    i18next: ">= 25.4.1"
+    i18next: ">= 25.5.2"
     react: ">= 16.8.0"
     typescript: ^5
   peerDependenciesMeta:
@@ -11170,7 +11170,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/dc3ca1da9accb47f63b2049c94ff7a94ba92d76bad586aca7c2aa3b7a01c2d4e69d4363ff0cfa898cef22b109f2dd49864d6ac94cd9afbac485d44e70ed5a4d6
+  checksum: 10c0/fa64c933705651ef96e80a520ee0c96e946a78af6415f5a79c98938e551c6b4728a726c9d6632472689d6377c89e5b9f877d51088cc79ee2730f031e0743141c
   languageName: node
   linkType: hard
 
