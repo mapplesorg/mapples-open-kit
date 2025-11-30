@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { isArray, mapValues, replace } from 'lodash';
+import { isArray, isEqual, mapValues, replace } from 'lodash';
 
 import { getThemeRegexp, isCalc, isMultiply } from '../utils';
 
@@ -58,12 +58,20 @@ const useStyled = <T extends object>(styled?: T) => {
   const { sizing, getSize } = useSizing();
   const { getResponsiveStyle } = useResponsive();
 
+  const [styledValue, setStyledValue] = useState<T | undefined>(styled);
+
+  useEffect(() => {
+    if (!isEqual(styled, styledValue)) {
+      setStyledValue(styled);
+    }
+  }, [styled, styledValue]);
+
   return useMemo(() => {
-    if (!styled) {
+    if (!styledValue) {
       return {};
     }
 
-    const stringifyProps = JSON.stringify(styled);
+    const stringifyProps = JSON.stringify(styledValue);
     const pattern = getThemeRegexp({ theme, sizing });
 
     const replaced = replace(stringifyProps, pattern, (value) => {
@@ -89,7 +97,7 @@ const useStyled = <T extends object>(styled?: T) => {
     }
 
     return mapValues(result, getResponsiveStyle);
-  }, [getColor, getResponsiveStyle, getSize, sizing, styled, theme]);
+  }, [getColor, getResponsiveStyle, getSize, sizing, styledValue, theme]);
 };
 
 export default useStyled;

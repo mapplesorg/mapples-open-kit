@@ -84,9 +84,12 @@ const useTheme = (customStyleConfig?: StyleContextType) => {
     [theme, themeConfig.defaultColor],
   );
 
-  const getColors = (...colors: string[]) => {
-    return map(colors, getColor);
-  };
+  const getColors = useCallback(
+    (...colors: string[]) => {
+      return map(colors, getColor);
+    },
+    [getColor],
+  );
 
   return {
     theme,

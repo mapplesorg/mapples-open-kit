@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 
 import { cloneDeep, isArray, keys, map } from 'lodash';
 
@@ -113,21 +113,33 @@ const useResponsive = () => {
 
   const breakpointVariants = useMemo(() => keys(breakpoints), [breakpoints]);
 
-  const isBreakpoint = (breakpoint: string) => {
-    return breakpoint === currentBreakpoint;
-  };
+  const isBreakpoint = useCallback(
+    (breakpoint: string) => {
+      return breakpoint === currentBreakpoint;
+    },
+    [currentBreakpoint],
+  );
 
-  const isSmaller = (width: number) => {
-    return windowWidth < width;
-  };
+  const isSmaller = useCallback(
+    (width: number) => {
+      return windowWidth < width;
+    },
+    [windowWidth],
+  );
 
-  const isLarger = (width: number) => {
-    return windowWidth > width;
-  };
+  const isLarger = useCallback(
+    (width: number) => {
+      return windowWidth > width;
+    },
+    [windowWidth],
+  );
 
-  const getResponsiveStyle = <T>(style: T) => {
-    return parseResponsiveStyle(style, currentBreakpoint, breakpointVariants);
-  };
+  const getResponsiveStyle = useCallback(
+    <T>(style: T) => {
+      return parseResponsiveStyle(style, currentBreakpoint, breakpointVariants);
+    },
+    [currentBreakpoint, breakpointVariants],
+  );
 
   return {
     currentBreakpoint,
