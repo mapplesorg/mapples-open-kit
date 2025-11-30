@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, useCallback, useEffect, useState } from 'react';
 
-import { find, keys } from 'lodash';
+import { keys } from 'lodash';
 import { useWindowDimensions } from 'react-native';
 
 import { ResponsiveContextProvider } from '../context';
