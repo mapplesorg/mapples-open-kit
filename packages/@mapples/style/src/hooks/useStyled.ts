@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-import { isArray, isEqual, isObject, mapValues, replace } from 'lodash';
+import { isArray, isObject, mapValues, replace } from 'lodash';
 
 import { getThemeRegexp, isCalc, isMultiply } from '../utils';
 
@@ -14,7 +14,9 @@ import useTheme from './useTheme';
  * @param value - The value to check
  * @returns True if the value is a boxShadow object
  */
-const isBoxShadowObject = (value: unknown): value is {
+const isBoxShadowObject = (
+  value: unknown,
+): value is {
   color?: string;
   x?: number;
   y?: number;
@@ -98,21 +100,17 @@ const useStyled = <T extends object>(styled?: T) => {
   const { sizing, getSize } = useSizing();
   const { getResponsiveStyle } = useResponsive();
 
-  const [styledValue, setStyledValue] = useState<T | undefined>(styled);
-
-  useEffect(() => {
-    if (!isEqual(styled, styledValue)) {
-      setStyledValue(styled);
-    }
-  }, [styled, styledValue]);
+  const pattern = useMemo(
+    () => getThemeRegexp({ theme, sizing }),
+    [theme, sizing],
+  );
 
   return useMemo(() => {
-    if (!styledValue) {
+    if (!styled) {
       return {};
     }
 
-    const stringifyProps = JSON.stringify(styledValue);
-    const pattern = getThemeRegexp({ theme, sizing });
+    const stringifyProps = JSON.stringify(styled);
 
     const replaced = replace(stringifyProps, pattern, (value) => {
       const normalizedValue = replace(value, /"/gi, '');
@@ -132,7 +130,6 @@ const useStyled = <T extends object>(styled?: T) => {
 
     const result = (JSON.parse(replaced) ?? {}) as T | T[];
 
-    // Process boxShadow objects
     const processBoxShadow = (obj: any): any => {
       if (isArray(obj)) {
         return obj.map(processBoxShadow);
@@ -162,7 +159,7 @@ const useStyled = <T extends object>(styled?: T) => {
     }
 
     return mapValues(processedResult, getResponsiveStyle);
-  }, [getColor, getResponsiveStyle, getSize, sizing, styledValue, theme]);
+  }, [styled, getColor, getResponsiveStyle, getSize, pattern]);
 };
 
 export default useStyled;
