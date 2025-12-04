@@ -20,8 +20,11 @@
     "directory": "packages/@mapples/ui"
   },
   "peerDependencies": {
+    "jsbarcode": "^3.11.5",
     "react": ">=18.0.0 <20.0.0",
-    "react-native": ">=0.71.0"
+    "react-native": ">=0.71.0",
+    "react-native-qrcode-svg": "^6.0.0",
+    "react-native-svg": ">=12.0.0"
   },
   "devDependencies": {
     "@types/react": ">=18.0.0 <20.0.0",
