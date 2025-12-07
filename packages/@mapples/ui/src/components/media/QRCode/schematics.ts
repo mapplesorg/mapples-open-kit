@@ -6,4 +6,3 @@ export const QRCodeSchematic: RegisteredComponent = {
   type: 'QRCode',
   Component: QRCode,
 };
-
