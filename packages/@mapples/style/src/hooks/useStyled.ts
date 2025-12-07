@@ -141,6 +141,14 @@ const useStyled = <T extends object>(styled?: T) => {
             return parseBoxShadow(value, getColor);
           }
 
+          if (key === 'zIndex' && value !== undefined && value !== null) {
+            // Ensure zIndex is always a number
+            const numValue = typeof value === 'string' ? Number(value) : value;
+            return typeof numValue === 'number' && !isNaN(numValue)
+              ? numValue
+              : undefined;
+          }
+
           if (isObject(value) && !isArray(value)) {
             return processBoxShadow(value);
           }
