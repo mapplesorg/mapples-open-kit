@@ -3134,8 +3134,11 @@ __metadata:
     "@types/react": "npm:>=18.0.0 <20.0.0"
     typescript: "npm:~5.9.2"
   peerDependencies:
+    jsbarcode: ^3.11.5
     react: ">=18.0.0 <20.0.0"
     react-native: ">=0.71.0"
+    react-native-qrcode-svg: ^6.0.0
+    react-native-svg: ">=12.0.0"
   languageName: unknown
   linkType: soft
 
