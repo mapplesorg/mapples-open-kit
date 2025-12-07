@@ -70,6 +70,20 @@ export const init = (
 };
 
 /**
+ * Normalizes zIndex to ensure it's always a number.
+ *
+ * @param value - The zIndex value to normalize
+ * @returns Normalized zIndex as a number, or undefined if invalid
+ */
+const normalizeZIndex = (value: unknown): number | undefined => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  const numValue = typeof value === 'string' ? Number(value) : value;
+  return typeof numValue === 'number' && !isNaN(numValue) ? numValue : undefined;
+};
+
+/**
  * Flattens a style prop into a single style object.
  *
  * @param style - The style prop to flatten
@@ -87,7 +101,22 @@ export const init = (
 export const flatten = <T extends object>(
   style?: StyleProp<SizableStyleProps<T>>,
 ) => {
-  return StyleSheet.flatten(style);
+  const flattened = StyleSheet.flatten(style);
+  if (
+    flattened &&
+    typeof flattened === 'object' &&
+    !Array.isArray(flattened) &&
+    'zIndex' in flattened
+  ) {
+    const normalizedZIndex = normalizeZIndex(flattened.zIndex);
+    if (normalizedZIndex !== undefined) {
+      return { ...flattened, zIndex: normalizedZIndex };
+    }
+    // Remove zIndex if it's invalid (undefined/null/NaN)
+    const { zIndex, ...rest } = flattened;
+    return rest;
+  }
+  return flattened;
 };
 
 /**

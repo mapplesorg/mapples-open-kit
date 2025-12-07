@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, useCallback, useEffect, useState } from 'react';
 
-import { find, keys } from 'lodash';
+import { keys } from 'lodash';
 import { useWindowDimensions } from 'react-native';
 
 import { ResponsiveContextProvider } from '../context';
@@ -50,11 +50,26 @@ const ResponsiveStyleProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const getCurrentBreakpoint = useCallback(
     (windowWidth: number) => {
-      return find(keys(responsiveConfig.breakpoints), (breakpoint) => {
-        return isBetween(windowWidth, responsiveConfig.breakpoints[breakpoint]);
+      // Sort breakpoints by min value for efficient lookup
+      const breakpointKeys = keys(responsiveConfig.breakpoints);
+      const sortedBreakpoints = breakpointKeys.sort((a, b) => {
+        return (
+          responsiveConfig.breakpoints[a].min -
+          responsiveConfig.breakpoints[b].min
+        );
       });
+
+      // Find the largest breakpoint that fits (check from largest to smallest)
+      for (let i = sortedBreakpoints.length - 1; i >= 0; i--) {
+        const breakpoint = sortedBreakpoints[i];
+        if (isBetween(windowWidth, responsiveConfig.breakpoints[breakpoint])) {
+          return breakpoint;
+        }
+      }
+
+      return responsiveConfig.default;
     },
-    [responsiveConfig.breakpoints],
+    [responsiveConfig.breakpoints, responsiveConfig.default],
   );
 
   useEffect(() => {

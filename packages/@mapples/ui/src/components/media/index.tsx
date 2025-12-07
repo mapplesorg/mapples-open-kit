@@ -7,4 +7,10 @@ export * from './Image';
 export { default as Icon } from './Icon';
 export * from './Icon';
 
+export { default as BarCode } from './BarCode';
+export * from './BarCode';
+
+export { default as QRCode } from './QRCode';
+export * from './QRCode';
+
 export * from './schematics';

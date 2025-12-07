@@ -21,6 +21,7 @@ export type ImageProps = PropsWithChildren<
     styled?: StyledProps<ViewProps> & {
       /** Image-specific styling */
       styleImage?: StyledProp<ImageStyle>;
+      styledImageProps?: StyledProps<ExpoImageProps>;
     };
     /** Alternative data source for the image */
     dataSource?: string;
@@ -57,15 +58,15 @@ const StyledExpoImage = styled(ExpoImage);
  * @public
  */
 const Image = forwardRef(
-  ({ styled, source, alt, dataSource, ...props }: ImageProps, ref) => {
-    const { styleImage, ...styledProps } = styled || {};
+  ({ styled, source, dataSource, ...props }: ImageProps, ref) => {
+    const { styleImage, styledImageProps, ...styledProps } = styled || {};
 
     return (
-      <StyledView ref={ref} styled={styledProps} {...props}>
+      <StyledView ref={ref} styled={styledProps}>
         <StyledExpoImage
           source={dataSource || source}
-          alt={alt}
-          styled={{ style: styleImage }}
+          styled={{ style: styleImage, ...(styledImageProps || {}) }}
+          {...props}
         />
       </StyledView>
     );
