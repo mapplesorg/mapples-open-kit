@@ -1,5 +1,13 @@
 # @mapples/style
 
+## 1.0.4
+
+### Patch Changes
+
+- 20aca8c: Resolve issues with z Index
+- 20aca8c: Replace rn shadow with modern box shadow property
+- 20aca8c: Fix issues with rerendering and perfomance improvements
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @mapples/ui
 
+## 1.0.4
+
+### Patch Changes
+
+- 20aca8c: Resolve issues with z Index
+
 ## 1.0.3
 
 ### Patch Changes
