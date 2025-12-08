@@ -10,9 +10,7 @@ import {
 import { View, ViewProps } from 'react-native';
 import Svg, { Rect, SvgProps } from 'react-native-svg';
 
-import BarcodeEncoder, {
-  type BarcodeFormat,
-} from './BarCodeEncoder';
+import BarcodeEncoder, { type BarcodeFormat } from './BarCodeEncoder';
 
 /**
  * Props for the BarCode component.
