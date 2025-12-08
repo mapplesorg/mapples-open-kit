@@ -9048,6 +9048,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsbarcode@npm:^3.12.1":
+  version: 3.12.1
+  resolution: "jsbarcode@npm:3.12.1"
+  checksum: 10c0/0bd3f276dcce0afab9a995e4c52da0e755a7a6bb8eaa85510886fcb9eb80f4608df26fc2c0114ba9f324d9003076e3049bf49b2c0534e9e7677ce46ec939e4e9
+  languageName: node
+  linkType: hard
+
 "jsc-safe-url@npm:^0.2.2, jsc-safe-url@npm:^0.2.4":
   version: 0.2.4
   resolution: "jsc-safe-url@npm:0.2.4"
@@ -9531,6 +9538,7 @@ __metadata:
     expo-video: "npm:~3.0.11"
     husky: "npm:^9.1.7"
     i18next: "npm:^25.1.1"
+    jsbarcode: "npm:^3.12.1"
     lint-staged: "npm:^16.1.6"
     lodash: "npm:^4.17.21"
     prettier: "npm:^3.6.2"
