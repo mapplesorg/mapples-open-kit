@@ -80,7 +80,9 @@ const normalizeZIndex = (value: unknown): number | undefined => {
     return undefined;
   }
   const numValue = typeof value === 'string' ? Number(value) : value;
-  return typeof numValue === 'number' && !isNaN(numValue) ? numValue : undefined;
+  return typeof numValue === 'number' && !isNaN(numValue)
+    ? numValue
+    : undefined;
 };
 
 /**
