@@ -1,5 +1,11 @@
 # @mapples/ui
 
+## 1.0.5
+
+### Patch Changes
+
+- 5b1fc18: Add form components
+
 ## 1.0.4
 
 ### Patch Changes
