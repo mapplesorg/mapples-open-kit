@@ -5,6 +5,8 @@ import {
   StyledProp,
   StyledProps,
   StyledView,
+  Styler,
+  Typography,
   WithStyledProps,
 } from '@mapples/style';
 import { Image as ExpoImage, ImageProps as ExpoImageProps } from 'expo-image';
@@ -58,20 +60,45 @@ const StyledExpoImage = styled(ExpoImage);
  * @public
  */
 const Image = forwardRef(
-  ({ styled, source, dataSource, ...props }: ImageProps, ref) => {
+  ({ styled, source, dataSource, alt, ...props }: ImageProps, ref) => {
     const { styleImage, styledImageProps, ...styledProps } = styled || {};
+
+    const image = dataSource || source;
 
     return (
       <StyledView ref={ref} styled={styledProps}>
-        <StyledExpoImage
-          source={dataSource || source}
-          styled={{ style: styleImage, ...(styledImageProps || {}) }}
-          {...props}
-        />
+        {!!image ? (
+          <StyledExpoImage
+            source={image}
+            styled={{ style: styleImage, ...(styledImageProps || {}) }}
+            {...props}
+          />
+        ) : (
+          <StyledView styled={{ style: styler.imagePlaceholder }}>
+            <Typography style={styler.imagePlaceholderText}>
+              {alt || 'IMAGE'}
+            </Typography>
+          </StyledView>
+        )}
       </StyledView>
     );
   },
 );
 Image.displayName = 'Image';
+
+const styler = Styler.create({
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#eee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imagePlaceholderText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fafafa',
+  },
+});
 
 export default Image;

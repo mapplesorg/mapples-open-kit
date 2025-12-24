@@ -13,3 +13,4 @@ export * from './components/inputs';
 export * from './components/media';
 export * from './components/typography';
 export * from './components/views';
+export * from './components/form';
