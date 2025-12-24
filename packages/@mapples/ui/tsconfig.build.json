@@ -16,6 +16,9 @@
     },
     {
       "path": "../state/tsconfig.build.json"
+    },
+    {
+      "path": "../form/tsconfig.build.json"
     }
   ]
 }
