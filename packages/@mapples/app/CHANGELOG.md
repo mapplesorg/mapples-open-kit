@@ -1,5 +1,12 @@
 # @mapples/render
 
+## 1.0.1
+
+### Patch Changes
+
+- 271b994: Add provider without resolver
+- 271b994: Add expo resolver plugin
+
 ## 1.0.0
 
 ### Major Changes
