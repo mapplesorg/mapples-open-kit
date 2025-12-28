@@ -10,3 +10,4 @@
 export { default } from './MapplesApp';
 export type { MapplesAppProps } from './MapplesApp';
 export { normalizeKey, remapFonts } from './utils';
+export { default as MapplesAppProvider } from './MapplesAppProvider';
