@@ -30,13 +30,13 @@ import FormContext from '../context';
  * @public
  */
 const useFormFieldToggle = (fieldPath: string) => {
-  const { form } = useContext(FormContext);
+  const { form, initialized } = useContext(FormContext);
 
   const [value, setValue] = useState(false);
 
   useEffect(() => {
-    setValue(form?.getValue<boolean>(fieldPath) || false);
-  }, [fieldPath, form]);
+    if (initialized) setValue(form?.getValue<boolean>(fieldPath) || false);
+  }, [initialized, fieldPath, form]);
 
   const handleToggleValue = () => {
     setValue((prev) => {

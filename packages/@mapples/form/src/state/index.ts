@@ -89,8 +89,9 @@ class FormState<T extends object> {
    * Sets all form values and triggers subscriptions.
    *
    * @param values - New values to set for the form
+   * @param cb - Call back on success setting value (optional)
    */
-  setValues(values: T) {
+  setValues(values: T, cb?: (success: boolean) => void) {
     this.values = cloneDeep(values);
     this.saveToHistory();
     this.subscriptions.forEach((subscription) => {
@@ -100,6 +101,7 @@ class FormState<T extends object> {
           : this.getValues(),
       );
     });
+    cb?.(true);
   }
 
   /**

@@ -57,6 +57,8 @@ const Form = <T extends object>({
   historyItemThrottle,
   onChange,
 }: PropsWithChildren<FormProps<T>>) => {
+  const [initialized, setInitialized] = useState<boolean>(false);
+
   const [touched, setTouched] = useState<Record<keyof T, boolean>>(
     {} as Record<keyof T, boolean>,
   );
@@ -94,7 +96,7 @@ const Form = <T extends object>({
   });
 
   useEffect(() => {
-    form.setValues(initialValues);
+    form.setValues(initialValues, setInitialized);
   }, [form, initialValues]);
 
   const setFormTouched = useCallback(() => {
@@ -149,6 +151,7 @@ const Form = <T extends object>({
         validationErrors,
         validate,
         touch,
+        initialized,
       }}
     >
       {children}

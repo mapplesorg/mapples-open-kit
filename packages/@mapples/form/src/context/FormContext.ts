@@ -19,6 +19,7 @@ const FormContext = createContext<FormContextType<object>>({
   validate: noop,
   touch: noop,
   touched: {},
+  initialized: false,
 });
 
 /**
