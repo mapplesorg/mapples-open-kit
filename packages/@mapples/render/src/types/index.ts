@@ -64,6 +64,12 @@ export interface RenderComponentType {
   refProps?: RefPropsMap;
 }
 
+export interface StateCondition {
+  name: string;
+  condition: string;
+  id: string;
+}
+
 /**
  * Represents the complete render DOM structure.
  * Extends ChildComponents with a special 'root' component.
@@ -71,8 +77,9 @@ export interface RenderComponentType {
  * @interface RenderDom
  * @property {RenderComponentType} root - The root component of the render tree
  */
-export interface RenderDom extends ChildComponents {
+export interface RenderDom {
   root: RenderComponentType;
+  state?: StateCondition[];
 }
 
 /**
