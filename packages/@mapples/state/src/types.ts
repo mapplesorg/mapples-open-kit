@@ -19,3 +19,12 @@ export interface StateProviderProps {
   /** Optional state object to provide to child components. If not provided, an empty object will be used */
   state?: object;
 }
+
+export enum Conditions {
+  equals = 'eq',
+  notEquals = 'neq',
+}
+
+export type SimpleCondition = `${string}::${Conditions}::${string}`;
+export type BoolCondition = `${string}::${Conditions}::${'true' | 'false'}`;
+export type ConditionFunc = (a: unknown, b: unknown) => boolean;
