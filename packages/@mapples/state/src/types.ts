@@ -28,3 +28,11 @@ export enum Conditions {
 export type SimpleCondition = `${string}::${Conditions}::${string}`;
 export type BoolCondition = `${string}::${Conditions}::${'true' | 'false'}`;
 export type ConditionFunc = (a: unknown, b: unknown) => boolean;
+export type ValueType = 'string' | 'number' | 'boolean' | 'dataProp';
+
+export interface ParseConditionResult {
+  dataProp: string;
+  condition: Conditions;
+  valueProp: string | boolean;
+  valueType: ValueType;
+}

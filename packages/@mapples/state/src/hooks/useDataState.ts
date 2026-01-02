@@ -6,7 +6,7 @@ import { get, join } from 'lodash';
 import conditionMap from '../conditions';
 import StateContext from '../context';
 import { Conditions } from '../types';
-import { isCondition, parseCondition } from '../utils';
+import { isCondition, parseCondition, toBool, toNumber } from '../utils';
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -100,13 +100,18 @@ const useDataState = () => {
     (conditionStr: string) => {
       if (!isCondition(conditionStr)) return false;
 
-      const { dataProp, valueProp, condition } = parseCondition(conditionStr);
+      const { dataProp, valueProp, condition, valueType } =
+        parseCondition(conditionStr);
 
       const data = getStateValue(dataProp);
 
       let value;
-      if (typeof valueProp === 'string') {
+      if (typeof valueProp !== 'boolean' && valueType === 'dataProp') {
         value = getStateValue(valueProp);
+      } else if (valueType === 'boolean') {
+        value = toBool(valueType);
+      } else if (valueType === 'number') {
+        value = toNumber(valueProp);
       } else {
         value = valueProp;
       }
