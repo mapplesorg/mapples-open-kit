@@ -58,8 +58,8 @@ const useFormArrayField = <T>(fieldPath: string, fallbackValue?: T[]) => {
   const fieldPush = useCallback(
     (item: T) => {
       setValue((prev) => {
-        const valueClone = cloneDeep(prev);
-        valueClone?.push(item);
+        const valueClone = cloneDeep(prev) || [];
+        valueClone.push(item);
         form?.setValue(fieldPath, valueClone);
         return valueClone;
       });
