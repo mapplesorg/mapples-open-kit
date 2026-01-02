@@ -79,7 +79,7 @@ export interface StateCondition {
  */
 export interface RenderDom {
   root: RenderComponentType;
-  state?: StateCondition[];
+  state?: Record<string, StateCondition>;
 }
 
 /**
