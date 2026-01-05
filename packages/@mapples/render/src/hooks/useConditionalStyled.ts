@@ -1,9 +1,8 @@
 import { useContext, useMemo } from 'react';
 
+import { AnyObject } from '@mapples/render';
 import { useDataState } from '@mapples/state';
 import { keys, reduce } from 'lodash';
-
-import { AnyObject } from '@mapples/render';
 
 import RenderStateContext from '../context/RenderStateContext';
 
@@ -14,7 +13,7 @@ const useConditionalStyled = (props: AnyObject) => {
   const propsWithConditional = useMemo(() => {
     const styled: AnyObject = props?.styled;
 
-    if (!styled) return props;
+    if (!styled) return props; 
 
     const activeKeys = reduce(
       keys(styled),
