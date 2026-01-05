@@ -32,16 +32,20 @@ import FormContext from '../context';
 const useFormState = <T extends object>() => {
   const [values, setFormValues] = useState<T>();
 
-  const { form } = useContext(FormContext);
+  const { form, initialized } = useContext(FormContext);
 
   useEffect(() => {
+    if (initialized) {
+      setFormValues(form?.getValues() as T);
+    }
+
     const unsubscribe = form?.subscribeOnChange<T>((values) => {
       setFormValues(values);
     });
     return () => {
       unsubscribe?.();
     };
-  }, [form]);
+  }, [form, initialized]);
 
   const setValues = useCallback(
     (values: T) => {
