@@ -1,10 +1,10 @@
 import { useContext, useMemo } from 'react';
 
-import { AnyObject } from '@mapples/render';
 import { useDataState } from '@mapples/state';
 import { keys, reduce } from 'lodash';
 
 import RenderStateContext from '../context/RenderStateContext';
+import { AnyObject } from '../types';
 
 /**
  * Hook that processes component props to apply conditional styling based on state conditions.
