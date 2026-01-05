@@ -1,0 +1,34 @@
+# Function: toNumber()
+
+> **toNumber**(`value`): `number`
+
+Defined in: [utils.ts:148](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/state/src/utils.ts#L148)
+
+Converts a string or boolean value to a number.
+
+- Boolean values: true becomes 1, false becomes 0
+- String values: parsed using Number(), returns 0 if NaN
+
+## Parameters
+
+### value
+
+The value to convert (string or boolean)
+
+`string` | `boolean`
+
+## Returns
+
+`number`
+
+The numeric representation of the value (0 if conversion fails)
+
+## Example
+
+```tsx
+toNumber("123"); // 123
+toNumber("45.67"); // 45.67
+toNumber(true); // 1
+toNumber(false); // 0
+toNumber("invalid"); // 0
+```

@@ -1,6 +1,6 @@
 # Class: FormState\<T\>
 
-Defined in: [state/index.ts:18](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L18)
+Defined in: [state/index.ts:18](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L18)
 
 FormState manages the state of a form including values, validation, history, and subscriptions.
 It provides methods to get/set values, validate data, manage history for undo/redo functionality,
@@ -20,7 +20,7 @@ The type of the form data object
 
 > **new FormState**\<`T`\>(`initialValues`, `validationSchema?`, `historyItems?`, `historyItemThrottle?`, `filterHistoryKeys?`): `FormState`\<`T`\>
 
-Defined in: [state/index.ts:42](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L42)
+Defined in: [state/index.ts:42](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L42)
 
 Creates a new FormState instance.
 
@@ -66,7 +66,7 @@ Array of field paths to exclude from history tracking
 
 > **getValues**(): `T`
 
-Defined in: [state/index.ts:66](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L66)
+Defined in: [state/index.ts:66](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L66)
 
 Gets a deep copy of all form values.
 
@@ -82,7 +82,7 @@ A deep copy of the current form values
 
 > **setErrors**(`errors`): `void`
 
-Defined in: [state/index.ts:75](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L75)
+Defined in: [state/index.ts:75](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L75)
 
 Sets validation errors for the form.
 
@@ -104,7 +104,7 @@ Validation errors organized by field path
 
 > **getErrors**(): `null` \| `Record`\<`string`, `ValidationError`[]\>
 
-Defined in: [state/index.ts:84](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L84)
+Defined in: [state/index.ts:84](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L84)
 
 Gets the current validation errors.
 
@@ -118,9 +118,9 @@ Current validation errors or null if no errors
 
 ### setValues()
 
-> **setValues**(`values`): `void`
+> **setValues**(`values`, `cb?`): `void`
 
-Defined in: [state/index.ts:93](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L93)
+Defined in: [state/index.ts:94](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L94)
 
 Sets all form values and triggers subscriptions.
 
@@ -132,6 +132,12 @@ Sets all form values and triggers subscriptions.
 
 New values to set for the form
 
+##### cb?
+
+(`success`) => `void`
+
+Call back on success setting value (optional)
+
 #### Returns
 
 `void`
@@ -142,7 +148,7 @@ New values to set for the form
 
 > **setValue**\<`V`\>(`path`, `value?`): `void`
 
-Defined in: [state/index.ts:112](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L112)
+Defined in: [state/index.ts:114](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L114)
 
 Sets a value at a specific path and triggers subscriptions.
 
@@ -178,7 +184,7 @@ The value to set at the specified path
 
 > **subscribeOnChange**\<`V`\>(`cb`, `path?`): () => `boolean`
 
-Defined in: [state/index.ts:139](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L139)
+Defined in: [state/index.ts:141](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L141)
 
 Subscribes to form value changes.
 
@@ -220,7 +226,7 @@ Unsubscribe function to remove the subscription
 
 > **subscribeOnHistoryChange**(`cb`): () => `boolean`
 
-Defined in: [state/index.ts:156](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L156)
+Defined in: [state/index.ts:158](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L158)
 
 Subscribes to form history changes (undo/redo operations).
 
@@ -248,7 +254,7 @@ Unsubscribe function to remove the subscription
 
 > **getValue**\<`V`\>(`path?`): `V`
 
-Defined in: [state/index.ts:171](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L171)
+Defined in: [state/index.ts:173](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L173)
 
 Gets a value at a specific path or all values if no path is provided.
 
@@ -280,7 +286,7 @@ The value at the specified path or all form values
 
 > **validate**(): `Promise`\<`void`\>
 
-Defined in: [state/index.ts:180](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L180)
+Defined in: [state/index.ts:182](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L182)
 
 Validates the form using the provided validation schema.
 
@@ -298,7 +304,7 @@ Throws validation errors if validation fails
 
 > **prev**(): `boolean`
 
-Defined in: [state/index.ts:225](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L225)
+Defined in: [state/index.ts:227](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L227)
 
 Moves to the previous state in the form history (undo operation).
 
@@ -314,7 +320,7 @@ True if the operation was successful, false if no previous state exists
 
 > **next**(): `boolean`
 
-Defined in: [state/index.ts:239](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L239)
+Defined in: [state/index.ts:241](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L241)
 
 Moves to the next state in the form history (redo operation).
 
@@ -330,7 +336,7 @@ True if the operation was successful, false if no next state exists
 
 > **canPrev**(): `boolean`
 
-Defined in: [state/index.ts:253](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L253)
+Defined in: [state/index.ts:255](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L255)
 
 Checks if there is a previous state available for undo operation.
 
@@ -346,7 +352,7 @@ True if undo operation is possible
 
 > **canNext**(): `boolean`
 
-Defined in: [state/index.ts:262](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/form/src/state/index.ts#L262)
+Defined in: [state/index.ts:264](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/form/src/state/index.ts#L264)
 
 Checks if there is a next state available for redo operation.
 

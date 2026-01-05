@@ -2,7 +2,7 @@
 
 > **useDataState**(): `object`
 
-Defined in: [hooks/useDataState.ts:34](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/state/src/hooks/useDataState.ts#L34)
+Defined in: [hooks/useDataState.ts:37](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/state/src/hooks/useDataState.ts#L37)
 
 Hook for accessing and retrieving values from the application state.
 
@@ -56,6 +56,34 @@ const address = getValue({ key: 'user.street;user.city;user.state; ', active: tr
 // With custom fallback
 const age = getValue({ key: 'user.age', active: true }, 'Unknown');
 ```
+
+### getStateValue()
+
+> **getStateValue**: (`key`) => `undefined` \| `string` \| `object`
+
+#### Parameters
+
+##### key
+
+`string`
+
+#### Returns
+
+`undefined` \| `string` \| `object`
+
+### getConditionResult()
+
+> **getConditionResult**: (`conditionStr`) => `boolean`
+
+#### Parameters
+
+##### conditionStr
+
+`string`
+
+#### Returns
+
+`boolean`
 
 ## Example
 

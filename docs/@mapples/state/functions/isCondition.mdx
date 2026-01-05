@@ -1,0 +1,36 @@
+# Function: isCondition()
+
+> **isCondition**(`value`): value is \`$\{string\}::eq::$\{string\}\` \| \`$\{string\}::neq::$\{string\}\`
+
+Defined in: [utils.ts:95](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/state/src/utils.ts#L95)
+
+Type guard that checks if a value is a valid condition string.
+
+Valid condition strings follow the pattern: `dataProp::condition::value`
+where:
+- `dataProp` is alphanumeric with dots and underscores
+- `condition` is alphanumeric with underscores
+- `value` can be a quoted string, alphanumeric, or empty
+
+## Parameters
+
+### value
+
+`unknown`
+
+The value to check
+
+## Returns
+
+value is \`$\{string\}::eq::$\{string\}\` \| \`$\{string\}::neq::$\{string\}\`
+
+True if the value is a valid condition string, false otherwise
+
+## Example
+
+```tsx
+isCondition("user.age::eq::18"); // true
+isCondition("user.active::eq::true"); // true
+isCondition("invalid"); // false
+isCondition(123); // false
+```

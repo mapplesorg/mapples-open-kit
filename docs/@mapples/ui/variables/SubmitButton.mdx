@@ -1,0 +1,23 @@
+# Variable: SubmitButton
+
+> `const` **SubmitButton**: `ForwardRefExoticComponent`\<[`SubmitButtonProps`](../interfaces/SubmitButtonProps.mdx) & `object` & `RefAttributes`\<`View`\>\>
+
+Defined in: [packages/@mapples/ui/src/components/form/SubmitButton/SubmitButton.tsx:49](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/ui/src/components/form/SubmitButton/SubmitButton.tsx#L49)
+
+A customizable button component with built-in styling support.
+
+The SubmitButton component extends React Native's Pressable with additional styling
+capabilities and typography support. It can display a text label and supports
+all standard pressable interactions.
+
+## Example
+
+```tsx
+<SubmitButton
+  label="Click me"
+  styled={{
+    style: { backgroundColor: 'blue', padding: 16 },
+    styleTypography: { color: 'white', fontSize: 16 }
+  }}
+/>
+```

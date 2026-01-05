@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { first } from 'lodash';
 
@@ -40,10 +47,21 @@ const useFormField = <T>(
   fallbackValue?: T,
   subscribe?: boolean,
 ) => {
-  const { form, touched, validationErrors, validate, touch } =
+  const { form, touched, validationErrors, validate, touch, initialized } =
     useContext(FormContext);
 
-  const [value, setValue] = useState<T | undefined>(fallbackValue);
+  const [value, setValue] = useState<T | undefined>();
+
+  const fallBackValueRef = useRef(fallbackValue);
+  useEffect(() => {
+    fallBackValueRef.current = fallbackValue;
+  }, [fallbackValue]);
+
+  useEffect(() => {
+    if (initialized && !subscribe) {
+      setValue(form?.getValue<T>(fieldPath) || fallBackValueRef.current);
+    }
+  }, [fieldPath, form, initialized, subscribe]);
 
   const errors = validationErrors?.[fieldPath];
 
@@ -56,13 +74,9 @@ const useFormField = <T>(
   }, [fieldPath, touched]);
 
   useEffect(() => {
-    setValue(form?.getValue<T>(fieldPath) || fallbackValue);
-  }, [fallbackValue, fieldPath, form]);
-
-  useEffect(() => {
     if (!subscribe) {
       const unsubscribe = form?.subscribeOnHistoryChange(() => {
-        setValue(form?.getValue<T>(fieldPath) || fallbackValue);
+        setValue(form?.getValue<T>(fieldPath) || fallBackValueRef.current);
       });
 
       return () => {
@@ -75,7 +89,7 @@ const useFormField = <T>(
     return () => {
       unsubscribe?.();
     };
-  }, [fallbackValue, fieldPath, form, subscribe]);
+  }, [fieldPath, form, subscribe]);
 
   const handleSetValue = useCallback(
     (newValue: T) => {

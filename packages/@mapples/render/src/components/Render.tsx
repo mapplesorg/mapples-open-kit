@@ -1,3 +1,4 @@
+import { RenderStateContextProvider } from '../context/RenderStateContext';
 import { RenderProps } from '../types';
 
 import RenderComponent from './RenderComponent';
@@ -47,11 +48,13 @@ import RenderComponent from './RenderComponent';
  * />
  * ```
  */
-const Render = ({ root, CustomRenderComponent }: RenderProps) => {
+const Render = ({ root, state, CustomRenderComponent }: RenderProps) => {
   return CustomRenderComponent ? (
     <CustomRenderComponent {...root} />
   ) : (
-    <RenderComponent {...root} />
+    <RenderStateContextProvider value={state}>
+      <RenderComponent {...root} />
+    </RenderStateContextProvider>
   );
 };
 

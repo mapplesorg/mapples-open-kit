@@ -1,0 +1,27 @@
+# Variable: FormView
+
+> `const` **FormView**: `ForwardRefExoticComponent`\<`object` & `ViewProps` & `object` & `object` & `RefAttributes`\<`unknown`\>\>
+
+Defined in: [packages/@mapples/ui/src/components/form/FormView/FormView.tsx:42](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/ui/src/components/form/FormView/FormView.tsx#L42)
+
+A customizable view component with built-in styling support.
+
+The View component extends React Native's View with additional styling
+capabilities through the @mapples/style system. It serves as a container
+for other UI elements and supports all standard view properties.
+
+## Example
+
+```tsx
+<FormView
+  styled={{
+    style: {
+      backgroundColor: 'lightblue',
+      padding: 16,
+      borderRadius: 8
+    }
+  }}
+>
+  <Text>Content inside the view</Text>
+</View>
+```

@@ -29,5 +29,6 @@ import StateProvider from './StateProvider';
 
 export * from './hooks';
 export * from './types';
+export * from './utils';
 
 export default StateProvider;

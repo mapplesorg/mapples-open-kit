@@ -1,0 +1,29 @@
+# Variable: TextField
+
+> `const` **TextField**: `ForwardRefExoticComponent`\<`TextFieldProps` & `object` & `RefAttributes`\<`TextInput`\>\>
+
+Defined in: [packages/@mapples/ui/src/components/form/TextField/TextField.tsx:37](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/ui/src/components/form/TextField/TextField.tsx#L37)
+
+A customizable text input component with built-in styling support.
+
+The TextField component extends React Native's TextInput with additional styling
+capabilities through the @mapples/style system. It supports all standard
+TextField properties and behaviors.
+
+## Example
+
+```tsx
+<TextField
+  placeholder="Enter your text"
+  value={text}
+  onChangeText={setText}
+  styled={{
+    style: {
+      borderWidth: 1,
+      borderColor: 'gray',
+      padding: 12,
+      borderRadius: 8
+    }
+  }}
+/>
+```

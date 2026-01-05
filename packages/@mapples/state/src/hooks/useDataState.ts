@@ -1,9 +1,12 @@
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 
 import { DataProp } from '@mapples/types';
 import { get, join } from 'lodash';
 
+import conditionMap from '../conditions';
 import StateContext from '../context';
+import { Conditions } from '../types';
+import { isCondition, parseCondition, toBool, toNumber } from '../utils';
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -60,31 +63,73 @@ const useDataState = () => {
    * const age = getValue({ key: 'user.age', active: true }, 'Unknown');
    * ```
    */
-  const getValue = ({ key, active }: DataProp, altValue = 'N/A') => {
-    const keys = key?.replace(/\n/g, '').split(';');
+  const getValue = useCallback(
+    ({ key, active }: DataProp, altValue = 'N/A') => {
+      const keys = key?.replace(/\n/g, '').split(';');
 
-    if (!active) {
-      return;
-    }
+      if (!active) {
+        return;
+      }
 
-    if (keys?.length > 1) {
-      const separator = keys.pop();
+      if (keys?.length > 1) {
+        const separator = keys.pop();
 
-      return join(
-        keys.map((k) => get(value, k, altValue)),
-        separator,
-      );
-    }
+        return join(
+          keys.map((k) => get(value, k, altValue)),
+          separator,
+        );
+      }
 
-    if (key === '(this)') {
-      return value;
-    }
+      if (key === '(this)') {
+        return value;
+      }
 
-    return get(value, key, altValue);
-  };
+      return get(value, key, altValue);
+    },
+    [value],
+  );
+
+  const getStateValue = useCallback(
+    (key: string) => {
+      return getValue({ key, active: true }, '');
+    },
+    [getValue],
+  );
+
+  const getConditionResult = useCallback(
+    (conditionStr: string) => {
+      if (!isCondition(conditionStr)) return false;
+
+      const { dataProp, valueProp, condition, valueType } =
+        parseCondition(conditionStr);
+
+      const data = getStateValue(dataProp);
+
+      let value;
+      if (typeof valueProp !== 'boolean' && valueType === 'dataProp') {
+        value = getStateValue(valueProp);
+      } else if (valueType === 'boolean') {
+        value = toBool(valueType);
+      } else if (valueType === 'number') {
+        value = toNumber(valueProp);
+      } else {
+        value = valueProp;
+      }
+
+      if (!conditionMap[condition as Conditions]) {
+        console.warn(`Invalid condition: ${condition}`);
+        return false;
+      }
+
+      return conditionMap[condition as Conditions](data, value);
+    },
+    [getStateValue],
+  );
 
   return {
     getValue,
+    getStateValue,
+    getConditionResult,
   };
 };
 

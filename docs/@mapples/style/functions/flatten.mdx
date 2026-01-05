@@ -1,8 +1,8 @@
 # Function: flatten()
 
-> **flatten**\<`T`\>(`style?`): [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\>
+> **flatten**\<`T`\>(`style?`): [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> \| `Omit`\<[`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> & `object` & `Record`\<`"zIndex"`, `unknown`\>, `"zIndex"`\>
 
-Defined in: [utils/style.ts:87](https://github.com/mapplesorg/mapples-open-kit/blob/3a61469ee697c79baf17ecb084b4e81176697c88/packages/@mapples/style/src/utils/style.ts#L87)
+Defined in: [packages/@mapples/style/src/utils/style.ts:103](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/style/src/utils/style.ts#L103)
 
 Flattens a style prop into a single style object.
 
@@ -22,7 +22,7 @@ The style prop to flatten
 
 ## Returns
 
-[`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\>
+[`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> \| `Omit`\<[`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> *extends* `U`[] ? `U` : [`SizableStyleProps`](../type-aliases/SizableStyleProps.mdx)\<`T`\> & `object` & `Record`\<`"zIndex"`, `unknown`\>, `"zIndex"`\>
 
 Flattened style object
 

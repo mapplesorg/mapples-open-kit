@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { cloneDeep, drop, dropRight, indexOf } from 'lodash';
 
@@ -35,54 +35,95 @@ import FormContext from '../context';
  * @public
  */
 const useFormArrayField = <T>(fieldPath: string, fallbackValue?: T[]) => {
-  const { form } = useContext(FormContext);
+  const { form, initialized } = useContext(FormContext);
 
   const [value, setValue] = useState<T[] | undefined>();
 
   useEffect(() => {
-    setValue(form?.getValue<T[]>(fieldPath));
-  }, [fieldPath, form]);
+    const unsubscribe = form?.subscribeOnHistoryChange(() => {
+      setValue(form?.getValue<T[]>(fieldPath) || fallbackValue);
+    });
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [fallbackValue, fieldPath, form]);
 
   useEffect(() => {
-    form?.setValue(fieldPath, value);
-  }, [fieldPath, form, value]);
-
-  const fieldPush = (item: T) => {
-    setValue((prev) => [...(prev || []), item]);
-  };
-
-  const fieldDropLeft = (count?: number) => {
-    setValue((prev) => drop(cloneDeep(prev), count));
-  };
-
-  const fieldDropRight = (count?: number) => {
-    setValue((prev) => dropRight(cloneDeep(prev), count));
-  };
-
-  const fieldRemove = (index: number) => {
-    setValue((prev) => {
-      const valueClone = cloneDeep(prev);
-      valueClone?.splice(index, 1);
-      return valueClone;
-    });
-  };
-
-  const fieldPaste = (item: T, index: number) => {
-    setValue((prev) => {
-      const valueClone = cloneDeep(prev);
-      valueClone?.splice(index, 0, item);
-      return valueClone;
-    });
-  };
-
-  const fieldToggle = (item: T) => {
-    const itemIndex = indexOf(value, item);
-    if (itemIndex < 0) {
-      fieldPush(item);
-    } else {
-      fieldRemove(itemIndex);
+    if (initialized) {
+      setValue(form?.getValue<T[]>(fieldPath));
     }
-  };
+  }, [fieldPath, form, initialized]);
+
+  const fieldPush = useCallback(
+    (item: T) => {
+      setValue((prev) => {
+        const valueClone = cloneDeep(prev) || [];
+        valueClone.push(item);
+        form?.setValue(fieldPath, valueClone);
+        return valueClone;
+      });
+    },
+    [fieldPath, form],
+  );
+
+  const fieldDropLeft = useCallback(
+    (count?: number) => {
+      setValue((prev) => {
+        const valueClone = drop(cloneDeep(prev), count);
+        form?.setValue(fieldPath, valueClone);
+        return valueClone;
+      });
+    },
+    [fieldPath, form],
+  );
+
+  const fieldDropRight = useCallback(
+    (count?: number) => {
+      setValue((prev) => {
+        const valueClone = dropRight(cloneDeep(prev), count);
+        form?.setValue(fieldPath, valueClone);
+        return valueClone;
+      });
+    },
+    [fieldPath, form],
+  );
+
+  const fieldRemove = useCallback(
+    (index: number) => {
+      setValue((prev) => {
+        const valueClone = cloneDeep(prev);
+        valueClone?.splice(index, 1);
+        form?.setValue(fieldPath, valueClone);
+        return valueClone;
+      });
+    },
+    [fieldPath, form],
+  );
+
+  const fieldPaste = useCallback(
+    (item: T, index: number) => {
+      setValue((prev) => {
+        const valueClone = cloneDeep(prev);
+        valueClone?.splice(index, 0, item);
+        form?.setValue(fieldPath, valueClone);
+        return valueClone;
+      });
+    },
+    [fieldPath, form],
+  );
+
+  const fieldToggle = useCallback(
+    (item: T) => {
+      const itemIndex = indexOf(value, item);
+      if (itemIndex < 0) {
+        fieldPush(item);
+      } else {
+        fieldRemove(itemIndex);
+      }
+    },
+    [fieldPush, fieldRemove, value],
+  );
 
   return {
     value: value || fallbackValue,

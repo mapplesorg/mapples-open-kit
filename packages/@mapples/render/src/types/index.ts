@@ -65,14 +65,34 @@ export interface RenderComponentType {
 }
 
 /**
+ * Represents a state condition used for conditional styling and rendering.
+ *
+ * State conditions allow components to apply different styles or behaviors
+ * based on dynamic state values. The condition string follows the format
+ * used by the state package's condition system.
+ *
+ * @interface StateCondition
+ * @property {string} name - The name identifier for this condition
+ * @property {string} condition - The condition string (e.g., "user.age::eq::18")
+ * @property {string} id - Unique identifier for this condition instance
+ * @public
+ */
+export interface StateCondition {
+  name: string;
+  condition: string;
+  id: string;
+}
+
+/**
  * Represents the complete render DOM structure.
  * Extends ChildComponents with a special 'root' component.
  *
  * @interface RenderDom
  * @property {RenderComponentType} root - The root component of the render tree
  */
-export interface RenderDom extends ChildComponents {
+export interface RenderDom {
   root: RenderComponentType;
+  state?: Record<string, StateCondition>;
 }
 
 /**
@@ -82,7 +102,7 @@ export interface RenderDom extends ChildComponents {
  * @property {RenderComponentType} root - The root component to render
  * @property {FC<RenderComponentType>} [CustomRenderComponent] - Optional custom render component to override default rendering
  */
-export type RenderProps = Pick<RenderDom, 'root'> & {
+export type RenderProps = Pick<RenderDom, 'root' | 'state'> & {
   CustomRenderComponent?: FC<RenderComponentType>;
 };
 
