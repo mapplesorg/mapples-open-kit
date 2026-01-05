@@ -1,0 +1,36 @@
+# Function: parseCondition()
+
+> **parseCondition**(`value`): [`ParseConditionResult`](../interfaces/ParseConditionResult.mdx)
+
+Defined in: [utils.ts:40](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/state/src/utils.ts#L40)
+
+Parses a condition string into its component parts.
+
+Condition strings follow the format: `dataProp::condition::value`
+- `dataProp`: The data property path to evaluate
+- `condition`: The condition operator (eq, neq)
+- `value`: The value to compare against (can be a string, boolean, or dataProp reference)
+
+## Parameters
+
+### value
+
+The condition string to parse (e.g., "user.age::eq::18" or "user.active::eq::true")
+
+`` `${string}::eq::${string}` `` | `` `${string}::neq::${string}` `` | `` `${string}::eq::true` `` | `` `${string}::eq::false` `` | `` `${string}::neq::true` `` | `` `${string}::neq::false` ``
+
+## Returns
+
+[`ParseConditionResult`](../interfaces/ParseConditionResult.mdx)
+
+A parsed condition result with dataProp, condition, valueProp, and valueType
+
+## Example
+
+```tsx
+const result = parseCondition("user.age::eq::18");
+// Returns: { dataProp: "user.age", condition: Conditions.equals, valueProp: "18", valueType: "dataProp" }
+
+const boolResult = parseCondition("user.active::eq::true");
+// Returns: { dataProp: "user.active", condition: Conditions.equals, valueProp: true, valueType: "boolean" }
+```

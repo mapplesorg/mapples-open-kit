@@ -1,0 +1,29 @@
+# Variable: BarCode
+
+> `const` **BarCode**: `ForwardRefExoticComponent`\<`Omit`\<[`WithStyledProps`](../../style/type-aliases/WithStyledProps.mdx)\<`ViewProps`\>, `"styled"`\> & `object` & `object` & `RefAttributes`\<`View`\>\>
+
+Defined in: [packages/@mapples/ui/src/components/media/BarCode/BarCode.tsx:163](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/ui/src/components/media/BarCode/BarCode.tsx#L163)
+
+A customizable barcode component with built-in styling support.
+
+The BarCode component renders a barcode using BarcodeEncoder for generation
+and react-native-svg for rendering. It supports customizable styling
+through the @mapples/style system.
+
+## Example
+
+```tsx
+<BarCode
+  value="123456789"
+  height={100}
+  width={2}
+  styled={{
+    style: {
+      width: 300,
+      height: 100,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  }}
+/>
+```

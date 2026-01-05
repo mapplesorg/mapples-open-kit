@@ -1,0 +1,50 @@
+# Variable: MapplesAppProvider
+
+> `const` **MapplesAppProvider**: `FC`\<`PropsWithChildren`\<`MapplesAppProps`\>\>
+
+Defined in: [MapplesAppProvider.tsx:66](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/app/src/MapplesAppProvider.tsx#L66)
+
+The main MapplesApp component that provides the core Mapples ecosystem functionality.
+
+This component sets up the essential providers for styling, rendering, and asset management
+that are required for all Mapples applications. It handles font loading and provides
+a unified entry point for the Mapples ecosystem.
+
+## Component
+
+## Param
+
+The component props
+
+## Returns
+
+The configured Mapples app with all necessary providers
+
+## Examples
+
+```tsx
+import MapplesApp from '@mapples/app';
+
+function App() {
+  return (
+    <MapplesApp>
+      <YourAppContent />
+    </MapplesApp>
+  );
+}
+```
+
+```tsx
+import MapplesApp from '@mapples/app';
+
+function App() {
+  return (
+    <MapplesApp
+      showFontLoadingIndicator={true}
+      FontLoadingIndicator={<LoadingSpinner />}
+    >
+      <YourAppContent />
+    </MapplesApp>
+  );
+}
+```

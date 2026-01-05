@@ -1,0 +1,34 @@
+# Function: toBool()
+
+> **toBool**(`value`): `boolean`
+
+Defined in: [utils.ts:122](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/state/src/utils.ts#L122)
+
+Converts a string or boolean value to a boolean.
+
+String values are converted by checking if they equal the string "true".
+Boolean values are returned as-is.
+
+## Parameters
+
+### value
+
+The value to convert (string or boolean)
+
+`string` | `boolean`
+
+## Returns
+
+`boolean`
+
+The boolean representation of the value
+
+## Example
+
+```tsx
+toBool("true"); // true
+toBool("false"); // false
+toBool(true); // true
+toBool(false); // false
+toBool("yes"); // false
+```
