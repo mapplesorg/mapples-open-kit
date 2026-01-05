@@ -4,6 +4,7 @@ import { useDataProps } from '@mapples/state';
 import { map } from 'lodash';
 
 import { useRender } from '../hooks';
+import useConditionalStyled from '../hooks/useConditionalStyled';
 import useRefProps from '../hooks/useRefProps';
 import { RenderComponentType } from '../types';
 
@@ -53,6 +54,7 @@ const RenderComponent: FC<RenderComponentType> = ({
   const { components } = useRender();
   const propsWithData = useDataProps(dataProps);
   const resolvedRefProps = useRefProps(refProps);
+  const propsWithConditional = useConditionalStyled(props);
 
   const Component = components[type as keyof typeof components].Component;
 
@@ -71,7 +73,11 @@ const RenderComponent: FC<RenderComponentType> = ({
   };
 
   return (
-    <Component {...props} {...propsWithData} {...resolvedRefProps}>
+    <Component
+      {...propsWithConditional}
+      {...propsWithData}
+      {...resolvedRefProps}
+    >
       {map(children, renderChildren)}
     </Component>
   );

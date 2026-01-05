@@ -89,7 +89,7 @@ export interface RenderDom {
  * @property {RenderComponentType} root - The root component to render
  * @property {FC<RenderComponentType>} [CustomRenderComponent] - Optional custom render component to override default rendering
  */
-export type RenderProps = Pick<RenderDom, 'root'> & {
+export type RenderProps = Pick<RenderDom, 'root' | 'state'> & {
   CustomRenderComponent?: FC<RenderComponentType>;
 };
 
