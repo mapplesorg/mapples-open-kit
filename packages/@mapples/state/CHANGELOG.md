@@ -1,5 +1,11 @@
 # @mapples/state
 
+## 1.0.4
+
+### Patch Changes
+
+- c5c0880: add state handler
+
 ## 1.0.3
 
 ### Patch Changes
