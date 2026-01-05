@@ -1,5 +1,11 @@
 # @mapples/form
 
+## 1.0.4
+
+### Patch Changes
+
+- c5c0880: resolve issues with initial form state not set properly
+
 ## 1.0.3
 
 ### Patch Changes
