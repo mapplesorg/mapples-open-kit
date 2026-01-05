@@ -64,6 +64,19 @@ export interface RenderComponentType {
   refProps?: RefPropsMap;
 }
 
+/**
+ * Represents a state condition used for conditional styling and rendering.
+ *
+ * State conditions allow components to apply different styles or behaviors
+ * based on dynamic state values. The condition string follows the format
+ * used by the state package's condition system.
+ *
+ * @interface StateCondition
+ * @property {string} name - The name identifier for this condition
+ * @property {string} condition - The condition string (e.g., "user.age::eq::18")
+ * @property {string} id - Unique identifier for this condition instance
+ * @public
+ */
 export interface StateCondition {
   name: string;
   condition: string;
