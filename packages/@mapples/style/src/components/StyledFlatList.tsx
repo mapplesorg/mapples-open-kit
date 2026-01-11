@@ -2,7 +2,6 @@ import { ForwardedRef, forwardRef, ReactElement, Ref } from 'react';
 
 import { FlatList, FlatListProps } from 'react-native';
 
-import { useStyled } from '../hooks';
 import useStyledProps from '../hooks/useStyledProps';
 import { StyledProps } from '../types';
 

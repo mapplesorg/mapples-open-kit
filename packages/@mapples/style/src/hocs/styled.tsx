@@ -1,6 +1,5 @@
 import { ComponentType, forwardRef } from 'react';
 
-import { useStyled } from '../hooks';
 import useStyledProps from '../hooks/useStyledProps';
 import { WithStyledProps } from '../types';
 
