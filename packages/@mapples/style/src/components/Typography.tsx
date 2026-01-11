@@ -1,4 +1,4 @@
-import { forwardRef, useMemo } from 'react';
+import { forwardRef, useEffect, useMemo } from 'react';
 
 import { TextProps, TextStyle, Text } from 'react-native';
 
