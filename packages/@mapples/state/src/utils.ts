@@ -15,6 +15,19 @@ const mapTypes = {
   boolean: 'boolean',
 } as const;
 
+export const parseConditionString = (value: string): ParseConditionResult => {
+  const [dataProp, condition, valueProp] = value
+    .trim()
+    .split(/::(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+
+  return {
+    dataProp,
+    condition: condition as Conditions,
+    valueProp: valueProp,
+    valueType: 'string',
+  };
+};
+
 /**
  * Parses a condition string into its component parts.
  *
@@ -40,7 +53,9 @@ const mapTypes = {
 export const parseCondition = (
   value: SimpleCondition | BoolCondition,
 ): ParseConditionResult => {
-  const [dataProp, condition, valueProp] = value.trim().split('::');
+  const [dataProp, condition, valueProp] = value
+    .trim()
+    .split(/::(?=(?:[^"]*"[^"]*")*[^"]*$)/);
 
   if (valueProp === 'true' || valueProp === 'false')
     return {
@@ -51,12 +66,13 @@ export const parseCondition = (
     };
 
   if (/^"[^"]*"$/.test(valueProp)) {
-    const [value, type] = valueProp.split('::');
+    const parsedValue = valueProp.slice(1, -1);
+    const [value, type] = parsedValue.split('::');
 
     return {
       dataProp,
       condition: condition as Conditions,
-      valueProp: value.slice(1, -1),
+      valueProp: value,
       valueType:
         mapTypes[type as keyof typeof mapTypes] || ('string' as ValueType),
     };
