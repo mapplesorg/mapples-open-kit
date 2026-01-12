@@ -1,5 +1,11 @@
 # @mapples/state
 
+## 1.0.5
+
+### Patch Changes
+
+- 0056c27: Resolve state parse issues
+
 ## 1.0.4
 
 ### Patch Changes

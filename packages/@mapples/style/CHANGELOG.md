@@ -1,5 +1,11 @@
 # @mapples/style
 
+## 1.0.5
+
+### Patch Changes
+
+- 0056c27: Resolve nested props style parser issues
+
 ## 1.0.4
 
 ### Patch Changes
