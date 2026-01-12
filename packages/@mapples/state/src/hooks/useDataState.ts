@@ -109,7 +109,7 @@ const useDataState = () => {
       if (typeof valueProp !== 'boolean' && valueType === 'dataProp') {
         value = getStateValue(valueProp);
       } else if (valueType === 'boolean') {
-        value = toBool(valueType);
+        value = toBool(valueProp);
       } else if (valueType === 'number') {
         value = toNumber(valueProp);
       } else {

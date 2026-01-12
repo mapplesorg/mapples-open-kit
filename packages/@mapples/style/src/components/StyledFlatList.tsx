@@ -2,7 +2,7 @@ import { ForwardedRef, forwardRef, ReactElement, Ref } from 'react';
 
 import { FlatList, FlatListProps } from 'react-native';
 
-import { useStyled } from '../hooks';
+import useStyledProps from '../hooks/useStyledProps';
 import { StyledProps } from '../types';
 
 /**
@@ -50,7 +50,7 @@ const StyledFlatListComponent = forwardRef(
     { styled, ...props }: StyledFlatListProps<T>,
     ref: ForwardedRef<FlatList<T>>,
   ) => {
-    const styledProps = useStyled(styled);
+    const styledProps = useStyledProps(styled);
 
     return <FlatList ref={ref} {...props} {...styledProps} />;
   },
