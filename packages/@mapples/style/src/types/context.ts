@@ -3,6 +3,11 @@ import { SizingConfig } from './sizing';
 import { ThemeConfig } from './theme';
 import { TypographyConfig } from './typography';
 
+export interface CanvasDimensions {
+  width: number;
+  height: number;
+}
+
 /**
  * Complete style context configuration containing all style system settings.
  * This is the main configuration object passed to the StyleProvider.
@@ -16,6 +21,7 @@ export interface StyleContextType {
   sizingConfig: SizingConfig;
   /** Responsive configuration for breakpoint management */
   responsiveConfig: ResponsiveConfig;
+  _canvas?: CanvasDimensions;
 }
 
 /**
