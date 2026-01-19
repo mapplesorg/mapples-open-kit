@@ -60,7 +60,10 @@ const StyledExpoImage = styled(ExpoImage);
  * @public
  */
 const Image = forwardRef(
-  ({ styled, source, dataSource, alt, ...props }: ImageProps, ref) => {
+  (
+    { styled, source, dataSource, alt, children, ...props }: ImageProps,
+    ref,
+  ) => {
     const { styleImage, styledImageProps, ...styledProps } = styled || {};
 
     const image = dataSource || source;
