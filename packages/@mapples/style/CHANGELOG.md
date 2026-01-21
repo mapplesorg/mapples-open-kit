@@ -1,5 +1,12 @@
 # @mapples/style
 
+## 1.0.6
+
+### Patch Changes
+
+- 53fb55e: feat: introduce inlang feature\
+- 53fb55e: feat: propagate canvas dims to style
+
 ## 1.0.5
 
 ### Patch Changes
