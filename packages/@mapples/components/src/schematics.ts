@@ -1,1 +1,1 @@
-const Components = {};
+export const Components = {};
