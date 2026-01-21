@@ -19,8 +19,6 @@
     "url": "https://github.com/mapplesorg/mapples-open-kit.git",
     "directory": "packages/@mapples/inlang"
   },
-  "peerDependencies": {},
-  "devDependencies": {},
   "files": [
     "dist",
     "README.md",
