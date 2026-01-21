@@ -1,9 +1,12 @@
+import { FN_SEPARATOR } from '@mapples/inlang';
+
+import { ConditionStringRegExp } from './regexp';
 import {
-  SimpleCondition,
   BoolCondition,
-  ParseConditionResult,
-  ValueType,
   Conditions,
+  ParseConditionResult,
+  SimpleCondition,
+  ValueType,
 } from './types';
 
 const mapTypes = {
@@ -15,10 +18,14 @@ const mapTypes = {
   boolean: 'boolean',
 } as const;
 
+export const toConditionString = (...values: string[]) => {
+  return values.join(FN_SEPARATOR);
+};
+
 export const parseConditionString = (value: string): ParseConditionResult => {
   const [dataProp, condition, valueProp] = value
     .trim()
-    .split(/::(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+    .split(ConditionStringRegExp);
 
   return {
     dataProp,
@@ -55,7 +62,7 @@ export const parseCondition = (
 ): ParseConditionResult => {
   const [dataProp, condition, valueProp] = value
     .trim()
-    .split(/::(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+    .split(ConditionStringRegExp);
 
   if (valueProp === 'true' || valueProp === 'false')
     return {
@@ -67,7 +74,7 @@ export const parseCondition = (
 
   if (/^"[^"]*"$/.test(valueProp)) {
     const parsedValue = valueProp.slice(1, -1);
-    const [value, type] = parsedValue.split('::');
+    const [value, type] = parsedValue.split(FN_SEPARATOR);
 
     return {
       dataProp,
@@ -171,4 +178,8 @@ export const toNumber = (value: string | boolean) => {
   if (isNaN(numValue)) return 0;
 
   return numValue;
+};
+
+export const parseJoin = (key: string) => {
+  return key.replace(/\n/g, '').split(';');
 };

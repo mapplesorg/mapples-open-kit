@@ -22,6 +22,8 @@ Brief description of the changes in this PR.
 - [ ] @mapples/style
 - [ ] @mapples/types
 - [ ] @mapples/ui
+- [ ] @mapples/components
+- [ ] @mapples/inlang
 
 ## Testing
 

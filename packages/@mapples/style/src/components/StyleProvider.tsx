@@ -1,7 +1,7 @@
 import { FC, PropsWithChildren } from 'react';
 
 import { StyleContextProvider } from '../context';
-import { StyleContextType } from '../types';
+import { CanvasDimensions, StyleContextType } from '../types';
 
 import ResponsiveStyleProvider from './ResponsiveStyleProvider';
 
@@ -11,6 +11,7 @@ import ResponsiveStyleProvider from './ResponsiveStyleProvider';
 export interface StyleProviderProps {
   /** The style configuration object containing theme, typography, sizing, and responsive settings */
   style: StyleContextType;
+  _canvas?: CanvasDimensions;
 }
 
 /**
@@ -52,9 +53,10 @@ export interface StyleProviderProps {
 const StyleProvider: FC<PropsWithChildren<StyleProviderProps>> = ({
   style,
   children,
+  _canvas,
 }) => {
   return (
-    <StyleContextProvider value={style}>
+    <StyleContextProvider value={{ ...style, _canvas }}>
       <ResponsiveStyleProvider>{children}</ResponsiveStyleProvider>
     </StyleContextProvider>
   );

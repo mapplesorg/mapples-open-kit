@@ -1,4 +1,8 @@
+import { parseDims } from '@mapples/inlang';
 import { compact, isArray, isNumber, isObject, map, mapValues } from 'lodash';
+import { Dimensions } from 'react-native';
+
+import { CanvasDimensions } from '../types';
 
 /**
  * Type guard to check if a value is a boxShadow object with the expected structure.
@@ -64,6 +68,7 @@ export const parseBoxShadow = (
  *
  * @param obj - The object or array to process (can be deeply nested)
  * @param getColor - Function to resolve theme color references
+ * @param _canvas - Optional utility canvas dimensions for inner use
  * @returns Processed object with exotic keys converted to their proper formats
  *
  * @example
@@ -86,15 +91,28 @@ export const parseBoxShadow = (
 export const processExoticKeys = (
   obj: any,
   getColor: (color: string) => string,
+  _canvas?: CanvasDimensions,
 ): any => {
   if (isArray(obj)) {
-    return obj.map((item) => processExoticKeys(item, getColor));
+    return obj.map((item) => processExoticKeys(item, getColor, _canvas));
   }
 
   if (isObject(obj) && !isArray(obj)) {
     return mapValues(obj, (value, key) => {
       if (key === 'boxShadow' && isBoxShadowObject(value)) {
         return parseBoxShadow(value, getColor);
+      }
+
+      if (key === 'width' || key === 'height') {
+        const dimsValue = parseDims(value);
+
+        if (!dimsValue) return value;
+
+        const [type, percent] = dimsValue;
+
+        return (
+          (_canvas ? _canvas[type] : Dimensions.get('window')[type]) * percent
+        );
       }
 
       if (key === 'zIndex' && !isNumber(value)) {
@@ -107,7 +125,7 @@ export const processExoticKeys = (
 
       // Recursively process nested objects and arrays
       if (isObject(value) || isArray(value)) {
-        return processExoticKeys(value, getColor);
+        return processExoticKeys(value, getColor, _canvas);
       }
 
       return value;

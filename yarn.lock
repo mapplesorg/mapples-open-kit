@@ -3032,6 +3032,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@mapples/components@workspace:packages/@mapples/components":
+  version: 0.0.0-use.local
+  resolution: "@mapples/components@workspace:packages/@mapples/components"
+  dependencies:
+    "@types/react": "npm:>=18.0.0 <20.0.0"
+    typescript: "npm:~5.9.2"
+  peerDependencies:
+    react: ">=18.0.0 <20.0.0"
+    react-native: ">=0.71.0"
+    react-native-svg: ">=12.0.0"
+  languageName: unknown
+  linkType: soft
+
 "@mapples/dnd@workspace:packages/@mapples/dnd":
   version: 0.0.0-use.local
   resolution: "@mapples/dnd@workspace:packages/@mapples/dnd"
@@ -3069,6 +3082,12 @@ __metadata:
     react: ">=18.0.0 <20.0.0"
     react-native: ">=0.71.0"
     yup: ^1.6.0
+  languageName: unknown
+  linkType: soft
+
+"@mapples/inlang@workspace:packages/@mapples/inlang":
+  version: 0.0.0-use.local
+  resolution: "@mapples/inlang@workspace:packages/@mapples/inlang"
   languageName: unknown
   linkType: soft
 

@@ -12,6 +12,7 @@ import {
 
 import useResponsive from './useResponsive';
 import useSizing from './useSizing';
+import useStyle from './useStyle';
 import useTheme from './useTheme';
 
 /**
@@ -87,6 +88,7 @@ const useStyledProps = <T extends object>(props?: T) => {
   const { theme, getColor } = useTheme();
   const { sizing, getSize } = useSizing();
   const { getResponsiveStyle } = useResponsive();
+  const { _canvas } = useStyle();
 
   const pattern = useMemo(
     () => getThemeRegexp({ theme, sizing }),
@@ -133,8 +135,8 @@ const useStyledProps = <T extends object>(props?: T) => {
     );
 
     // Recursively process exotic keys (like boxShadow) throughout the structure
-    return processExoticKeys(withResponsive, getColor);
-  }, [formated, getColor, getResponsiveStyle]);
+    return processExoticKeys(withResponsive, getColor, _canvas);
+  }, [_canvas, formated, getColor, getResponsiveStyle]);
 };
 
 export default useStyledProps;
