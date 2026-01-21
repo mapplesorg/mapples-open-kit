@@ -1,3 +1,4 @@
+import { parseDims } from '@mapples/inlang';
 import { compact, isArray, isNumber, isObject, map, mapValues } from 'lodash';
 import { Dimensions } from 'react-native';
 
@@ -102,8 +103,16 @@ export const processExoticKeys = (
         return parseBoxShadow(value, getColor);
       }
 
-      if (key === 'width' && value === '"w::100"') {
-        return _canvas ? _canvas.width : Dimensions.get('window').width;
+      if (key === 'width' || key === 'height') {
+        const dimsValue = parseDims(value);
+
+        if (!dimsValue) return value;
+
+        const [type, percent] = dimsValue;
+
+        return (
+          (_canvas ? _canvas[type] : Dimensions.get('window')[type]) * percent
+        );
       }
 
       if (key === 'zIndex' && !isNumber(value)) {
