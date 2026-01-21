@@ -1,5 +1,11 @@
 # @mapples/ui
 
+## 1.0.6
+
+### Patch Changes
+
+- 53fb55e: feat: add select component
+
 ## 1.0.5
 
 ### Patch Changes

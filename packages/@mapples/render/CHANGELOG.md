@@ -1,5 +1,12 @@
 # @mapples/render
 
+## 1.0.5
+
+### Patch Changes
+
+- 53fb55e: fix: update this handler
+- 53fb55e: feat: introduce inlang feature\
+
 ## 1.0.4
 
 ### Patch Changes
