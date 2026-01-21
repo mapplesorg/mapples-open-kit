@@ -1,12 +1,19 @@
 import { useCallback, useContext } from 'react';
 
+import {
+  conditionMap,
+  Conditions,
+  isCondition,
+  isDataThis,
+  parseCondition,
+  parseJoin,
+  toBool,
+  toNumber,
+} from '@mapples/inlang';
 import { DataProp } from '@mapples/types';
 import { get, join } from 'lodash';
 
-import conditionMap from '../conditions';
 import StateContext from '../context';
-import { Conditions } from '../types';
-import { isCondition, parseCondition, toBool, toNumber } from '../utils';
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -25,7 +32,7 @@ import { isCondition, parseCondition, toBool, toNumber } from '../utils';
  *   const userName = getValue({ key: 'user.name', active: true });
  *
  *   // Get multiple values joined with separator
- *   const fullName = getValue({ key: 'user.firstName;user.lastName; ', active: true });
+ *   const fullName = getValue({ key: 'user.firstName;user.lastName;', active: true });
  *
  *   // Get the entire state object
  *   const entireState = getValue({ key: '(this)', active: true });
@@ -65,13 +72,13 @@ const useDataState = () => {
    */
   const getValue = useCallback(
     ({ key, active }: DataProp, altValue = 'N/A') => {
-      const keys = key?.replace(/\n/g, '').split(';');
+      const keys = parseJoin(key);
 
       if (!active) {
         return;
       }
 
-      if (keys?.length > 1) {
+      if (keys.length > 1) {
         const separator = keys.pop();
 
         return join(
@@ -80,7 +87,7 @@ const useDataState = () => {
         );
       }
 
-      if (key === '(this)') {
+      if (isDataThis(key)) {
         return value;
       }
 
@@ -117,7 +124,6 @@ const useDataState = () => {
       }
 
       if (!conditionMap[condition as Conditions]) {
-        console.warn(`Invalid condition: ${condition}`);
         return false;
       }
 
