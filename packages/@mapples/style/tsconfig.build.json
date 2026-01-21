@@ -9,5 +9,9 @@
     "skipDefaultLibCheck": true,
     "incremental": true
   },
-  "references": []
+  "references": [
+    {
+      "path": "../inlang/tsconfig.build.json"
+    }
+  ]
 }
