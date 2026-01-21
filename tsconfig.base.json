@@ -17,7 +17,9 @@
       "@mapples/types": ["./packages/@mapples/types/src/index.ts"],
       "@mapples/ui": ["./packages/@mapples/ui/src/index.ts"],
       "@mapples/state": ["./packages/@mapples/state/src/index.ts"],
-      "@mapples/action": ["./packages/@mapples/action/src/index.ts"]
+      "@mapples/action": ["./packages/@mapples/action/src/index.ts"],
+      "@mapples/components": ["./packages/@mapples/components/src/index.ts"],
+      "@mapples/inlang": ["./packages/@mapples/inlang/src/index.ts"]
     }
   },
   "exclude": ["node_modules"]
