@@ -4,6 +4,7 @@ import { BarCodeSchematic } from './BarCode';
 import { IconSchematics } from './Icon';
 import { ImageSchematic } from './Image';
 import { QRCodeSchematic } from './QRCode';
+import { SvgSchematic } from './Svg';
 import { VideoSchematic } from './Video';
 
 export const MediaSchematics: RegisteredComponents = {
@@ -12,4 +13,5 @@ export const MediaSchematics: RegisteredComponents = {
   [IconSchematics.type]: IconSchematics,
   [BarCodeSchematic.type]: BarCodeSchematic,
   [QRCodeSchematic.type]: QRCodeSchematic,
+  [SvgSchematic.type]: SvgSchematic,
 };
