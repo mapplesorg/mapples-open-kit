@@ -78,7 +78,7 @@ const useDataState = () => {
         return;
       }
 
-      if (keys.length > 1) {
+      if (keys && keys.length > 1) {
         const separator = keys.pop();
 
         return join(
