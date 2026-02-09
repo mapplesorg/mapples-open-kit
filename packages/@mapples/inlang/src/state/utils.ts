@@ -180,6 +180,6 @@ export const toNumber = (value: string | boolean) => {
   return numValue;
 };
 
-export const parseJoin = (key: string) => {
-  return key.replace(/\n/g, '').split(';');
+export const parseJoin = (key?: string) => {
+  return key?.replace(/\n/g, '').split(';');
 };
