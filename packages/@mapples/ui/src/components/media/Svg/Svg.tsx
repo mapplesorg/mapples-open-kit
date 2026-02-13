@@ -8,7 +8,7 @@ import {
   Styler,
   WithStyledProps,
 } from '@mapples/style';
-import { View, ViewProps } from 'react-native';
+import { View, ViewProps, ViewStyle } from 'react-native';
 import { SvgProps as RnsSvgProps, SvgUri } from 'react-native-svg';
 
 const StyledSvgUri = styled(SvgUri);
@@ -55,7 +55,10 @@ const Svg = forwardRef<View, SvgProps>(({ styled, content, ...props }, ref) => {
   return (
     <StyledView ref={ref} styled={{ style, ...styledProps }} {...props}>
       {uri ? (
-        <StyledSvgUri uri={uri} styled={{ style: svgStyle }} />
+        <StyledSvgUri
+          uri={uri}
+          styled={{ style: svgStyle as StyledProp<ViewStyle> }}
+        />
       ) : (
         <StyledView styled={{ style: styler.placeholder }} />
       )}
