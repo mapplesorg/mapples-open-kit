@@ -59,8 +59,8 @@ const Typography = forwardRef<Text, TypographyProps>(
   ({ variant, color, style, selectable, styled, ...props }, ref) => {
     const { getTypographyStyle } = useTypography();
 
-    const textStyle = useMemo(() => {
-      return getTypographyStyle(variant);
+    const { fontFamily, fontSize, fontWeight, ...textStyle } = useMemo(() => {
+      return getTypographyStyle(variant) || {};
     }, [getTypographyStyle, variant]);
 
     return (
@@ -74,6 +74,11 @@ const Typography = forwardRef<Text, TypographyProps>(
             textStyle,
             !!color && { color: color },
             Styler.flatten([style, styled?.style]),
+            {
+              fontFamily,
+              fontSize,
+              fontWeight,
+            },
           ],
         }}
         {...props}

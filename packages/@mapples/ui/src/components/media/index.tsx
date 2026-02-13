@@ -13,4 +13,7 @@ export * from './BarCode';
 export { default as QRCode } from './QRCode';
 export * from './QRCode';
 
+export { default as Svg } from './Svg';
+export * from './Svg';
+
 export * from './schematics';
