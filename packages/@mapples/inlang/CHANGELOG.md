@@ -1,5 +1,11 @@
 # @mapples/inlang
 
+## 1.0.1
+
+### Patch Changes
+
+- a1151e5: fix: resolve parsing issues
+
 ## 1.0.0
 
 ### Major Changes
