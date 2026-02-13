@@ -1,5 +1,11 @@
 # @mapples/ui
 
+## 1.0.7
+
+### Patch Changes
+
+- a1151e5: feat: add svg handler component
+
 ## 1.0.6
 
 ### Patch Changes

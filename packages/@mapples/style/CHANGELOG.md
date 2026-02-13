@@ -1,5 +1,11 @@
 # @mapples/style
 
+## 1.0.7
+
+### Patch Changes
+
+- a1151e5: fix: resolve typography style order implementation
+
 ## 1.0.6
 
 ### Patch Changes
