@@ -18,10 +18,23 @@ const mapTypes = {
   boolean: 'boolean',
 } as const;
 
+/**
+ * Joins values with FN_SEPARATOR to build a condition string.
+ * @param values - Parts to join (e.g. dataProp, condition, value)
+ * @returns Single string with `::` between parts
+ * @public
+ */
 export const toConditionString = (...values: string[]) => {
   return values.join(FN_SEPARATOR);
 };
 
+/**
+ * Splits a condition string into parts; valueType is defaulted to 'string'.
+ * For full parsing (booleans, quoted types, dataProp) use parseCondition.
+ * @param value - Raw condition string
+ * @returns ParseConditionResult with valueType 'string'
+ * @public
+ */
 export const parseConditionString = (value: string): ParseConditionResult => {
   const [dataProp, condition, valueProp] = value
     .trim()
@@ -180,6 +193,12 @@ export const toNumber = (value: string | boolean) => {
   return numValue;
 };
 
+/**
+ * Splits a multi-key string by `;` and strips newlines. Used for data-prop keys that join multiple paths.
+ * @param key - Optional string (e.g. "user.name;user.email; ")
+ * @returns Array of segments, or undefined if key is undefined
+ * @public
+ */
 export const parseJoin = (key?: string) => {
   return key?.replace(/\n/g, '').split(';');
 };
