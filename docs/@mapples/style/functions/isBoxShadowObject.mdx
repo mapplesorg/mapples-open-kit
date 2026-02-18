@@ -1,0 +1,29 @@
+# Function: isBoxShadowObject()
+
+> **isBoxShadowObject**(`value`): `value is { color?: string; x?: number; y?: number; radius?: number }`
+
+Defined in: [utils/styled.ts:20](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/style/src/utils/styled.ts#L20)
+
+Type guard to check if a value is a boxShadow object with the expected structure.
+
+## Parameters
+
+### value
+
+`unknown`
+
+The value to check
+
+## Returns
+
+`value is { color?: string; x?: number; y?: number; radius?: number }`
+
+`true` if the value is a boxShadow object, `false` otherwise
+
+## Example
+
+```ts
+isBoxShadowObject({ x: 2, y: 4, radius: 8, color: '#000' }); // true
+isBoxShadowObject({ x: 2 }); // true
+isBoxShadowObject({ width: 100 }); // false
+```

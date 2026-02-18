@@ -1,0 +1,17 @@
+# Variable: Svg
+
+> `const` **Svg**: `ForwardRefExoticComponent`\<`object` & `ViewProps` & `object` & `RefAttributes`\<`View`\>\>
+
+Defined in: [packages/@mapples/ui/src/components/media/Svg/Svg.tsx:45](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/ui/src/components/media/Svg/Svg.tsx#L45)
+
+Renders inline SVG from a string (e.g. from @mapplesorg/figmafile GROUP→Svg conversion).
+Uses a data URI so react-native-svg's SvgUri can display it.
+
+## Example
+
+```tsx
+<Svg
+  content='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="#333"/></svg>'
+  styled={{ style: { width: 100, height: 100 }, styleSvg: { width: 100, height: 100 } }}
+/>
+```

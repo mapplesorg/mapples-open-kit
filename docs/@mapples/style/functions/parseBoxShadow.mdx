@@ -1,0 +1,51 @@
+# Function: parseBoxShadow()
+
+> **parseBoxShadow**(`boxShadow`, `getColor`): `string`
+
+Defined in: [utils/styled.ts:51](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/style/src/utils/styled.ts#L51)
+
+Converts a boxShadow object to a CSS box-shadow string.
+
+## Parameters
+
+### boxShadow
+
+The boxShadow object to convert
+
+#### color?
+
+`string`
+
+#### x?
+
+`number`
+
+#### y?
+
+`number`
+
+#### radius?
+
+`number`
+
+### getColor
+
+(`color`) => `string`
+
+Function to resolve theme color references (e.g., 'theme.colors.primary')
+
+## Returns
+
+`string`
+
+CSS box-shadow string in the format: "xpx ypx radiuspx color"
+
+## Example
+
+```ts
+parseBoxShadow(
+  { x: 2, y: 4, radius: 8, color: 'theme.colors.shadow' },
+  (color) => '#000000'
+);
+// Returns: "2px 4px 8px #000000"
+```

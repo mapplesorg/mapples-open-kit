@@ -2,7 +2,7 @@
 
 > **useDataState**(): `object`
 
-Defined in: [hooks/useDataState.ts:37](https://github.com/mapplesorg/mapples-open-kit/blob/9e75d5ea841ea5751ed3fc9e83874977d4f7794b/packages/@mapples/state/src/hooks/useDataState.ts#L37)
+Defined in: [hooks/useDataState.ts:44](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/state/src/hooks/useDataState.ts#L44)
 
 Hook for accessing and retrieving values from the application state.
 
@@ -95,7 +95,7 @@ const MyComponent = () => {
   const userName = getValue({ key: 'user.name', active: true });
 
   // Get multiple values joined with separator
-  const fullName = getValue({ key: 'user.firstName;user.lastName; ', active: true });
+  const fullName = getValue({ key: 'user.firstName;user.lastName;', active: true });
 
   // Get the entire state object
   const entireState = getValue({ key: '(this)', active: true });

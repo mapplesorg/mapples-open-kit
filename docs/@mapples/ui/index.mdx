@@ -51,6 +51,14 @@ Interactive input components:
 - **IconButton**: Button with icon support
 - **Pressable**: Enhanced pressable component with styling
 
+### Form
+
+Form building blocks that work with `@mapples/form`:
+
+- **FormView**: Container that provides form context to children
+- **TextField**: Text input bound to a form field
+- **SubmitButton**: Button that triggers form submit and shows submitting state
+
 ### Media
 
 Media display components:
@@ -171,6 +179,30 @@ function MyInput() {
   );
 }
 ```
+
+### Form with FormView, TextField, SubmitButton
+
+`FormView` wraps `Form` from `@mapples/form` and provides a styled container. Use `fieldName` on `TextField` to bind to form values; `SubmitButton` triggers submit and shows submitting state.
+
+```tsx
+import { FormView, TextField, SubmitButton } from '@mapples/ui';
+
+function MyForm() {
+  return (
+    <FormView
+      initialValues={{ name: '', email: '' }}
+      onSubmit={(values) => console.log(values)}
+      styled={{ style: { padding: 16 } }}
+    >
+      <TextField fieldName="name" placeholder="Name" />
+      <TextField fieldName="email" placeholder="Email" />
+      <SubmitButton label="Submit" />
+    </FormView>
+  );
+}
+```
+
+For Yup validation, use `Form` from `@mapples/form` as the outer wrapper and pass `validationSchema`; use `FormView` inside for layout and styling.
 
 ## Visual Editor Integration
 
@@ -313,6 +345,7 @@ with built-in styling support and visual editor integration.
 
 - [BarCodeProps](type-aliases/BarCodeProps.mdx)
 - [QRCodeProps](type-aliases/QRCodeProps.mdx)
+- [SvgProps](type-aliases/SvgProps.mdx)
 
 ## Variables
 
@@ -329,6 +362,8 @@ with built-in styling support and visual editor integration.
 - [IconButtonSchematics](variables/IconButtonSchematics.mdx)
 - [Pressable](variables/Pressable.mdx)
 - [PressableSchematics](variables/PressableSchematics.mdx)
+- [Select](variables/Select.mdx)
+- [SelectSchematics](variables/SelectSchematics.mdx)
 - [TextInput](variables/TextInput.mdx)
 - [TextInputSchematic](variables/TextInputSchematic.mdx)
 - [InputsSchematics](variables/InputsSchematics.mdx)
@@ -340,6 +375,8 @@ with built-in styling support and visual editor integration.
 - [ImageSchematic](variables/ImageSchematic.mdx)
 - [QRCode](variables/QRCode.mdx)
 - [QRCodeSchematic](variables/QRCodeSchematic.mdx)
+- [Svg](variables/Svg.mdx)
+- [SvgSchematic](variables/SvgSchematic.mdx)
 - [Video](variables/Video.mdx)
 - [VideoSchematic](variables/VideoSchematic.mdx)
 - [MediaSchematics](variables/MediaSchematics.mdx)
