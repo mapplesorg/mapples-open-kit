@@ -1,0 +1,41 @@
+# Function: applyResponsiveStylesRecursively()
+
+> **applyResponsiveStylesRecursively**(`value`, `getResponsiveStyle`): `any`
+
+Defined in: [utils/styled.ts:158](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/style/src/utils/styled.ts#L158)
+
+Recursively processes styled props, applying responsive styles to objects at all nesting levels.
+This ensures that nested objects within arrays and objects get responsive styles applied correctly.
+
+## Parameters
+
+### value
+
+`any`
+
+The value to process (can be a primitive, object, or array)
+
+### getResponsiveStyle
+
+\<`T`\>(`style`) => `T`
+
+Function to apply responsive styles based on current breakpoint
+
+## Returns
+
+`any`
+
+Processed value with responsive styles applied recursively throughout the structure
+
+## Example
+
+```ts
+applyResponsiveStylesRecursively(
+  [
+    { fontSize: 16, '&:tablet': { fontSize: 20 } },
+    { padding: 8, '&:desktop': { padding: 16 } }
+  ],
+  getResponsiveStyle
+);
+// Returns array with responsive styles applied to each object
+```

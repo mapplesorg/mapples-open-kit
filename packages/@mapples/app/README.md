@@ -92,9 +92,9 @@ export default App;
 
 ## API Reference
 
-### MapplesApp
+### MapplesApp (default export)
 
-The main component that provides the core Mapples ecosystem functionality.
+The main component that provides the core Mapples ecosystem functionality. It wraps the app with `StyleProvider` and `RenderProvider` (using `@mapples/ui` components and optional `assets`), and handles font loading via `expo-font`.
 
 **Props:**
 
@@ -113,6 +113,18 @@ The main component that provides the core Mapples ecosystem functionality.
 >
   <YourAppContent />
 </MapplesApp>
+```
+
+### MapplesAppProvider
+
+Alias for the same component as `MapplesApp`. Use either the default import or `MapplesAppProvider` when you want to make the provider role explicit.
+
+```tsx
+import MapplesApp, { MapplesAppProvider } from '@mapples/app';
+
+// These are equivalent:
+<MapplesApp assets={assets} style={style}>{children}</MapplesApp>
+<MapplesAppProvider assets={assets} style={style}>{children}</MapplesAppProvider>
 ```
 
 ### Utility Functions

@@ -1,454 +1,146 @@
-# @mapples/types
+# @mapples/inlang
 
-TypeScript type definitions for the Mapples Open Kit. This package provides all the core type definitions used across the Mapples ecosystem, including component registration, form configurations, and asset management.
+Internal language utilities for the Mapples Open Kit. This package provides parsing and evaluation helpers for "this" references, dimension strings, and condition strings used across the Mapples ecosystem (e.g. data bindings, visibility conditions, layout).
+
+## Features
+
+- **This references** – Parse and detect `"this"` and `"this::n"` style action/context references
+- **Data this** – Parse `(this)` and dot-separated paths for data binding
+- **Dimensions** – Parse dimension strings (e.g. `"w::50"`, `"height::100"`) for width/height
+- **Conditions** – Parse and evaluate condition strings (`dataProp::condition::value`) for visibility and logic
+- **TypeScript** – Full type definitions and TSDoc
 
 ## Installation
 
 ```bash
-npm install @mapples/types
+npm install @mapples/inlang
 # or
-yarn add @mapples/types
+yarn add @mapples/inlang
 ```
 
 ## Overview
 
-The `@mapples/types` package contains essential TypeScript interfaces and types that define the structure and behavior of components, forms, and assets in the Mapples system. These types ensure type safety and provide clear contracts for developers working with the Mapples Open Kit.
+`@mapples/inlang` is used by other Mapples packages (e.g. render, form, ui) to interpret configuration strings. It does not depend on React or React Native.
 
-## Core Types
+## API Reference
 
-### Action Types
+### Constants
 
-#### `Action`
+- **`FN_SEPARATOR`** – `'::'` – Separator used in "this", dim, and condition strings
+- **`DATA_THIS`** – `'(this)'` – Prefix for data-context reference (entire state)
+- **`DOT_SEPARATOR`** – `'.'` – Separator for object paths (e.g. `user.name`)
 
-Represents a user action that occurred in the application. Actions are used for tracking user interactions, analytics, and state management.
+### This (action/context references)
 
-```typescript
-interface Action {
-  time: number; // Timestamp when the action occurred (in milliseconds since epoch)
-  type?: string; // Optional string identifier for the type of action
-  payload?: ActionPayload; // Optional payload containing additional data about the action
-}
-```
+- **`This`** – Type: `['this', string?]`
+- **`isThis(value?)`** – Returns whether the string matches `"this"` or `"this::n"`
+- **`isDataThis(value?)`** – Returns whether the string starts with `(this)`
+- **`parseDataThis(value)`** – Strips `(this)` and splits by dot (path segments)
+- **`parseThis(value?)`** – Parses to `['this', n?]` (e.g. `"this::2"` → `['this', '2']`)
 
-#### `ActionPayload`
+### Dims (dimension strings)
 
-Represents the payload data that can be attached to an action.
+- **`DimType`** – `'width' | 'height'`
+- **`Dims`** – `[DimType, number]` (e.g. `['width', 0.5]` for 50%)
+- **`DimsString`** – `'w' | 'h' | 'width' | 'height'`
+- **`parseDims(dim)`** – Parses strings like `"w::50"` or `"height::100"` to `[type, 0..1]` or `null`
 
-```typescript
-interface ActionPayload {
-  originalEventData?: any[]; // Original event data from the source event
-  data?: any; // Custom data payload specific to the action
-}
-```
+### State (conditions)
 
-**Example:**
+#### Types
 
-```typescript
-import { Action, ActionPayload } from '@mapples/types';
+- **`Conditions`** – Enum: `equals` (`'eq'`), `notEquals` (`'neq'`)
+- **`SimpleCondition`** – `${string}::${Conditions}::${string}`
+- **`BoolCondition`** – Condition string with `'true'` or `'false'` as value
+- **`ConditionFunc`** – `(a, b) => boolean`
+- **`ValueType`** – `'string' | 'number' | 'boolean' | 'dataProp'`
+- **`ParseConditionResult`** – `{ dataProp, condition, valueProp, valueType }`
 
-const userAction: Action = {
-  time: Date.now(),
-  type: 'BUTTON_PRESSED',
-  payload: {
-    data: { buttonId: 'submit', userId: '123' },
-    originalEventData: ['button', 'press', { x: 100, y: 200 }],
-  },
-};
-```
-
-### Mapplet Types
-
-#### `MappletType<State>`
-
-Represents the configuration interface for a Mapplet application. A Mapplet is a self-contained application that can be embedded or run standalone.
-
-```typescript
-interface MappletType<State extends object = object> {
-  state?: State; // Optional initial state object for the Mapplet
-  onAction?: (action: Action) => void; // Optional callback function to handle actions
-}
-```
-
-**Example:**
-
-```typescript
-import { MappletType, Action } from '@mapples/types';
-
-interface MyAppState {
-  user: { name: string; email: string };
-  settings: { theme: string };
-}
+#### Regexp
 
-const myMapplet: MappletType<MyAppState> = {
-  state: {
-    user: { name: 'John', email: 'john@example.com' },
-    settings: { theme: 'dark' },
-  },
-  onAction: (action: Action) => {
-    console.log('Mapplet action:', action);
-    // Handle analytics, logging, etc.
-  },
-};
-```
+- **`ConditionStringRegExp`** – Regex used to split condition strings on `::` (respecting quoted segments)
 
-### Asset Types
+#### Utils
 
-#### `AssetType`
+- **`toConditionString(...values)`** – Joins values with `FN_SEPARATOR`
+- **`parseConditionString(value)`** – Splits a condition string into parts (valueType default `'string'`)
+- **`parseCondition(value)`** – Parses `SimpleCondition | BoolCondition` into `ParseConditionResult` (handles booleans and quoted types)
+- **`isCondition(value)`** – Type guard for valid condition strings
+- **`toBool(value)`** – Converts string/boolean to boolean (`"true"` → true)
+- **`toNumber(value)`** – Converts string/boolean to number (booleans → 0/1)
+- **`parseJoin(key?)`** – Splits key by `;` and removes newlines (for multi-key data props)
 
-Represents the different types of assets that can be used in the Mapples system.
+#### Conditions (evaluators)
 
-```typescript
-type AssetType = 'image' | 'video' | 'icon' | 'font' | 'json';
-```
+- **`eq`** – `(a, b) => a === b`
+- **`notEq`** – `(a, b) => a !== b`
+- **`conditionMap`** – `Record<Conditions, ConditionFunc>` mapping enum to functions
 
-**Example:**
-
-```typescript
-import { AssetType } from '@mapples/types';
-
-const imageAsset: AssetType = 'image';
-const videoAsset: AssetType = 'video';
-```
-
-### Component Types
-
-#### `RegisteredComponent<T>`
-
-Defines the structure for registering components in the Mapples component system. This interface contains all the metadata needed to make a component available in the visual editor.
-
-```typescript
-interface RegisteredComponent<T extends object = object> {
-  type: string; // Unique component identifier
-  groupId: string; // Group this component belongs to
-  label: string; // Display name
-  Component: ComponentType<PropsWithChildren<T>>; // React component
-  Icon: ComponentType<SvgProps>; // Icon for component palette
-  initialProps: T; // Default props
-  styleKeys: StyleKey[]; // Available style properties
-  props: PropsFormField[]; // Property form fields
-  actionProps: string[]; // Action-triggering properties
-  hidden?: boolean; // Hide from palette
-  hasChildren?: boolean; // Can contain children
-}
-```
-
-**Example:**
-
-```typescript
-import { RegisteredComponent } from '@mapples/types';
-
-interface ButtonProps {
-  text: string;
-  disabled?: boolean;
-  onPress?: () => void;
-}
-
-const buttonComponent: RegisteredComponent<ButtonProps> = {
-  type: 'Button',
-  groupId: 'inputs',
-  label: 'Button',
-  Component: Button,
-  Icon: ButtonIcon,
-  initialProps: { text: 'Click me' },
-  styleKeys: [backgroundColorStyle, textColorStyle],
-  props: [textField, disabledField],
-  actionProps: ['onPress'],
-};
-```
-
-#### `RegisteredComponentsGroup`
-
-Represents a group of components in the component palette.
-
-```typescript
-interface RegisteredComponentsGroup {
-  id: string; // Unique group identifier
-  label: string; // Display name
-  Icon: ComponentType<SvgProps>; // Group icon
-}
-```
-
-#### `RegisteredComponents`
-
-A registry mapping component types to their definitions.
-
-```typescript
-type RegisteredComponents = Record<string, RegisteredComponent>;
-```
-
-#### `StyleKey`
-
-Defines a style property configuration.
-
-```typescript
-interface StyleKey {
-  label: string; // Human-readable label
-  value: string; // CSS property name
-  forms: StyleFormType[]; // Applicable form types
-}
-```
-
-### Form Types
-
-#### `StyleFormType`
-
-Enum representing different categories of style forms.
-
-```typescript
-enum StyleFormType {
-  Dimension = 'Dimension', // Width, height, min/max dimensions
-  Image = 'Image', // Background images, object fit
-  Text = 'Text', // Text color, alignment
-  Typography = 'Typography', // Font family, size, weight
-  Position = 'Position', // Top, left, right, bottom
-  Surface = 'Surface', // Background color, opacity
-  ScrollSurface = 'ScrollSurface', // Scrollable surface properties
-  Borders = 'Borders', // Border width, color, radius
-  Shadow = 'Shadow', // Box shadow, elevation
-  Spacing = 'Spacing', // Margin, padding
-  Svg = 'Svg', // SVG-related properties
-}
-```
-
-#### `PropsFormType`
-
-Enum for property form field types.
-
-```typescript
-enum PropsFormType {
-  Text = 'Text', // Text input field
-  Select = 'Select', // Single selection dropdown
-  Switch = 'Switch', // Boolean toggle
-  MultiSelect = 'MultiSelect', // Multiple selection dropdown
-}
-```
-
-#### `PropsFormField`
-
-Configuration for component property form fields.
-
-```typescript
-interface PropsFormField {
-  propsKey: string; // Property key in component props
-  label: string; // Form field label
-  options?: PropsFormFieldOptions; // Options for select fields
-  type: PropsFormType; // Form field type
-  dataProp?: boolean; // Can be bound to data sources
-}
-```
-
-**Example:**
-
-```typescript
-import { PropsFormField, PropsFormType } from '@mapples/types';
-
-const textField: PropsFormField = {
-  propsKey: 'text',
-  label: 'Button Text',
-  type: PropsFormType.Text,
-};
-
-const sizeField: PropsFormField = {
-  propsKey: 'size',
-  label: 'Size',
-  type: PropsFormType.Select,
-  options: [
-    { label: 'Small', value: 'sm' },
-    { label: 'Medium', value: 'md' },
-    { label: 'Large', value: 'lg' },
-  ],
-};
-```
-
-#### `PropsFormFieldOption`
-
-Represents an option in select/multi-select fields.
-
-```typescript
-interface PropsFormFieldOption {
-  label: string; // Display text
-  value: string; // Stored value
-}
-```
-
-#### `PropsFormFieldOptions`
-
-Union type for form field options.
-
-```typescript
-type PropsFormFieldOptions =
-  | PropsFormFieldOption[] // Array of options
-  | 'typography' // Special typography type
-  | AssetType; // Asset type for asset selection
-```
-
-#### `ActionFormProps`
-
-Configuration for action properties.
-
-```typescript
-interface ActionFormProps {
-  propsKey: string; // Action property key
-  label: string; // Form field label
-}
-```
-
-#### `PropsFieldConfig`
-
-Mapping of form types to their React components.
-
-```typescript
-type PropsFieldConfig = Record<PropsFormType, ComponentType<PropsFormField>>;
-```
-
-## Usage Examples
-
-### Registering a Component
+## Usage examples
 
 ```typescript
 import {
-  RegisteredComponent,
-  PropsFormField,
-  PropsFormType,
-  StyleFormType,
-  StyleKey,
-} from '@mapples/types';
+  isThis,
+  isDataThis,
+  parseDataThis,
+  parseThis,
+  parseDims,
+  DATA_THIS,
+  FN_SEPARATOR,
+} from '@mapples/inlang';
 
-// Define component props
-interface MyButtonProps {
-  text: string;
-  variant: 'primary' | 'secondary';
-  disabled?: boolean;
-}
+// This
+isThis('"this"');        // true
+isThis('"this::1"');      // true
+parseThis('"this::2"');  // ['this', '2']
 
-// Create style keys
-const backgroundColorStyle: StyleKey = {
-  label: 'Background Color',
-  value: 'backgroundColor',
-  forms: [StyleFormType.Surface],
-};
+// Data this
+isDataThis('(this)');           // true
+isDataThis('(this).user.name'); // true
+parseDataThis('(this).user.name'); // ['user', 'name']
 
-// Create form fields
-const textField: PropsFormField = {
-  propsKey: 'text',
-  label: 'Button Text',
-  type: PropsFormType.Text,
-};
-
-const variantField: PropsFormField = {
-  propsKey: 'variant',
-  label: 'Variant',
-  type: PropsFormType.Select,
-  options: [
-    { label: 'Primary', value: 'primary' },
-    { label: 'Secondary', value: 'secondary' },
-  ],
-};
-
-// Register the component
-const myButtonComponent: RegisteredComponent<MyButtonProps> = {
-  type: 'MyButton',
-  groupId: 'custom',
-  label: 'My Button',
-  Component: MyButton,
-  Icon: MyButtonIcon,
-  initialProps: {
-    text: 'Click me',
-    variant: 'primary',
-  },
-  styleKeys: [backgroundColorStyle],
-  props: [textField, variantField],
-  actionProps: ['onPress'],
-};
+// Dims
+parseDims('"w::50"');   // ['width', 0.5]
+parseDims('"h::100"');  // ['height', 1]
+parseDims('"width"');   // ['width', 1]
 ```
-
-### Creating a Component Group
-
-```typescript
-import { RegisteredComponentsGroup } from '@mapples/types';
-
-const customGroup: RegisteredComponentsGroup = {
-  id: 'custom',
-  label: 'Custom Components',
-  Icon: CustomIcon,
-};
-```
-
-### Working with Form Fields
 
 ```typescript
 import {
-  PropsFormField,
-  PropsFormType,
-  PropsFormFieldOptions,
-} from '@mapples/types';
+  parseCondition,
+  isCondition,
+  toBool,
+  toNumber,
+  Conditions,
+  conditionMap,
+} from '@mapples/inlang';
 
-// Text field
-const nameField: PropsFormField = {
-  propsKey: 'name',
-  label: 'Name',
-  type: PropsFormType.Text,
-};
+const r = parseCondition('user.age::eq::18' as any);
+// r.dataProp === 'user.age', r.condition === Conditions.equals, r.valueProp === '18'
 
-// Select field with options
-const statusField: PropsFormField = {
-  propsKey: 'status',
-  label: 'Status',
-  type: PropsFormType.Select,
-  options: [
-    { label: 'Active', value: 'active' },
-    { label: 'Inactive', value: 'inactive' },
-    { label: 'Pending', value: 'pending' },
-  ],
-};
+const br = parseCondition('user.active::eq::true' as any);
+// br.valueProp === true, br.valueType === 'boolean'
 
-// Asset selection field
-const imageField: PropsFormField = {
-  propsKey: 'image',
-  label: 'Image',
-  type: PropsFormType.Select,
-  options: 'image', // AssetType
-};
+isCondition('user.role::eq::admin'); // true
+toBool('true');  // true
+toNumber('42');  // 42
 
-// Typography field
-const fontField: PropsFormField = {
-  propsKey: 'font',
-  label: 'Font',
-  type: PropsFormType.Select,
-  options: 'typography',
-};
+const fn = conditionMap[Conditions.equals];
+fn(1, 1); // true
 ```
 
-## Integration with Other Packages
+## Integration
 
-This types package is used throughout the Mapples ecosystem:
+Used by:
 
-- **@mapples/action**: Uses `Action` and `ActionPayload` types for action management
-- **@mapples/state**: Uses state-related types for state management
-- **@mapples/ui**: Uses `RegisteredComponent` and related types for component registration
-- **@mapples/form**: Uses `PropsFormField` and form-related types for property editing
-- **@mapples/style**: Uses `StyleKey` and `StyleFormType` for styling configuration
-- **@mapples/render**: Uses component types for rendering components
-
-## Type Safety
-
-All types in this package are designed to provide maximum type safety and IntelliSense support. When working with Mapples components, you'll get:
-
-- Autocomplete for all properties
-- Type checking for component props
-- Validation for form field configurations
-- IntelliSense for style properties
-
-## Contributing
-
-When adding new types to this package:
-
-1. Follow the existing naming conventions
-2. Add comprehensive TSDoc comments
-3. Include usage examples
-4. Update this README with new types
-5. Ensure all types are exported from the main index file
+- **@mapples/render** – Data props and condition-based visibility
+- **@mapples/form** – Field bindings and conditional logic
+- **@mapples/ui** – Component props and layout hints
 
 ## License
 
 MIT
+
+## Author
+
+Oleksandr Soloviov – [mapples.org](https://mapples.org/people/olek_soloviov)

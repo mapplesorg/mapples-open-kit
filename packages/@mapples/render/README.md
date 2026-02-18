@@ -126,17 +126,18 @@ The main component for rendering component trees from definitions.
 
 #### `RenderProvider`
 
-Provider component that makes registered components available to the render system.
+Provider component that makes registered components and assets available to the render system.
 
 **Props:**
 
 - `components: RegisteredComponents` - Map of registered components
+- `assets?: AnyObject` - Optional map of asset refs to values (e.g. images, fonts) for resolving `ref(type:id:name)` in component props
 - `children: ReactNode` - Child components
 
 **Example:**
 
 ```tsx
-<RenderProvider components={registeredComponents}>
+<RenderProvider components={registeredComponents} assets={assets}>
   <App />
 </RenderProvider>
 ```

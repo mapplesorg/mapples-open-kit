@@ -60,6 +60,10 @@ export interface DataProp {
  */
 export type DataProps = Partial<Record<string, DataProp>>;
 
+/**
+ * SVG asset source (e.g. for icon components). Expects a default export that is an SVG component.
+ * @public
+ */
 export interface SvgSource {
   default: ComponentType<SvgProps>;
 }

@@ -12,6 +12,7 @@ import { RenderContextType } from '../types';
  *
  * @param {PropsWithChildren<RenderContextType>} props - The component props
  * @param {RegisteredComponents} props.components - Map of registered components
+ * @param {AnyObject} [props.assets] - Optional map of asset refs (ref(type:id:name)) to values
  * @param {ReactNode} props.children - Child components to render
  *
  * @example

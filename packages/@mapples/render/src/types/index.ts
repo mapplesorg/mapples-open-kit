@@ -108,10 +108,11 @@ export type RenderProps = Pick<RenderDom, 'root' | 'state'> & {
 
 /**
  * Context type for the render system.
- * Provides access to registered components throughout the component tree.
+ * Provides access to registered components and assets throughout the component tree.
  *
  * @interface RenderContextType
  * @property {RegisteredComponents} components - Map of registered components available for rendering
+ * @property {AnyObject} assets - Map of asset refs (e.g. ref(type:id:name)) to values for resolving in component props
  */
 export interface RenderContextType {
   components: RegisteredComponents;

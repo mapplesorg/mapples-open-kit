@@ -1,0 +1,52 @@
+# Function: processExoticKeys()
+
+> **processExoticKeys**(`obj`, `getColor`, `_canvas?`): `any`
+
+Defined in: [utils/styled.ts:91](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/style/src/utils/styled.ts#L91)
+
+Recursively processes exotic keys like `boxShadow` and `zIndex` throughout nested structures.
+Converts boxShadow objects to CSS strings and ensures zIndex values are numbers.
+
+## Parameters
+
+### obj
+
+`any`
+
+The object or array to process (can be deeply nested)
+
+### getColor
+
+(`color`) => `string`
+
+Function to resolve theme color references
+
+### \_canvas?
+
+[`CanvasDimensions`](../interfaces/CanvasDimensions.mdx)
+
+Optional utility canvas dimensions for inner use
+
+## Returns
+
+`any`
+
+Processed object with exotic keys converted to their proper formats
+
+## Example
+
+```ts
+processExoticKeys(
+  {
+    boxShadow: { x: 2, y: 4, radius: 8, color: 'theme.colors.shadow' },
+    zIndex: '10',
+    nested: { boxShadow: { x: 1, y: 1, radius: 2 } }
+  },
+  (color) => '#000000'
+);
+// Returns: {
+//   boxShadow: "2px 4px 8px #000000",
+//   zIndex: 10,
+//   nested: { boxShadow: "1px 1px 2px rgba(0, 0, 0, 0.25)" }
+// }
+```

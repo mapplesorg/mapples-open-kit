@@ -1,0 +1,50 @@
+# Interface: ParseConditionResult
+
+Defined in: [state/types.ts:73](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/inlang/src/state/types.ts#L73)
+
+Result of parsing a condition string.
+
+Contains the parsed components of a condition string including the data property path,
+the condition operator, the value to compare against, and the type of that value.
+
+ ParseConditionResult
+
+## Properties
+
+### dataProp
+
+> **dataProp**: `string`
+
+Defined in: [state/types.ts:74](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/inlang/src/state/types.ts#L74)
+
+The data property path to evaluate
+
+***
+
+### condition
+
+> **condition**: [`Conditions`](../enumerations/Conditions.mdx)
+
+Defined in: [state/types.ts:75](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/inlang/src/state/types.ts#L75)
+
+The condition operator to use
+
+***
+
+### valueProp
+
+> **valueProp**: `string` \| `boolean`
+
+Defined in: [state/types.ts:76](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/inlang/src/state/types.ts#L76)
+
+The value to compare against
+
+***
+
+### valueType
+
+> **valueType**: [`ValueType`](../type-aliases/ValueType.mdx)
+
+Defined in: [state/types.ts:77](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/inlang/src/state/types.ts#L77)
+
+The type of the value (string, number, boolean, or dataProp)

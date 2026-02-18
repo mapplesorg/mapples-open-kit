@@ -1,0 +1,21 @@
+# Function: parseDims()
+
+> **parseDims**(`dim`): `null` \| [`Dims`](../type-aliases/Dims.mdx)
+
+Defined in: [dims.ts:27](https://github.com/mapplesorg/mapples-open-kit/blob/48ed65f45ba920a5d5b2f05f069ea0a621919a37/packages/@mapples/inlang/src/dims.ts#L27)
+
+Parses a dimension string like `"w::50"` or `"height::100"` into [type, 0..1].
+
+## Parameters
+
+### dim
+
+`string`
+
+Quoted string e.g. `"w::50"` (50% width), `"height"` (100% height)
+
+## Returns
+
+`null` \| [`Dims`](../type-aliases/Dims.mdx)
+
+Tuple [DimType, number] or null if format is invalid
