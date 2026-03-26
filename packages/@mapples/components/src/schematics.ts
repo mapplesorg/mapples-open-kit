@@ -1,6 +1,7 @@
-/**
- * App-specific component registry. Extend or replace with your registered components
- * for use with RenderProvider or MapplesApp. Compatible with RegisteredComponents from @mapples/types.
- * @public
- */
-export const Components = {};
+import { RegisteredComponents } from '@mapples/types';
+
+import { ImageCarouselSchematic } from './components/ImageCarousel/schematic';
+
+export const Components: RegisteredComponents = {
+  [ImageCarouselSchematic.type]: ImageCarouselSchematic,
+};
