@@ -10,8 +10,6 @@ import {
 import { ImageProps, ImageStyle } from 'expo-image';
 import { TextStyle, ViewStyle } from 'react-native';
 
-import { ImageCarouselDataItem } from './index';
-
 export type ImageCarouselMode = 'textOver' | 'textUnder';
 
 export interface ImageCarouselItemProps {
