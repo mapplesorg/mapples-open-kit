@@ -1,9 +1,8 @@
+import { Image, ImageBackground } from 'expo-image';
 import {
-  Image,
   Text,
   View,
   ScrollView,
-  ImageBackground,
   Pressable,
   SectionList,
   TextInput,
