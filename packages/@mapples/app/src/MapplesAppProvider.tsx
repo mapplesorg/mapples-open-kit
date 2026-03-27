@@ -1,8 +1,9 @@
 import { FC, PropsWithChildren, JSX } from 'react';
 
+import { Components } from '@mapples/components';
 import { AnyObject, RenderProvider } from '@mapples/render';
 import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
-import { Components } from '@mapples/ui';
+import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
 
 import { remapFonts } from './utils';
@@ -78,7 +79,10 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
 
   return (
     <StyleProvider style={Styler.init(style)}>
-      <RenderProvider components={Components} assets={assets}>
+      <RenderProvider
+        components={{ ...Components, ...UIComponents }}
+        assets={assets}
+      >
         {children}
       </RenderProvider>
     </StyleProvider>

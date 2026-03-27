@@ -3,7 +3,7 @@ import { FC, PropsWithChildren, JSX } from 'react';
 import { Components } from '@mapples/components';
 import { AnyObject, RenderProvider } from '@mapples/render';
 import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
-import { Components as UI } from '@mapples/ui';
+import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -86,7 +86,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   return (
     <StyleProvider style={Styler.init(style || styleConfig)}>
       <RenderProvider
-        components={{ ...Components, ...UI }}
+        components={{ ...Components, ...UIComponents }}
         assets={assets || assetsConfig}
       >
         {children}
