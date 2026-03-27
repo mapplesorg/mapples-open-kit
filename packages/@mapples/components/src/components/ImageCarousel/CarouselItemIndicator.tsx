@@ -6,6 +6,7 @@ import { ViewStyle } from 'react-native';
 interface CarouselItemIndicatorProps {
   total: number;
   activeIndex: number;
+  styleIndicatorContainer?: StyledProp<ViewStyle>;
   styleIndicator?: StyledProp<ViewStyle>;
   styleIndicatorActive?: StyledProp<ViewStyle>;
 }
@@ -13,11 +14,12 @@ interface CarouselItemIndicatorProps {
 const CarouselItemIndicator: FC<CarouselItemIndicatorProps> = ({
   total,
   activeIndex,
+  styleIndicatorContainer,
   styleIndicator,
   styleIndicatorActive,
 }) => {
   return (
-    <StyledView styled={{ style: { flexDirection: 'row', columnGap: 8 } }}>
+    <StyledView styled={{ style: styleIndicatorContainer }}>
       {Array.from({ length: total }).map((_, index) => (
         <StyledView
           key={index}

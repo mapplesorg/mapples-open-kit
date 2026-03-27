@@ -43,6 +43,7 @@ export interface ImageCarouselProps<T extends ImageCarouselDataItem> {
     styleTextContainer?: StyledProp<ViewStyle>;
     styleTitle?: StyledProp<TextStyle>;
     styleSubtitle?: StyledProp<TextStyle>;
+    styleIndicatorContainer?: StyledProp<ViewStyle>;
   };
 }
 
@@ -72,6 +73,7 @@ const ImageCarousel = forwardRef<View, ImageCarouselProps<any>>(
       styleTitle,
       styleSubtitle,
       style,
+      styleIndicatorContainer,
     } = styled || {};
 
     const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
@@ -129,6 +131,7 @@ const ImageCarousel = forwardRef<View, ImageCarouselProps<any>>(
             activeIndex={activeIndex}
             styleIndicator={styleIndicator}
             styleIndicatorActive={styleIndicatorActive}
+            styleIndicatorContainer={styleIndicatorContainer}
           />
         )}
       </StyledView>
