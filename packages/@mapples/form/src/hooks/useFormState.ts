@@ -42,6 +42,7 @@ const useFormState = <T extends object>() => {
     const unsubscribe = form?.subscribeOnChange<T>((values) => {
       setFormValues(values);
     });
+
     return () => {
       unsubscribe?.();
     };

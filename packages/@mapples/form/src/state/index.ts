@@ -121,7 +121,12 @@ class FormState<T extends object> {
     ) {
       this.saveToHistory();
     }
+
     this.subscriptions.forEach((subscription) => {
+      if (!path.includes(subscription.path || '')) {
+        return;
+      }
+
       subscription.cb(
         subscription.path
           ? get(this.getValues(), subscription.path)

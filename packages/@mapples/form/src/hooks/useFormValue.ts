@@ -37,7 +37,9 @@ const useFormValue = <T>(fieldPath?: string) => {
   }, [fieldPath, form]);
 
   useEffect(() => {
-    const unsubscribe = form?.subscribeOnChange<T>(setValue, fieldPath);
+    const unsubscribe = form?.subscribeOnChange<T>((formValue) => {
+      setValue(formValue);
+    }, fieldPath);
 
     return () => {
       unsubscribe?.();
