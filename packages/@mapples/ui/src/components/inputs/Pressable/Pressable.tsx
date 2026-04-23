@@ -3,7 +3,7 @@ import { forwardRef, PropsWithChildren } from 'react';
 import { StyledPressable, WithStyledProps } from '@mapples/style';
 import { PressableProps as RNPressableProps, View } from 'react-native';
 
-export interface PressableProps extends WithStyledProps<RNPressableProps> {}
+export type PressableProps = WithStyledProps<RNPressableProps>;
 
 const Pressable = forwardRef<View, PropsWithChildren<PressableProps>>(
   ({ children, ...props }, ref) => {
