@@ -1,10 +1,9 @@
-import { forwardRef, PropsWithChildren, useMemo } from 'react';
+import { forwardRef, PropsWithChildren } from 'react';
 
 import {
   StyledProp,
   StyledProps,
   StyledView,
-  Styler,
   WithStyledProps,
 } from '@mapples/style';
 import { View, ViewProps } from 'react-native';
@@ -83,13 +82,6 @@ const QRCode = forwardRef<View, QRCodeProps>(
     ref,
   ) => {
     const { styleSvg, ...styledProps } = styled || {};
-
-    const svgStyle = useMemo(() => {
-      const flattened = styleSvg ? Styler.flatten(styleSvg) : {};
-      return {
-        ...(flattened as Record<string, unknown>),
-      };
-    }, [styleSvg]);
 
     return (
       <StyledView ref={ref} styled={styledProps} {...props}>

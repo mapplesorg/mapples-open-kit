@@ -1,6 +1,6 @@
 import { FN_SEPARATOR } from './constants';
 
-const dimRegExp = new RegExp(`^"(w|h|width|height)(${FN_SEPARATOR}\\d+)?"$`);
+const dimRegExp = new RegExp(`^(w|h|width|height)(${FN_SEPARATOR}\\d+)?$`);
 
 /** Dimension axis: width or height. @public */
 export type DimType = 'width' | 'height';
@@ -26,7 +26,7 @@ const mapDimsType = {
  */
 export const parseDims = (dim: string): Dims | null => {
   if (dimRegExp.test(dim)) {
-    const [type, percent] = dim.slice(1, -1).split(FN_SEPARATOR);
+    const [type, percent] = dim.split(FN_SEPARATOR);
     const value = parseInt(percent || '', 10);
 
     return [mapDimsType[type as DimsString], !isNaN(value) ? value / 100 : 1];

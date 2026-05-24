@@ -345,6 +345,7 @@ export class Monitor<
       if (!parentLayout.children) {
         parentLayout.children = new Map();
       }
+
       parentLayout.children.set(this.dropElementIds, {
         layout: {
           ...layout,
@@ -353,6 +354,7 @@ export class Monitor<
             config?.zIndex || parentLayout.layout.zIndex + this.dropElementIds,
           flexDirection: config?.flexDirection || FlexDirection.Column,
         },
+        canDrop: config?.canDrop,
         data,
       });
     }

@@ -18,6 +18,9 @@
     },
     {
       "path": "../style/tsconfig.build.json"
+    },
+    {
+      "path": "../components/tsconfig.build.json"
     }
   ]
 }

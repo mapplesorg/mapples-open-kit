@@ -9,6 +9,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "noEmit": true,
+    "noEmitOnError": true,
     "paths": {
       "@mapples/dnd": ["./packages/@mapples/dnd/src/index.ts"],
       "@mapples/form": ["./packages/@mapples/form/src/index.ts"],

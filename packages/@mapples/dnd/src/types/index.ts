@@ -14,17 +14,17 @@ export { Monitor };
  */
 export enum DnDEventType {
   /** Fired when a drag operation starts */
-  DragStart,
+  DragStart = 'DragStart',
   /** Fired during a drag operation when the drag position changes */
-  Drag,
+  Drag = 'Drag',
   /** Fired when a drag operation ends */
-  DragEnd,
+  DragEnd = 'DragEnd',
   /** Fired when a tap/select event occurs */
-  Select,
+  Select = 'Select',
   /** Fired when layout information is updated */
-  Layout,
+  Layout = 'Layout',
   /** Fired to force a layout update */
-  LayoutForceUpdate,
+  LayoutForceUpdate = 'LayoutForceUpdate',
 }
 
 /**

@@ -20,7 +20,7 @@ import { ViewsSchematics } from './components/views';
  *
  * @public
  */
-export const Components = {
+export const UIComponents = {
   ...ViewsSchematics,
   ...TypographySchematics,
   ...InputsSchematics,
