@@ -1,5 +1,11 @@
 # @mapples/inlang
 
+## 1.0.2
+
+### Patch Changes
+
+- b39e19e: feat: do not ask user to put brackets for width/height value
+
 ## 1.0.1
 
 ### Patch Changes
