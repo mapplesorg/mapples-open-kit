@@ -1,5 +1,11 @@
 # @mapples/inlang
 
+## 1.1.0
+
+### Minor Changes
+
+- 8628ce2: Bump vesrions to match the system
+
 ## 1.0.2
 
 ### Patch Changes
