@@ -20,7 +20,7 @@
     "directory": "packages/@mapples/render"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.18.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0 <20.0.0",
