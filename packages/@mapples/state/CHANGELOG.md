@@ -1,5 +1,11 @@
 # @mapples/state
 
+## 1.1.1
+
+### Patch Changes
+
+- 8628ce2: Bump vesrions to match the system
+
 ## 1.1.0
 
 ### Minor Changes
