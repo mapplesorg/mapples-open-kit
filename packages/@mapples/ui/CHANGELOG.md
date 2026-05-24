@@ -1,5 +1,12 @@
 # @mapples/ui
 
+## 1.0.8
+
+### Patch Changes
+
+- b39e19e: chore: clean code
+- b39e19e: feat: rename ui lib components var
+
 ## 1.0.7
 
 ### Patch Changes

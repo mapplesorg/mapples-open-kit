@@ -1,5 +1,11 @@
 # @mapples/style
 
+## 1.0.8
+
+### Patch Changes
+
+- b39e19e: feat: integrate expo image package
+
 ## 1.0.7
 
 ### Patch Changes

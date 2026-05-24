@@ -1,5 +1,11 @@
 # @mapples/form
 
+## 1.0.5
+
+### Patch Changes
+
+- b39e19e: fix: resolve issue updating all subscriptions when path changes
+
 ## 1.0.4
 
 ### Patch Changes

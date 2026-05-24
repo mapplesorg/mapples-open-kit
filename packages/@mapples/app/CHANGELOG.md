@@ -1,5 +1,14 @@
 # @mapples/render
 
+## 1.0.2
+
+### Patch Changes
+
+- b39e19e: feat: add components library
+- b39e19e: fix: fix build issues
+- b39e19e: feat: rename ui lib components var
+- b39e19e: fix: fix build issues (noEmitOnError)
+
 ## 1.0.1
 
 ### Patch Changes

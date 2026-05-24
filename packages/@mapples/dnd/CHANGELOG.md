@@ -1,5 +1,12 @@
 # @mapples/dnd
 
+## 1.0.4
+
+### Patch Changes
+
+- b39e19e: fix: resolve issue with non registering canDrop
+- b39e19e: fix: make dnd types more readable
+
 ## 1.0.3
 
 ### Patch Changes
