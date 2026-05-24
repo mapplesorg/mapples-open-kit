@@ -1,10 +1,6 @@
 import { FC, PropsWithChildren, useMemo } from 'react';
 
-import {
-  ThemeProvider,
-  DarkTheme,
-  DefaultTheme,
-} from '@react-navigation/native';
+import { ThemeProvider, DarkTheme, DefaultTheme } from 'expo-router';
 import { mapValues } from 'lodash';
 
 import { useTheme } from '../hooks';
