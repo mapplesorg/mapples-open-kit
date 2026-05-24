@@ -1,5 +1,11 @@
 # @mapples/state
 
+## 1.1.0
+
+### Minor Changes
+
+- 77277bc: Update to rn 56
+
 ## 1.0.7
 
 ### Patch Changes

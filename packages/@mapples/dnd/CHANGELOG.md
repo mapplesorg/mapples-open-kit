@@ -1,5 +1,11 @@
 # @mapples/dnd
 
+## 1.1.0
+
+### Minor Changes
+
+- 77277bc: Update to rn 56
+
 ## 1.0.4
 
 ### Patch Changes
