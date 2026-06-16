@@ -61,7 +61,7 @@ const useTheme = (customStyleConfig?: StyleContextType) => {
 
   const theme = useMemo(() => {
     if (themeConfig.variant === 'auto') {
-      return colorScheme ? themeConfig[colorScheme] : themeConfig.light;
+      return colorScheme === 'dark' ? themeConfig.dark : themeConfig.light;
     }
 
     return themeConfig[themeConfig.variant];
