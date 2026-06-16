@@ -11,10 +11,16 @@
   },
   "references": [
     {
-      "path": "../types/tsconfig.build.json"
+      "path": "../action/tsconfig.build.json"
+    },
+    {
+      "path": "../inlang/tsconfig.build.json"
     },
     {
       "path": "../state/tsconfig.build.json"
+    },
+    {
+      "path": "../types/tsconfig.build.json"
     }
   ]
 }
