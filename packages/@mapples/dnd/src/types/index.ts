@@ -4,9 +4,7 @@ import { LayoutRectangle, ViewProps } from 'react-native';
 import { SharedValue } from 'react-native-reanimated';
 import { SvgProps } from 'react-native-svg';
 
-import { Monitor } from '../monitor';
-
-export { Monitor };
+import type { Monitor } from '../monitor/Monitor';
 
 /**
  * Enum representing the different types of drag and drop events.
