@@ -2,7 +2,7 @@ import { createContext } from 'react';
 
 import { noop } from 'lodash';
 
-import { FormState } from '@mapples/form';
+import FormState from '../state';
 
 import type { FormContextType } from '../types';
 
