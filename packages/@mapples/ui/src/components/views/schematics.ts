@@ -9,6 +9,15 @@ import { SafeAreaViewSchematic } from './SafeAreaView';
 import { HorizontalScrollView, ScrollViewSchematic } from './ScrollView';
 import { ContainerSchematic, ViewSchematic } from './View';
 
+/**
+ * Complete registry of all view component schematics.
+ *
+ * Maps each component type string to its `RegisteredComponent` entry,
+ * covering View, Container, SafeAreaView, ScrollView, HorizontalScrollView,
+ * ImageBackgroundView, FlatList, and grid layout variants.
+ *
+ * @public
+ */
 export const ViewsSchematics = {
   [ViewSchematic.type]: ViewSchematic,
   [ContainerSchematic.type]: ContainerSchematic,

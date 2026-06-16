@@ -1,26 +1,27 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { cloneDeep, drop, dropRight, indexOf } from 'lodash';
 
-import FormContext from '../context';
+import useForm from './useForm';
 
 /**
  * Hook to manage array fields with specialized array manipulation methods.
  * This hook provides methods to add, remove, and manipulate array items in a form field.
+ * Changes are reflected reactively via history-change subscriptions on the underlying FormState.
  *
  * @template T - The type of items in the array
- * @param fieldPath - Dot notation path to the array field
- * @param fallbackValue - Default array value to use if field is undefined
- * @returns Object containing array value and manipulation methods
+ * @param fieldPath - Dot notation path to the array field (e.g., `'tags'`)
+ * @returns Object containing the current array value and an `api` object with mutation helpers:
+ *   `push`, `dropLeft`, `dropRight`, `remove`, `paste`, and `toggle`
  *
  * @example
  * ```tsx
  * const TagsField = () => {
- *   const { value, api } = useFormArrayField<string>('tags', []);
+ *   const { value, api } = useFormArrayField<string>('tags');
  *
  *   return (
  *     <div>
- *       {value.map((tag, index) => (
+ *       {value?.map((tag, index) => (
  *         <div key={index}>
  *           {tag}
  *           <button onClick={() => api.remove(index)}>Remove</button>
@@ -34,26 +35,20 @@ import FormContext from '../context';
  *
  * @public
  */
-const useFormArrayField = <T>(fieldPath: string, fallbackValue?: T[]) => {
-  const { form, initialized } = useContext(FormContext);
+const useFormArrayField = <T>(fieldPath: string) => {
+  const { form } = useForm();
 
   const [value, setValue] = useState<T[] | undefined>();
 
   useEffect(() => {
     const unsubscribe = form?.subscribeOnHistoryChange(() => {
-      setValue(form?.getValue<T[]>(fieldPath) || fallbackValue);
+      setValue(form?.getValue<T[]>(fieldPath));
     });
 
     return () => {
       unsubscribe?.();
     };
-  }, [fallbackValue, fieldPath, form]);
-
-  useEffect(() => {
-    if (initialized) {
-      setValue(form?.getValue<T[]>(fieldPath));
-    }
-  }, [fieldPath, form, initialized]);
+  }, [fieldPath, form]);
 
   const fieldPush = useCallback(
     (item: T) => {
@@ -126,7 +121,7 @@ const useFormArrayField = <T>(fieldPath: string, fallbackValue?: T[]) => {
   );
 
   return {
-    value: value || fallbackValue,
+    value: value,
     api: {
       push: fieldPush,
       dropLeft: fieldDropLeft,

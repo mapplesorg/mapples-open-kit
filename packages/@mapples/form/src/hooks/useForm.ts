@@ -12,7 +12,7 @@ import FormContext from '../context';
  * @example
  * ```tsx
  * const MyComponent = () => {
- *   const { form, submitting, submitForm, validationErrors } = useFormContext();
+ *   const { form, submitting, submitForm, validationErrors } = useForm();
  *
  *   return (
  *     <div>
@@ -27,8 +27,8 @@ import FormContext from '../context';
  *
  * @public
  */
-const useFormContext = () => {
+const useForm = () => {
   return useContext(FormContext);
 };
 
-export default useFormContext;
+export default useForm;

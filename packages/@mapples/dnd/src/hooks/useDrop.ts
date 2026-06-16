@@ -1,4 +1,11 @@
-import { RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  RefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { LayoutRectangle, useWindowDimensions, View } from 'react-native';
 import { filter } from 'rxjs';
@@ -96,7 +103,7 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
    * Updates the layout information for the drop element.
    * This function should be called when the element's position or size changes.
    */
-  const updateLayout = useRef(() => {
+  const updateLayout = useCallback(() => {
     ref.current?.measureInWindow?.((x, y, width, height) => {
       layoutRef.current = { x, y, width, height };
 
@@ -104,7 +111,7 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
         monitor.updateDropElement(idRef.current, layoutRef.current);
       }
     });
-  }).current;
+  }, [monitor, ref]);
 
   useEffect(() => {
     const subscription = monitor.events

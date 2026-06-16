@@ -1,11 +1,16 @@
 import FormState from './state';
 
 /**
- * @packageDocumentation
- * @module @mapples/form
+ * @mapples/form - A comprehensive form management library for React and React Native
  *
- * Form management for React and React Native: type-safe state, Yup validation,
- * form history (undo/redo), reactive subscriptions, and hook-based field API.
+ * This package provides a powerful and flexible form state management solution with:
+ * - Type-safe form handling with TypeScript support
+ * - Yup validation integration
+ * - Form history management (undo/redo functionality)
+ * - Reactive form state with subscription-based updates
+ * - Comprehensive hook-based API for form field management
+ * - Support for nested objects and arrays
+ * - Touch state tracking for better UX
  *
  * @example
  * ```tsx

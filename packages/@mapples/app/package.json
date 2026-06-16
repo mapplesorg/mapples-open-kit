@@ -8,6 +8,7 @@
     "watch": "tsc -b --watch tsconfig.build.json",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
+    "test": "jest",
     "clean": "rm -rf dist"
   },
   "author": {
@@ -21,8 +22,14 @@
     "directory": "packages/@mapples/app"
   },
   "peerDependencies": {
+    "expo-router": ">=56.0.0 <57",
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0"
+  },
+  "peerDependenciesMeta": {
+    "expo-router": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "typescript": "~6.0.3"

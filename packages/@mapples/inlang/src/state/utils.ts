@@ -1,4 +1,4 @@
-import { FN_SEPARATOR } from '@mapples/inlang';
+import { FN_SEPARATOR } from '../constants';
 
 import { ConditionStringRegExp } from './regexp';
 import {
@@ -19,9 +19,18 @@ const mapTypes = {
 } as const;
 
 /**
- * Joins values with FN_SEPARATOR to build a condition string.
- * @param values - Parts to join (e.g. dataProp, condition, value)
- * @returns Single string with `::` between parts
+ * Joins one or more string parts into a single `::` -separated condition
+ * string.
+ *
+ * @param values - The parts to join (e.g. a data-prop, condition operator, and
+ *   comparison value).
+ * @returns A `::` -delimited string (e.g. `"user.age::eq::18"`).
+ *
+ * @example
+ * ```ts
+ * toConditionString('user.age', 'eq', '18'); // 'user.age::eq::18'
+ * ```
+ *
  * @public
  */
 export const toConditionString = (...values: string[]) => {
@@ -29,10 +38,24 @@ export const toConditionString = (...values: string[]) => {
 };
 
 /**
- * Splits a condition string into parts; valueType is defaulted to 'string'.
- * For full parsing (booleans, quoted types, dataProp) use parseCondition.
- * @param value - Raw condition string
- * @returns ParseConditionResult with valueType 'string'
+ * Parses a raw condition string into its component parts without type coercion
+ * of the value.
+ *
+ * Unlike {@link parseCondition}, this function does not attempt to convert the
+ * value to a boolean or detect quoted/typed literals — it returns the raw
+ * string fragments and always sets `valueType` to `'string'`. Prefer
+ * {@link parseCondition} when the full type-aware parsing is needed.
+ *
+ * @param value - The raw condition string to parse (e.g. `"user.age::eq::18"`).
+ * @returns A {@link ParseConditionResult} with `valueType` always set to
+ *   `'string'`.
+ *
+ * @example
+ * ```ts
+ * parseConditionString('user.age::eq::18');
+ * // { dataProp: 'user.age', condition: 'eq', valueProp: '18', valueType: 'string' }
+ * ```
+ *
  * @public
  */
 export const parseConditionString = (value: string): ParseConditionResult => {
@@ -194,9 +217,23 @@ export const toNumber = (value: string | boolean) => {
 };
 
 /**
- * Splits a multi-key string by `;` and strips newlines. Used for data-prop keys that join multiple paths.
- * @param key - Optional string (e.g. "user.name;user.email; ")
- * @returns Array of segments, or undefined if key is undefined
+ * Strips newline characters from `key` and splits it on semicolons, returning
+ * an array of the resulting segments.
+ *
+ * Returns `undefined` when `key` is `undefined`.
+ *
+ * @param key - An optional semicolon-delimited string, possibly containing
+ *   newline characters.
+ * @returns An array of string segments, or `undefined` if `key` is not
+ *   provided.
+ *
+ * @example
+ * ```ts
+ * parseJoin('a;b;c');       // ['a', 'b', 'c']
+ * parseJoin('a;\nb');       // ['a', 'b']
+ * parseJoin(undefined);     // undefined
+ * ```
+ *
  * @public
  */
 export const parseJoin = (key?: string) => {

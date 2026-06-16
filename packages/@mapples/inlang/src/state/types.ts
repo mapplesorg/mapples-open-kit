@@ -64,10 +64,10 @@ export type ValueType = 'string' | 'number' | 'boolean' | 'dataProp';
  * the condition operator, the value to compare against, and the type of that value.
  *
  * @interface ParseConditionResult
- * @property {string} dataProp - The data property path to evaluate
- * @property {Conditions} condition - The condition operator to use
- * @property {string | boolean} valueProp - The value to compare against
- * @property {ValueType} valueType - The type of the value (string, number, boolean, or dataProp)
+ * @property dataProp - The data property path to evaluate
+ * @property condition - The condition operator to use
+ * @property valueProp - The value to compare against
+ * @property valueType - The type of the value (string, number, boolean, or dataProp)
  * @public
  */
 export interface ParseConditionResult {

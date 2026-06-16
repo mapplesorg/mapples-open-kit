@@ -3,8 +3,14 @@ import { SizingConfig } from './sizing';
 import { ThemeConfig } from './theme';
 import { TypographyConfig } from './typography';
 
+/**
+ * Dimensions of a canvas element used to resolve percentage-based width and height
+ * values in styled props instead of falling back to device screen dimensions.
+ */
 export interface CanvasDimensions {
+  /** Canvas width in pixels */
   width: number;
+  /** Canvas height in pixels */
   height: number;
 }
 
@@ -21,6 +27,7 @@ export interface StyleContextType {
   sizingConfig: SizingConfig;
   /** Responsive configuration for breakpoint management */
   responsiveConfig: ResponsiveConfig;
+  /** Optional canvas dimensions for resolving percentage-based width/height in styled props */
   _canvas?: CanvasDimensions;
 }
 

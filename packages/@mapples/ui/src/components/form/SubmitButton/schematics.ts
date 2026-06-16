@@ -3,9 +3,9 @@ import { RegisteredComponent } from '@mapples/types';
 import SubmitButton from './SubmitButton';
 
 /**
- * Schematic configuration for the Button component.
+ * Schematic configuration for the SubmitButton component.
  *
- * This configuration defines how the Button component appears in visual editors,
+ * This configuration defines how the SubmitButton component appears in visual editors,
  * including its properties, styling options, and default values.
  *
  * @public

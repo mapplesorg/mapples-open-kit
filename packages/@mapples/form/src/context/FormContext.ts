@@ -2,6 +2,7 @@ import { createContext } from 'react';
 
 import { noop } from 'lodash';
 
+import FormState from '../state';
 import type { FormContextType } from '../types';
 
 /**
@@ -12,14 +13,13 @@ import type { FormContextType } from '../types';
  * @public
  */
 const FormContext = createContext<FormContextType<object>>({
-  form: null,
+  form: new FormState<object>({}),
   validationErrors: null,
   submitting: true,
   submitForm: noop,
   validate: noop,
   touch: noop,
   touched: {},
-  initialized: false,
 });
 
 /**

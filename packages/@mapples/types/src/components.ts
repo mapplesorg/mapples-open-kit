@@ -10,8 +10,8 @@ import { SvgProps } from 'react-native-svg';
  * @interface RegisteredComponent
  * @template T - The props type for the component (must extend object)
  *
- * @property {string} type - Unique identifier for the component type
- * @property {ComponentType<PropsWithChildren<T>>} Component - The actual React component
+ * @property type - Unique identifier for the component type
+ * @property Component - The actual React component
  *
  * @example
  * ```typescript
@@ -22,7 +22,9 @@ import { SvgProps } from 'react-native-svg';
  * ```
  */
 export interface RegisteredComponent<T extends object = object> {
+  /** Unique string identifier for the component type (e.g. `'Button'`, `'TextInput'`) */
   type: string;
+  /** The actual React component to render for this type */
   Component: ComponentType<PropsWithChildren<T>>;
 }
 
@@ -46,8 +48,8 @@ export type RegisteredComponents = Record<string, RegisteredComponent>;
  * Configuration for data properties that can be bound to components.
  *
  * @interface DataProp
- * @property {string} key - The key identifier for the data property
- * @property {boolean} active - Whether this data property is currently active
+ * @property key - The key identifier for the data property
+ * @property active - Whether this data property is currently active
  */
 export interface DataProp {
   key: string;
@@ -61,9 +63,12 @@ export interface DataProp {
 export type DataProps = Partial<Record<string, DataProp>>;
 
 /**
- * SVG asset source (e.g. for icon components). Expects a default export that is an SVG component.
- * @public
+ * Represents a lazily-imported SVG module whose default export is an SVG component.
+ * Matches the shape produced by `import()` of an `.svg` file with a default export.
+ *
+ * @interface SvgSource
  */
 export interface SvgSource {
+  /** The SVG React component exported as the default of an SVG module */
   default: ComponentType<SvgProps>;
 }

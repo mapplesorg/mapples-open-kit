@@ -3,6 +3,14 @@ import { FC } from 'react';
 import { styled } from '@mapples/style';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 
+/**
+ * Placeholder SVG icon rendered by `IconButton` when no `uri` prop is provided.
+ *
+ * Displays a generic image/landscape icon at the size and color forwarded from
+ * `IconButton`'s `styleSvg` prop.
+ *
+ * @internal
+ */
 const MockIcon: FC<SvgProps> = (props) => {
   return (
     <Svg {...props} viewBox="0 0 256 256">

@@ -31,11 +31,7 @@ import React from 'react';
 import MapplesApp from '@mapples/app';
 
 function App() {
-  return (
-    <MapplesApp>
-      {/* Your app components */}
-    </MapplesApp>
-  );
+  return <MapplesApp>{/* Your app components */}</MapplesApp>;
 }
 
 export default App;
@@ -78,10 +74,7 @@ const customStyle = {
 
 function App() {
   return (
-    <MapplesApp
-      assets={customAssets}
-      style={customStyle}
-    >
+    <MapplesApp assets={customAssets} style={customStyle}>
       {/* Your app components */}
     </MapplesApp>
   );
@@ -92,15 +85,16 @@ export default App;
 
 ## API Reference
 
-### MapplesApp (default export)
+### MapplesApp
 
-The main component that provides the core Mapples ecosystem functionality. It wraps the app with `StyleProvider` and `RenderProvider` (using `@mapples/ui` components and optional `assets`), and handles font loading via `expo-font`.
+The main component that provides the core Mapples ecosystem functionality.
 
 **Props:**
 
 - `children` - Child components
 - `style?` - Optional custom style configuration to override the default Mapples styling
 - `assets?` - Optional custom assets configuration to override the default Mapples assets
+- `navigation?` - Optional `NavigationMap` (Mapples action `routeName` → expo-router href) consumed by `useNavigationActions`
 - `showFontLoadingIndicator?` - Whether to show a loading indicator while fonts are loading
 - `FontLoadingIndicator?` - Custom loading indicator component to display while fonts are loading
 
@@ -115,16 +109,48 @@ The main component that provides the core Mapples ecosystem functionality. It wr
 </MapplesApp>
 ```
 
-### MapplesAppProvider
+### Navigation
 
-Alias for the same component as `MapplesApp`. Use either the default import or `MapplesAppProvider` when you want to make the provider role explicit.
+`@mapples/app` bridges Mapples **navigation** actions (`mapples:navigate`,
+`mapples:switchTab`, `mapples:goBack`, `mapples:openDrawer`,
+`mapples:closeDrawer`) to [expo-router](https://docs.expo.dev/router/introduction/).
+
+Pass the generated `NavigationMap` (default-exported from the
+`mapples navigation sync`–generated `navigationMap.ts`) into `MapplesApp` via the
+`navigation` prop, mirroring `assets` and `style`:
 
 ```tsx
-import MapplesApp, { MapplesAppProvider } from '@mapples/app';
+import MapplesApp from '@mapples/app';
+import navigationMap from '../navigation/navigationMap';
 
-// These are equivalent:
-<MapplesApp assets={assets} style={style}>{children}</MapplesApp>
-<MapplesAppProvider assets={assets} style={style}>{children}</MapplesAppProvider>
+<MapplesApp style={style} assets={assets} navigation={navigationMap}>
+  <YourAppContent />
+</MapplesApp>;
+```
+
+Generated route wrappers consume it through `useNavigationActions`, composing the
+result into the Mapplet's `onAction` for the navigation subset:
+
+```tsx
+import { useNavigationActions } from '@mapples/app';
+
+const onNavigation = useNavigationActions();
+// onNavigation(action) → router.push / router.back / OPEN_DRAWER / CLOSE_DRAWER
+```
+
+`useNavigationActions` reads the `NavigationMap` from context and dispatches via
+expo-router's `useRouter` + `useNavigation`. Unknown action types and unmapped
+`routeName`s are no-ops.
+
+#### Peer dependency: `expo-router`
+
+`useNavigationActions` depends on `expo-router`, declared as an **optional peer
+dependency**. Apps that use Mapples navigation already depend on `expo-router`;
+non-navigation apps are not forced to install it because the hook is only ever
+imported from generated route wrappers (which render inside the router context).
+
+```bash
+yarn add expo-router   # only if your app uses Mapples navigation
 ```
 
 ### Utility Functions

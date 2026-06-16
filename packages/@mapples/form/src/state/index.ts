@@ -89,11 +89,13 @@ class FormState<T extends object> {
    * Sets all form values and triggers subscriptions.
    *
    * @param values - New values to set for the form
-   * @param cb - Call back on success setting value (optional)
+   * @param cb - Optional callback invoked with `true` after the values and subscriptions have been updated
    */
   setValues(values: T, cb?: (success: boolean) => void) {
     this.values = cloneDeep(values);
     this.saveToHistory();
+
+    console.log(this.subscriptions);
     this.subscriptions.forEach((subscription) => {
       subscription.cb(
         subscription.path
@@ -151,6 +153,8 @@ class FormState<T extends object> {
       path,
     });
 
+    cb(this.getValue(path));
+
     return this.unsubscribeOnChange(id);
   }
 
@@ -182,7 +186,7 @@ class FormState<T extends object> {
   /**
    * Validates the form using the provided validation schema.
    *
-   * @throws {Record<string, ValidationError[]>} Throws validation errors if validation fails
+   * @throws Throws validation errors if validation fails
    */
   async validate() {
     try {

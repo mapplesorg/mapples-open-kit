@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import FormContext from '../context';
+import useForm from './useForm';
 
 /**
  * Hook to get a reactive value from the form state.
@@ -28,13 +28,9 @@ import FormContext from '../context';
  * @public
  */
 const useFormValue = <T>(fieldPath?: string) => {
-  const { form } = useContext(FormContext);
+  const { form } = useForm();
 
   const [value, setValue] = useState<T>();
-
-  useEffect(() => {
-    setValue(form?.getValue(fieldPath));
-  }, [fieldPath, form]);
 
   useEffect(() => {
     const unsubscribe = form?.subscribeOnChange<T>((formValue) => {

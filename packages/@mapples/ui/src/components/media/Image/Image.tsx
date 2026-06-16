@@ -23,6 +23,7 @@ export type ImageProps = PropsWithChildren<
     styled?: StyledProps<ViewProps> & {
       /** Image-specific styling */
       styleImage?: StyledProp<ImageStyle>;
+      /** Additional styled props forwarded directly to the underlying `expo-image` component */
       styledImageProps?: StyledProps<ExpoImageProps>;
     };
     /** Alternative data source for the image */

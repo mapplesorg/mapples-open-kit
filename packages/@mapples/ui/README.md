@@ -51,14 +51,6 @@ Interactive input components:
 - **IconButton**: Button with icon support
 - **Pressable**: Enhanced pressable component with styling
 
-### Form
-
-Form building blocks that work with `@mapples/form`:
-
-- **FormView**: Container that provides form context to children
-- **TextField**: Text input bound to a form field
-- **SubmitButton**: Button that triggers form submit and shows submitting state
-
 ### Media
 
 Media display components:
@@ -179,30 +171,6 @@ function MyInput() {
   );
 }
 ```
-
-### Form with FormView, TextField, SubmitButton
-
-`FormView` wraps `Form` from `@mapples/form` and provides a styled container. Use `fieldName` on `TextField` to bind to form values; `SubmitButton` triggers submit and shows submitting state.
-
-```tsx
-import { FormView, TextField, SubmitButton } from '@mapples/ui';
-
-function MyForm() {
-  return (
-    <FormView
-      initialValues={{ name: '', email: '' }}
-      onSubmit={(values) => console.log(values)}
-      styled={{ style: { padding: 16 } }}
-    >
-      <TextField fieldName="name" placeholder="Name" />
-      <TextField fieldName="email" placeholder="Email" />
-      <SubmitButton label="Submit" />
-    </FormView>
-  );
-}
-```
-
-For Yup validation, use `Form` from `@mapples/form` as the outer wrapper and pass `validationSchema`; use `FormView` inside for layout and styling.
 
 ## Visual Editor Integration
 

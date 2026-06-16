@@ -26,8 +26,8 @@ import { StyleContextType } from '../types';
  * ```tsx
  * const MyComponent = () => {
  *   const customStyle = {
- *     themeConfig: { / custom theme / },
- *     typographyConfig: { / custom typography / }
+ *     themeConfig: {}, // custom theme config
+ *     typographyConfig: {}, // custom typography config
  *   };
  *   const style = useStyle(customStyle);
  *

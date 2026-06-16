@@ -20,8 +20,9 @@ export type TextProps = PropsWithChildren<
  * A customizable text component with built-in styling support.
  *
  * The Text component extends React Native's Text with additional styling
- * capabilities through the @mapples/style system. It can display text content
- * either through the `text` prop or as children.
+ * capabilities through the @mapples/style system. Text content is supplied
+ * via the `text` prop; string and number values are rendered, anything else
+ * falls back to `'Not a string'`.
  *
  * @example
  * ```tsx
@@ -31,17 +32,10 @@ export type TextProps = PropsWithChildren<
  *     style: {
  *       fontSize: 18,
  *       color: 'blue',
- *       fontWeight: 'bold'
+ *       fontWeight: 'bold',
  *     }
  *   }}
  * />
- * ```
- *
- * @example
- * ```tsx
- * <Text styled={{ style: { fontSize: 16, color: 'black' } }}>
- *   This is text content as children
- * </Text>
  * ```
  *
  * @public

@@ -109,7 +109,7 @@ The main form component that provides form context to its children.
 
 ### Hooks
 
-#### `useFormContext()`
+#### `useForm()`
 
 Access the form context containing form state and methods.
 
@@ -122,7 +122,7 @@ const {
   validate,
   touch,
   touched,
-} = useFormContext();
+} = useForm();
 ```
 
 #### `useFormField<T>(fieldPath, fallbackValue?, subscribe?)`

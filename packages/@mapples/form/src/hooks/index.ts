@@ -1,6 +1,6 @@
 import useBindFormField from './useBindFormField';
+import useForm from './useForm';
 import useFormArrayField from './useFormArrayField';
-import useFormContext from './useFormContext';
 import useFormField from './useFormField';
 import useFormFieldToggle from './useFormFieldToggle';
 import useFormHistory from './useFormHistory';
@@ -12,7 +12,7 @@ export {
   useFormField,
   useFormState,
   useFormValue,
-  useFormContext,
+  useForm,
   useFormArrayField,
   useFormFieldToggle,
   useFormHistory,

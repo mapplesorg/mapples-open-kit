@@ -21,7 +21,6 @@ export type StyledFlatListProps<T extends object> = FlatListProps<T> & {
  * @param props.styled - Styled props for advanced styling
  * @param props.data - Array of data items to render
  * @param props.renderItem - Function to render each item
- * @param props.children - Child components (if using as a container)
  *
  * @example
  * ```tsx

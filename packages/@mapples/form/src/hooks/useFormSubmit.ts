@@ -1,4 +1,4 @@
-import useFormContext from './useFormContext';
+import useForm from './useForm';
 
 /**
  * Hook to access form submission state and submit function.
@@ -9,10 +9,10 @@ import useFormContext from './useFormContext';
  * @example
  * ```tsx
  * const SubmitButton = () => {
- *   const { submitting, submitForm } = useFormSubmit();
+ *   const { submitting, submitForm, isValid } = useFormSubmit();
  *
  *   return (
- *     <button onClick={submitForm} disabled={submitting}>
+ *     <button onClick={submitForm} disabled={submitting || !isValid}>
  *       {submitting ? 'Submitting...' : 'Submit'}
  *     </button>
  *   );
@@ -22,11 +22,12 @@ import useFormContext from './useFormContext';
  * @public
  */
 const useFormSubmit = () => {
-  const { submitting, submitForm } = useFormContext();
+  const { submitting, submitForm, validationErrors } = useForm();
 
   return {
     submitting,
     submitForm,
+    isValid: !validationErrors,
   };
 };
 

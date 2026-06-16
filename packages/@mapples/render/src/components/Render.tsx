@@ -10,7 +10,7 @@ import RenderComponent from './RenderComponent';
  * definition and renders it using either a custom render component or the default
  * RenderComponent implementation.
  *
- * @param {RenderProps} props - The render props
+ * @param props - The render props
  *
  * @example
  * ```tsx

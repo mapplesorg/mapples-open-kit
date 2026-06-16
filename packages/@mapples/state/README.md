@@ -5,7 +5,7 @@ A lightweight and efficient state management solution for React and React Native
 ## Features
 
 - 🚀 **Simple API** - Easy to use with minimal boilerplate
-- 📦 **Lightweight** - Small bundle size with minimal external dependencies
+- 📦 **Lightweight** - Small bundle size with no external dependencies
 - 🔄 **React Context** - Built on React's built-in context system
 - 🎯 **TypeScript** - Full TypeScript support with comprehensive type definitions
 - 🧩 **Flexible** - Works with any data structure and supports complex key patterns

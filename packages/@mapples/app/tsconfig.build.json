@@ -11,7 +11,7 @@
   },
   "references": [
     {
-      "path": "../ui/tsconfig.build.json"
+      "path": "../components/tsconfig.build.json"
     },
     {
       "path": "../render/tsconfig.build.json"
@@ -20,7 +20,10 @@
       "path": "../style/tsconfig.build.json"
     },
     {
-      "path": "../components/tsconfig.build.json"
+      "path": "../types/tsconfig.build.json"
+    },
+    {
+      "path": "../ui/tsconfig.build.json"
     }
   ]
 }

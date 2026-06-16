@@ -1,6 +1,6 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import FormContext from '../context';
+import useForm from './useForm';
 
 /**
  * Hook to manage form history for undo/redo functionality.
@@ -25,7 +25,7 @@ import FormContext from '../context';
  * @public
  */
 const useFormHistory = () => {
-  const { form } = useContext(FormContext);
+  const { form } = useForm();
   const [state, setState] = useState({ canPrev: false, canNext: false });
 
   useEffect(() => {

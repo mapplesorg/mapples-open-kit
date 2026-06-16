@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 import { LayoutRectangle, View } from 'react-native';
 import { filter } from 'rxjs';
@@ -25,6 +25,7 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
   const { monitor } = useDnD<DragData, DropData>();
 
   const [isDragging, setIsDragging] = useState(false);
+  const [id, setId] = useState<number | null>(null);
 
   const idRef = useRef<number | null>(null);
   const layoutRef = useRef<LayoutRectangle | null>(null);
@@ -39,6 +40,7 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
       }
 
       idRef.current = monitor.registerDragElement(layoutRef.current, item);
+      setId(idRef.current);
     });
   }, [item, monitor, ref]);
 
@@ -54,14 +56,14 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
    * Updates the layout information for the drag element.
    * This function should be called when the element's position or size changes.
    */
-  const updateLayout = useRef(() => {
+  const updateLayout = useCallback(() => {
     ref.current?.measureInWindow?.((x, y, width, height) => {
       layoutRef.current = { x, y, width, height };
     });
 
     if (!idRef.current || !layoutRef.current) return;
     monitor.updateDragElementLayout(idRef.current, layoutRef.current);
-  }).current;
+  }, [monitor, ref]);
 
   useEffect(() => {
     const events = monitor.events
@@ -85,7 +87,7 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
 
   return {
     /** The unique ID of the drag element */
-    id: idRef.current,
+    id,
     /** Function to update the element's layout information */
     updateLayout,
     /** Whether this element is currently being dragged */

@@ -10,10 +10,10 @@ import { RenderContextType } from '../types';
  * to all child components through React context. It's essential for the render
  * system to function properly as it makes components available for dynamic rendering.
  *
- * @param {PropsWithChildren<RenderContextType>} props - The component props
- * @param {RegisteredComponents} props.components - Map of registered components
- * @param {AnyObject} [props.assets] - Optional map of asset refs (ref(type:id:name)) to values
- * @param {ReactNode} props.children - Child components to render
+ * @param props - The component props
+ * @param props.components - Map of registered components available for rendering
+ * @param props.assets - Map of asset references (e.g. images, icons) resolved by `useRefProps`
+ * @param props.children - Child components to render
  *
  * @example
  * ```tsx

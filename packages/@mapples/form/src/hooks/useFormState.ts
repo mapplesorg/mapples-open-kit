@@ -1,6 +1,6 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import FormContext from '../context';
+import useForm from './useForm';
 
 /**
  * Hook to manage the entire form state with reactive values and control methods.
@@ -32,13 +32,9 @@ import FormContext from '../context';
 const useFormState = <T extends object>() => {
   const [values, setFormValues] = useState<T>();
 
-  const { form, initialized } = useContext(FormContext);
+  const { form } = useForm();
 
   useEffect(() => {
-    if (initialized) {
-      setFormValues(form?.getValues() as T);
-    }
-
     const unsubscribe = form?.subscribeOnChange<T>((values) => {
       setFormValues(values);
     });
@@ -46,7 +42,7 @@ const useFormState = <T extends object>() => {
     return () => {
       unsubscribe?.();
     };
-  }, [form, initialized]);
+  }, [form]);
 
   const setValues = useCallback(
     (values: T) => {

@@ -3,15 +3,30 @@ import { DATA_THIS, DOT_SEPARATOR, FN_SEPARATOR } from './constants';
 const actionThisRegExp = new RegExp(`^"this(${FN_SEPARATOR}\\d+)?"$`);
 
 /**
- * Tuple for parsed action/context "this" reference: `['this', optionalIndex]`.
- * @public
+ * Parsed representation of a `this` reference in an inline-lang expression.
+ *
+ * The first element is always `'this'`. The optional second element is a
+ * numeric index string when the reference targets a specific iteration item
+ * (e.g. `"this::0"` → `['this', '0']`).
  */
 export type This = ['this', string?];
 
 /**
- * Returns whether the string matches an action "this" reference: `"this"` or `"this::n"`.
- * @param value - String to test (e.g. from config)
- * @returns True if the value is a quoted "this" or "this::n" reference
+ * Returns `true` when `value` is a quoted `this` reference string.
+ *
+ * Matches the literal value `"this"` as well as indexed variants such as
+ * `"this::0"`.
+ *
+ * @param value - The string to test.
+ * @returns `true` if `value` is a `this` reference, `false` otherwise.
+ *
+ * @example
+ * ```ts
+ * isThis('"this"');    // true
+ * isThis('"this::0"'); // true
+ * isThis('other');     // false
+ * ```
+ *
  * @public
  */
 export const isThis = (value?: string) => {
@@ -19,9 +34,17 @@ export const isThis = (value?: string) => {
 };
 
 /**
- * Returns whether the string is a data-context reference starting with `(this)`.
- * @param value - String to test
- * @returns True if the value starts with DATA_THIS
+ * Returns `true` when `value` begins with the `(this)` data-reference prefix.
+ *
+ * @param value - The string to test.
+ * @returns `true` if `value` is a `(this)` data reference, `false` otherwise.
+ *
+ * @example
+ * ```ts
+ * isDataThis('(this).name'); // true
+ * isDataThis('other');       // false
+ * ```
+ *
  * @public
  */
 export const isDataThis = (value?: string) => {
@@ -29,9 +52,18 @@ export const isDataThis = (value?: string) => {
 };
 
 /**
- * Strips the `(this)` prefix and splits the rest by dot into path segments.
- * @param value - Full data-this string (e.g. `(this).user.name`)
- * @returns Array of path segments
+ * Strips the `(this)` prefix from a data-reference string and splits the
+ * remaining dot-notation path into an array of property segments.
+ *
+ * @param value - A `(this)`-prefixed data-reference string (e.g. `"(this).user.name"`).
+ * @returns An array of path segments after the `(this)` prefix (e.g. `['', 'user', 'name']`).
+ *
+ * @example
+ * ```ts
+ * parseDataThis('(this).user.name'); // ['', 'user', 'name']
+ * parseDataThis('(this)');           // ['']
+ * ```
+ *
  * @public
  */
 export const parseDataThis = (value: string) => {
@@ -39,9 +71,22 @@ export const parseDataThis = (value: string) => {
 };
 
 /**
- * Parses a quoted "this" or "this::n" string into a This tuple.
- * @param value - Quoted string (e.g. `"this"` or `"this::2"`)
- * @returns `['this']` or `['this', n]`; if value is falsy returns `['this']`
+ * Parses a quoted `this` reference string into a `This` tuple.
+ *
+ * Strips the surrounding quotes and splits on `::` to separate the `'this'`
+ * keyword from an optional index. When `value` is `undefined` or empty,
+ * returns the bare `['this']` tuple.
+ *
+ * @param value - An optional quoted `this` reference string (e.g. `'"this::0"'`).
+ * @returns A `This` tuple representing the reference.
+ *
+ * @example
+ * ```ts
+ * parseThis('"this"');    // ['this']
+ * parseThis('"this::0"'); // ['this', '0']
+ * parseThis(undefined);   // ['this']
+ * ```
+ *
  * @public
  */
 export const parseThis = (value?: string): This => {

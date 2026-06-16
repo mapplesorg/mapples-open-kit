@@ -98,14 +98,17 @@ export const normalizeTextStyleWeb = (
 };
 
 /**
- * Creates a regular expression pattern for matching theme and sizing references in strings.
+ * Creates a regular expression that matches all theme and sizing token references
+ * present in a serialised style string (e.g., `'theme.colors.primary'`, `'"sizing.md"'`,
+ * `'"*2"'`, `'"calc(...)"'`).
  *
- * @param theme - The theme object to extract paths from
+ * @param theme - An object whose key paths form the set of recognisable tokens.
+ *   Typically passed as `{ theme, sizing }` so both namespaces are covered.
  * @returns Regular expression for matching theme/sizing references
  *
  * @example
  * ```tsx
- * const regex = getThemeRegexp({ colors: { primary: '#007AFF' } });
+ * const regex = getThemeRegexp({ theme: { colors: { primary: '#007AFF' } }, sizing: { md: 16 } });
  * const match = 'theme.colors.primary'.match(regex);
  * ```
  */

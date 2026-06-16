@@ -1,8 +1,8 @@
-/** Separator used in "this", dim, and condition strings. @public */
+/** Separator used between parts of function-call and condition strings (e.g. `"key::value"`). */
 export const FN_SEPARATOR = '::';
 
-/** Prefix for data-context reference (entire state). @public */
+/** Prefix token that identifies a `(this)` data reference in inline-lang expressions. */
 export const DATA_THIS = '(this)';
 
-/** Separator for object paths (e.g. user.name). @public */
+/** Separator used when splitting dot-notation property paths. */
 export const DOT_SEPARATOR = '.';

@@ -18,12 +18,18 @@ export type ChildComponents = Record<string, RenderComponentType>;
  * Configuration for action properties that define component interactions.
  *
  * @interface ActionProps
- * @property {string} [type] - The type of action to perform
- * @property {string} [dataProp] - The data property key to bind to this action
+ * @property [type] - The type of action to perform
+ * @property [dataProp] - The data property key to bind to this action
+ * @property [staticData] - Literal payload merged into the emitted
+ *   `Action.payload.data` (wins over `dataProp` resolution). Use this for
+ *   configuration that is known at author time and must not be resolved from
+ *   state — e.g. a navigation target (`{ routeName }`). `dataProp` stays for
+ *   genuine state binding.
  */
 export interface ActionProps {
   type?: string;
   dataProp?: string;
+  staticData?: Record<string, unknown>;
 }
 
 /**
@@ -34,7 +40,7 @@ export type ActionPropsMap = Partial<Record<string, ActionProps>>;
 
 /**
  * A map of ref properties indexed by their names.
- * Each entry has ref link in format ref(assetType:uuid:name)
+ * Each entry has a ref link in the format ref(assetType:uuid:name)
  */
 export type RefPropsMap = Partial<Record<string, string>>;
 
@@ -43,14 +49,15 @@ export type RefPropsMap = Partial<Record<string, string>>;
  * This is the core type used throughout the render system.
  *
  * @interface RenderComponentType
- * @property {string} id - Unique identifier for this component instance
- * @property {string} type - The component type name (must be registered in components)
- * @property {AnyObject & { zIndex?: number }} props - Component props including optional zIndex
- * @property {AnyObject} [_canvasProps] - Optional drag-and-drop configuration for canvas interactions
- * @property {string[]} children - Array of child component IDs
- * @property {ChildComponents} childComponents - Map of child components by their IDs
- * @property {DataProps} [dataProps] - Optional data property bindings
- * @property {ActionPropsMap} [actionProps] - Optional action property configurations
+ * @property id - Unique identifier for this component instance
+ * @property type - The component type name (must be registered in components)
+ * @property props - Component props including optional zIndex
+ * @property [_canvasProps] - Optional drag-and-drop configuration for canvas interactions
+ * @property children - Array of child component IDs
+ * @property childComponents - Map of child components by their IDs
+ * @property [dataProps] - Optional data property bindings
+ * @property [actionProps] - Optional action property configurations
+ * @property [refProps] - Optional map of ref property names to asset reference strings (format: `ref(assetType:uuid:name)`)
  */
 export interface RenderComponentType {
   id: string;
@@ -72,9 +79,9 @@ export interface RenderComponentType {
  * used by the state package's condition system.
  *
  * @interface StateCondition
- * @property {string} name - The name identifier for this condition
- * @property {string} condition - The condition string (e.g., "user.age::eq::18")
- * @property {string} id - Unique identifier for this condition instance
+ * @property name - The name identifier for this condition
+ * @property condition - The condition string (e.g., "user.age::eq::18")
+ * @property id - Unique identifier for this condition instance
  * @public
  */
 export interface StateCondition {
@@ -88,7 +95,7 @@ export interface StateCondition {
  * Extends ChildComponents with a special 'root' component.
  *
  * @interface RenderDom
- * @property {RenderComponentType} root - The root component of the render tree
+ * @property root - The root component of the render tree
  */
 export interface RenderDom {
   root: RenderComponentType;
@@ -99,8 +106,8 @@ export interface RenderDom {
  * Props for the main Render component.
  *
  * @type RenderProps
- * @property {RenderComponentType} root - The root component to render
- * @property {FC<RenderComponentType>} [CustomRenderComponent] - Optional custom render component to override default rendering
+ * @property root - The root component to render
+ * @property [CustomRenderComponent] - Optional custom render component to override default rendering
  */
 export type RenderProps = Pick<RenderDom, 'root' | 'state'> & {
   CustomRenderComponent?: FC<RenderComponentType>;
@@ -108,11 +115,11 @@ export type RenderProps = Pick<RenderDom, 'root' | 'state'> & {
 
 /**
  * Context type for the render system.
- * Provides access to registered components and assets throughout the component tree.
+ * Provides access to registered components throughout the component tree.
  *
  * @interface RenderContextType
- * @property {RegisteredComponents} components - Map of registered components available for rendering
- * @property {AnyObject} assets - Map of asset refs (e.g. ref(type:id:name)) to values for resolving in component props
+ * @property components - Map of registered components available for rendering
+ * @property assets - Map of resolved asset values keyed by their ref strings (format: `ref(assetType:uuid:name)`)
  */
 export interface RenderContextType {
   components: RegisteredComponents;

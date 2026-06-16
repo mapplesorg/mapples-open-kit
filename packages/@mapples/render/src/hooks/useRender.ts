@@ -9,7 +9,7 @@ import { RenderContext } from '../context';
  * context data. It should be used within components that are wrapped by
  * a RenderProvider.
  *
- * @returns {RenderContextType} The render context containing registered components
+ * @returns The render context containing registered components
  *
  * @example
  * ```tsx
@@ -21,7 +21,7 @@ import { RenderContext } from '../context';
  * };
  * ```
  *
- * @throws {Error} If used outside of a RenderProvider context
+ * @throws If used outside of a RenderProvider context
  */
 const useRender = () => {
   return useContext(RenderContext);

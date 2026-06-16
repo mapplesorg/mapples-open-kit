@@ -50,15 +50,12 @@ const Svg = forwardRef<View, SvgProps>(({ styled, content, ...props }, ref) => {
       ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content.trim())}`
       : undefined;
 
-  const svgStyle = styleSvg ?? style;
+  const svgStyle = (styleSvg ?? style) as StyledProp<ViewStyle>;
 
   return (
     <StyledView ref={ref} styled={{ style, ...styledProps }} {...props}>
       {uri ? (
-        <StyledSvgUri
-          uri={uri}
-          styled={{ style: svgStyle as StyledProp<ViewStyle> }}
-        />
+        <StyledSvgUri uri={uri} styled={{ style: svgStyle }} />
       ) : (
         <StyledView styled={{ style: styler.placeholder }} />
       )}

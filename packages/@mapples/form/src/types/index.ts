@@ -37,7 +37,7 @@ export interface ValueSubscription<T = AnyValue> {
  */
 export interface FormContextType<T extends object> {
   /** The form state instance containing all form data and methods */
-  form: FormState<T> | null;
+  form: FormState<T>;
   /** Object tracking which fields have been touched by the user */
   touched: Record<keyof T, boolean>;
   /** Function to submit the form, triggering validation and onSubmit callback */
@@ -50,8 +50,6 @@ export interface FormContextType<T extends object> {
   validate: () => void;
   /** Function to mark a specific field as touched */
   touch: (fieldName: string) => void;
-  /** Set to true when initial values become available */
-  initialized: boolean;
 }
 
 /**

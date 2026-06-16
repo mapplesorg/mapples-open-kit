@@ -1,6 +1,8 @@
 /**
- * Regex to split condition strings on `::` while respecting quoted segments.
- * Used so values like `"a::b"` are not split on the inner `::`.
- * @public
+ * Regular expression used to split a condition string on the `::` separator,
+ * ignoring any `::` sequences that appear inside double-quoted substrings.
+ *
+ * This lookahead-based pattern ensures that quoted values (e.g. `"foo::bar"`)
+ * are treated as atomic tokens rather than split mid-value.
  */
 export const ConditionStringRegExp = /::(?=(?:[^"]*"[^"]*")*[^"]*$)/;

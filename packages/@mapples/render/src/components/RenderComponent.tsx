@@ -1,7 +1,9 @@
-import { FC, memo } from 'react';
+import { FC, memo, useMemo } from 'react';
 
-import { useDataProps } from '@mapples/state';
-import { map } from 'lodash';
+import { useActionStore } from '@mapples/action';
+import { isThis, parseThis } from '@mapples/inlang';
+import { useDataProps, useDataState } from '@mapples/state';
+import { isPlainObject, map, mapValues } from 'lodash';
 
 import { useRender } from '../hooks';
 import useConditionalStyled from '../hooks/useConditionalStyled';
@@ -18,14 +20,15 @@ import { RenderComponentType } from '../types';
  * The component is memoized for performance optimization to prevent unnecessary
  * re-renders when props haven't changed.
  *
- * @param {RenderComponentType} props - The component definition
- * @param {string} props.type - The component type name (must be registered)
- * @param {AnyObject & { zIndex?: number }} props.props - Component props
- * @param {DataProps} [props.dataProps] - Optional data property bindings
- * @param {string[]} props.children - Array of child component IDs
- * @param {ChildComponents} props.childComponents - Map of child components
+ * @param props - The component definition
+ * @param props.type - The component type name (must be registered in the render context)
+ * @param props.props - Component props including optional `zIndex`
+ * @param props.dataProps - Optional data property bindings
+ * @param props.refProps - Optional map of ref property names to asset reference strings
+ * @param props.children - Array of child component IDs
+ * @param props.childComponents - Map of child components keyed by their IDs
  *
- * @returns {JSX.Element | null} The rendered component or null if component type not found
+ * @returns The rendered component, or `null` if the component type is not registered
  *
  * @example
  * ```tsx
@@ -40,13 +43,12 @@ import { RenderComponentType } from '../types';
  *
  * <RenderComponent {...componentDef} />
  * ```
- *
- * @throws {Error} If the component type is not registered in the render context
  */
 const RenderComponent: FC<RenderComponentType> = ({
   type,
   props,
   dataProps,
+  actionProps,
   children,
   refProps,
   childComponents,
@@ -55,6 +57,45 @@ const RenderComponent: FC<RenderComponentType> = ({
   const propsWithData = useDataProps(dataProps);
   const resolvedRefProps = useRefProps(refProps);
   const propsWithConditional = useConditionalStyled(props);
+  const { getValue } = useDataState();
+  const actionStore = useActionStore();
+
+  // Turn each `actionProps` entry into a handler that emits onto the action
+  // store. `dataProp` resolves from state (or an event arg for `"this"`);
+  // `staticData` is a literal payload merged in last so author-time config —
+  // e.g. a navigation target — survives regardless of state.
+  const mappedActionProps = useMemo(
+    () =>
+      mapValues(actionProps, (actionProp) => {
+        return (...originalEventData: unknown[]) => {
+          const dataProp = actionProp?.dataProp || '';
+          let resolved: unknown;
+          if (isThis(dataProp)) {
+            const [, indexStr] = parseThis(dataProp);
+            const index = indexStr ? parseInt(indexStr) : 0;
+            resolved = originalEventData[!isNaN(index) ? index : 0];
+          } else if (dataProp) {
+            resolved = getValue({ key: dataProp, active: true });
+          }
+
+          const data = actionProp?.staticData
+            ? {
+                ...(isPlainObject(resolved)
+                  ? (resolved as Record<string, unknown>)
+                  : {}),
+                ...actionProp.staticData,
+              }
+            : resolved;
+
+          actionStore.next({
+            time: Date.now(),
+            type: actionProp?.type,
+            payload: { originalEventData, data },
+          });
+        };
+      }),
+    [actionProps, actionStore, getValue],
+  );
 
   const Component = components[type as keyof typeof components].Component;
 
@@ -77,6 +118,7 @@ const RenderComponent: FC<RenderComponentType> = ({
       {...propsWithConditional}
       {...propsWithData}
       {...resolvedRefProps}
+      {...mappedActionProps}
     >
       {map(children, renderChildren)}
     </Component>

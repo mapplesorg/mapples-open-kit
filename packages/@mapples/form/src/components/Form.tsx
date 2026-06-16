@@ -3,7 +3,6 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useRef,
   useState,
 } from 'react';
 
@@ -20,6 +19,15 @@ import { FormProps } from '../types';
  *
  * @template T - The type of the form data object
  * @param props - Form component props
+ * @param props.children - Child components that will have access to the form context
+ * @param props.initialValues - Initial values for the form fields
+ * @param props.validationSchema - Optional Yup validation schema
+ * @param props.onSubmit - Callback invoked with form values after successful validation
+ * @param props.ref - Optional ref to access the FormState instance directly
+ * @param props.historyItems - Number of history states to keep for undo/redo (0 to disable)
+ * @param props.historyItemThrottle - Save a history entry every Nth change
+ * @param props.filterHistoryKeys - Field paths to exclude from history tracking
+ * @param props.onChange - Callback invoked whenever any form value changes
  * @returns JSX element that provides form context to children
  *
  * @example
@@ -57,8 +65,6 @@ const Form = <T extends object>({
   historyItemThrottle,
   onChange,
 }: PropsWithChildren<FormProps<T>>) => {
-  const [initialized, setInitialized] = useState<boolean>(false);
-
   const [touched, setTouched] = useState<Record<keyof T, boolean>>(
     {} as Record<keyof T, boolean>,
   );
@@ -69,15 +75,21 @@ const Form = <T extends object>({
     ValidationError[]
   > | null>(null);
 
-  const form = useRef<FormState<T>>(
-    new FormState(
-      initialValues,
-      validationSchema,
-      historyItems,
-      historyItemThrottle,
-      filterHistoryKeys,
-    ),
-  ).current;
+  // Lazy state init creates the FormState exactly once and keeps the same
+  // instance for the component's lifetime. Unlike useMemo, it never re-creates
+  // when initialValues/schema change identity (e.g. inline object literals on
+  // every parent render), which would otherwise wipe edited values back to the
+  // initial state. We never call the setter, so this never triggers a re-render.
+  const [form] = useState(
+    () =>
+      new FormState(
+        initialValues,
+        validationSchema,
+        historyItems,
+        historyItemThrottle,
+        filterHistoryKeys,
+      ),
+  );
 
   useEffect(() => {
     if (!onChange) return;
@@ -94,10 +106,6 @@ const Form = <T extends object>({
   useImperativeHandle(ref, () => {
     return form;
   });
-
-  useEffect(() => {
-    form.setValues(initialValues, setInitialized);
-  }, [form, initialValues]);
 
   const setFormTouched = useCallback(() => {
     setTouched(mapValues(initialValues, () => true));
@@ -151,7 +159,6 @@ const Form = <T extends object>({
         validationErrors,
         validate,
         touch,
-        initialized,
       }}
     >
       {children}

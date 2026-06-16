@@ -24,6 +24,17 @@ const mapplesResolver = (resolver) => (context, moduleName, platform) => {
     return context.resolveRequest(context, assetsPath, platform);
   }
 
+  if (moduleName === 'mapples::navigation') {
+    const config = JSON.parse(
+      fs.readFileSync(path.resolve('./.mapplesrc.json'), 'utf-8'),
+    );
+    const navigationMap = path.resolve(
+      `./${config.sourceDir}/${config.dirs.navigation}/navigationMap`,
+    );
+
+    return context.resolveRequest(context, navigationMap, platform);
+  }
+
   if (resolver) {
     return resolver(context, moduleName, platform);
   }

@@ -10,8 +10,12 @@ import { useFonts } from 'expo-font';
 import assetsConfig from 'mapples::assets';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
+import navigationConfig from 'mapples::navigation';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import styleConfig from 'mapples::style';
 
+import { NavigationMap, NavigationProvider } from './NavigationContext';
 import { remapFonts } from './utils';
 
 /**
@@ -24,6 +28,8 @@ export interface MapplesAppProps {
   style?: StyleContextType;
   /** Optional custom assets configuration to override the default Mapples assets */
   assets?: AnyObject;
+  /** Optional navigation map (Mapples action `routeName` → expo-router href) for navigation actions */
+  navigation?: NavigationMap;
   /** Whether to show a loading indicator while fonts are loading */
   showFontLoadingIndicator?: boolean;
   /** Custom loading indicator component to display while fonts are loading */
@@ -39,6 +45,7 @@ export interface MapplesAppProps {
  *
  * @component
  * @param props - The component props
+ * @param props.children - The application content to render inside the Mapples providers
  * @returns The configured Mapples app with all necessary providers
  *
  * @example
@@ -74,6 +81,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   children,
   style,
   assets,
+  navigation,
   showFontLoadingIndicator,
   FontLoadingIndicator,
 }) => {
@@ -89,7 +97,9 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
         components={{ ...Components, ...UIComponents }}
         assets={assets || assetsConfig}
       >
-        {children}
+        <NavigationProvider navigation={navigation || navigationConfig}>
+          {children}
+        </NavigationProvider>
       </RenderProvider>
     </StyleProvider>
   );

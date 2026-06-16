@@ -6,35 +6,40 @@ import { isObject } from 'lodash';
 import { ViewProps } from 'react-native';
 
 /**
- * Props for the Form View component.
+ * Props for the FormView component.
  *
  * @public
  */
 export type FormViewProps = PropsWithChildren<WithStyledProps<ViewProps>> & {
+  /** Initial field values passed to the underlying form context. */
   initialValues?: any;
+  /** Callback invoked with the form's collected values when the form is submitted. */
   onSubmit?: (values: any) => void;
 };
 
 /**
- * A customizable view component with built-in styling support.
+ * A form container component that provides a shared form context to its children.
  *
- * The View component extends React Native's View with additional styling
- * capabilities through the @mapples/style system. It serves as a container
- * for other UI elements and supports all standard view properties.
+ * Wraps React Native's View with the `@mapples/form` Form provider, enabling
+ * nested fields (such as {@link TextField}) and submit controls (such as
+ * {@link SubmitButton}) to participate in a single form lifecycle. Additional
+ * styling is applied via the `@mapples/style` styled-props system.
  *
  * @example
  * ```tsx
  * <FormView
+ *   initialValues={{ email: '' }}
+ *   onSubmit={(values) => console.log(values)}
  *   styled={{
  *     style: {
- *       backgroundColor: 'lightblue',
  *       padding: 16,
- *       borderRadius: 8
+ *       gap: 12,
  *     }
  *   }}
  * >
- *   <Text>Content inside the view</Text>
- * </View>
+ *   <TextField fieldName="email" placeholder="Email" />
+ *   <SubmitButton label="Submit" />
+ * </FormView>
  * ```
  *
  * @public

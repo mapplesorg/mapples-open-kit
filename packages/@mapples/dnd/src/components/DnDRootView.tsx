@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   Gesture,
@@ -24,6 +24,9 @@ import { filterEvents } from '../utils';
  *
  * @template T - The type of data being dragged
  * @param props - The component props
+ * @param props.children - The child elements rendered inside the gesture-enabled root view
+ * @param props.DragElement - Optional custom renderer for the drag overlay element
+ * @param props.onDrop - Callback fired when a drag operation completes over a valid drop target
  * @returns The rendered drag and drop root view
  * @public
  */
@@ -34,7 +37,11 @@ const DnDRootView = <T extends object>({
   ...props
 }: DnDRootViewProps<T>) => {
   const [isDragging, setIsDragging] = useState(false);
-  const monitor = useRef(new Monitor<T>({ padding: 5 })).current;
+  // Lazy state init creates the Monitor exactly once and keeps the same
+  // instance for the component's lifetime, without reading refs during render
+  // or re-creating it on every render. We never call the setter, so this never
+  // triggers a re-render.
+  const [monitor] = useState(() => new Monitor<T>({ padding: 5 }));
 
   const sv = useSharedValue(initialDragCoords);
   const svOverLayout = useSharedValue(initialOverLayout);

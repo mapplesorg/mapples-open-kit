@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import FormContext from '../context';
+import useForm from './useForm';
 
 /**
  * Hook to manage boolean toggle fields.
@@ -30,13 +30,9 @@ import FormContext from '../context';
  * @public
  */
 const useFormFieldToggle = (fieldPath: string) => {
-  const { form, initialized } = useContext(FormContext);
+  const { form } = useForm();
 
   const [value, setValue] = useState(false);
-
-  useEffect(() => {
-    if (initialized) setValue(form?.getValue<boolean>(fieldPath) || false);
-  }, [initialized, fieldPath, form]);
 
   const handleToggleValue = () => {
     setValue((prev) => {

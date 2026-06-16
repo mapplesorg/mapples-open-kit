@@ -96,6 +96,15 @@ const useDataState = () => {
     [value],
   );
 
+  /**
+   * Retrieves a raw string value from the state by key path.
+   *
+   * Convenience wrapper around `getValue` that always treats the prop as active
+   * and falls back to an empty string instead of `'N/A'`.
+   *
+   * @param key - Dot-notation path into the state object (e.g. `'user.name'`)
+   * @returns The resolved value as a string, or `''` if the key is not found
+   */
   const getStateValue = useCallback(
     (key: string) => {
       return getValue({ key, active: true }, '');
@@ -103,6 +112,16 @@ const useDataState = () => {
     [getValue],
   );
 
+  /**
+   * Evaluates a condition string against the current state and returns the boolean result.
+   *
+   * The condition string must be in the format recognised by `isCondition` / `parseCondition`
+   * from `@mapples/inlang` (e.g. `'user.age > 18'`). If the string is not a valid condition
+   * expression, `false` is returned without throwing.
+   *
+   * @param conditionStr - The condition expression to evaluate
+   * @returns `true` when the condition is satisfied, `false` otherwise
+   */
   const getConditionResult = useCallback(
     (conditionStr: string) => {
       if (!isCondition(conditionStr)) return false;

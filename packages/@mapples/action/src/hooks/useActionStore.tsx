@@ -10,9 +10,9 @@ import ActionContext from '../context';
  * - Subscribe to actions using `actionStore.subscribe(callback)`
  * - Access the RxJS Subject for advanced reactive operations
  *
- * @returns {Subject<Action>} The RxJS Subject that manages action emissions and subscriptions
- *
- * @throws {Error} Throws an error if used outside of an ActionProvider
+ * @returns The RxJS Subject that manages action emissions and subscriptions.
+ * When used outside of an `ActionProvider`, returns the default context Subject (a bare
+ * `new Subject()` with no active subscriptions).
  *
  * @example
  * ```tsx

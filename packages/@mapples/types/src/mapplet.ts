@@ -7,8 +7,8 @@ import { Action } from './action';
  * @interface MappletType
  * @template State - The type of the application state (must extend object)
  *
- * @property {State} [state] - Optional initial state object for the Mapplet
- * @property {(action: Action) => void} [onAction] - Optional callback function to handle actions emitted by the Mapplet
+ * @property [state] - Optional initial state object for the Mapplet
+ * @property [onAction] - Optional callback function to handle actions emitted by the Mapplet
  *
  * @example
  * ```typescript

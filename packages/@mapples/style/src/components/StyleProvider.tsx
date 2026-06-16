@@ -11,6 +11,7 @@ import ResponsiveStyleProvider from './ResponsiveStyleProvider';
 export interface StyleProviderProps {
   /** The style configuration object containing theme, typography, sizing, and responsive settings */
   style: StyleContextType;
+  /** Optional canvas dimensions used to resolve percentage-based width/height values in styled props */
   _canvas?: CanvasDimensions;
 }
 
@@ -21,6 +22,7 @@ export interface StyleProviderProps {
  *
  * @param props - The component props
  * @param props.style - The style configuration object
+ * @param props._canvas - Optional canvas dimensions for resolving percentage-based sizes
  * @param props.children - Child components to be wrapped with style context
  *
  * @example

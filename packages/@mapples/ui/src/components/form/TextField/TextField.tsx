@@ -4,43 +4,43 @@ import { useFormField } from '@mapples/form';
 import { StyledTextInput } from '@mapples/style';
 import { TextInputProps, TextInput } from 'react-native';
 
+/**
+ * Props for the TextField component.
+ *
+ * Extends React Native's `TextInputProps`, omitting `onChangeText` because the
+ * component manages value changes internally via the form context.
+ *
+ * @public
+ */
 export interface TextFieldProps extends Omit<TextInputProps, 'onChangeText'> {
+  /** The form field name used to read and write the value in the form context. */
   fieldName?: string;
 }
 
 /**
- * A customizable text input component with built-in styling support.
+ * A form-connected text input component.
  *
- * The TextField component extends React Native's TextInput with additional styling
- * capabilities through the @mapples/style system. It supports all standard
- * TextField properties and behaviors.
+ * Reads and writes its value through the nearest {@link FormView} form context
+ * using `fieldName`. `onChangeText` is managed internally; do not pass it as a
+ * prop. All other standard `TextInputProps` (e.g. `placeholder`, `secureTextEntry`)
+ * are forwarded to the underlying `StyledTextInput`.
  *
  * @example
  * ```tsx
- * <TextField
- *   placeholder="Enter your text"
- *   value={text}
- *   onChangeText={setText}
- *   styled={{
- *     style: {
- *       borderWidth: 1,
- *       borderColor: 'gray',
- *       padding: 12,
- *       borderRadius: 8
- *     }
- *   }}
- * />
+ * <FormView initialValues={{ username: '' }} onSubmit={console.log}>
+ *   <TextField
+ *     fieldName="username"
+ *     placeholder="Enter your username"
+ *   />
+ *   <SubmitButton label="Submit" />
+ * </FormView>
  * ```
  *
  * @public
  */
 const TextField = forwardRef<TextInput, PropsWithChildren<TextFieldProps>>(
   ({ children, fieldName, ...props }, ref) => {
-    const { value, setValue } = useFormField<string>(
-      fieldName || 'unknown',
-      '',
-      true,
-    );
+    const { value, setValue } = useFormField<string>(fieldName || 'unknown');
 
     return (
       <StyledTextInput

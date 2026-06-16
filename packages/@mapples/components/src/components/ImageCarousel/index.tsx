@@ -14,10 +14,19 @@ import {
 import CarouselItem, { ImageCarouselMode } from './CarouselItem';
 import CarouselItemIndicator from './CarouselItemIndicator';
 
+/**
+ * Shape of a single data record accepted by {@link ImageCarousel}.
+ *
+ * Field names can be remapped via `keyMap` so any object shape is supported.
+ */
 export interface ImageCarouselDataItem {
+  /** Image source for the slide. */
   image?: any;
+  /** Primary heading text. */
   title?: string;
+  /** Secondary description text. */
   subtitle?: string;
+  /** Unique identifier used as the FlatList `key`. */
   id?: string | number;
 }
 
@@ -28,25 +37,79 @@ const defaultKeyMap = {
   id: 'id',
 };
 
+/** Props for {@link ImageCarousel}. */
 export interface ImageCarouselProps<T extends ImageCarouselDataItem> {
+  /** Array of data items to render as slides. */
   data?: T[];
+  /** Controls text placement: `'textOver'` (default) or `'textUnder'`. */
   mode?: ImageCarouselMode;
+  /** Whether to render the dot page-indicator below the carousel. Defaults to `true`. */
   showIndicators?: boolean;
+  /**
+   * Maps the expected `ImageCarouselDataItem` field names to the actual keys on
+   * each `data` record, enabling arbitrary data shapes without transformation.
+   */
   keyMap?: Record<keyof ImageCarouselDataItem, string>;
+  /** Extra props forwarded to the underlying `expo-image` component in each slide. */
   imageProps?: ImageProps;
+  /** Styled props for every visual part of the carousel. */
   styled?: {
+    /** Styled prop for the outermost container view. */
     style?: StyledProp<ViewStyle>;
+    /** Styled prop for each indicator dot. */
     styleIndicator?: StyledProp<ViewStyle>;
+    /** Additional styled prop applied to the active indicator dot. */
     styleIndicatorActive?: StyledProp<ViewStyle>;
+    /** Styled prop for each slide's container view. */
     styleItemContainer?: StyledProp<ViewStyle>;
+    /** Styled prop for each slide's image. */
     styleImage?: StyledProp<ImageStyle>;
+    /** Styled prop for each slide's text wrapper view. */
     styleTextContainer?: StyledProp<ViewStyle>;
+    /** Styled prop for each slide's title element. */
     styleTitle?: StyledProp<TextStyle>;
+    /** Styled prop for each slide's subtitle element. */
     styleSubtitle?: StyledProp<TextStyle>;
+    /** Styled prop for the indicator row container. */
     styleIndicatorContainer?: StyledProp<ViewStyle>;
   };
 }
 
+/**
+ * Horizontally scrollable image carousel with optional dot page indicators.
+ *
+ * Accepts an array of data items and renders each one as a full-width slide
+ * via {@link CarouselItem}. The active slide is tracked automatically using
+ * `FlatList` viewability callbacks, and the {@link CarouselItemIndicator} is
+ * updated accordingly.
+ *
+ * Use `keyMap` to adapt objects whose field names differ from the defaults
+ * (`image`, `title`, `subtitle`, `id`).
+ *
+ * @param props - The component props.
+ * @param props.data - Array of slide data items.
+ * @param props.mode - Text placement mode for each slide.
+ * @param props.showIndicators - Whether to show dot indicators.
+ * @param props.keyMap - Field-name remapping for data items.
+ * @param props.imageProps - Extra props forwarded to the image in each slide.
+ * @param props.styled - Styled props for every visual layer.
+ * @param ref - Forwarded ref attached to the outermost `View`.
+ *
+ * @example
+ * ```tsx
+ * const slides = [
+ *   { image: require('./a.jpg'), title: 'Slide 1', subtitle: 'Description', id: '1' },
+ *   { image: require('./b.jpg'), title: 'Slide 2', subtitle: 'Description', id: '2' },
+ * ];
+ *
+ * <ImageCarousel
+ *   data={slides}
+ *   mode="textUnder"
+ *   showIndicators
+ *   styled={{ style: { height: 200 } }}
+ * />
+ * ```
+ */
 const ImageCarousel = forwardRef<View, ImageCarouselProps<any>>(
   (
     {

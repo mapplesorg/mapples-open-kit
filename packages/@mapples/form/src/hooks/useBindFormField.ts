@@ -1,8 +1,6 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { first } from 'lodash';
-
-import FormContext from '../context';
+import useFormHelper from './useFormHelper';
 
 /**
  * Hook to bind a form field with optional fallback path synchronization.
@@ -12,8 +10,6 @@ import FormContext from '../context';
  * @template T - The type of the field value
  * @param fieldPath - Primary dot notation path to the field
  * @param fallBackPath - Optional fallback path to synchronize with
- * @param fallbackValue - Default value to use if field is undefined
- * @param subscribe - Whether to subscribe to real-time value changes (default: true)
  * @returns Object containing field value, error state, and control methods
  *
  * @example
@@ -21,13 +17,12 @@ import FormContext from '../context';
  * const NameField = () => {
  *   const { value, error, setValue } = useBindFormField<string>(
  *     'user.name',
- *     'displayName', // Also update displayName when user.name changes
- *     ''
+ *     'displayName', // Also writes to displayName whenever user.name changes
  *   );
  *
  *   return (
  *     <input
- *       value={value}
+ *       value={value ?? ''}
  *       onChange={(e) => setValue(e.target.value)}
  *     />
  *   );
@@ -36,71 +31,30 @@ import FormContext from '../context';
  *
  * @public
  */
-const useBindFormField = <T>(
-  fieldPath: string,
-  fallBackPath?: string,
-  fallbackValue?: T,
-  subscribe?: boolean,
-) => {
-  const { form, touched, validationErrors, validate, touch } =
-    useContext(FormContext);
+const useBindFormField = <T>(fieldPath: string, fallBackPath?: string) => {
+  const { error, form, isTouched, errors, touch, validate } =
+    useFormHelper(fieldPath);
 
-  const [value, setValue] = useState<T | undefined>(fallbackValue);
-
-  const errors = validationErrors?.[fieldPath];
-
-  const error = useMemo(() => {
-    return first(errors)?.message;
-  }, [errors]);
-
-  const isTouched = useMemo(() => {
-    return !!touched[fieldPath as keyof typeof touched];
-  }, [fieldPath, touched]);
+  const [value, setValue] = useState<T | undefined>();
 
   useEffect(() => {
-    setValue(() => {
-      const value = form?.getValue<T>(fieldPath) || fallbackValue;
-
+    const unsubscribe = form?.subscribeOnChange<T>((v) => {
       if (fallBackPath) {
-        form?.setValue(fallBackPath, value);
+        form?.setValue(fallBackPath, v);
       }
-      return value;
-    });
-  }, [fallBackPath, fallbackValue, fieldPath, form]);
-
-  useEffect(() => {
-    if (!subscribe) {
-      const unsubscribe = form?.subscribeOnHistoryChange(() => {
-        const newValue = form?.getValue<T>(fieldPath) || fallbackValue;
-        if (fallBackPath) {
-          form?.setValue(fallBackPath, newValue);
-        }
-        setValue(newValue);
-      });
-
-      return () => {
-        unsubscribe?.();
-      };
-    }
-
-    const unsubscribe = form?.subscribeOnChange<T>(setValue, fieldPath);
+      setValue(v);
+    }, fieldPath);
 
     return () => {
       unsubscribe?.();
     };
-  }, [fallBackPath, fallbackValue, fieldPath, form, subscribe]);
+  }, [fallBackPath, fieldPath, form]);
 
   const handleSetValue = useCallback(
     (newValue: T) => {
       form?.setValue(fieldPath, newValue);
-      if (!subscribe) {
-        setValue(newValue);
-        if (fallBackPath) {
-          form?.setValue(fallBackPath, newValue);
-        }
-      }
     },
-    [fallBackPath, fieldPath, form, subscribe],
+    [fieldPath, form],
   );
 
   return {

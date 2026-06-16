@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useEffect, useRef } from 'react';
+import { FC, PropsWithChildren, useEffect, useState } from 'react';
 
 import { Action } from '@mapples/types';
 import { Subject } from 'rxjs';
@@ -40,17 +40,19 @@ const ActionProvider: FC<PropsWithChildren<ActionProviderProps>> = ({
   children,
   onAction,
 }) => {
-  const ActionStore = useRef(new Subject<Action>());
+  // Lazy state init creates the Subject exactly once and keeps the same
+  // instance for the provider's lifetime, without reading a ref during render.
+  const [actionStore] = useState(() => new Subject<Action>());
 
   useEffect(() => {
-    const subscription = ActionStore.current.subscribe(onAction);
+    const subscription = actionStore.subscribe(onAction);
     return () => {
       return subscription.unsubscribe();
     };
-  }, [onAction]);
+  }, [actionStore, onAction]);
 
   return (
-    <ActionContextProvider value={{ actionStore: ActionStore.current }}>
+    <ActionContextProvider value={{ actionStore }}>
       {children}
     </ActionContextProvider>
   );
