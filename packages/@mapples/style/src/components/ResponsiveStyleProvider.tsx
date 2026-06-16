@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { FC, PropsWithChildren, useCallback, useState } from 'react';
 
 import { keys } from 'lodash';
 import { useWindowDimensions } from 'react-native';
@@ -42,11 +42,15 @@ const isBetween = (value: number, { min, max }: BreakpointConfig) => {
 const ResponsiveStyleProvider: FC<PropsWithChildren> = ({ children }) => {
   const { responsiveConfig } = useStyle();
 
-  const [currentBreakpoint, setCurrentBreakpoint] = useState(
-    responsiveConfig.default,
-  );
-
   const { width } = useWindowDimensions();
+
+  // Allow consumers to manually override the breakpoint. The override is tied
+  // to the width it was set at, so window width remains the source of truth and
+  // the override is dropped automatically once the width changes.
+  const [override, setOverride] = useState<{
+    width: number;
+    breakpoint: string;
+  } | null>(null);
 
   const getCurrentBreakpoint = useCallback(
     (windowWidth: number) => {
@@ -72,18 +76,26 @@ const ResponsiveStyleProvider: FC<PropsWithChildren> = ({ children }) => {
     [responsiveConfig.breakpoints, responsiveConfig.default],
   );
 
-  useEffect(() => {
-    setCurrentBreakpoint(
-      getCurrentBreakpoint(width) || responsiveConfig.default,
-    );
-  }, [getCurrentBreakpoint, responsiveConfig.default, width]);
+  // Derive the breakpoint from the current window width during render — no
+  // effect needed, so there are no cascading re-renders to mirror width into
+  // state.
+  const breakpointForWidth =
+    getCurrentBreakpoint(width) || responsiveConfig.default;
+
+  const currentBreakpoint =
+    override?.width === width ? override.breakpoint : breakpointForWidth;
+
+  const setBreakpoint = useCallback(
+    (breakpoint: string) => setOverride({ width, breakpoint }),
+    [width],
+  );
 
   return (
     <ResponsiveContextProvider
       value={{
         windowWidth: width,
         currentBreakpoint: currentBreakpoint,
-        setBreakpoint: setCurrentBreakpoint,
+        setBreakpoint,
         ...responsiveConfig,
       }}
     >
