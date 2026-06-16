@@ -1,5 +1,11 @@
 # @mapples/state
 
+## 1.1.2
+
+### Patch Changes
+
+- f2313c2: feat: introudce navigation component
+
 ## 1.1.1
 
 ### Patch Changes
