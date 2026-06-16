@@ -9,13 +9,13 @@
   },
   "references": [
     {
+      "path": "../render/tsconfig.build.json"
+    },
+    {
       "path": "../style/tsconfig.build.json"
     },
     {
       "path": "../types/tsconfig.build.json"
-    },
-    {
-      "path": "../state/tsconfig.build.json"
     }
   ]
 }
