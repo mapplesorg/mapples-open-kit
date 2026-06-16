@@ -1,0 +1,36 @@
+{
+  "name": "@mapples/types",
+  "version": "1.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "author": {
+    "name": "Oleksandr Soloviov",
+    "url": "https://mapples.org/people/olek_soloviov"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mapplesorg/mapples-open-kit.git",
+    "directory": "packages/@mapples/types"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0 <20.0.0",
+    "react-native": ">=0.71.0"
+  },
+  "devDependencies": {
+    "@types/react": ">=18.0.0 <20.0.0",
+    "typescript": "~6.0.3"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ]
+}

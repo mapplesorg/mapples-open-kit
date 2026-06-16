@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "rootNavigatorId": "nav-root",
+  "navigators": {
+    "nav-root": {
+      "id": "nav-root",
+      "type": "tabs",
+      "name": "Root",
+      "initialRouteId": "route-tab-home",
+      "routes": [
+        {
+          "id": "route-tab-home",
+          "name": "HomeTab",
+          "target": { "kind": "navigator", "navigatorId": "nav-home" },
+          "options": {
+            "tabLabel": "Home",
+            "tabIcon": "ref(icon:11111111-1111-1111-1111-111111111111:home)"
+          }
+        },
+        {
+          "id": "route-tab-search",
+          "name": "SearchTab",
+          "target": { "kind": "navigator", "navigatorId": "nav-search" },
+          "options": {
+            "tabLabel": "Search",
+            "tabIcon": "ref(icon:11111111-1111-1111-1111-111111111111:search)"
+          }
+        },
+        {
+          "id": "route-tab-profile",
+          "name": "ProfileTab",
+          "target": { "kind": "navigator", "navigatorId": "nav-profile" },
+          "options": {
+            "tabLabel": "Profile",
+            "tabIcon": "ref(icon:11111111-1111-1111-1111-111111111111:profile)"
+          }
+        }
+      ],
+      "options": {
+        "tabBar": {
+          "visible": true,
+          "activeTintColor": "ref(theme:22222222-2222-2222-2222-222222222222:primary)",
+          "inactiveTintColor": "#8E8E93",
+          "labelVisible": true
+        }
+      }
+    },
+    "nav-home": {
+      "id": "nav-home",
+      "type": "stack",
+      "name": "HomeStack",
+      "initialRouteId": "route-home-feed",
+      "routes": [
+        {
+          "id": "route-home-feed",
+          "name": "Feed",
+          "target": {
+            "kind": "page",
+            "pageUuid": "aaaaaaaa-0000-0000-0000-000000000001"
+          },
+          "presentation": "card"
+        },
+        {
+          "id": "route-home-detail",
+          "name": "PostDetail",
+          "target": {
+            "kind": "page",
+            "pageUuid": "aaaaaaaa-0000-0000-0000-000000000002"
+          },
+          "presentation": "card"
+        },
+        {
+          "id": "route-home-compose",
+          "name": "Compose",
+          "target": {
+            "kind": "page",
+            "pageUuid": "aaaaaaaa-0000-0000-0000-000000000003"
+          },
+          "presentation": "modal"
+        }
+      ],
+      "options": {
+        "header": { "visible": true, "title": "Home", "backVisible": true }
+      }
+    },
+    "nav-search": {
+      "id": "nav-search",
+      "type": "stack",
+      "name": "SearchStack",
+      "routes": [
+        {
+          "id": "route-search-index",
+          "name": "Search",
+          "target": {
+            "kind": "page",
+            "pageUuid": "bbbbbbbb-0000-0000-0000-000000000001"
+          }
+        },
+        {
+          "id": "route-search-results",
+          "name": "Results",
+          "target": {
+            "kind": "page",
+            "pageUuid": "bbbbbbbb-0000-0000-0000-000000000002"
+          }
+        }
+      ],
+      "options": {
+        "header": { "visible": true, "title": "Search" }
+      }
+    },
+    "nav-profile": {
+      "id": "nav-profile",
+      "type": "stack",
+      "name": "ProfileStack",
+      "routes": [
+        {
+          "id": "route-profile-index",
+          "name": "Profile",
+          "target": {
+            "kind": "page",
+            "pageUuid": "cccccccc-0000-0000-0000-000000000001"
+          }
+        },
+        {
+          "id": "route-profile-settings",
+          "name": "Settings",
+          "target": {
+            "kind": "page",
+            "pageUuid": "cccccccc-0000-0000-0000-000000000002"
+          }
+        }
+      ],
+      "options": {
+        "header": {
+          "visible": true,
+          "title": "Profile",
+          "shadowVisible": false
+        }
+      }
+    }
+  }
+}
