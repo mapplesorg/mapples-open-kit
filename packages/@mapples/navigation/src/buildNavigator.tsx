@@ -5,14 +5,6 @@ import { Text, View } from 'react-native';
 // React Navigation is consumed through expo-router's vendored copy, centralized
 // in `./vendor` (SDK 56+ blocks external `@react-navigation/*`).
 import {
-  type BottomTabNavigationOptions,
-  createBottomTabNavigator,
-  createDrawerNavigator,
-  type DrawerNavigationOptions,
-  createNativeStackNavigator,
-} from './vendor';
-
-import {
   mapDrawerItemOptions,
   mapDrawerOptions,
   mapHeaderOptions,
@@ -22,6 +14,13 @@ import {
 } from './mappers';
 import { NavigatorModel, ScreenModel } from './model';
 import { MapplesNavigationProps, RefResolvers } from './types';
+import {
+  type BottomTabNavigationOptions,
+  createBottomTabNavigator,
+  createDrawerNavigator,
+  type DrawerNavigationOptions,
+  createNativeStackNavigator,
+} from './vendor';
 
 /** Everything a navigator needs to resolve its screens. */
 export interface NavigatorBuildContext {
