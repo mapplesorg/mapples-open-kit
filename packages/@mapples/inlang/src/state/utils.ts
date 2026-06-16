@@ -1,4 +1,4 @@
-import { FN_SEPARATOR } from '@mapples/inlang';
+import { FN_SEPARATOR } from '../constants';
 
 import { ConditionStringRegExp } from './regexp';
 import {
