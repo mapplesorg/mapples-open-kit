@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, JSX } from 'react';
+import { FC, PropsWithChildren, JSX, useEffect } from 'react';
 
 import { Components } from '@mapples/components';
 import { AnyObject, RenderProvider } from '@mapples/render';
@@ -30,10 +30,10 @@ export interface MapplesAppProps {
   assets?: AnyObject;
   /** Optional navigation map (Mapples action `routeName` → expo-router href) for navigation actions */
   navigation?: NavigationMap;
-  /** Whether to show a loading indicator while fonts are loading */
-  showFontLoadingIndicator?: boolean;
   /** Custom loading indicator component to display while fonts are loading */
   FontLoadingIndicator?: JSX.Element;
+  /** Font loaded callback **/
+  onFontLoaded?: () => void;
 }
 
 /**
@@ -82,13 +82,19 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   style,
   assets,
   navigation,
-  showFontLoadingIndicator,
   FontLoadingIndicator,
+  onFontLoaded,
 }) => {
   const [loaded] = useFonts(remapFonts(assets || assetsConfig));
 
-  if (!loaded && showFontLoadingIndicator) {
-    return FontLoadingIndicator || null;
+  useEffect(() => {
+    if (loaded && onFontLoaded) {
+      onFontLoaded();
+    }
+  }, [loaded, onFontLoaded]);
+
+  if (!loaded && !!FontLoadingIndicator && !onFontLoaded) {
+    return FontLoadingIndicator;
   }
 
   return (
