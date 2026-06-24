@@ -55,6 +55,8 @@ export type StyledSizingKeys =
   | 'marginHorizontal'
   | 'marginVertical'
   | 'gap'
+  | 'rowGap'
+  | 'columnGap'
   | 'borderRadius'
   | 'borderTopLeftRadius'
   | 'borderTopRightRadius'
