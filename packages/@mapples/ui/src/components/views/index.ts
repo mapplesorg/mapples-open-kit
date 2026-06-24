@@ -1,6 +1,9 @@
 export { default as View } from './View';
 export * from './View';
 
+export { default as GradientBackground } from './GradientBackground';
+export * from './GradientBackground';
+
 export { default as ScrollView } from './ScrollView';
 export * from './ScrollView';
 
