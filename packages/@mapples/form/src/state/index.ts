@@ -95,7 +95,6 @@ class FormState<T extends object> {
     this.values = cloneDeep(values);
     this.saveToHistory();
 
-    console.log(this.subscriptions);
     this.subscriptions.forEach((subscription) => {
       subscription.cb(
         subscription.path
