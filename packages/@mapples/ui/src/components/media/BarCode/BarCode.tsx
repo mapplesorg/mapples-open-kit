@@ -106,7 +106,6 @@ const generateBarcodeData = (
     // Log available formats for debugging
     try {
       const availableFormats = BarcodeEncoder.getAvailableFormats();
-      console.log('Available barcode formats:', availableFormats);
     } catch {
       // Ignore if getAvailableFormats fails
     }
