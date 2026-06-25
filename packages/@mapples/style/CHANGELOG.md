@@ -1,5 +1,11 @@
 # @mapples/style
 
+## 1.1.2
+
+### Patch Changes
+
+- 6150aa1: Update typography handling logic and resolve minor isssue
+
 ## 1.1.1
 
 ### Patch Changes
