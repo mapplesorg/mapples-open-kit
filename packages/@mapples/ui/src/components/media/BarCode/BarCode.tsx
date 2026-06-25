@@ -103,12 +103,6 @@ const generateBarcodeData = (
       `Error generating barcode (format: ${format}, value: ${value}):`,
       errorMessage,
     );
-    // Log available formats for debugging
-    try {
-      const availableFormats = BarcodeEncoder.getAvailableFormats();
-    } catch {
-      // Ignore if getAvailableFormats fails
-    }
     return null;
   }
 };
