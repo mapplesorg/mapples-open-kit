@@ -63,22 +63,22 @@ const Typography = forwardRef<Text, TypographyProps>(
       return getTypographyStyle(variant) || {};
     }, [getTypographyStyle, variant]);
 
+    const flatten = Styler.flatten([textStyle, style, styled?.style]);
+
     return (
       <StyledText
         ref={ref}
         styled={{
-          ...styled,
           style: [
             styler.text,
             selectable && styler.selectable,
-            textStyle,
-            !!color && { color: color },
-            Styler.flatten([style, styled?.style]),
+            flatten,
             {
               fontFamily,
               fontSize,
               fontWeight,
             },
+            !!color && { color },
           ],
         }}
         {...props}
