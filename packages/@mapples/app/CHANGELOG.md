@@ -1,5 +1,11 @@
 # @mapples/render
 
+## 1.1.3
+
+### Patch Changes
+
+- c061981: fix: font loading issue
+
 ## 1.1.2
 
 ### Patch Changes
