@@ -93,8 +93,14 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
     }
   }, [loaded, onFontLoaded]);
 
-  if (!loaded && !!FontLoadingIndicator && !onFontLoaded) {
-    return FontLoadingIndicator;
+  // Gate the entire subtree on font readiness regardless of `onFontLoaded`.
+  // Otherwise `children` mount on the first render with `loaded === false`,
+  // laying out `Text` with the fallback font; components that don't re-render
+  // after `loaded` flips keep the fallback (the intermittent "not all fonts"
+  // race). Returning here blocks until fonts are ready; `onFontLoaded` still
+  // fires from the effect above so consumers can hide their splash in sync.
+  if (!loaded) {
+    return FontLoadingIndicator ?? null;
   }
 
   return (
