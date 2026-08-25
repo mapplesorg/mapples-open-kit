@@ -1,5 +1,11 @@
 # @mapples/inlang
 
+## 1.2.0
+
+### Minor Changes
+
+- 40751c7: Writable variables runtime: `@mapples/state` gains writable variables, action commands and `StateActionHandler` (and stops writing refs during render in `VariablesProvider`); `@mapples/types` adds API definition, variables types and their validators; `@mapples/render` supports the reserved `_visible` data binding for conditional visibility and wraps custom renderers in the state context; `@mapples/inlang` conditions accept numeric values.
+
 ## 1.1.2
 
 ### Patch Changes
