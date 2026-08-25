@@ -3392,6 +3392,7 @@ __metadata:
   dependencies:
     typescript: "npm:~6.0.3"
   peerDependencies:
+    "@mapples/fonts": "*"
     expo-router: ">=56.0.0 <57"
     react: ">=18.0.0 <20.0.0"
     react-native: ">=0.71.0"
@@ -3436,6 +3437,15 @@ __metadata:
       optional: false
     react-native-svg:
       optional: true
+  languageName: unknown
+  linkType: soft
+
+"@mapples/fonts@workspace:packages/@mapples/fonts":
+  version: 0.0.0-use.local
+  resolution: "@mapples/fonts@workspace:packages/@mapples/fonts"
+  dependencies:
+    "@types/node": "npm:^24.3.0"
+    typescript: "npm:~6.0.3"
   languageName: unknown
   linkType: soft
 
@@ -3496,6 +3506,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@mapples/request@workspace:packages/@mapples/request":
+  version: 0.0.0-use.local
+  resolution: "@mapples/request@workspace:packages/@mapples/request"
+  dependencies:
+    "@types/react": "npm:>=18.0.0 <20.0.0"
+    typescript: "npm:~6.0.3"
+  peerDependencies:
+    "@mapples/action": "*"
+    "@mapples/state": "*"
+    "@mapples/types": "*"
+    lodash: ^4.18.0
+    react: ">=18.0.0 <20.0.0"
+    rxjs: ^7.0.0
+  languageName: unknown
+  linkType: soft
+
 "@mapples/state@workspace:packages/@mapples/state":
   version: 0.0.0-use.local
   resolution: "@mapples/state@workspace:packages/@mapples/state"
@@ -3503,6 +3529,10 @@ __metadata:
     "@types/react": "npm:>=18.0.0 <20.0.0"
     typescript: "npm:~6.0.3"
   peerDependencies:
+    "@mapples/action": "*"
+    "@mapples/inlang": "*"
+    "@mapples/types": "*"
+    lodash: ^4.18.0
     react: ">=18.0.0 <20.0.0"
     react-native: ">=0.71.0"
   languageName: unknown
@@ -5081,6 +5111,15 @@ __metadata:
   version: 12.20.55
   resolution: "@types/node@npm:12.20.55"
   checksum: 10c0/3b190bb0410047d489c49bbaab592d2e6630de6a50f00ba3d7d513d59401d279972a8f5a598b5bb8ddc1702f8a2f4ec57a65d93852f9c329639738e7053637d1
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^24.3.0":
+  version: 24.13.3
+  resolution: "@types/node@npm:24.13.3"
+  dependencies:
+    undici-types: "npm:~7.18.0"
+  checksum: 10c0/a5bc08f49b9581dcdca90e02cd77197a3c799840807664942e5cd5161a553d4d2ae8064f7e3294410d748d7d098b5c1848be7fa50c06f29c4193ab16be4e59eb
   languageName: node
   linkType: hard
 
@@ -14339,6 +14378,13 @@ __metadata:
   version: 7.10.0
   resolution: "undici-types@npm:7.10.0"
   checksum: 10c0/8b00ce50e235fe3cc601307f148b5e8fb427092ee3b23e8118ec0a5d7f68eca8cee468c8fc9f15cbb2cf2a3797945ebceb1cbd9732306a1d00e0a9b6afa0f635
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.18.0":
+  version: 7.18.2
+  resolution: "undici-types@npm:7.18.2"
+  checksum: 10c0/85a79189113a238959d7a647368e4f7c5559c3a404ebdb8fc4488145ce9426fcd82252a844a302798dfc0e37e6fb178ff481ed03bc4caf634c5757d9ef43521d
   languageName: node
   linkType: hard
 
