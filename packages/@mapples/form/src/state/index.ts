@@ -1,4 +1,4 @@
-import { cloneDeep, get, set, groupBy, isEqual, some } from 'lodash';
+import { cloneDeep, get, has, set, groupBy, isEqual, some } from 'lodash';
 import { ObjectSchema, ValidationError } from 'yup';
 
 import type {
@@ -113,6 +113,17 @@ class FormState<T extends object> {
    * @param value - The value to set at the specified path
    */
   setValue<V>(path: string, value?: V) {
+    // `set` builds every missing segment of the path. That is what makes
+    // writing a nested field work, but it also means a write to a path that
+    // no longer exists FABRICATES the structure it names. Field paths do go
+    // stale — a subscriber keeps the path it was created with, and the node
+    // it points at can move or be removed before the subscription is torn
+    // down. Writing `undefined` there has nothing to clear, so the only
+    // effect would be that fabricated structure: refuse it.
+    if (value === undefined && !has(this.values, path)) {
+      return;
+    }
+
     set(this.values, path, value);
 
     if (
