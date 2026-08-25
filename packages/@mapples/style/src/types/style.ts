@@ -1,4 +1,10 @@
-import { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import {
+  ColorValue,
+  ImageStyle,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
 
 import { SizableStyleProps } from '../types';
 
@@ -11,6 +17,20 @@ export type StyledNamedStyles<T> = {
     | SizableStyleProps<ViewStyle>
     | SizableStyleProps<TextStyle>
     | SizableStyleProps<ImageStyle>;
+};
+
+/**
+ * Style accepted by SVG-rendering components: view geometry plus `color`,
+ * which SVG resolves as `currentColor` for fills and strokes.
+ *
+ * `TextStyle` used to stand in for this, but it is not interchangeable with
+ * `ViewStyle` — Expo's `react-native-web` types widen `TextStyle['cursor']` to
+ * `string` while leaving `ViewStyle['cursor']` as `CursorValue`, so passing a
+ * text style to an SVG's `style` fails inside an app's program.
+ */
+export type SvgStyle = ViewStyle & {
+  /** Icon tint, forwarded to the SVG as `currentColor`. */
+  color?: ColorValue;
 };
 
 /**

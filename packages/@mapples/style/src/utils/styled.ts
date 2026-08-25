@@ -116,11 +116,18 @@ export const processExoticKeys = (
       }
 
       if (key === 'zIndex' && !isNumber(value)) {
-        try {
-          return parseInt(value);
-        } catch {
-          return undefined;
+        // `parseInt` never throws — it yields NaN — so a malformed zIndex used
+        // to slip through as an undefined/NaN layer and produce stacking bugs
+        // that are near-impossible to trace back. Reject it at the source.
+        const parsed = parseInt(value);
+
+        if (!Number.isFinite(parsed)) {
+          throw new Error(
+            `Invalid zIndex style value: ${JSON.stringify(value)} is not a number`,
+          );
         }
+
+        return parsed;
       }
 
       // Recursively process nested objects and arrays
