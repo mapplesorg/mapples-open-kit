@@ -7,6 +7,7 @@ import {
   GestureStateChangeEvent,
   GestureUpdateEvent,
   PanGestureHandlerEventPayload,
+  PointerType,
 } from 'react-native-gesture-handler';
 import { TapGestureHandlerEventPayload } from 'react-native-gesture-handler/lib/typescript/handlers/GestureHandlerEventPayload';
 import { runOnJS, useSharedValue } from 'react-native-reanimated';
@@ -34,6 +35,7 @@ const DnDRootView = <T extends object>({
   children,
   DragElement,
   onDrop,
+  pointerTransform,
   ...props
 }: DnDRootViewProps<T>) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -45,6 +47,10 @@ const DnDRootView = <T extends object>({
 
   const sv = useSharedValue(initialDragCoords);
   const svOverLayout = useSharedValue(initialOverLayout);
+  // Window position of the pointer at touch-down (onBegin). onStart only
+  // fires after minDistance, and translationX/Y is measured from ACTIVATION,
+  // so the activation event alone cannot recover where the press began.
+  const pressSV = useSharedValue(initialDragCoords);
 
   useEffect(() => {
     const subscription = monitor.events
@@ -58,6 +64,9 @@ const DnDRootView = <T extends object>({
         if (e.type === DnDEventType.DragEnd) {
           setIsDragging(false);
           if (onDrop) {
+            // Released outside every drop area — the drag is over, but there
+            // is nothing to drop onto.
+            if (e.cancelled || !e.dropTarget) return;
             if (!e.target) return;
             const target = monitor.getDragTargetData(e.target);
             if (!target) return;
@@ -81,8 +90,46 @@ const DnDRootView = <T extends object>({
     e:
       | GestureStateChangeEvent<PanGestureHandlerEventPayload>
       | GestureUpdateEvent<PanGestureHandlerEventPayload>,
+    pressWindow?: { x: number; y: number },
   ) => {
-    monitor[type]({ x: e.absoluteX, y: e.absoluteY });
+    const windowCoords = { x: e.absoluteX, y: e.absoluteY };
+    const coords = pointerTransform
+      ? pointerTransform(windowCoords)
+      : windowCoords;
+
+    if (type === 'onDragStart') {
+      // Hit-test at the TOUCH-DOWN point (captured in onBegin), not the
+      // activation point. onStart fires only after minDistance, and a fast
+      // drag can be far past the pressed element by then — hit-testing there
+      // grabbed whatever was under the pointer mid-path (e.g. an element in
+      // another frame) instead of what the user pressed.
+      const startWindow = pressWindow ?? windowCoords;
+      // Drag sources (palette items) are window-space; drop targets may be
+      // in a transformed space — the monitor needs both. A null transform is
+      // the normal case for a palette press (the palette sits beside the drop
+      // space, not on it), so the drag still starts off the window coords.
+      monitor.onDragStart(
+        pointerTransform ? pointerTransform(startWindow) : startWindow,
+        startWindow,
+      );
+      return;
+    }
+
+    if (type === 'onDrag') {
+      // A null transform means the pointer is off the drop space entirely.
+      if (!coords) {
+        monitor.onDragOutside();
+        return;
+      }
+
+      monitor.onDrag(coords);
+      return;
+    }
+
+    // Release: a pointer-up outside the drop space needs no preceding move
+    // to count as a cancel.
+    if (!coords) monitor.onDragOutside();
+    monitor.onDragEnd();
   };
 
   /**
@@ -92,20 +139,42 @@ const DnDRootView = <T extends object>({
   const handleSelect = (
     e: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
   ) => {
-    monitor.onSelect({ x: e.absoluteX, y: e.absoluteY });
+    const windowCoords = { x: e.absoluteX, y: e.absoluteY };
+    const coords = pointerTransform
+      ? pointerTransform(windowCoords)
+      : windowCoords;
+
+    // Tapped outside the drop space (surrounding chrome) — not a selection
+    // gesture at all, so it must not hit-test into the space.
+    if (!coords) return;
+
+    monitor.onSelect(coords);
   };
 
   const tap = Gesture.Tap().onEnd((e) => {
+    // Gesture-handler's web KeyboardEventManager treats Enter/Space as
+    // "activation keys": a keydown bubbling from any focused element inside
+    // this root begins a synthetic press and the keyup completes it — a
+    // phantom tap at the element's center. For a focused text field that
+    // meant pressing space selected whatever lay under the field (ending an
+    // in-place edit mid-word). Selection is a pointer concept here, so
+    // keyboard-synthesized taps are ignored outright.
+    if (e.pointerType === PointerType.KEY) return;
     runOnJS(handleSelect)(e);
   });
 
   const pan = Gesture.Pan()
+    // A few pixels of slack so taps never register as element move-drags.
+    .minDistance(4)
+    .onBegin((e) => {
+      pressSV.set({ x: e.absoluteX, y: e.absoluteY });
+    })
     .onStart((e) => {
       sv.set({
         x: e.x,
         y: e.y,
       });
-      runOnJS(handlePanEvents)('onDragStart', e);
+      runOnJS(handlePanEvents)('onDragStart', e, pressSV.get());
     })
     .onChange((e) => {
       sv.set({
@@ -115,6 +184,15 @@ const DnDRootView = <T extends object>({
       runOnJS(handlePanEvents)('onDrag', e);
     })
     .onEnd((e) => {
+      sv.set(initialDragCoords);
+      runOnJS(handlePanEvents)('onDragEnd', e);
+    })
+    // A gesture cancelled rather than ended (pointer released off-window, or
+    // the race lost after activation) never reaches onEnd, which used to
+    // strand the drag ghost and highlights on screen. The monitor's onDragEnd
+    // is idempotent, so the normal end → finalize pair is a no-op the second
+    // time round.
+    .onFinalize((e) => {
       sv.set(initialDragCoords);
       runOnJS(handlePanEvents)('onDragEnd', e);
     });
