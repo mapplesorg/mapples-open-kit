@@ -37,6 +37,25 @@ export interface NavigationDocument {
 }
 
 /**
+ * Editor-only world-space rectangle of a navigator's section on the Creator
+ * canvas. The runtime ignores it entirely — it exists so the canvas can
+ * persist where the section is drawn, the same way pages persist their frame
+ * placement in `_canvasProps`.
+ *
+ * @interface NavigatorCanvasRect
+ */
+export interface NavigatorCanvasRect {
+  /** World-space left edge. */
+  x: number;
+  /** World-space top edge. */
+  y: number;
+  /** Width in world units. */
+  width: number;
+  /** Height in world units. */
+  height: number;
+}
+
+/**
  * A single navigator (stack, tabs, or drawer) and its ordered child routes.
  *
  * @interface NavigatorNode
@@ -54,6 +73,8 @@ export interface NavigatorNode {
   routes: RouteNode[];
   /** Presentation/styling options scoped to this navigator. */
   options?: NavigatorOptions;
+  /** Editor-only canvas placement. Ignored by the runtime. */
+  canvas?: NavigatorCanvasRect;
 }
 
 /**
