@@ -4,12 +4,13 @@ import {
   styled as makeStyled,
   StyledProp,
   StyledProps,
+  SvgStyle,
   StyledView,
   Styler,
   WithStyledProps,
 } from '@mapples/style';
 import { SvgSource } from '@mapples/types';
-import { TextStyle, View, ViewProps } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { SvgUri, SvgProps } from 'react-native-svg';
 
 import MockIcon from './MockIcon';
@@ -24,7 +25,7 @@ export type IconProps = PropsWithChildren<
     /** Styling configuration for the icon container and SVG */
     styled?: StyledProps<ViewProps> & {
       /** SVG-specific styling (width, height, color) */
-      styleSvg?: StyledProp<TextStyle>;
+      styleSvg?: StyledProp<SvgStyle>;
     };
   }
 > & {

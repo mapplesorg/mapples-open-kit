@@ -6,11 +6,12 @@ import {
   StyledPressable,
   StyledProp,
   StyledProps,
+  SvgStyle,
   Styler,
   WithStyledProps,
 } from '@mapples/style';
 import { SvgSource } from '@mapples/types';
-import { PressableProps, TextStyle, View, ViewProps } from 'react-native';
+import { PressableProps, View, ViewProps } from 'react-native';
 import { SvgProps, SvgUri } from 'react-native-svg';
 
 import MockIcon from './MockIcon';
@@ -25,7 +26,7 @@ export type IconProps = PropsWithChildren<
     /** Styling configuration for the button container and SVG icon */
     styled?: StyledProps<ViewProps> & {
       /** SVG-specific styling */
-      styleSvg?: StyledProp<TextStyle>;
+      styleSvg?: StyledProp<SvgStyle>;
     };
   }
 > & {
