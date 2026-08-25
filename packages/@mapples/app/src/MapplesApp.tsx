@@ -86,7 +86,10 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   FontLoadingIndicator,
   onFontLoaded,
 }) => {
-  const [loaded] = useFonts({ ...FONT_FILES, ...remapFonts(assets || assetsConfig) });
+  const [loaded] = useFonts({
+    ...FONT_FILES,
+    ...remapFonts(assets || assetsConfig),
+  });
 
   useEffect(() => {
     if (loaded && onFontLoaded) {

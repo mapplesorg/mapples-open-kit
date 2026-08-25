@@ -112,8 +112,10 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
 };
 
 /** The registered React Native family name for a family + weight. */
-export const fontFamilyName = (family: FontFamily, weight: FontWeight): string =>
-  `${family.replace(/\s+/g, '')}-${weight}`;
+export const fontFamilyName = (
+  family: FontFamily,
+  weight: FontWeight,
+): string => `${family.replace(/\s+/g, '')}-${weight}`;
 
 /** Relative path of each font file from the package root. */
 export const FONT_FILE_PATHS: Record<string, string> = Object.fromEntries(
@@ -128,4 +130,5 @@ export const FONT_FILE_PATHS: Record<string, string> = Object.fromEntries(
 /** Every registered family name, e.g. "Inter-SemiBold". */
 export const FONT_NAMES: string[] = Object.keys(FONT_FILE_PATHS);
 
-export const isBuiltinFontName = (name: string): boolean => name in FONT_FILE_PATHS;
+export const isBuiltinFontName = (name: string): boolean =>
+  name in FONT_FILE_PATHS;

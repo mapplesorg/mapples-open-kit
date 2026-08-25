@@ -58,9 +58,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
   mode = 'sample',
   secrets,
 }) => {
-  const [responses, setResponses] = useState<Record<string, ResponseState>>(
-    {},
-  );
+  const [responses, setResponses] = useState<Record<string, ResponseState>>({});
 
   const setResponse = useCallback(
     (stateKey: string, response: ResponseState) => {
