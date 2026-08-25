@@ -56,6 +56,20 @@ const RenderComponent: FC<RenderComponentType> = ({
   const { components } = useRender();
   const propsWithData = useDataProps(dataProps);
   const resolvedRefProps = useRefProps(refProps);
+
+  // Reserved binding: `dataProps._visible` conditionally shows the element.
+  // Only an ACTIVE binding participates (inactive/absent → always visible);
+  // a resolved falsy value (incl. the string 'false') hides the subtree.
+  const { _visible: visibleValue, ...visibleDataProps } = propsWithData as {
+    _visible?: unknown;
+  } & Record<string, unknown>;
+  const hidden =
+    '_visible' in propsWithData &&
+    (visibleValue == null ||
+      visibleValue === false ||
+      visibleValue === 'false' ||
+      visibleValue === 0 ||
+      visibleValue === '');
   const propsWithConditional = useConditionalStyled(props);
   const { getValue } = useDataState();
   const actionStore = useActionStore();
@@ -99,7 +113,7 @@ const RenderComponent: FC<RenderComponentType> = ({
 
   const Component = components[type as keyof typeof components].Component;
 
-  if (!Component) {
+  if (!Component || hidden) {
     return null;
   }
 
@@ -116,7 +130,7 @@ const RenderComponent: FC<RenderComponentType> = ({
   return (
     <Component
       {...propsWithConditional}
-      {...propsWithData}
+      {...visibleDataProps}
       {...resolvedRefProps}
       {...mappedActionProps}
     >

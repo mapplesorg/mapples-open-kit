@@ -49,11 +49,15 @@ import RenderComponent from './RenderComponent';
  * ```
  */
 const Render = ({ root, state, CustomRenderComponent }: RenderProps) => {
-  return CustomRenderComponent ? (
-    <CustomRenderComponent {...root} />
-  ) : (
+  // The state (named conditions) context wraps custom renderers too, so
+  // conditional style variants evaluate regardless of the pipeline.
+  return (
     <RenderStateContextProvider value={state}>
-      <RenderComponent {...root} />
+      {CustomRenderComponent ? (
+        <CustomRenderComponent {...root} />
+      ) : (
+        <RenderComponent {...root} />
+      )}
     </RenderStateContextProvider>
   );
 };
