@@ -41,7 +41,10 @@ export type BarCodeProps = PropsWithChildren<
 
 /**
  * Generates barcode pattern using BarcodeEncoder
- * Returns the encoded data and dimensions
+ * Returns the encoded data and dimensions, or `null` when there is no value to
+ * encode. An unencodable value is an authoring error: {@link BarcodeEncoder}
+ * throws a descriptive error and it is left to propagate, because a barcode
+ * that silently renders blank is a defect the author never gets to see.
  */
 const generateBarcodeData = (
   value: string,
@@ -53,37 +56,24 @@ const generateBarcodeData = (
 } | null => {
   if (!value) return null;
 
-  try {
-    // Use BarcodeEncoder to encode the value
-    const encoded = BarcodeEncoder.encode(value, format, {});
+  const encoded = BarcodeEncoder.encode(value, format, {});
 
-    if (!encoded) {
-      console.warn('Failed to encode barcode value');
-      return null;
-    }
+  if (!encoded) {
+    throw new Error(
+      `Barcode encoder returned no data (format: ${format}, value: ${value})`,
+    );
+  }
 
-    const bars: { x: number; width: number }[] = [];
-    let x = 0;
+  const bars: { x: number; width: number }[] = [];
+  let x = 0;
 
-    // Handle array response (EAN13, EAN8, UPC)
-    if (Array.isArray(encoded)) {
-      // Concatenate all segment data strings
-      for (const segment of encoded) {
-        if (segment && segment.data) {
-          for (let i = 0; i < segment.data.length; i++) {
-            const digit = segment.data[i];
-            if (digit === '1') {
-              bars.push({ x, width: barWidth });
-            }
-            x += barWidth;
-          }
-        }
-      }
-    } else {
-      // Handle single object response (CODE128, CODE39, etc.)
-      if (encoded.data) {
-        for (let i = 0; i < encoded.data.length; i++) {
-          const digit = encoded.data[i];
+  // Handle array response (EAN13, EAN8, UPC)
+  if (Array.isArray(encoded)) {
+    // Concatenate all segment data strings
+    for (const segment of encoded) {
+      if (segment && segment.data) {
+        for (let i = 0; i < segment.data.length; i++) {
+          const digit = segment.data[i];
           if (digit === '1') {
             bars.push({ x, width: barWidth });
           }
@@ -91,20 +81,23 @@ const generateBarcodeData = (
         }
       }
     }
-
-    return {
-      bars,
-      totalWidth: x,
-    };
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    console.error(
-      `Error generating barcode (format: ${format}, value: ${value}):`,
-      errorMessage,
-    );
-    return null;
+  } else {
+    // Handle single object response (CODE128, CODE39, etc.)
+    if (encoded.data) {
+      for (let i = 0; i < encoded.data.length; i++) {
+        const digit = encoded.data[i];
+        if (digit === '1') {
+          bars.push({ x, width: barWidth });
+        }
+        x += barWidth;
+      }
+    }
   }
+
+  return {
+    bars,
+    totalWidth: x,
+  };
 };
 
 /**

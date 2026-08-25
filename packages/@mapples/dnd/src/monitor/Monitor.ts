@@ -13,7 +13,9 @@ import {
   DropTargetConfig,
   DropTree,
   FlexDirection,
+  FrameEntry,
   MonitorConfig,
+  MoveDragSource,
 } from '../types';
 
 /**
@@ -43,9 +45,16 @@ export class Monitor<
   private dragElements = new Map<number, DragElementTarget<DragData>>();
   /** Tree structure of registered drop elements */
   private dropElementsTree: DropTree<DropData> = new Map();
+  /** Registered frame coordinate spaces by key */
+  private frames = new Map<string, FrameEntry>();
 
   /** ID of the currently active drag target */
   private dragTargetId: number | null = null;
+  /** Active move-drag source (an existing canvas element being moved) */
+  private moveSource: MoveDragSource | null = null;
+  /** Pointer coords at drag start / most recent drag tick (drop space) */
+  private dragStartCoords: DragCoords | null = null;
+  private lastDragCoords: DragCoords | null = null;
   /** Currently active drop target */
   private dropTarget: DropTarget<DropData> | null = null;
 
@@ -63,6 +72,46 @@ export class Monitor<
     if (config.trackOutside) {
       this.trackOutside = true;
     }
+  }
+
+  /**
+   * Registers (or replaces) a frame coordinate space. Drop elements whose
+   * config carries the same `frameKey` are stored and hit-tested in
+   * coordinates relative to this frame's origin.
+   */
+  registerFrame(frameKey: string, entry: FrameEntry) {
+    this.frames.set(frameKey, entry);
+  }
+
+  /**
+   * Moves a frame's world origin. O(1): no element re-measures needed since
+   * frame content layouts are origin-relative.
+   */
+  updateFrameOrigin(frameKey: string, origin: DragCoords) {
+    const frame = this.frames.get(frameKey);
+    if (!frame) return;
+    this.frames.set(frameKey, { ...frame, origin });
+  }
+
+  /** Removes a frame coordinate space. */
+  unregisterFrame(frameKey: string) {
+    this.frames.delete(frameKey);
+  }
+
+  /** Gets a registered frame space by key. */
+  getFrame(frameKey: string) {
+    return this.frames.get(frameKey);
+  }
+
+  /**
+   * Converts world coordinates into a frame's local space.
+   * Falls through unchanged when the frame isn't registered.
+   */
+  toFrameLocal(coords: DragCoords, frameKey: string): DragCoords {
+    const frame = this.frames.get(frameKey);
+    if (!frame) return coords;
+
+    return { x: coords.x - frame.origin.x, y: coords.y - frame.origin.y };
   }
 
   /**
@@ -187,21 +236,70 @@ export class Monitor<
 
   /**
    * Handles the start of a drag operation.
-   * @param dragCoords - The coordinates where the drag started
+   * @param dragCoords - Coordinates in drop-target space (world space when a
+   * pointer transform is installed), or `null` when the press began outside
+   * that space entirely. A palette press is exactly that case — the palette
+   * lives beside the canvas, not on it — so a null here must never abort the
+   * drag; it only rules out grabbing an existing element to move.
+   * @param windowCoords - Raw window coordinates for drag-*source* hit
+   * testing (palette items live outside any frame); defaults to `dragCoords`
    */
-  onDragStart(dragCoords: DragCoords) {
-    const dragTargetId = this.getDragTarget(dragCoords);
+  onDragStart(dragCoords: DragCoords | null, windowCoords?: DragCoords) {
+    this.dragStartCoords = dragCoords;
+    this.lastDragCoords = dragCoords;
 
-    if (!dragTargetId) return;
+    const sourceCoords = windowCoords ?? dragCoords;
+    if (!sourceCoords) return;
 
-    const dragTarget = this.dragElements.get(dragTargetId);
+    const dragTargetId = this.getDragTarget(sourceCoords);
 
-    this.setDragTargetId(dragTargetId);
+    if (dragTargetId) {
+      const dragTarget = this.dragElements.get(dragTargetId);
+
+      this.setDragTargetId(dragTargetId);
+
+      this.events.next({
+        type: DnDEventType.DragStart,
+        target: this.getDragTargetId(),
+        data: dragTarget?.item.data,
+        kind: 'palette',
+      });
+      return;
+    }
+
+    // No palette source under the pointer — a drag that starts on an
+    // existing canvas element moves it (Figma-style direct manipulation).
+    // A press outside the drop space can't be on such an element.
+    if (!dragCoords) return;
+
+    const dropTargets = this.getDropTargets(dragCoords, this.dropElementsTree);
+    const shallowTarget = this.getShallowTarget(dropTargets, dragCoords);
+    const componentId = (shallowTarget?.data as { id?: string } | undefined)
+      ?.id;
+
+    if (!shallowTarget || !componentId) return;
+    // Root-level elements (page roots) are not movable.
+    if (this.dropElementsTree.has(shallowTarget.id)) return;
+
+    const hit = shallowTarget.hitCoords ?? dragCoords;
+
+    this.moveSource = {
+      dropId: shallowTarget.id,
+      componentId,
+      frameKey: shallowTarget.frameKey ?? null,
+      grabOffset: {
+        x: hit.x - shallowTarget.layout.x,
+        y: hit.y - shallowTarget.layout.y,
+      },
+    };
 
     this.events.next({
       type: DnDEventType.DragStart,
-      target: this.getDragTargetId(),
-      data: dragTarget?.item.data,
+      dropTarget: shallowTarget,
+      data: shallowTarget.data as unknown as DragData,
+      kind: 'move',
+      moveSource: this.moveSource,
+      frameKey: shallowTarget.frameKey ?? null,
     });
   }
 
@@ -212,20 +310,33 @@ export class Monitor<
   onDrag(dragCoords: DragCoords) {
     const dragTargetId = this.getDragTargetId();
 
-    if (!dragTargetId) return;
+    if (!dragTargetId && !this.moveSource) return;
 
-    const dropTargets = this.getDropTargets(dragCoords, this.dropElementsTree);
+    this.lastDragCoords = dragCoords;
+
+    // While moving an element, its own subtree is not a valid drop target.
+    const dropTargets = this.getDropTargets(
+      dragCoords,
+      this.dropElementsTree,
+      null,
+      this.moveSource?.dropId ?? null,
+    );
     const shallowTarget = this.getShallowTarget(dropTargets, dragCoords);
 
-    if (!shallowTarget?.canDrop) return;
+    // Leaving every droppable area clears the pending drop rather than
+    // keeping the last one: the pointer is the only thing that decides where
+    // a drop lands, so hovering out must be indistinguishable from never
+    // having hovered in. The Drag event still fires (with a null target) so
+    // overlays drop their highlight instead of stranding it on the element
+    // the pointer last passed over.
+    const target = shallowTarget?.canDrop ? shallowTarget : null;
 
-    this.setDropTarget(shallowTarget);
-
-    const dropTargetIndex = this.getDropTargetIndexData(
-      dragCoords,
-      shallowTarget,
+    this.setDropTarget(target);
+    this.setDropTargetIndex(
+      target
+        ? this.getDropTargetIndexData(target.hitCoords ?? dragCoords, target)
+        : null,
     );
-    this.setDropTargetIndex(dropTargetIndex);
 
     this.events.next({
       type: DnDEventType.Drag,
@@ -233,6 +344,113 @@ export class Monitor<
       dropTarget: this.getDropTarget(),
       dropTargetIndex: this.getDropTargetIndex(),
       dragCoords: dragCoords,
+      frameKey: target?.frameKey ?? null,
+      kind: this.moveSource ? 'move' : 'palette',
+      moveSource: this.moveSource,
+    });
+  }
+
+  /**
+   * The pointer left the drop coordinate space entirely — reported by the
+   * host when its `pointerTransform` cannot place the pointer (e.g. it moved
+   * off the canvas viewport onto surrounding chrome). Equivalent to hovering
+   * empty space: the pending drop clears, so a release here cancels.
+   */
+  onDragOutside() {
+    const dragTargetId = this.getDragTargetId();
+
+    if (!dragTargetId && !this.moveSource) return;
+    // Already cleared — don't republish on every pointer move outside.
+    if (!this.getDropTarget() && this.getDropTargetIndex() === null) return;
+
+    this.setDropTarget(null);
+    this.setDropTargetIndex(null);
+
+    this.events.next({
+      type: DnDEventType.Drag,
+      target: dragTargetId,
+      dropTarget: null,
+      dropTargetIndex: null,
+      dragCoords: this.lastDragCoords,
+      frameKey: null,
+      kind: this.moveSource ? 'move' : 'palette',
+      moveSource: this.moveSource,
+    });
+  }
+
+  /**
+   * Hit-tests a point in drop space with no drag registered. Drags that start
+   * outside the app — files dragged in from the OS — never register a drag
+   * element, so they cannot go through {@link onDrag}; this gives them the
+   * same target and insert-index resolution the in-app drag path uses.
+   * @param dropCoords - The coordinates to hit-test, in drop space
+   */
+  hitTest(dropCoords: DragCoords) {
+    const dropTargets = this.getDropTargets(dropCoords, this.dropElementsTree);
+    const shallowTarget = this.getShallowTarget(dropTargets, dropCoords);
+    const dropTarget = shallowTarget?.canDrop ? shallowTarget : null;
+
+    return {
+      dropTarget,
+      dropTargetIndex: dropTarget
+        ? this.getDropTargetIndexData(
+            dropTarget.hitCoords ?? dropCoords,
+            dropTarget,
+          )
+        : null,
+    };
+  }
+
+  /**
+   * Publishes an external drag's current position, so the drop chrome
+   * (hover highlight, insert line) tracks a file dragged in from the OS
+   * exactly as it tracks an in-app drag. Pass `null` coordinates while the
+   * pointer sits outside the drop space — that clears the pending drop the
+   * same way hovering off a droppable area does mid-drag.
+   * @param dropCoords - The pointer position in drop space, or null
+   */
+  onExternalDrag(dropCoords: DragCoords | null) {
+    const { dropTarget, dropTargetIndex } = dropCoords
+      ? this.hitTest(dropCoords)
+      : { dropTarget: null, dropTargetIndex: null };
+
+    // Nothing to say when the drag is still over empty space it was already
+    // over — pointer moves arrive at input rate.
+    if (!dropTarget && !this.getDropTarget()) return;
+
+    this.lastDragCoords = dropCoords;
+    this.setDropTarget(dropTarget);
+    this.setDropTargetIndex(dropTargetIndex);
+
+    this.events.next({
+      type: DnDEventType.Drag,
+      target: null,
+      dropTarget,
+      dropTargetIndex,
+      dragCoords: dropCoords,
+      frameKey: dropTarget?.frameKey ?? null,
+      kind: 'external',
+    });
+  }
+
+  /**
+   * Ends an external drag — the files were dropped, or the drag left the
+   * window. Always `cancelled`: whatever the drop produces is inserted by
+   * the host once its uploads finish, never by the DnD path.
+   */
+  onExternalDragEnd() {
+    this.lastDragCoords = null;
+    this.setDropTarget(null);
+    this.setDropTargetIndex(null);
+
+    this.events.next({
+      type: DnDEventType.DragEnd,
+      target: null,
+      dropTarget: null,
+      dropTargetIndex: null,
+      frameKey: null,
+      kind: 'external',
+      cancelled: true,
     });
   }
 
@@ -241,8 +459,7 @@ export class Monitor<
    * @param dragCoords - The coordinates where the selection occurred
    */
   onSelect(dragCoords: DragCoords) {
-    if (!this.isInsideFirstRootElement(dragCoords) && !this.trackOutside)
-      return;
+    if (!this.isInsideAnyRootElement(dragCoords) && !this.trackOutside) return;
 
     const dropTargets = this.getDropTargets(dragCoords, this.dropElementsTree);
     const shallowTarget = this.getShallowTarget(dropTargets, dragCoords);
@@ -250,26 +467,48 @@ export class Monitor<
     this.events.next({
       type: DnDEventType.Select,
       dropTarget: shallowTarget,
+      frameKey: shallowTarget?.frameKey ?? null,
     });
   }
 
   /**
-   * Checks if the given coordinates are inside the first root element.
-   * @param dragCoords - The coordinates to check
-   * @returns True if inside the first root element
+   * Checks if the given coordinates are inside any root drop element,
+   * converting into frame-local space for frame-rooted elements.
    * @private
    */
-  private isInsideFirstRootElement(dragCoords: DragCoords): boolean {
-    const firstRootElement = this.dropElementsTree.entries().next().value;
-    if (!firstRootElement) return false;
+  private isInsideAnyRootElement(dragCoords: DragCoords): boolean {
+    for (const [, target] of this.dropElementsTree) {
+      const coords = target.frameKey
+        ? this.toFrameLocal(dragCoords, target.frameKey)
+        : dragCoords;
 
-    const [, firstRootTarget] = firstRootElement;
+      if (
+        target.layout.x <= coords.x &&
+        target.layout.y <= coords.y &&
+        target.layout.x + target.layout.width >= coords.x &&
+        target.layout.y + target.layout.height >= coords.y
+      ) {
+        return true;
+      }
+    }
 
-    return (
-      firstRootTarget.layout.x <= dragCoords.x &&
-      firstRootTarget.layout.y <= dragCoords.y &&
-      firstRootTarget.layout.x + firstRootTarget.layout.width >= dragCoords.x &&
-      firstRootTarget.layout.y + firstRootTarget.layout.height >= dragCoords.y
+    return false;
+  }
+
+  /**
+   * Looks up a registered drop target (with its current layout and frame
+   * key) by matching data properties — e.g. `{ id: componentId }`.
+   *
+   * @param frameKey - Restrict the search to one frame's subtree. Required
+   * whenever ids are only unique per frame (every page root shares the id
+   * `root`, so an unscoped lookup can return another frame's element).
+   */
+  getDropTargetByData(dataQuery: Partial<DropData>, frameKey?: string) {
+    return this.findDropTargetByData(
+      dataQuery,
+      this.dropElementsTree,
+      null,
+      frameKey ?? null,
     );
   }
 
@@ -286,24 +525,52 @@ export class Monitor<
     this.events.next({
       type: DnDEventType.Select,
       dropTarget: dropTarget,
+      frameKey: dropTarget?.frameKey ?? null,
     });
   }
 
   /**
-   * Handles the end of a drag operation.
+   * Handles the end of a drag operation. Releasing the pointer outside every
+   * droppable area cancels the drag: `DragEnd` still fires — overlays, the
+   * drag ghost and `isDragging` all reset on it — but carries a null
+   * `dropTarget` and `cancelled: true`, so nothing is inserted or moved.
    */
   onDragEnd() {
+    const dragTargetId = this.getDragTargetId();
+    const moveSource = this.moveSource;
     const dropTarget = this.getDropTarget();
 
-    if (!dropTarget) return;
+    // Idempotent: a pan that never became a drag (canvas panning, or a
+    // gesture cancelled before activation) must not emit a phantom DragEnd.
+    if (!dragTargetId && !moveSource) {
+      this.resetDragState();
+      return;
+    }
 
     this.events.next({
       type: DnDEventType.DragEnd,
-      target: this.getDragTargetId(),
+      target: dragTargetId,
       dropTarget: dropTarget,
-      dropTargetIndex: this.getDropTargetIndex(),
+      dropTargetIndex: dropTarget ? this.getDropTargetIndex() : null,
+      frameKey: dropTarget?.frameKey ?? null,
+      kind: moveSource ? 'move' : 'palette',
+      moveSource,
+      dragCoords: this.lastDragCoords,
+      dragStartCoords: this.dragStartCoords,
+      cancelled: !dropTarget,
     });
 
+    this.resetDragState();
+  }
+
+  /**
+   * Clears every piece of per-drag state.
+   * @private
+   */
+  private resetDragState() {
+    this.moveSource = null;
+    this.dragStartCoords = null;
+    this.lastDragCoords = null;
     this.setDragTargetId(null);
     this.setDropTarget(null);
     this.setDropTargetIndex(null);
@@ -335,6 +602,7 @@ export class Monitor<
         },
         canDrop: config?.canDrop,
         data,
+        frameKey: config?.frameKey,
       });
     } else {
       const parentLayout = this.findDropTarget(parent, this.dropElementsTree);
@@ -411,6 +679,8 @@ export class Monitor<
         }
       }
 
+      const frameKey = this.findFrameKeyFor(id, this.dropElementsTree, null);
+
       this.events.next({
         type: DnDEventType.Layout,
         target: id,
@@ -420,9 +690,38 @@ export class Monitor<
           layout: target.layout,
           canDrop: target.canDrop,
           data: target.data,
+          frameKey,
         },
+        frameKey,
       });
     }
+  }
+
+  /**
+   * Resolves the frame space an element (or any of its ancestors) belongs to.
+   * @private
+   */
+  private findFrameKeyFor(
+    id: number,
+    tree: DropTree<DropData> | undefined,
+    inherited: string | null,
+  ): string | null {
+    if (!tree) return null;
+
+    for (const [key, value] of tree) {
+      const frameKey = value.frameKey ?? inherited;
+
+      if (key === id) {
+        return frameKey;
+      }
+
+      const childResult = this.findFrameKeyFor(id, value.children, frameKey);
+      if (childResult !== null) {
+        return childResult;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -466,6 +765,8 @@ export class Monitor<
   private findDropTargetByData(
     dataQuery: Partial<DropData>,
     tree?: DropTree<DropData>,
+    frameKey?: string | null,
+    requiredFrameKey?: string | null,
   ): DropTarget<DropData> | null {
     if (!tree) {
       return null;
@@ -474,8 +775,22 @@ export class Monitor<
     let index = 0;
     for (const [id, target] of tree) {
       index++;
+      const targetFrameKey = target.frameKey ?? frameKey ?? null;
 
-      if (target.data && this.partialMatch(target.data, dataQuery)) {
+      // Prune subtrees belonging to other frames when a frame is required.
+      if (
+        requiredFrameKey &&
+        targetFrameKey &&
+        targetFrameKey !== requiredFrameKey
+      ) {
+        continue;
+      }
+
+      if (
+        target.data &&
+        this.partialMatch(target.data, dataQuery) &&
+        (!requiredFrameKey || targetFrameKey === requiredFrameKey)
+      ) {
         return {
           id,
           layout: target.layout,
@@ -483,6 +798,7 @@ export class Monitor<
           canDrop: target.canDrop,
           children: target.children,
           data: target.data,
+          frameKey: targetFrameKey,
         };
       }
 
@@ -490,6 +806,8 @@ export class Monitor<
         const childResult = this.findDropTargetByData(
           dataQuery,
           target.children,
+          targetFrameKey,
+          requiredFrameKey,
         );
         if (childResult) {
           return childResult;
@@ -577,7 +895,12 @@ export class Monitor<
    * @returns Array of drop targets or null if none found
    * @private
    */
-  private getDropTargets(dropCoords: DragCoords, tree?: DropTree<DropData>) {
+  private getDropTargets(
+    dropCoords: DragCoords,
+    tree?: DropTree<DropData>,
+    frameKey?: string | null,
+    excludeId?: number | null,
+  ) {
     const targets: DropTarget<DropData>[] = [];
 
     if (!tree) {
@@ -587,11 +910,25 @@ export class Monitor<
     let index = 0;
     for (const [id, target] of tree) {
       index++;
+
+      // Skip the excluded subtree entirely (a moved element can't be its
+      // own drop target, nor can any of its descendants).
+      if (excludeId != null && id === excludeId) {
+        continue;
+      }
+
+      // Entering a frame-rooted subtree: convert the pointer into that
+      // frame's local space once; all descendant layouts share it.
+      const targetFrameKey = target.frameKey ?? frameKey ?? null;
+      const coords = target.frameKey
+        ? this.toFrameLocal(dropCoords, target.frameKey)
+        : dropCoords;
+
       if (
-        target.layout.x <= dropCoords.x &&
-        target.layout.y <= dropCoords.y &&
-        target.layout.x + target.layout.width >= dropCoords.x &&
-        target.layout.y + target.layout.height >= dropCoords.y
+        target.layout.x <= coords.x &&
+        target.layout.y <= coords.y &&
+        target.layout.x + target.layout.width >= coords.x &&
+        target.layout.y + target.layout.height >= coords.y
       ) {
         targets.push({
           id,
@@ -600,10 +937,17 @@ export class Monitor<
           canDrop: target.canDrop,
           children: target.children,
           data: target.data,
+          frameKey: targetFrameKey,
+          hitCoords: coords,
         });
       }
 
-      const childTargets = this.getDropTargets(dropCoords, target.children);
+      const childTargets = this.getDropTargets(
+        coords,
+        target.children,
+        targetFrameKey,
+        excludeId,
+      );
 
       if (childTargets) {
         targets.push(...childTargets);
@@ -635,13 +979,16 @@ export class Monitor<
       return null;
     }
 
+    // Compare in the target's own coordinate space (frame-local inside
+    // frames); `hitCoords` was attached during hit testing.
+    const coords = lastTarget.hitCoords ?? dragCoords;
+
     if (
-      lastTarget.layout.y + this.padding > dragCoords.y ||
+      lastTarget.layout.y + this.padding > coords.y ||
       lastTarget.layout.y + lastTarget.layout.height - this.padding <
-        dragCoords.y ||
-      lastTarget.layout.x + this.padding > dragCoords.x ||
-      lastTarget.layout.x + lastTarget.layout.width - this.padding <
-        dragCoords.x
+        coords.y ||
+      lastTarget.layout.x + this.padding > coords.x ||
+      lastTarget.layout.x + lastTarget.layout.width - this.padding < coords.x
     ) {
       return sortedTargets[sortedTargets.length - 2] || lastTarget;
     }

@@ -12,7 +12,35 @@ export enum Conditions {
   equals = 'eq',
   /** Not equals condition - checks if values are not equal */
   notEquals = 'neq',
+  /** Numeric greater-than comparison */
+  greaterThan = 'gt',
+  /** Numeric greater-than-or-equal comparison */
+  greaterOrEqual = 'gte',
+  /** Numeric less-than comparison */
+  lessThan = 'lt',
+  /** Numeric less-than-or-equal comparison */
+  lessOrEqual = 'lte',
+  /** Substring (strings) or membership (arrays) check */
+  contains = 'contains',
+  /** Negated {@link Conditions.contains} */
+  notContains = 'notContains',
+  /** Unary: value is null/undefined, '', an empty array or empty object */
+  isEmpty = 'isEmpty',
+  /** Unary: negated {@link Conditions.isEmpty} */
+  isNotEmpty = 'isNotEmpty',
 }
+
+/**
+ * Operators that take no comparison value — condition strings using them
+ * leave the value segment empty (e.g. `"vars.items::isEmpty::"`), and
+ * editors should hide the value input when one is selected.
+ *
+ * @public
+ */
+export const UnaryConditions: ReadonlySet<Conditions> = new Set([
+  Conditions.isEmpty,
+  Conditions.isNotEmpty,
+]);
 
 /**
  * Type representing a simple condition string.

@@ -29,5 +29,14 @@ import StateProvider from './StateProvider';
 
 export * from './hooks';
 export * from './types';
+export * from './actionCommands';
+export * from './writable/types';
+export { useVariablesState } from './writable/context';
+export {
+  default as VariablesProvider,
+  getVariableValue,
+} from './writable/VariablesProvider';
+export { default as VariablesScope } from './writable/VariablesScope';
+export { default as StateActionHandler } from './StateActionHandler';
 
 export default StateProvider;

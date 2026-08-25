@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren, JSX, useEffect } from 'react';
 
 import { Components } from '@mapples/components';
+import { FONT_FILES } from '@mapples/fonts';
 import { AnyObject, RenderProvider } from '@mapples/render';
 import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
@@ -85,7 +86,10 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   FontLoadingIndicator,
   onFontLoaded,
 }) => {
-  const [loaded] = useFonts(remapFonts(assets || assetsConfig));
+  const [loaded] = useFonts({
+    ...FONT_FILES,
+    ...remapFonts(assets || assetsConfig),
+  });
 
   useEffect(() => {
     if (loaded && onFontLoaded) {

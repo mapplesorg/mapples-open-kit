@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren, JSX } from 'react';
 
 import { Components } from '@mapples/components';
+import { FONT_FILES } from '@mapples/fonts';
 import { AnyObject, RenderProvider } from '@mapples/render';
 import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
@@ -76,7 +77,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   showFontLoadingIndicator,
   FontLoadingIndicator,
 }) => {
-  const [loaded] = useFonts(remapFonts(assets));
+  const [loaded] = useFonts({ ...FONT_FILES, ...remapFonts(assets) });
 
   if (!loaded && showFontLoadingIndicator) {
     return FontLoadingIndicator || null;

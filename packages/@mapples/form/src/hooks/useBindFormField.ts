@@ -39,7 +39,12 @@ const useBindFormField = <T>(fieldPath: string, fallBackPath?: string) => {
 
   useEffect(() => {
     const unsubscribe = form?.subscribeOnChange<T>((v) => {
-      if (fallBackPath) {
+      // Every document change notifies this subscription, including changes
+      // that moved or removed the node `fieldPath` points at — the path is
+      // fixed at subscribe time and goes stale until the effect re-runs. A
+      // source that no longer resolves has nothing to mirror; propagating
+      // its `undefined` would only write at the stale location.
+      if (fallBackPath && v !== undefined) {
         form?.setValue(fallBackPath, v);
       }
       setValue(v);

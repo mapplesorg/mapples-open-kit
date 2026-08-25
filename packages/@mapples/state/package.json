@@ -20,6 +20,10 @@
     "directory": "packages/@mapples/state"
   },
   "peerDependencies": {
+    "@mapples/action": "*",
+    "@mapples/inlang": "*",
+    "@mapples/types": "*",
+    "lodash": "^4.18.0",
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0"
   },

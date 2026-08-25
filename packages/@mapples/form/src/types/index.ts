@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import { Ref } from 'react';
 
 import { ObjectSchema, ValidationError } from 'yup';
 
@@ -64,8 +64,12 @@ export interface FormProps<T extends object> {
   validationSchema?: ObjectSchema<T>;
   /** Callback function called when the form is successfully submitted */
   onSubmit?: (value: T) => void | Promise<void>;
-  /** Optional ref to access the FormState instance directly */
-  ref?: RefObject<FormState<T> | null>;
+  /**
+   * Optional ref to access the FormState instance directly. Accepts either a
+   * ref object or a callback ref — a callback is the only way for a consumer
+   * to observe REMOUNTS of the form (a ref object mutates silently).
+   */
+  ref?: Ref<FormState<T> | null>;
   /** Number of history items to keep for undo/redo functionality (0 to disable) */
   historyItems?: number;
   /** Throttle for saving history items (every Nth change) */

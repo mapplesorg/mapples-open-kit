@@ -124,10 +124,12 @@ const Form = <T extends object>({
       return;
     }
 
+    // `onSubmit` belongs to the consumer: it is responsible for reporting its
+    // own failures. Anything that escapes it is a real fault and must reach the
+    // caller rather than being swallowed here — `finally` only clears the
+    // submitting flag.
     try {
       await onSubmit?.(form.getValues());
-    } catch (e) {
-      console.error(e);
     } finally {
       setSubmitting(false);
     }

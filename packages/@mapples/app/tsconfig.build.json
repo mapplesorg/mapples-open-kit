@@ -14,6 +14,9 @@
       "path": "../components/tsconfig.build.json"
     },
     {
+      "path": "../fonts/tsconfig.build.json"
+    },
+    {
       "path": "../render/tsconfig.build.json"
     },
     {

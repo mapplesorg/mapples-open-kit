@@ -47,6 +47,43 @@ export interface DnDEvent<
   data?: DragData | null;
   /** The current coordinates of the drag operation */
   dragCoords?: DragCoords | null;
+  /** The frame the drop target belongs to, when frame spaces are in use */
+  frameKey?: string | null;
+  /** Whether this drag inserts a new item (palette) or moves an existing one */
+  kind?: DragKind;
+  /** For `kind: 'move'`: the element being moved and where it came from */
+  moveSource?: MoveDragSource | null;
+  /** Pointer coords at drag start (drop space) — set on DragEnd */
+  dragStartCoords?: DragCoords | null;
+  /**
+   * Set on `DragEnd` when the pointer was released outside every droppable
+   * area. The drag is over — reset any drag-time UI — but no drop happened,
+   * so nothing should be inserted, moved or reparented.
+   */
+  cancelled?: boolean;
+}
+
+/**
+ * The kind of drag operation: a palette insert, a move of an existing canvas
+ * element, or a drag that started outside the app entirely (files dragged in
+ * from the OS — no drag element is ever registered for those).
+ * @public
+ */
+export type DragKind = 'palette' | 'move' | 'external';
+
+/**
+ * Identifies the element a move-drag started on.
+ * @public
+ */
+export interface MoveDragSource {
+  /** Monitor drop-element id of the dragged element */
+  dropId: number;
+  /** Application-level component id (from the drop target's data) */
+  componentId: string;
+  /** Frame the element lives in, if any */
+  frameKey: string | null;
+  /** Pointer offset from the element's top-left corner at drag start */
+  grabOffset: DragCoords;
 }
 
 /**
@@ -123,6 +160,18 @@ export type DnDRootViewProps<
     event: DnDEvent<DragData, DropData>,
     item: DragItem<DragData>,
   ) => void;
+  /**
+   * Converts absolute window pointer coordinates into the coordinate space
+   * drop targets are hit-tested in (e.g. an infinite canvas's world space).
+   * Drag *sources* keep window-space hit testing regardless. Omit for the
+   * default 1:1 window space.
+   *
+   * Return `null` for points that lie outside that space altogether (over
+   * surrounding chrome, say). The drag then counts as being over nothing —
+   * hovering there clears the pending drop and releasing there cancels it —
+   * rather than mapping onto whatever the space extrapolates to.
+   */
+  pointerTransform?: (point: DragCoords) => DragCoords | null;
 };
 
 /**
@@ -165,6 +214,33 @@ export interface DropTargetLayoutConfig {
 export interface DropTargetConfig extends DropTargetLayoutConfig {
   /** Whether this drop target can accept drops */
   canDrop?: boolean;
+  /**
+   * When `false`, the element is not registered with the monitor at all — it
+   * takes part in no hit-testing, selection, or drops. Lets a consumer switch
+   * an already-mounted tree between editable and inert (e.g. an editor's
+   * preview mode) WITHOUT remounting it: registration follows the flag while
+   * the component identity — and therefore its rendered subtree — stays put.
+   */
+  enabled?: boolean;
+  /**
+   * Marks a root-level drop element as the root of a frame coordinate space:
+   * its own layout and every descendant's layout are stored relative to the
+   * frame origin registered via {@link Monitor.registerFrame}. Hit testing
+   * converts world coordinates into that space mathematically, so frame
+   * content never needs re-measuring on viewport pan/zoom or frame moves.
+   */
+  frameKey?: string;
+}
+
+/**
+ * A frame coordinate space: a world-space origin and device-space size.
+ * @public
+ */
+export interface FrameEntry {
+  /** World-space position of the frame's top-left corner */
+  origin: DragCoords;
+  /** Frame size in world units (content may extend below `height`) */
+  size: { width: number; height: number };
 }
 
 /**
@@ -187,6 +263,8 @@ export interface DropItem<T> {
   canDrop?: boolean;
   /** Optional data associated with this drop item */
   data?: T;
+  /** Frame space this subtree's layouts are relative to (root items only) */
+  frameKey?: string;
 }
 
 /**
@@ -225,6 +303,14 @@ export interface DropTarget<T> {
   children?: DropTree<T>;
   /** Optional data associated with this drop target */
   data?: T;
+  /** Frame space the layout is relative to, when inside a frame */
+  frameKey?: string | null;
+  /**
+   * The pointer coordinates converted into this target's own coordinate
+   * space at hit-test time (frame-local inside frames). Consumers comparing
+   * pointer position against `layout` must use these, not raw event coords.
+   */
+  hitCoords?: DragCoords;
 }
 
 /**

@@ -10,10 +10,17 @@ import {
   toBool,
   toNumber,
 } from '@mapples/inlang';
-import { DataProp } from '@mapples/types';
+import { DataProp, VARIABLES_NAMESPACE } from '@mapples/types';
 import { get, join } from 'lodash';
 
 import StateContext from '../context';
+import { useVariablesState } from '../writable/context';
+
+const NS_PREFIX = `${VARIABLES_NAMESPACE}.`;
+
+/** Whether a binding path targets the writable variables store. */
+const isVariablesKey = (key: string) =>
+  key === VARIABLES_NAMESPACE || key.startsWith(NS_PREFIX);
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -43,6 +50,25 @@ import StateContext from '../context';
  */
 const useDataState = () => {
   const { value } = useContext(StateContext);
+  const variablesState = useVariablesState();
+  const variablesValue = variablesState?.value;
+
+  /**
+   * Resolve one key segment: `vars.*` keys route to the writable variables
+   * store (a parallel context that scope providers never shadow); everything
+   * else reads the nearest `StateProvider` as before. With no
+   * `VariablesProvider` mounted, `vars.*` falls through to `altValue`.
+   */
+  const resolveKey = useCallback(
+    (key: string, altValue?: unknown) => {
+      if (isVariablesKey(key)) {
+        if (key === VARIABLES_NAMESPACE) return variablesValue ?? altValue;
+        return get(variablesValue, key.slice(NS_PREFIX.length), altValue);
+      }
+      return get(value, key, altValue);
+    },
+    [value, variablesValue],
+  );
 
   /**
    * Retrieves a value from the state using a DataProp configuration.
@@ -82,7 +108,7 @@ const useDataState = () => {
         const separator = keys.pop();
 
         return join(
-          keys.map((k) => get(value, k, altValue)),
+          keys.map((k) => resolveKey(k, altValue)),
           separator,
         );
       }
@@ -91,9 +117,9 @@ const useDataState = () => {
         return value;
       }
 
-      return get(value, key, altValue);
+      return resolveKey(key, altValue);
     },
-    [value],
+    [value, resolveKey],
   );
 
   /**
