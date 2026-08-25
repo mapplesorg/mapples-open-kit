@@ -6,6 +6,8 @@ import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
 
+import { FONT_FILES } from '@mapples/fonts';
+
 import { NavigationMap, NavigationProvider } from './NavigationContext';
 import { remapFonts } from './utils';
 
@@ -76,7 +78,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   showFontLoadingIndicator,
   FontLoadingIndicator,
 }) => {
-  const [loaded] = useFonts(remapFonts(assets));
+  const [loaded] = useFonts({ ...FONT_FILES, ...remapFonts(assets) });
 
   if (!loaded && showFontLoadingIndicator) {
     return FontLoadingIndicator || null;

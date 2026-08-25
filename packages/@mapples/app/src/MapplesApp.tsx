@@ -5,6 +5,8 @@ import { AnyObject, RenderProvider } from '@mapples/render';
 import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
+
+import { FONT_FILES } from '@mapples/fonts';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import assetsConfig from 'mapples::assets';
@@ -85,7 +87,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   FontLoadingIndicator,
   onFontLoaded,
 }) => {
-  const [loaded] = useFonts(remapFonts(assets || assetsConfig));
+  const [loaded] = useFonts({ ...FONT_FILES, ...remapFonts(assets || assetsConfig) });
 
   useEffect(() => {
     if (loaded && onFontLoaded) {
