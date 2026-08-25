@@ -121,6 +121,14 @@ export const parseCondition = (
     };
   }
 
+  if (/^-?\d+(\.\d+)?$/.test(valueProp))
+    return {
+      dataProp,
+      condition: condition as Conditions,
+      valueProp,
+      valueType: 'number',
+    };
+
   return {
     dataProp,
     condition: condition as Conditions,
@@ -136,7 +144,8 @@ export const parseCondition = (
  * where:
  * - `dataProp` is alphanumeric with dots and underscores
  * - `condition` is alphanumeric with underscores
- * - `value` can be a quoted string, alphanumeric, or empty
+ * - `value` can be a quoted string, an unquoted path/number, or empty
+ *   (unary operators like `isEmpty` leave it empty)
  *
  * @param value - The value to check
  * @returns True if the value is a valid condition string, false otherwise
@@ -154,7 +163,7 @@ export const parseCondition = (
 export const isCondition = (value: unknown): value is SimpleCondition => {
   return (
     typeof value === 'string' &&
-    /^[a-zA-Z0-9_.]+::[a-zA-Z0-9_]+::("[^"]*"|[a-zA-Z0-9_]*|)$/.test(value)
+    /^[a-zA-Z0-9_.]+::[a-zA-Z0-9_]+::("[^"]*"|-?[a-zA-Z0-9_.]*|)$/.test(value)
   );
 };
 
