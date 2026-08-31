@@ -6,6 +6,7 @@ import {
   StyledView,
   Styler,
   SvgStyle,
+  useStyle,
   WithStyledProps,
 } from '@mapples/style';
 import {
@@ -34,7 +35,11 @@ export type IconProps = PropsWithChildren<
     };
   }
 > & {
-  /** Icon family the glyph is drawn from */
+  /**
+   * Icon family override for direct (chrome/chat) use. Canvas elements leave
+   * this unset — the family then comes from the project style config
+   * (`themeConfig.icons.family`), set in the styles modal.
+   */
   iconStyle?: IconFamilyKey;
   /** Glyph name within the selected family */
   iconName?: string;
@@ -46,19 +51,20 @@ export type IconProps = PropsWithChildren<
 
 /**
  * Renders a font glyph from one of the bundled `@react-native-vector-icons`
- * families, selected by `iconStyle` (family) and `iconName` (glyph). Until
- * both are set the `MockIcon` placeholder is shown.
+ * families. The family comes from the project style config
+ * (`themeConfig.icons.family`) unless overridden per instance via `iconStyle`;
+ * the glyph is selected by `iconName`. Without a resolvable family and name
+ * the `MockIcon` placeholder is shown.
  *
  * @example
  * ```tsx
- * // Canvas usage — sized and colored through styleSvg
+ * // Canvas usage — family from the project style config
  * <Icon
- *   iconStyle="ionicons"
  *   iconName="star"
  *   styled={{ styleSvg: { width: 24, height: 24, color: '#333' } }}
  * />
  *
- * // Direct usage — chrome/chat surfaces
+ * // Direct usage — chrome/chat surfaces pin the family
  * <Icon iconStyle="ionicons" iconName="close" size={14} color="theme.text.tertiary" />
  * ```
  *
@@ -66,10 +72,14 @@ export type IconProps = PropsWithChildren<
  */
 const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
   ({ styled, iconStyle, iconName, size, color, ...props }, ref) => {
+    const { themeConfig } = useStyle();
     const { styleSvg, ...styledViewProps } = styled || {};
 
     const ejectStyle = Styler.flatten(styleSvg);
-    const family = iconStyle ? IconFamilies[iconStyle] : undefined;
+    const familyKey = iconStyle ?? themeConfig.icons?.family;
+    const family = familyKey
+      ? IconFamilies[familyKey as IconFamilyKey]
+      : undefined;
 
     return (
       <StyledView ref={ref} styled={styledViewProps} {...props}>
