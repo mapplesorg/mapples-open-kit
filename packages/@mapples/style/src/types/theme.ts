@@ -19,6 +19,18 @@ export interface ThemeMap {
 }
 
 /**
+ * Project-wide icon settings.
+ *
+ * `family` names an icon family (an `IconFamilyKey` from `@mapples/ui`,
+ * e.g. `'ionicons'`) — typed as `string` here because the style package
+ * sits below the ui package and cannot import the union.
+ */
+export interface IconsConfig {
+  /** The icon family every `Icon` element draws its glyphs from */
+  family: string;
+}
+
+/**
  * Complete theme configuration for light and dark modes.
  * Supports automatic theme switching based on device preferences.
  */
@@ -31,6 +43,8 @@ export interface ThemeConfig {
   light: ThemeMap;
   /** Dark theme color definitions */
   dark: ThemeMap;
+  /** Project-wide icon settings (absent in documents saved before icons existed) */
+  icons?: IconsConfig;
   /** Internal property for display theme tracking */
   _displayTheme: 'light' | 'dark';
 }
