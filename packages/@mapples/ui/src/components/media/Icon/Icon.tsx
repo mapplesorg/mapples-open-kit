@@ -1,19 +1,24 @@
-import { ComponentType, forwardRef, PropsWithChildren } from 'react';
+import { forwardRef, PropsWithChildren } from 'react';
 
 import {
-  styled as makeStyled,
   StyledProp,
   StyledProps,
-  SvgStyle,
   StyledView,
   Styler,
+  SvgStyle,
   WithStyledProps,
 } from '@mapples/style';
-import { SvgSource } from '@mapples/types';
-import { View, ViewProps } from 'react-native';
-import { SvgUri, SvgProps } from 'react-native-svg';
+import {
+  ColorValue,
+  StyleProp,
+  TextStyle,
+  View,
+  ViewProps,
+} from 'react-native';
 
-import MockIcon from './MockIcon';
+import MockIcon from '../Vector/MockIcon';
+
+import { IconFamilies, IconFamilyKey } from './families';
 
 /**
  * Props for the Icon component.
@@ -22,81 +27,61 @@ import MockIcon from './MockIcon';
  */
 export type IconProps = PropsWithChildren<
   Omit<WithStyledProps<ViewProps>, 'styled'> & {
-    /** Styling configuration for the icon container and SVG */
+    /** Styling configuration for the icon container and glyph */
     styled?: StyledProps<ViewProps> & {
-      /** SVG-specific styling (width, height, color) */
+      /** Glyph-specific styling (width, height, color) */
       styleSvg?: StyledProp<SvgStyle>;
     };
   }
 > & {
-  /** URI of the SVG icon — either a remote URL string or a local `SvgSource` module reference */
-  uri?: string | SvgSource;
+  /** Icon family the glyph is drawn from */
+  iconStyle?: IconFamilyKey;
+  /** Glyph name within the selected family */
+  iconName?: string;
+  /** Glyph font size — overrides the `styleSvg` width for direct use */
+  size?: number;
+  /** Glyph color — theme tokens allowed, overrides the `styleSvg` color */
+  color?: ColorValue;
 };
 
-const StyledSvgUri = makeStyled(SvgUri);
-
 /**
- * Renders an SVG icon from a URI or falls back to a placeholder `MockIcon`.
- *
- * Accepts either a remote URL string or a local `SvgSource` module reference
- * via the `uri` prop. When no `uri` is provided the `MockIcon` placeholder is
- * shown instead, which is useful during development or when the icon asset is
- * optional.
+ * Renders a font glyph from one of the bundled `@react-native-vector-icons`
+ * families, selected by `iconStyle` (family) and `iconName` (glyph). Until
+ * both are set the `MockIcon` placeholder is shown.
  *
  * @example
  * ```tsx
- * // Remote URL
+ * // Canvas usage — sized and colored through styleSvg
  * <Icon
- *   uri="https://example.com/icon.svg"
+ *   iconStyle="ionicons"
+ *   iconName="star"
  *   styled={{ styleSvg: { width: 24, height: 24, color: '#333' } }}
  * />
  *
- * // Local SVG module
- * import MyIcon from './my-icon.svg';
- * <Icon uri={MyIcon} styled={{ styleSvg: { width: 24, height: 24 } }} />
+ * // Direct usage — chrome/chat surfaces
+ * <Icon iconStyle="ionicons" iconName="close" size={14} color="theme.text.tertiary" />
  * ```
  *
  * @public
  */
 const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
-  ({ styled, uri, ...props }, ref) => {
+  ({ styled, iconStyle, iconName, size, color, ...props }, ref) => {
     const { styleSvg, ...styledViewProps } = styled || {};
 
     const ejectStyle = Styler.flatten(styleSvg);
-
-    const getUriComponent = (Uri: { default: ComponentType<SvgProps> }) => {
-      const StyledSvg = makeStyled(Uri.default);
-
-      return (
-        <StyledSvg
-          styled={{
-            width: ejectStyle?.width as string | number,
-            height: ejectStyle?.height as string | number,
-            color: ejectStyle?.color,
-            style: styleSvg,
-          }}
-        />
-      );
-    };
+    const family = iconStyle ? IconFamilies[iconStyle] : undefined;
 
     return (
       <StyledView ref={ref} styled={styledViewProps} {...props}>
-        {uri ? (
-          <>
-            {typeof uri === 'string' ? (
-              <StyledSvgUri
-                uri={uri}
-                styled={{
-                  width: ejectStyle?.width as string | number,
-                  height: ejectStyle?.height as string | number,
-                  color: ejectStyle?.color,
-                  style: styleSvg,
-                }}
-              />
-            ) : (
-              getUriComponent(uri)
-            )}
-          </>
+        {family && iconName ? (
+          <family.Component
+            name={iconName}
+            styled={{
+              size: size ?? (ejectStyle?.width as number),
+              color: color ?? ejectStyle?.color,
+              style: styleSvg as StyledProp<StyleProp<TextStyle>>,
+            }}
+          />
         ) : (
           <MockIcon
             styled={{

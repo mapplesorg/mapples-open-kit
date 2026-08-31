@@ -7,6 +7,9 @@ export * from './Image';
 export { default as Icon } from './Icon';
 export * from './Icon';
 
+export { default as Vector } from './Vector';
+export * from './Vector';
+
 export { default as BarCode } from './BarCode';
 export * from './BarCode';
 
