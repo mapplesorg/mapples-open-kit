@@ -29,9 +29,19 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
 
   const idRef = useRef<number | null>(null);
   const layoutRef = useRef<LayoutRectangle | null>(null);
+  const registrationGenerationRef = useRef(0);
 
   useEffect(() => {
+    // measureInWindow resolves in a later task. A stale callback from a
+    // superseded run (re-run or unmount) that still sees idRef.current ===
+    // null would register a duplicate drag element nobody ever unregisters.
+    // The generation token invalidates in-flight callbacks: bumped at the
+    // start of every run and again in cleanup.
+    const generation = ++registrationGenerationRef.current;
+
     ref.current?.measureInWindow?.((x, y, width, height) => {
+      if (generation !== registrationGenerationRef.current) return;
+
       layoutRef.current = { x, y, width, height };
 
       if (idRef.current) {
@@ -42,6 +52,10 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
       idRef.current = monitor.registerDragElement(layoutRef.current, item);
       setId(idRef.current);
     });
+
+    return () => {
+      registrationGenerationRef.current++;
+    };
   }, [item, monitor, ref]);
 
   useEffect(() => {

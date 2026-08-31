@@ -50,6 +50,7 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
 
   const idRef = useRef<number | null>(null);
   const layoutRef = useRef<LayoutRectangle | null>(null);
+  const registrationGenerationRef = useRef(0);
 
   /**
    * Measures the element in the active coordinate space. Inside a frame
@@ -81,6 +82,13 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
   );
 
   useLayoutEffect(() => {
+    // `measure` resolves in a later task. By then this effect run may have
+    // been superseded (re-run, disable, unmount) — and a stale callback that
+    // still sees idRef.current === null would register a duplicate element
+    // nobody ever unregisters. The generation token invalidates in-flight
+    // callbacks: bumped at the start of every run and again in cleanup.
+    const generation = ++registrationGenerationRef.current;
+
     // Disabled — or the parent's own registration hasn't landed yet:
     // withdraw from the monitor entirely (no hit-testing, no drops) while
     // the component — and its subtree — stays mounted. Registering under a
@@ -96,6 +104,8 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
     }
 
     measure((layout) => {
+      if (generation !== registrationGenerationRef.current) return;
+
       layoutRef.current = layout;
 
       // Only the frame root (no drop parent) carries the frame key; children
@@ -123,6 +133,10 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
       );
       setId(idRef.current);
     });
+
+    return () => {
+      registrationGenerationRef.current++;
+    };
   }, [config, data, frameSpace, measure, monitor, parent, ref]);
 
   useEffect(() => {
@@ -142,7 +156,18 @@ const useDrop = <DragData extends object, DropData extends object = DragData>(
           setDropTarget(null);
           return;
         }
-        setDropTarget(e.dropTarget || null);
+        // Drag events arrive at pointer rate for EVERY registered drop
+        // element. Keeping the previous object while the target id is
+        // unchanged lets React bail out of the setState instead of
+        // re-rendering every node per pointer move. Consequence: the
+        // returned dropTarget's layout is a snapshot from when the target
+        // last changed — consumers read identity (`data`, `id`), not live
+        // geometry.
+        setDropTarget((prev) =>
+          (prev?.id ?? null) === (e.dropTarget?.id ?? null)
+            ? prev
+            : e.dropTarget || null,
+        );
         setIsOver(e.dropTarget?.id === idRef.current);
         setDropTargetIndex(e.dropTargetIndex || 0);
       });
