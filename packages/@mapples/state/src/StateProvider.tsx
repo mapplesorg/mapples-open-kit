@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useMemo } from 'react';
 
 import { StateContextProvider } from './context';
 import { StateProviderProps } from './types';
@@ -34,11 +34,12 @@ const StateProvider: FC<PropsWithChildren<StateProviderProps>> = ({
   children,
   state,
 }) => {
-  return (
-    <StateContextProvider value={{ value: state || {} }}>
-      {children}
-    </StateContextProvider>
-  );
+  // Every useDataState/useDataProps consumer re-renders when this value
+  // changes identity — keep it tied to the state itself, not to provider
+  // re-renders.
+  const value = useMemo(() => ({ value: state || {} }), [state]);
+
+  return <StateContextProvider value={value}>{children}</StateContextProvider>;
 };
 
 export default StateProvider;

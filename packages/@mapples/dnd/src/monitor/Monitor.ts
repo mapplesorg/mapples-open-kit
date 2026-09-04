@@ -45,6 +45,16 @@ export class Monitor<
   private dragElements = new Map<number, DragElementTarget<DragData>>();
   /** Tree structure of registered drop elements */
   private dropElementsTree: DropTree<DropData> = new Map();
+  /**
+   * Flat index of every registered drop element and its parent id. Kept in
+   * lockstep with the tree by register/unregister/update — the only writers —
+   * so id lookups and frame-key resolution are O(1)/O(depth) instead of a
+   * full recursive tree walk per layout event.
+   */
+  private dropNodesById = new Map<number, DropItem<DropData>>();
+  private dropParentById = new Map<number, number | null>();
+  /** Pending coalesced force-layout broadcast (one per animation frame). */
+  private forceLayoutUpdatePending = false;
   /** Registered frame coordinate spaces by key */
   private frames = new Map<string, FrameEntry>();
 
@@ -132,11 +142,20 @@ export class Monitor<
 
   /**
    * Triggers a force layout update event.
-   * This causes all registered elements to recalculate their layout information.
+   * This causes all registered elements to recalculate their layout
+   * information. Every registered element answers with a forced layout read,
+   * so calls are coalesced to at most one broadcast per animation frame —
+   * scroll handlers and settle timers may call this at input rate.
    */
   triggerForceLayoutUpdate() {
-    this.events.next({
-      type: DnDEventType.LayoutForceUpdate,
+    if (this.forceLayoutUpdatePending) return;
+    this.forceLayoutUpdatePending = true;
+
+    requestAnimationFrame(() => {
+      this.forceLayoutUpdatePending = false;
+      this.events.next({
+        type: DnDEventType.LayoutForceUpdate,
+      });
     });
   }
 
@@ -593,7 +612,7 @@ export class Monitor<
     this.dropElementIds++;
 
     if (!parent) {
-      this.dropElementsTree.set(this.dropElementIds, {
+      const item: DropItem<DropData> = {
         layout: {
           ...layout,
           index: config?.index || 0,
@@ -603,9 +622,13 @@ export class Monitor<
         canDrop: config?.canDrop,
         data,
         frameKey: config?.frameKey,
-      });
+      };
+
+      this.dropElementsTree.set(this.dropElementIds, item);
+      this.dropNodesById.set(this.dropElementIds, item);
+      this.dropParentById.set(this.dropElementIds, null);
     } else {
-      const parentLayout = this.findDropTarget(parent, this.dropElementsTree);
+      const parentLayout = this.dropNodesById.get(parent);
       if (!parentLayout) {
         throw new Error('Parent element not found');
       }
@@ -614,7 +637,7 @@ export class Monitor<
         parentLayout.children = new Map();
       }
 
-      parentLayout.children.set(this.dropElementIds, {
+      const item: DropItem<DropData> = {
         layout: {
           ...layout,
           index: config?.index || 0,
@@ -624,7 +647,11 @@ export class Monitor<
         },
         canDrop: config?.canDrop,
         data,
-      });
+      };
+
+      parentLayout.children.set(this.dropElementIds, item);
+      this.dropNodesById.set(this.dropElementIds, item);
+      this.dropParentById.set(this.dropElementIds, parent);
     }
 
     return this.dropElementIds;
@@ -637,10 +664,15 @@ export class Monitor<
   unregisterDropElement(id: number) {
     if (this.dropElementsTree.has(id)) {
       this.dropElementsTree.delete(id);
+    } else {
+      const parentId = this.dropParentById.get(id);
+      if (parentId != null) {
+        this.dropNodesById.get(parentId)?.children?.delete(id);
+      }
     }
 
-    const parent = this.findDropTargetParent(id, this.dropElementsTree);
-    parent?.children?.delete(id);
+    this.dropNodesById.delete(id);
+    this.dropParentById.delete(id);
   }
 
   /**
@@ -656,30 +688,41 @@ export class Monitor<
     config?: DropTargetConfig,
     data?: DropData,
   ) {
-    const target = this.findDropTarget(id, this.dropElementsTree);
+    const target = this.dropNodesById.get(id);
 
     if (target) {
+      const nextIndex = config?.index || target.layout.index;
+      const nextZIndex = config?.zIndex || target.layout.zIndex;
+      const nextFlexDirection =
+        config?.flexDirection || target.layout.flexDirection;
+
+      const changed =
+        target.layout.x !== layout.x ||
+        target.layout.y !== layout.y ||
+        target.layout.width !== layout.width ||
+        target.layout.height !== layout.height ||
+        target.layout.index !== nextIndex ||
+        target.layout.zIndex !== nextZIndex ||
+        target.layout.flexDirection !== nextFlexDirection;
+
       target.layout.x = layout.x;
       target.layout.y = layout.y;
       target.layout.width = layout.width;
       target.layout.height = layout.height;
-      target.layout.index = config?.index || target.layout.index;
-      target.layout.zIndex = config?.zIndex || target.layout.zIndex;
-      target.layout.flexDirection =
-        config?.flexDirection || target.layout.flexDirection;
+      target.layout.index = nextIndex;
+      target.layout.zIndex = nextZIndex;
+      target.layout.flexDirection = nextFlexDirection;
       target.data = data || target.data;
       target.canDrop = config?.canDrop || target.canDrop;
 
-      if (this.dropElementsTree.has(id)) {
-        this.dropElementsTree.set(id, target);
-      } else {
-        const parent = this.findDropTargetParent(id, this.dropElementsTree);
-        if (parent) {
-          parent.children?.set(id, target);
-        }
+      // Layout listeners (selection overlays, highlight rects) only react to
+      // geometry/order. Re-measures land here at input rate and are usually
+      // no-ops — broadcasting those floods every subscriber for nothing.
+      if (!changed) {
+        return;
       }
 
-      const frameKey = this.findFrameKeyFor(id, this.dropElementsTree, null);
+      const frameKey = this.findFrameKeyFor(id);
 
       this.events.next({
         type: DnDEventType.Layout,
@@ -698,58 +741,18 @@ export class Monitor<
   }
 
   /**
-   * Resolves the frame space an element (or any of its ancestors) belongs to.
+   * Resolves the frame space an element (or any of its ancestors) belongs to
+   * by walking the parent chain — O(depth).
    * @private
    */
-  private findFrameKeyFor(
-    id: number,
-    tree: DropTree<DropData> | undefined,
-    inherited: string | null,
-  ): string | null {
-    if (!tree) return null;
+  private findFrameKeyFor(id: number): string | null {
+    let current: number | null | undefined = id;
 
-    for (const [key, value] of tree) {
-      const frameKey = value.frameKey ?? inherited;
-
-      if (key === id) {
-        return frameKey;
-      }
-
-      const childResult = this.findFrameKeyFor(id, value.children, frameKey);
-      if (childResult !== null) {
-        return childResult;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Finds a drop target by ID in the tree structure.
-   * @param id - The ID to search for
-   * @param tree - The tree to search in
-   * @returns The drop item or null if not found
-   * @private
-   */
-  private findDropTarget(
-    id: number,
-    tree?: DropTree<DropData>,
-  ): DropItem<DropData> | null {
-    if (!tree) {
-      return null;
-    }
-
-    if (tree.has(id)) {
-      return tree.get(id) || null;
-    }
-
-    for (const [, value] of tree) {
-      if (value.children) {
-        const target = this.findDropTarget(id, value.children);
-        if (target) {
-          return target;
-        }
-      }
+    while (current != null) {
+      const node = this.dropNodesById.get(current);
+      if (!node) return null;
+      if (node.frameKey) return node.frameKey;
+      current = this.dropParentById.get(current);
     }
 
     return null;
@@ -857,35 +860,6 @@ export class Monitor<
     }
 
     return true;
-  }
-
-  /**
-   * Finds the parent of a drop target by ID.
-   * @param id - The ID of the child drop target
-   * @param tree - The tree to search in
-   * @returns The parent drop item or null if not found
-   * @private
-   */
-  private findDropTargetParent(
-    id: number,
-    tree?: DropTree<DropData>,
-  ): DropItem<DropData> | null {
-    if (!tree) {
-      return null;
-    }
-
-    for (const [, value] of tree) {
-      if (value.children && value.children.has(id)) {
-        return value;
-      } else {
-        const parent = this.findDropTargetParent(id, value.children);
-        if (parent) {
-          return parent;
-        }
-      }
-    }
-
-    return null;
   }
 
   /**

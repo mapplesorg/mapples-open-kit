@@ -29,6 +29,10 @@ class FormState<T extends object> {
   private readonly historyItemThrottle: number;
   private saveCounter: number = 0;
   private readonly filterHistoryKeys: string[];
+  private readonly historyCoalesceMs: number;
+  private lastHistoryWriteAt: number = 0;
+  private historyDirty: boolean = false;
+  private listenerSeq: number = 0;
 
   /**
    * Creates a new FormState instance.
@@ -38,6 +42,9 @@ class FormState<T extends object> {
    * @param historyItems - Number of history items to keep for undo/redo (0 to disable)
    * @param historyItemThrottle - Throttle for saving history items (every Nth change)
    * @param filterHistoryKeys - Array of field paths to exclude from history tracking
+   * @param historyCoalesceMs - Coalesce writes closer together than this into
+   * one history entry (a typing or drag burst becomes a single undo step).
+   * 0 keeps the counter-throttle behavior.
    */
   constructor(
     initialValues: T,
@@ -45,12 +52,14 @@ class FormState<T extends object> {
     historyItems: number = 0,
     historyItemThrottle: number = 5,
     filterHistoryKeys: string[] = [],
+    historyCoalesceMs: number = 0,
   ) {
     this.values = cloneDeep(initialValues);
     this.validationSchema = validationSchema;
     this.historyItems = historyItems;
     this.historyItemThrottle = historyItemThrottle;
     this.filterHistoryKeys = filterHistoryKeys;
+    this.historyCoalesceMs = historyCoalesceMs;
 
     if (this.historyItems > 0) {
       this.history = [cloneDeep(initialValues)];
@@ -92,16 +101,10 @@ class FormState<T extends object> {
    * @param cb - Optional callback invoked with `true` after the values and subscriptions have been updated
    */
   setValues(values: T, cb?: (success: boolean) => void) {
+    this.finalizeStaleHistoryBurst();
     this.values = cloneDeep(values);
     this.saveToHistory();
-
-    this.subscriptions.forEach((subscription) => {
-      subscription.cb(
-        subscription.path
-          ? get(this.getValues(), subscription.path)
-          : this.getValues(),
-      );
-    });
+    this.notifySubscriptions();
     cb?.(true);
   }
 
@@ -124,6 +127,8 @@ class FormState<T extends object> {
       return;
     }
 
+    this.finalizeStaleHistoryBurst();
+
     set(this.values, path, value);
 
     if (
@@ -134,17 +139,22 @@ class FormState<T extends object> {
       this.saveToHistory();
     }
 
-    this.subscriptions.forEach((subscription) => {
-      if (!path.includes(subscription.path || '')) {
-        return;
-      }
+    this.notifySubscriptions(path);
+  }
 
-      subscription.cb(
-        subscription.path
-          ? get(this.getValues(), subscription.path)
-          : this.getValues(),
-      );
-    });
+  /**
+   * Whether a write to `writePath` affects a subscriber at `subscriptionPath`.
+   * Segment-aware in both directions: a write below the subscription changes
+   * the subscribed value's contents; a write at or above it replaces the
+   * subscribed value outright. Root subscribers (no path) see every write.
+   * @private
+   */
+  private pathsIntersect(writePath: string, subscriptionPath?: string) {
+    if (!subscriptionPath) return true;
+    if (writePath === subscriptionPath) return true;
+    if (writePath.startsWith(subscriptionPath + '.')) return true;
+    if (subscriptionPath.startsWith(writePath + '.')) return true;
+    return false;
   }
 
   /**
@@ -190,7 +200,7 @@ class FormState<T extends object> {
    * @returns The value at the specified path or all form values
    */
   getValue<V>(path?: string): V {
-    return cloneDeep(path ? get(this.getValues(), path) : this.getValues());
+    return cloneDeep(path ? get(this.values, path) : this.values) as V;
   }
 
   /**
@@ -210,8 +220,45 @@ class FormState<T extends object> {
     }
   }
 
+  /**
+   * Commits the end state of a coalescing burst that has gone quiet. MUST run
+   * before the next mutation lands in `this.values` — afterwards the burst's
+   * true end state is gone. Called at the top of `setValue`/`setValues`, and
+   * from `prev()` so an undo taken mid-burst leaves the burst redoable.
+   * @private
+   */
+  private finalizeStaleHistoryBurst() {
+    if (!this.historyDirty) return;
+    if (Date.now() - this.lastHistoryWriteAt <= this.historyCoalesceMs) return;
+
+    this.history[this.historyIndex] = cloneDeep(this.values);
+    this.historyDirty = false;
+  }
+
   private saveToHistory() {
     if (this.historyItems === 0) return;
+
+    if (this.historyCoalesceMs > 0) {
+      this.lastHistoryWriteAt = Date.now();
+
+      // `finalizeStaleHistoryBurst` ran before this write landed, so a
+      // still-dirty entry means this write continues the current burst: its
+      // end state is captured when the burst finalizes. No clone, no compare.
+      if (this.historyDirty) return;
+
+      const currentValues = cloneDeep(this.values);
+
+      if (
+        this.history.length > 0 &&
+        isEqual(this.history[this.historyIndex], currentValues)
+      ) {
+        return;
+      }
+
+      this.pushHistoryEntry(currentValues);
+      this.historyDirty = true;
+      return;
+    }
 
     this.saveCounter++;
     if (this.saveCounter % this.historyItemThrottle !== 0) return;
@@ -224,6 +271,10 @@ class FormState<T extends object> {
       return;
     }
 
+    this.pushHistoryEntry(currentValues);
+  }
+
+  private pushHistoryEntry(currentValues: T) {
     if (this.historyIndex < this.history.length - 1) {
       this.history = this.history.slice(0, this.historyIndex + 1);
     }
@@ -232,10 +283,8 @@ class FormState<T extends object> {
 
     if (this.history.length > this.historyItems) {
       this.history = this.history.slice(-this.historyItems);
-      this.historyIndex = this.history.length - 1;
-    } else {
-      this.historyIndex = this.history.length - 1;
     }
+    this.historyIndex = this.history.length - 1;
   }
 
   /**
@@ -244,6 +293,13 @@ class FormState<T extends object> {
    * @returns True if the operation was successful, false if no previous state exists
    */
   prev() {
+    // An undo mid-burst first commits the burst's end state, so a redo can
+    // return to what the user actually last saw.
+    if (this.historyDirty) {
+      this.history[this.historyIndex] = cloneDeep(this.values);
+      this.historyDirty = false;
+    }
+
     if (!this.canPrev()) return false;
     this.historyIndex--;
     this.values = cloneDeep(this.history[this.historyIndex]);
@@ -284,14 +340,41 @@ class FormState<T extends object> {
     return this.historyItems > 0 && this.historyIndex < this.history.length - 1;
   }
 
-  private notifySubscriptions() {
-    this.subscriptions.forEach((subscription) => {
-      subscription.cb(
-        subscription.path
-          ? get(this.getValues(), subscription.path)
-          : this.getValues(),
-      );
-    });
+  /**
+   * Delivers the current values to subscribers — all of them, or only those
+   * whose path intersects `changedPath` when one is given.
+   *
+   * Cost discipline: the editor holds hundreds of subscriptions on one large
+   * document, and this runs on every write. Pathed subscribers get a clone of
+   * just their subtree; root subscribers share ONE lazily-created full clone
+   * per pass. Subscribers must therefore treat delivered values as read-only.
+   * Fresh clones (not `this.values` references) are still required so React
+   * state setters see a new identity per delivery.
+   * @private
+   */
+  private notifySubscriptions(changedPath?: string) {
+    // Snapshot: callbacks may (un)subscribe or write back into the form
+    // mid-pass; iterating the live map would tangle delivery with those
+    // mutations.
+    const subscribers = Array.from(this.subscriptions.values());
+
+    let fullClone: T | undefined;
+
+    for (const subscription of subscribers) {
+      if (
+        changedPath !== undefined &&
+        !this.pathsIntersect(changedPath, subscription.path)
+      ) {
+        continue;
+      }
+
+      if (subscription.path) {
+        subscription.cb(cloneDeep(get(this.values, subscription.path)));
+      } else {
+        fullClone ??= cloneDeep(this.values);
+        subscription.cb(fullClone);
+      }
+    }
   }
 
   private notifyHistorySubscriptions() {
@@ -313,10 +396,9 @@ class FormState<T extends object> {
   }
 
   private generateListenerId(): string {
-    const date = new Date().getTime().toString(36);
-    const random = Math.random().toString(36).substring(2, 15);
-
-    return `${date}-${random}`;
+    // Monotonic — timestamp+random ids could collide, silently replacing a
+    // live subscription in the Map and orphaning its callback.
+    return `listener-${++this.listenerSeq}`;
   }
 }
 

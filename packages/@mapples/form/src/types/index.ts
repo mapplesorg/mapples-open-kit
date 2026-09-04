@@ -74,6 +74,12 @@ export interface FormProps<T extends object> {
   historyItems?: number;
   /** Throttle for saving history items (every Nth change) */
   historyItemThrottle?: number;
+  /**
+   * Coalesce writes closer together than this into one history entry, so a
+   * typing or drag burst becomes a single undo step. 0 (default) keeps the
+   * counter-throttle behavior.
+   */
+  historyCoalesceMs?: number;
   /** Array of field paths to exclude from history tracking */
   filterHistoryKeys?: string[];
   /** Callback function called whenever form values change */

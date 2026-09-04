@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   Gesture,
@@ -199,15 +199,20 @@ const DnDRootView = <T extends object>({
 
   const composed = Gesture.Race(pan, tap);
 
+  // Every useDnD consumer (one per rendered node) re-renders when this value
+  // changes identity — keep it stable across unrelated root re-renders.
+  const contextValue = useMemo(
+    () => ({
+      monitor,
+      isDragging,
+      sv,
+      svOverLayout,
+    }),
+    [monitor, isDragging, sv, svOverLayout],
+  );
+
   return (
-    <DnDContextProvider
-      value={{
-        monitor,
-        isDragging,
-        sv,
-        svOverLayout,
-      }}
-    >
+    <DnDContextProvider value={contextValue}>
       <GestureHandlerRootView {...props}>
         <GestureDetector gesture={composed}>{children}</GestureDetector>
       </GestureHandlerRootView>

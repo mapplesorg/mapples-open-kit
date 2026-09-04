@@ -26,6 +26,7 @@ import { FormProps } from '../types';
  * @param props.ref - Optional ref to access the FormState instance directly
  * @param props.historyItems - Number of history states to keep for undo/redo (0 to disable)
  * @param props.historyItemThrottle - Save a history entry every Nth change
+ * @param props.historyCoalesceMs - Coalesce write bursts into one history entry
  * @param props.filterHistoryKeys - Field paths to exclude from history tracking
  * @param props.onChange - Callback invoked whenever any form value changes
  * @returns JSX element that provides form context to children
@@ -63,6 +64,7 @@ const Form = <T extends object>({
   historyItems,
   filterHistoryKeys,
   historyItemThrottle,
+  historyCoalesceMs,
   onChange,
 }: PropsWithChildren<FormProps<T>>) => {
   const [touched, setTouched] = useState<Record<keyof T, boolean>>(
@@ -88,6 +90,7 @@ const Form = <T extends object>({
         historyItems,
         historyItemThrottle,
         filterHistoryKeys,
+        historyCoalesceMs,
       ),
   );
 

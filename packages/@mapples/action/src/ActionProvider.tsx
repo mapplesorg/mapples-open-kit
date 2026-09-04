@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useEffect, useState } from 'react';
+import { FC, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import { Action } from '@mapples/types';
 import { Subject } from 'rxjs';
@@ -51,10 +51,12 @@ const ActionProvider: FC<PropsWithChildren<ActionProviderProps>> = ({
     };
   }, [actionStore, onAction]);
 
+  // Every useActionStore consumer re-renders when this value changes
+  // identity — the store instance is stable, so the value can be too.
+  const value = useMemo(() => ({ actionStore }), [actionStore]);
+
   return (
-    <ActionContextProvider value={{ actionStore }}>
-      {children}
-    </ActionContextProvider>
+    <ActionContextProvider value={value}>{children}</ActionContextProvider>
   );
 };
 

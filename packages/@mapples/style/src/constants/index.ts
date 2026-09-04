@@ -14,6 +14,7 @@ export const DefaultThemeConfig: ThemeConfig = {
   defaultColor: '#000000',
   light: {},
   dark: {},
+  icons: { family: 'ionicons' },
   _displayTheme: 'light',
 };
 

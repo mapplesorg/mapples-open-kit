@@ -72,12 +72,12 @@ const Typography = forwardRef<Text, TypographyProps>(
           style: [
             styler.text,
             selectable && styler.selectable,
-            flatten,
             {
               fontFamily,
               fontSize,
               fontWeight,
             },
+            flatten,
             !!color && { color },
           ],
         }}

@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useMemo } from 'react';
 
 import { DropContextProvider } from '../context';
 import { DropAreaProps } from '../types';
@@ -17,11 +17,12 @@ const DropArea: FC<PropsWithChildren<DropAreaProps>> = ({
   children,
   forId,
 }) => {
-  return (
-    <DropContextProvider value={{ parent: forId }}>
-      {children}
-    </DropContextProvider>
-  );
+  // One DropArea wraps every rendered node: an inline value literal here
+  // would push a fresh context identity down the whole tree on any ancestor
+  // re-render, defeating memoization at every level below.
+  const value = useMemo(() => ({ parent: forId }), [forId]);
+
+  return <DropContextProvider value={value}>{children}</DropContextProvider>;
 };
 
 export default DropArea;
