@@ -1,8 +1,22 @@
 import { forwardRef, PropsWithChildren, useEffect } from 'react';
 
 import { styled, StyledProps, StyledView, StyledProp } from '@mapples/style';
-import { useVideoPlayer, VideoView, VideoContentFit } from 'expo-video';
+import type { VideoContentFit } from 'expo-video';
 import { View, ViewProps, ViewStyle } from 'react-native';
+
+/**
+ * `expo-video` is an **optional peer dependency** of `@mapples/ui` (Project
+ * settings → Packages → "Video"): it's a native module, so apps without a
+ * video element shouldn't have to install it. Resolved lazily; when absent,
+ * rendering a Video throws — nothing is drawn in its place.
+ */
+let ExpoVideo: typeof import('expo-video') | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  ExpoVideo = require('expo-video');
+} catch {
+  ExpoVideo = null;
+}
 
 /**
  * Props for the Video component.
@@ -27,7 +41,17 @@ export type VideoProps = PropsWithChildren<ViewProps> & {
   };
 };
 
-const StyledVideo = styled(VideoView);
+const StyledVideo = ExpoVideo ? styled(ExpoVideo.VideoView) : null;
+
+const requireExpoVideo = (): typeof import('expo-video') => {
+  if (!ExpoVideo) {
+    throw new Error(
+      'Video needs expo-video: enable the "Video" package in Project ' +
+        'settings → Packages.',
+    );
+  }
+  return ExpoVideo;
+};
 
 /**
  * A customizable video player component with built-in styling support.
@@ -56,6 +80,9 @@ const StyledVideo = styled(VideoView);
  */
 const Video = forwardRef<View, VideoProps>(
   ({ styled, source, autoPlay, loop, controls, contentFit, ...props }, ref) => {
+    // Resolved before the hook so a missing package throws a clear error
+    // instead of a hooks-order crash.
+    const { useVideoPlayer } = requireExpoVideo();
     const player = useVideoPlayer(source || '');
 
     const { styleVideo, ...styledProps } = styled || {};
@@ -76,12 +103,14 @@ const Video = forwardRef<View, VideoProps>(
 
     return (
       <StyledView ref={ref} styled={styledProps} {...props}>
-        <StyledVideo
-          player={player}
-          styled={{ style: styleVideo }}
-          nativeControls={controls}
-          contentFit={contentFit}
-        />
+        {StyledVideo && (
+          <StyledVideo
+            player={player}
+            styled={{ style: styleVideo }}
+            nativeControls={controls}
+            contentFit={contentFit}
+          />
+        )}
       </StyledView>
     );
   },

@@ -53,8 +53,9 @@ export type IconProps = PropsWithChildren<
  * Renders a font glyph from one of the bundled `@react-native-vector-icons`
  * families. The family comes from the project style config
  * (`themeConfig.icons.family`) unless overridden per instance via `iconStyle`;
- * the glyph is selected by `iconName`. Without a resolvable family and name
- * the `MockIcon` placeholder is shown.
+ * the glyph is selected by `iconName`. Without a family or a name the
+ * `MockIcon` placeholder is shown; a family whose package is not installed
+ * (every pack is an optional peer) throws.
  *
  * @example
  * ```tsx
@@ -80,6 +81,15 @@ const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
     const family = familyKey
       ? IconFamilies[familyKey as IconFamilyKey]
       : undefined;
+    if (family && !family.installed) {
+      // The project selected a family whose package isn't installed — a
+      // configuration error, not a missing glyph: surface it instead of
+      // drawing the placeholder.
+      throw new Error(
+        `Icon family "${family.key}" is not installed: add ${family.npm} to ` +
+          'the project (Project settings → Packages) to render it.',
+      );
+    }
 
     return (
       <StyledView ref={ref} styled={styledViewProps} {...props}>

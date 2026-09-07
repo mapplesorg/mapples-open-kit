@@ -7,8 +7,22 @@ import {
   WithStyledProps,
 } from '@mapples/style';
 import { View, ViewProps } from 'react-native';
-import QRCodeSvg from 'react-native-qrcode-svg';
+import type { default as QRCodeSvgType } from 'react-native-qrcode-svg';
 import { SvgProps } from 'react-native-svg';
+
+/**
+ * `react-native-qrcode-svg` is an **optional peer dependency** of `@mapples/ui`
+ * (Project settings → Packages → "QR code"): it's resolved lazily so apps that
+ * never render a QR code don't have to install it. When absent, rendering a
+ * QR code with a value throws — nothing is drawn in its place.
+ */
+let QRCodeSvg: typeof QRCodeSvgType | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  QRCodeSvg = require('react-native-qrcode-svg').default;
+} catch {
+  QRCodeSvg = null;
+}
 
 /**
  * Props for the QRCode component.
@@ -83,9 +97,16 @@ const QRCode = forwardRef<View, QRCodeProps>(
   ) => {
     const { styleSvg, ...styledProps } = styled || {};
 
+    if (value && !QRCodeSvg) {
+      throw new Error(
+        'QRCode needs react-native-qrcode-svg: enable the "QR code" package ' +
+          'in Project settings → Packages.',
+      );
+    }
+
     return (
       <StyledView ref={ref} styled={styledProps} {...props}>
-        {value && (
+        {value && QRCodeSvg && (
           <QRCodeSvg
             value={value}
             size={size}
