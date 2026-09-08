@@ -3588,14 +3588,54 @@ __metadata:
     "@react-native-vector-icons/octicons": ">=21.0.0"
     "@react-native-vector-icons/simple-line-icons": ">=13.0.0"
     "@react-native-vector-icons/zocial": ">=13.0.0"
+    expo-image: ">=1.0.0"
     expo-linear-gradient: ">=12.0.0"
+    expo-video: ">=1.0.0"
     jsbarcode: ^3.11.5
     react: ">=18.0.0 <20.0.0"
     react-native: ">=0.71.0"
     react-native-qrcode-svg: ^6.0.0
     react-native-svg: ">=12.0.0"
   peerDependenciesMeta:
+    "@react-native-vector-icons/ant-design":
+      optional: true
+    "@react-native-vector-icons/entypo":
+      optional: true
+    "@react-native-vector-icons/evil-icons":
+      optional: true
+    "@react-native-vector-icons/feather":
+      optional: true
+    "@react-native-vector-icons/fontawesome":
+      optional: true
+    "@react-native-vector-icons/fontawesome5":
+      optional: true
+    "@react-native-vector-icons/fontawesome6":
+      optional: true
+    "@react-native-vector-icons/fontisto":
+      optional: true
+    "@react-native-vector-icons/foundation":
+      optional: true
+    "@react-native-vector-icons/ionicons":
+      optional: true
+    "@react-native-vector-icons/lucide":
+      optional: true
+    "@react-native-vector-icons/material-design-icons":
+      optional: true
+    "@react-native-vector-icons/material-icons":
+      optional: true
+    "@react-native-vector-icons/octicons":
+      optional: true
+    "@react-native-vector-icons/simple-line-icons":
+      optional: true
+    "@react-native-vector-icons/zocial":
+      optional: true
     expo-linear-gradient:
+      optional: true
+    expo-video:
+      optional: true
+    jsbarcode:
+      optional: true
+    react-native-qrcode-svg:
       optional: true
   languageName: unknown
   linkType: soft
