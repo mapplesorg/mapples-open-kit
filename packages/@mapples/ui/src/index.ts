@@ -9,6 +9,8 @@
  */
 
 export * from './schematics';
+export * from './tokens';
+export * from './hooks';
 export * from './components/inputs';
 export * from './components/media';
 export * from './components/typography';

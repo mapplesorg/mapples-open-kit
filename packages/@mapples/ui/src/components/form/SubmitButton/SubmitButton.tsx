@@ -1,72 +1,45 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
 import { useFormSubmit } from '@mapples/form';
-import {
-  StyledPressable,
-  StyledProp,
-  StyledProps,
-  Typography,
-} from '@mapples/style';
-import { PressableProps, TextStyle, View } from 'react-native';
+import { View } from 'react-native';
+
+import Button, { ButtonProps } from '../../inputs/Button/Button';
 
 /**
- * Props for the SubmitButton component.
+ * Props for the SubmitButton component — every `Button` prop except
+ * `onPress`, which the form owns.
  *
  * @public
  */
-export interface SubmitButtonProps extends PressableProps {
-  /** The text label to display on the button */
-  label?: string;
-  /** Styling configuration for the button and its typography */
-  styled?: StyledProps<PressableProps> & {
-    /** Typography-specific styling for the button label */
-    styleTypography?: StyledProp<TextStyle>;
-  };
-  /** Typography variant to apply to the button label */
-  typographyVariant?: string;
-}
+export type SubmitButtonProps = Omit<ButtonProps, 'onPress'>;
 
 /**
- * A customizable button component with built-in styling support.
- *
- * The SubmitButton component extends React Native's Pressable with additional styling
- * capabilities and typography support. It can display a text label and supports
- * all standard pressable interactions.
+ * A `Button` that submits the nearest `FormView`. Shares every appearance
+ * prop with `Button` (`variant`, `size`, `tone`, glyphs, `fullWidth`); while
+ * the form is submitting it shows the loading state unless `loading` is set
+ * explicitly.
  *
  * @example
  * ```tsx
- * <SubmitButton
- *   label="Click me"
- *   styled={{
- *     style: { backgroundColor: 'blue', padding: 16 },
- *     styleTypography: { color: 'white', fontSize: 16 }
- *   }}
- * />
+ * <FormView initialValues={{ email: '' }} onSubmit={signIn}>
+ *   <TextField fieldName="email" placeholder="Email" />
+ *   <SubmitButton label="Sign in" variant="filled" size="lg" fullWidth />
+ * </FormView>
  * ```
  *
  * @public
  */
 const SubmitButton = forwardRef<View, PropsWithChildren<SubmitButtonProps>>(
-  ({ label, styled = {}, typographyVariant, ...props }, ref) => {
-    const { styleTypography, ...styledPressableProps } = styled;
-    const { submitForm } = useFormSubmit();
+  ({ loading, ...props }, ref) => {
+    const { submitForm, submitting } = useFormSubmit();
 
     return (
-      <StyledPressable
+      <Button
         ref={ref}
-        styled={styledPressableProps}
+        loading={loading ?? submitting}
         {...props}
         onPress={submitForm}
-      >
-        {label && (
-          <Typography
-            style={styled?.styleTypography}
-            variant={typographyVariant}
-          >
-            {label}
-          </Typography>
-        )}
-      </StyledPressable>
+      />
     );
   },
 );

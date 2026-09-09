@@ -1,4 +1,4 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
 
 import { StyledTextInput } from '@mapples/style';
 import { TextInputProps, TextInput as RNTextInput } from 'react-native';
@@ -9,6 +9,11 @@ import { TextInputProps, TextInput as RNTextInput } from 'react-native';
  * The TextInput component extends React Native's TextInput with additional styling
  * capabilities through the @mapples/style system. It supports all standard
  * TextInput properties and behaviors.
+ *
+ * The text is always passed to the native input as a string: while `value` is
+ * undefined the component keeps the typed text itself, so a data binding that
+ * resolves later (page variables register after the first render) does not
+ * flip the input from uncontrolled to controlled.
  *
  * @example
  * ```tsx
@@ -30,8 +35,26 @@ import { TextInputProps, TextInput as RNTextInput } from 'react-native';
  * @public
  */
 const TextInput = forwardRef<RNTextInput, PropsWithChildren<TextInputProps>>(
-  ({ children, ...props }, ref) => {
-    return <StyledTextInput ref={ref} {...props} />;
+  ({ children, value, defaultValue, onChangeText, ...props }, ref) => {
+    const [internal, setInternal] = useState(defaultValue ?? '');
+    const controlled = value !== undefined;
+
+    const handleChangeText = useCallback(
+      (next: string) => {
+        if (!controlled) setInternal(next);
+        onChangeText?.(next);
+      },
+      [controlled, onChangeText],
+    );
+
+    return (
+      <StyledTextInput
+        ref={ref}
+        {...props}
+        value={controlled ? value : internal}
+        onChangeText={handleChangeText}
+      />
+    );
   },
 );
 TextInput.displayName = 'TextInput';
