@@ -1,6 +1,11 @@
 import { RegisteredComponents } from '@mapples/types';
 
-import { ImageCarouselSchematic } from './components/ImageCarousel/schematic';
+import { ActionsSchematics } from './components/actions/schematics';
+import { ContentSchematics } from './components/content/schematics';
+import { FeedbackSchematics } from './components/feedback/schematics';
+import { InputsSchematics } from './components/inputs/schematics';
+import { NavigationSchematics } from './components/navigation/schematics';
+import { OverlaysSchematics } from './components/overlays/schematics';
 
 /**
  * Registry of all `@mapples/components` components, keyed by their schematic
@@ -12,11 +17,17 @@ import { ImageCarouselSchematic } from './components/ImageCarousel/schematic';
  * @example
  * ```tsx
  * import { Components } from '@mapples/components';
- * import { RenderEngine } from '@mapples/render';
+ * import { UIComponents } from '@mapples/ui';
+ * import { RenderProvider } from '@mapples/render';
  *
- * <RenderEngine components={Components} tree={tree} />
+ * <RenderProvider components={{ ...Components, ...UIComponents }} assets={assets} />
  * ```
  */
 export const Components: RegisteredComponents = {
-  [ImageCarouselSchematic.type]: ImageCarouselSchematic,
+  ...ActionsSchematics,
+  ...InputsSchematics,
+  ...ContentSchematics,
+  ...NavigationSchematics,
+  ...FeedbackSchematics,
+  ...OverlaysSchematics,
 };
