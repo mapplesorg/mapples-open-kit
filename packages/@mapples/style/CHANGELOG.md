@@ -1,5 +1,15 @@
 # @mapples/style
 
+## 1.3.0
+
+### Minor Changes
+
+- 6f3edc2: Icon/Vector split: `@mapples/ui`'s `Icon` now renders font glyphs from the `@react-native-vector-icons` families (declared as peer dependencies), resolving its default family from the project style config; the old uri-based SVG icon lives on as the new `Vector` component. `@mapples/style` adds a project-wide `icons` config to the theme, and `@mapples/render` remaps legacy uri `Icon` nodes to `Vector` on document load.
+
+### Patch Changes
+
+- 6f3edc2: `Typography` applies element styles after the variant font keys, so an element's own `fontFamily`, `fontSize` and `fontWeight` override the typography variant instead of being clobbered by it.
+
 ## 1.2.0
 
 ### Minor Changes
