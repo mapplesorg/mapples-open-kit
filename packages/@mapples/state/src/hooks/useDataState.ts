@@ -97,7 +97,7 @@ const useDataState = () => {
    * ```
    */
   const getValue = useCallback(
-    ({ key, active }: DataProp, altValue = 'N/A') => {
+    ({ key, active }: DataProp, altValue: unknown = 'N/A') => {
       const keys = parseJoin(key);
 
       if (!active) {

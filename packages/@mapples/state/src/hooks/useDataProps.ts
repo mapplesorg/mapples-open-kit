@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { DataProps } from '@mapples/types';
-import { isUndefined, mapValues, omitBy } from 'lodash';
+import { isNil, mapValues, omitBy } from 'lodash';
 
 import useDataState from './useDataState';
 
@@ -36,8 +36,13 @@ const useDataProps = (data?: DataProps) => {
   const { getValue } = useDataState();
 
   return useMemo(() => {
-    const values = mapValues(data, getValue);
-    return omitBy(values, isUndefined);
+    // A bound-but-unset variable resolves to nothing (the prop falls back to
+    // the component default) rather than the text sentinel — a boolean prop
+    // would otherwise read a truthy string and a Switch would render ON.
+    const values = mapValues(data, (dataProp) =>
+      dataProp ? getValue(dataProp, null) : undefined,
+    );
+    return omitBy(values, isNil);
   }, [data, getValue]);
 };
 
