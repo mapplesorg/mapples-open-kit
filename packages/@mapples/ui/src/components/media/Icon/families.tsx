@@ -1,42 +1,6 @@
 import { ComponentProps, ComponentType } from 'react';
 
 import { styled, WithStyledProps } from '@mapples/style';
-import AntDesign from '@react-native-vector-icons/ant-design';
-import antDesignGlyphs from '@react-native-vector-icons/ant-design/glyphmaps/AntDesign.json';
-import Entypo from '@react-native-vector-icons/entypo';
-import entypoGlyphs from '@react-native-vector-icons/entypo/glyphmaps/Entypo.json';
-import EvilIcons from '@react-native-vector-icons/evil-icons';
-import evilIconsGlyphs from '@react-native-vector-icons/evil-icons/glyphmaps/EvilIcons.json';
-import Feather from '@react-native-vector-icons/feather';
-import featherGlyphs from '@react-native-vector-icons/feather/glyphmaps/Feather.json';
-import FontAwesome from '@react-native-vector-icons/fontawesome';
-import fontAwesomeGlyphs from '@react-native-vector-icons/fontawesome/glyphmaps/FontAwesome.json';
-import FontAwesome5 from '@react-native-vector-icons/fontawesome5';
-import fontAwesome5BrandGlyphs from '@react-native-vector-icons/fontawesome5/glyphmaps/FontAwesome5_brand.json';
-import fontAwesome5RegularGlyphs from '@react-native-vector-icons/fontawesome5/glyphmaps/FontAwesome5_regular.json';
-import fontAwesome5SolidGlyphs from '@react-native-vector-icons/fontawesome5/glyphmaps/FontAwesome5_solid.json';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
-import fontAwesome6BrandGlyphs from '@react-native-vector-icons/fontawesome6/glyphmaps/FontAwesome6_brand.json';
-import fontAwesome6RegularGlyphs from '@react-native-vector-icons/fontawesome6/glyphmaps/FontAwesome6_regular.json';
-import fontAwesome6SolidGlyphs from '@react-native-vector-icons/fontawesome6/glyphmaps/FontAwesome6_solid.json';
-import Fontisto from '@react-native-vector-icons/fontisto';
-import fontistoGlyphs from '@react-native-vector-icons/fontisto/glyphmaps/Fontisto.json';
-import Foundation from '@react-native-vector-icons/foundation';
-import foundationGlyphs from '@react-native-vector-icons/foundation/glyphmaps/Foundation.json';
-import Ionicons from '@react-native-vector-icons/ionicons';
-import ioniconsGlyphs from '@react-native-vector-icons/ionicons/glyphmaps/Ionicons.json';
-import Lucide from '@react-native-vector-icons/lucide';
-import lucideGlyphs from '@react-native-vector-icons/lucide/glyphmaps/Lucide.json';
-import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import materialDesignIconsGlyphs from '@react-native-vector-icons/material-design-icons/glyphmaps/MaterialDesignIcons.json';
-import MaterialIcons from '@react-native-vector-icons/material-icons';
-import materialIconsGlyphs from '@react-native-vector-icons/material-icons/glyphmaps/MaterialIcons.json';
-import Octicons from '@react-native-vector-icons/octicons';
-import octiconsGlyphs from '@react-native-vector-icons/octicons/glyphmaps/Octicons.json';
-import SimpleLineIcons from '@react-native-vector-icons/simple-line-icons';
-import simpleLineIconsGlyphs from '@react-native-vector-icons/simple-line-icons/glyphmaps/SimpleLineIcons.json';
-import Zocial from '@react-native-vector-icons/zocial';
-import zocialGlyphs from '@react-native-vector-icons/zocial/glyphmaps/Zocial.json';
 import { ColorValue, StyleProp, TextStyle } from 'react-native';
 
 /**
@@ -92,17 +56,275 @@ export type IconFamilyKey =
   | 'zocial';
 
 /**
- * One registered icon family: its persisted key, human label, styled()-wrapped
- * glyph component, and glyph map (used by editor pickers for name lists and
- * previews).
+ * One registered icon family: its persisted key, human label, the npm package
+ * that ships the font, whether that package resolved, the styled()-wrapped
+ * glyph component, and the glyph map (used by editor pickers for name lists
+ * and previews — empty when the package is not installed).
  *
  * @public
  */
 export interface IconFamily {
   key: IconFamilyKey;
   label: string;
+  /** The `@react-native-vector-icons/*` package that ships this family. */
+  npm: string;
+  /** Whether {@link IconFamily.npm} resolved when the bundle was built. */
+  installed: boolean;
   Component: ComponentType<WithStyledProps<IconGlyphProps>>;
   glyphMap: IconGlyphMap;
+}
+
+/**
+ * The npm package behind each icon family. FontAwesome 5/6 variants share one
+ * package each.
+ *
+ * @public
+ */
+export const ICON_FAMILY_NPM: Record<IconFamilyKey, string> = {
+  'ant-design': '@react-native-vector-icons/ant-design',
+  entypo: '@react-native-vector-icons/entypo',
+  'evil-icons': '@react-native-vector-icons/evil-icons',
+  feather: '@react-native-vector-icons/feather',
+  fontawesome: '@react-native-vector-icons/fontawesome',
+  'fontawesome5-solid': '@react-native-vector-icons/fontawesome5',
+  'fontawesome5-regular': '@react-native-vector-icons/fontawesome5',
+  'fontawesome5-brands': '@react-native-vector-icons/fontawesome5',
+  'fontawesome6-solid': '@react-native-vector-icons/fontawesome6',
+  'fontawesome6-regular': '@react-native-vector-icons/fontawesome6',
+  'fontawesome6-brands': '@react-native-vector-icons/fontawesome6',
+  fontisto: '@react-native-vector-icons/fontisto',
+  foundation: '@react-native-vector-icons/foundation',
+  ionicons: '@react-native-vector-icons/ionicons',
+  lucide: '@react-native-vector-icons/lucide',
+  'material-design-icons': '@react-native-vector-icons/material-design-icons',
+  'material-icons': '@react-native-vector-icons/material-icons',
+  octicons: '@react-native-vector-icons/octicons',
+  'simple-line-icons': '@react-native-vector-icons/simple-line-icons',
+  zocial: '@react-native-vector-icons/zocial',
+};
+
+/**
+ * A resolved `@react-native-vector-icons/*` package: its glyph component and
+ * the glyph maps it ships (one per FontAwesome variant, otherwise one).
+ */
+interface IconPack {
+  Family: ComponentType<never>;
+  glyphs: IconGlyphMap[];
+}
+
+/* eslint-disable @typescript-eslint/no-require-imports -- optional peers are resolved lazily below */
+
+/*
+ * Every `@react-native-vector-icons/*` package is an **optional peer
+ * dependency** of `@mapples/ui`: a project ships only the pack its style
+ * config selects (Project settings → Packages), so the others must not be
+ * required to build. Each pack is resolved lazily with a `require` that sits
+ * lexically inside `try` — Metro (with Expo's `allowOptionalDependencies`)
+ * then skips the module when it cannot be resolved instead of failing the
+ * bundle. A missing pack is not swallowed: its family is registered as
+ * `installed: false` and rendering a glyph from it throws (see
+ * {@link missingFamily}), naming the package to add.
+ */
+
+let antDesign: IconPack | null = null;
+try {
+  antDesign = {
+    Family: require('@react-native-vector-icons/ant-design').default,
+    glyphs: [
+      require('@react-native-vector-icons/ant-design/glyphmaps/AntDesign.json'),
+    ],
+  };
+} catch {
+  antDesign = null;
+}
+
+let entypo: IconPack | null = null;
+try {
+  entypo = {
+    Family: require('@react-native-vector-icons/entypo').default,
+    glyphs: [
+      require('@react-native-vector-icons/entypo/glyphmaps/Entypo.json'),
+    ],
+  };
+} catch {
+  entypo = null;
+}
+
+let evilIcons: IconPack | null = null;
+try {
+  evilIcons = {
+    Family: require('@react-native-vector-icons/evil-icons').default,
+    glyphs: [
+      require('@react-native-vector-icons/evil-icons/glyphmaps/EvilIcons.json'),
+    ],
+  };
+} catch {
+  evilIcons = null;
+}
+
+let feather: IconPack | null = null;
+try {
+  feather = {
+    Family: require('@react-native-vector-icons/feather').default,
+    glyphs: [
+      require('@react-native-vector-icons/feather/glyphmaps/Feather.json'),
+    ],
+  };
+} catch {
+  feather = null;
+}
+
+let fontAwesome: IconPack | null = null;
+try {
+  fontAwesome = {
+    Family: require('@react-native-vector-icons/fontawesome').default,
+    glyphs: [
+      require('@react-native-vector-icons/fontawesome/glyphmaps/FontAwesome.json'),
+    ],
+  };
+} catch {
+  fontAwesome = null;
+}
+
+/** Glyph map order for FontAwesome 5/6 packs: solid, regular, brands. */
+const FA_SOLID = 0;
+const FA_REGULAR = 1;
+const FA_BRANDS = 2;
+
+let fontAwesome5: IconPack | null = null;
+try {
+  fontAwesome5 = {
+    Family: require('@react-native-vector-icons/fontawesome5').default,
+    glyphs: [
+      require('@react-native-vector-icons/fontawesome5/glyphmaps/FontAwesome5_solid.json'),
+      require('@react-native-vector-icons/fontawesome5/glyphmaps/FontAwesome5_regular.json'),
+      require('@react-native-vector-icons/fontawesome5/glyphmaps/FontAwesome5_brand.json'),
+    ],
+  };
+} catch {
+  fontAwesome5 = null;
+}
+
+let fontAwesome6: IconPack | null = null;
+try {
+  fontAwesome6 = {
+    Family: require('@react-native-vector-icons/fontawesome6').default,
+    glyphs: [
+      require('@react-native-vector-icons/fontawesome6/glyphmaps/FontAwesome6_solid.json'),
+      require('@react-native-vector-icons/fontawesome6/glyphmaps/FontAwesome6_regular.json'),
+      require('@react-native-vector-icons/fontawesome6/glyphmaps/FontAwesome6_brand.json'),
+    ],
+  };
+} catch {
+  fontAwesome6 = null;
+}
+
+let fontisto: IconPack | null = null;
+try {
+  fontisto = {
+    Family: require('@react-native-vector-icons/fontisto').default,
+    glyphs: [
+      require('@react-native-vector-icons/fontisto/glyphmaps/Fontisto.json'),
+    ],
+  };
+} catch {
+  fontisto = null;
+}
+
+let foundation: IconPack | null = null;
+try {
+  foundation = {
+    Family: require('@react-native-vector-icons/foundation').default,
+    glyphs: [
+      require('@react-native-vector-icons/foundation/glyphmaps/Foundation.json'),
+    ],
+  };
+} catch {
+  foundation = null;
+}
+
+let ionicons: IconPack | null = null;
+try {
+  ionicons = {
+    Family: require('@react-native-vector-icons/ionicons').default,
+    glyphs: [
+      require('@react-native-vector-icons/ionicons/glyphmaps/Ionicons.json'),
+    ],
+  };
+} catch {
+  ionicons = null;
+}
+
+let lucide: IconPack | null = null;
+try {
+  lucide = {
+    Family: require('@react-native-vector-icons/lucide').default,
+    glyphs: [
+      require('@react-native-vector-icons/lucide/glyphmaps/Lucide.json'),
+    ],
+  };
+} catch {
+  lucide = null;
+}
+
+let materialDesignIcons: IconPack | null = null;
+try {
+  materialDesignIcons = {
+    Family: require('@react-native-vector-icons/material-design-icons').default,
+    glyphs: [
+      require('@react-native-vector-icons/material-design-icons/glyphmaps/MaterialDesignIcons.json'),
+    ],
+  };
+} catch {
+  materialDesignIcons = null;
+}
+
+let materialIcons: IconPack | null = null;
+try {
+  materialIcons = {
+    Family: require('@react-native-vector-icons/material-icons').default,
+    glyphs: [
+      require('@react-native-vector-icons/material-icons/glyphmaps/MaterialIcons.json'),
+    ],
+  };
+} catch {
+  materialIcons = null;
+}
+
+let octicons: IconPack | null = null;
+try {
+  octicons = {
+    Family: require('@react-native-vector-icons/octicons').default,
+    glyphs: [
+      require('@react-native-vector-icons/octicons/glyphmaps/Octicons.json'),
+    ],
+  };
+} catch {
+  octicons = null;
+}
+
+let simpleLineIcons: IconPack | null = null;
+try {
+  simpleLineIcons = {
+    Family: require('@react-native-vector-icons/simple-line-icons').default,
+    glyphs: [
+      require('@react-native-vector-icons/simple-line-icons/glyphmaps/SimpleLineIcons.json'),
+    ],
+  };
+} catch {
+  simpleLineIcons = null;
+}
+
+let zocial: IconPack | null = null;
+try {
+  zocial = {
+    Family: require('@react-native-vector-icons/zocial').default,
+    glyphs: [
+      require('@react-native-vector-icons/zocial/glyphmaps/Zocial.json'),
+    ],
+  };
+} catch {
+  zocial = null;
 }
 
 // Documents persist glyph names as plain strings, so the per-family literal
@@ -111,151 +333,146 @@ export interface IconFamily {
 const glyphComponent = (Family: ComponentType<never>) =>
   styled(Family as ComponentType<IconGlyphProps>);
 
-const fontAwesome5Variant = (iconStyle: 'solid' | 'regular' | 'brand') => {
-  const Variant = (props: IconGlyphProps) => (
-    <FontAwesome5
-      {...({ ...props, iconStyle } as ComponentProps<typeof FontAwesome5>)}
-    />
-  );
-  Variant.displayName = `FontAwesome5.${iconStyle}`;
-  return styled(Variant);
-};
+type FontAwesomeVariant = 'solid' | 'regular' | 'brand';
 
-const fontAwesome6Variant = (iconStyle: 'solid' | 'regular' | 'brand') => {
+/** FontAwesome 5/6 pick the variant via an `iconStyle` prop on one component. */
+const fontAwesomeVariant = (
+  Family: ComponentType<never>,
+  iconStyle: FontAwesomeVariant,
+  displayName: string,
+) => {
+  const FontAwesome = Family as ComponentType<
+    IconGlyphProps & { iconStyle: FontAwesomeVariant }
+  >;
   const Variant = (props: IconGlyphProps) => (
-    <FontAwesome6
-      {...({ ...props, iconStyle } as ComponentProps<typeof FontAwesome6>)}
+    <FontAwesome
+      {...({ ...props, iconStyle } as ComponentProps<typeof FontAwesome>)}
     />
   );
-  Variant.displayName = `FontAwesome6.${iconStyle}`;
+  Variant.displayName = `${displayName}.${iconStyle}`;
   return styled(Variant);
 };
 
 /**
- * Registry of every bundled icon family, keyed by the persisted
- * {@link IconFamilyKey}.
+ * The glyph component of a family whose package is not installed. Rendering
+ * it is a project-configuration error, so it throws with the fix instead of
+ * drawing a placeholder.
+ */
+const missingFamily = (key: IconFamilyKey, npm: string) => {
+  const Missing = (_props: IconGlyphProps) => {
+    throw new Error(
+      `Icon family "${key}" is not installed: add ${npm} to the project ` +
+        '(Project settings → Packages) to render its glyphs.',
+    );
+  };
+  Missing.displayName = `MissingIconFamily.${key}`;
+  return styled(Missing);
+};
+
+const defineFamily = (
+  key: IconFamilyKey,
+  label: string,
+  pack: IconPack | null,
+  glyphIndex = 0,
+  wrap: (
+    Family: ComponentType<never>,
+  ) => ComponentType<WithStyledProps<IconGlyphProps>> = glyphComponent,
+): IconFamily => {
+  const npm = ICON_FAMILY_NPM[key];
+  if (!pack) {
+    return {
+      key,
+      label,
+      npm,
+      installed: false,
+      Component: missingFamily(key, npm),
+      glyphMap: {},
+    };
+  }
+  return {
+    key,
+    label,
+    npm,
+    installed: true,
+    Component: wrap(pack.Family),
+    glyphMap: pack.glyphs[glyphIndex],
+  };
+};
+
+/**
+ * Registry of every known icon family, keyed by the persisted
+ * {@link IconFamilyKey}. Every key is always present; check
+ * {@link IconFamily.installed} before relying on a family's glyphs.
  *
  * @public
  */
 export const IconFamilies: Record<IconFamilyKey, IconFamily> = {
-  'ant-design': {
-    key: 'ant-design',
-    label: 'AntDesign',
-    Component: glyphComponent(AntDesign),
-    glyphMap: antDesignGlyphs,
-  },
-  entypo: {
-    key: 'entypo',
-    label: 'Entypo',
-    Component: glyphComponent(Entypo),
-    glyphMap: entypoGlyphs,
-  },
-  'evil-icons': {
-    key: 'evil-icons',
-    label: 'EvilIcons',
-    Component: glyphComponent(EvilIcons),
-    glyphMap: evilIconsGlyphs,
-  },
-  feather: {
-    key: 'feather',
-    label: 'Feather',
-    Component: glyphComponent(Feather),
-    glyphMap: featherGlyphs,
-  },
-  fontawesome: {
-    key: 'fontawesome',
-    label: 'FontAwesome',
-    Component: glyphComponent(FontAwesome),
-    glyphMap: fontAwesomeGlyphs,
-  },
-  'fontawesome5-solid': {
-    key: 'fontawesome5-solid',
-    label: 'FontAwesome 5 Solid',
-    Component: fontAwesome5Variant('solid'),
-    glyphMap: fontAwesome5SolidGlyphs,
-  },
-  'fontawesome5-regular': {
-    key: 'fontawesome5-regular',
-    label: 'FontAwesome 5 Regular',
-    Component: fontAwesome5Variant('regular'),
-    glyphMap: fontAwesome5RegularGlyphs,
-  },
-  'fontawesome5-brands': {
-    key: 'fontawesome5-brands',
-    label: 'FontAwesome 5 Brands',
-    Component: fontAwesome5Variant('brand'),
-    glyphMap: fontAwesome5BrandGlyphs,
-  },
-  'fontawesome6-solid': {
-    key: 'fontawesome6-solid',
-    label: 'FontAwesome 6 Solid',
-    Component: fontAwesome6Variant('solid'),
-    glyphMap: fontAwesome6SolidGlyphs,
-  },
-  'fontawesome6-regular': {
-    key: 'fontawesome6-regular',
-    label: 'FontAwesome 6 Regular',
-    Component: fontAwesome6Variant('regular'),
-    glyphMap: fontAwesome6RegularGlyphs,
-  },
-  'fontawesome6-brands': {
-    key: 'fontawesome6-brands',
-    label: 'FontAwesome 6 Brands',
-    Component: fontAwesome6Variant('brand'),
-    glyphMap: fontAwesome6BrandGlyphs,
-  },
-  fontisto: {
-    key: 'fontisto',
-    label: 'Fontisto',
-    Component: glyphComponent(Fontisto),
-    glyphMap: fontistoGlyphs,
-  },
-  foundation: {
-    key: 'foundation',
-    label: 'Foundation',
-    Component: glyphComponent(Foundation),
-    glyphMap: foundationGlyphs,
-  },
-  ionicons: {
-    key: 'ionicons',
-    label: 'Ionicons',
-    Component: glyphComponent(Ionicons),
-    glyphMap: ioniconsGlyphs,
-  },
-  lucide: {
-    key: 'lucide',
-    label: 'Lucide',
-    Component: glyphComponent(Lucide),
-    glyphMap: lucideGlyphs,
-  },
-  'material-design-icons': {
-    key: 'material-design-icons',
-    label: 'Material Design Icons',
-    Component: glyphComponent(MaterialDesignIcons),
-    glyphMap: materialDesignIconsGlyphs,
-  },
-  'material-icons': {
-    key: 'material-icons',
-    label: 'Material Icons',
-    Component: glyphComponent(MaterialIcons),
-    glyphMap: materialIconsGlyphs,
-  },
-  octicons: {
-    key: 'octicons',
-    label: 'Octicons',
-    Component: glyphComponent(Octicons),
-    glyphMap: octiconsGlyphs,
-  },
-  'simple-line-icons': {
-    key: 'simple-line-icons',
-    label: 'Simple Line Icons',
-    Component: glyphComponent(SimpleLineIcons),
-    glyphMap: simpleLineIconsGlyphs,
-  },
-  zocial: {
-    key: 'zocial',
-    label: 'Zocial',
-    Component: glyphComponent(Zocial),
-    glyphMap: zocialGlyphs,
-  },
+  'ant-design': defineFamily('ant-design', 'AntDesign', antDesign),
+  entypo: defineFamily('entypo', 'Entypo', entypo),
+  'evil-icons': defineFamily('evil-icons', 'EvilIcons', evilIcons),
+  feather: defineFamily('feather', 'Feather', feather),
+  fontawesome: defineFamily('fontawesome', 'FontAwesome', fontAwesome),
+  'fontawesome5-solid': defineFamily(
+    'fontawesome5-solid',
+    'FontAwesome 5 Solid',
+    fontAwesome5,
+    FA_SOLID,
+    (Family) => fontAwesomeVariant(Family, 'solid', 'FontAwesome5'),
+  ),
+  'fontawesome5-regular': defineFamily(
+    'fontawesome5-regular',
+    'FontAwesome 5 Regular',
+    fontAwesome5,
+    FA_REGULAR,
+    (Family) => fontAwesomeVariant(Family, 'regular', 'FontAwesome5'),
+  ),
+  'fontawesome5-brands': defineFamily(
+    'fontawesome5-brands',
+    'FontAwesome 5 Brands',
+    fontAwesome5,
+    FA_BRANDS,
+    (Family) => fontAwesomeVariant(Family, 'brand', 'FontAwesome5'),
+  ),
+  'fontawesome6-solid': defineFamily(
+    'fontawesome6-solid',
+    'FontAwesome 6 Solid',
+    fontAwesome6,
+    FA_SOLID,
+    (Family) => fontAwesomeVariant(Family, 'solid', 'FontAwesome6'),
+  ),
+  'fontawesome6-regular': defineFamily(
+    'fontawesome6-regular',
+    'FontAwesome 6 Regular',
+    fontAwesome6,
+    FA_REGULAR,
+    (Family) => fontAwesomeVariant(Family, 'regular', 'FontAwesome6'),
+  ),
+  'fontawesome6-brands': defineFamily(
+    'fontawesome6-brands',
+    'FontAwesome 6 Brands',
+    fontAwesome6,
+    FA_BRANDS,
+    (Family) => fontAwesomeVariant(Family, 'brand', 'FontAwesome6'),
+  ),
+  fontisto: defineFamily('fontisto', 'Fontisto', fontisto),
+  foundation: defineFamily('foundation', 'Foundation', foundation),
+  ionicons: defineFamily('ionicons', 'Ionicons', ionicons),
+  lucide: defineFamily('lucide', 'Lucide', lucide),
+  'material-design-icons': defineFamily(
+    'material-design-icons',
+    'Material Design Icons',
+    materialDesignIcons,
+  ),
+  'material-icons': defineFamily(
+    'material-icons',
+    'Material Icons',
+    materialIcons,
+  ),
+  octicons: defineFamily('octicons', 'Octicons', octicons),
+  'simple-line-icons': defineFamily(
+    'simple-line-icons',
+    'Simple Line Icons',
+    simpleLineIcons,
+  ),
+  zocial: defineFamily('zocial', 'Zocial', zocial),
 };

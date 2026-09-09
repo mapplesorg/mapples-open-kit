@@ -1,5 +1,25 @@
-// @ts-expect-error - jsbarcode/src/barcodes doesn't have type definitions
-import barcodes from 'jsbarcode/src/barcodes';
+/**
+ * `jsbarcode` is an **optional peer dependency** of `@mapples/ui` (Project
+ * settings → Packages → "Barcode"): resolved lazily so apps without a barcode
+ * element don't have to install it. When absent, encoding throws.
+ */
+let barcodes: Record<string, unknown> | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  barcodes = require('jsbarcode/src/barcodes').default;
+} catch {
+  barcodes = null;
+}
+
+const requireBarcodes = (): Record<string, unknown> => {
+  if (!barcodes) {
+    throw new Error(
+      'BarCode needs jsbarcode: enable the "Barcode" package in Project ' +
+        'settings → Packages.',
+    );
+  }
+  return barcodes;
+};
 
 /**
  * Supported barcode formats
@@ -124,6 +144,7 @@ class BarcodeEncoder {
     format: BarcodeFormat,
     options: BarcodeEncodeOptions = {},
   ): EncodedBarcode {
+    const barcodes = requireBarcodes();
     // Find the correct format name in jsbarcode
     const jsbarcodeFormat = findFormat(format, barcodes);
 
@@ -134,7 +155,15 @@ class BarcodeEncoder {
       );
     }
 
-    const Encoder = barcodes[jsbarcodeFormat];
+    const Encoder = barcodes[jsbarcodeFormat] as new (
+      text: string,
+      options: BarcodeEncodeOptions,
+    ) => {
+      valid(): boolean;
+      encode():
+        | { text?: unknown; data?: unknown }
+        | ({ data?: unknown } | null)[];
+    };
 
     if (text.length === 0) {
       throw new Error('Barcode value must be a non-empty string');
@@ -188,7 +217,7 @@ class BarcodeEncoder {
    * Gets list of available barcode formats
    */
   getAvailableFormats(): string[] {
-    return Object.keys(barcodes);
+    return Object.keys(requireBarcodes());
   }
 }
 
