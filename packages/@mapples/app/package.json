@@ -25,7 +25,8 @@
     "@mapples/fonts": "*",
     "expo-router": ">=56.0.0 <57",
     "react": ">=18.0.0 <20.0.0",
-    "react-native": ">=0.71.0"
+    "react-native": ">=0.71.0",
+    "react-native-gesture-handler": ">=2.24.0"
   },
   "peerDependenciesMeta": {
     "expo-router": {

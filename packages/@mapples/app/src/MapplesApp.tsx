@@ -15,9 +15,12 @@ import navigationConfig from 'mapples::navigation';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import styleConfig from 'mapples::style';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { NavigationMap, NavigationProvider } from './NavigationContext';
 import { remapFonts } from './utils';
+
+const rootStyle = { flex: 1 } as const;
 
 /**
  * Props for the MapplesApp component.
@@ -108,16 +111,20 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   }
 
   return (
-    <StyleProvider style={Styler.init(style || styleConfig)}>
-      <RenderProvider
-        components={{ ...Components, ...UIComponents }}
-        assets={assets || assetsConfig}
-      >
-        <NavigationProvider navigation={navigation || navigationConfig}>
-          {children}
-        </NavigationProvider>
-      </RenderProvider>
-    </StyleProvider>
+    // Gesture-driven library components (Slider, BottomSheet) need the
+    // gesture-handler root; the canvas provides its own through DnDRootView.
+    <GestureHandlerRootView style={rootStyle}>
+      <StyleProvider style={Styler.init(style || styleConfig)}>
+        <RenderProvider
+          components={{ ...Components, ...UIComponents }}
+          assets={assets || assetsConfig}
+        >
+          <NavigationProvider navigation={navigation || navigationConfig}>
+            {children}
+          </NavigationProvider>
+        </RenderProvider>
+      </StyleProvider>
+    </GestureHandlerRootView>
   );
 };
 
