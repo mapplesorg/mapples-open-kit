@@ -122,7 +122,9 @@ const variantColors = (
  * row's width when the group spans its parent, the labels' otherwise), the
  * full width of a column.
  */
-const groupStyle = (group: ButtonGroupContextValue | null): ViewStyle | null => {
+const groupStyle = (
+  group: ButtonGroupContextValue | null,
+): ViewStyle | null => {
   if (!group) return null;
   if (group.direction === 'column') return { alignSelf: 'stretch' };
   if (!group.equal) return null;
