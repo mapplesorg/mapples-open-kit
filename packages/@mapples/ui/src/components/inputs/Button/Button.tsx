@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 
 import {
   StyledPressable,
@@ -16,6 +22,7 @@ import {
   PressableProps,
   TextStyle,
   View,
+  ViewStyle,
 } from 'react-native';
 
 import useTones, { TonePalette, Tones } from '../../../hooks/useTones';
@@ -29,6 +36,11 @@ import {
   Tone,
 } from '../../../tokens';
 import Icon from '../../media/Icon';
+
+import {
+  ButtonGroupContext,
+  ButtonGroupContextValue,
+} from './ButtonGroupContext';
 
 /**
  * Props for the Button component.
@@ -106,6 +118,24 @@ const variantColors = (
 };
 
 /**
+ * How a button sizes itself inside a group: an equal share of a row (the
+ * row's width when the group spans its parent, the labels' otherwise), the
+ * full width of a column.
+ */
+const groupStyle = (group: ButtonGroupContextValue | null): ViewStyle | null => {
+  if (!group) return null;
+  if (group.direction === 'column') return { alignSelf: 'stretch' };
+  if (!group.equal) return null;
+  return {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: group.fill ? 0 : 'auto',
+    minWidth: 0,
+    alignSelf: 'auto',
+  };
+};
+
+/**
  * A customizable button component with built-in styling support.
  *
  * Without `variant` the Button is React Native's Pressable plus a label —
@@ -167,6 +197,7 @@ const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
     const tones = useTones();
     const [pressed, setPressed] = useState(false);
     const [hovered, setHovered] = useState(false);
+    const inGroup = groupStyle(useContext(ButtonGroupContext));
 
     const handlePressIn = useCallback(
       (event: GestureResponderEvent) => {
@@ -201,7 +232,10 @@ const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
       return (
         <StyledPressable
           ref={ref}
-          styled={styledPressableProps}
+          styled={{
+            ...styledPressableProps,
+            style: [inGroup, styledPressableProps.style],
+          }}
           disabled={disabled}
           onPressIn={onPressIn}
           onPressOut={onPressOut}
@@ -272,6 +306,7 @@ const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
             },
             colors.elevated && styler.elevated,
             fullWidth && styler.fullWidth,
+            inGroup,
             styledPressableProps.style,
             isDisabled && styler.disabled,
           ],
