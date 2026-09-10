@@ -1,6 +1,6 @@
 import { forwardRef, PropsWithChildren, useMemo } from 'react';
 
-import { StyledProp, StyledView, useStyled } from '@mapples/style';
+import { StyledProp, StyledView, useStyle, useStyled } from '@mapples/style';
 import { useTones } from '@mapples/ui';
 import {
   Animated,
@@ -47,9 +47,12 @@ const OVERLAY_Z_INDEX = 1000;
  * The shared root of Dialog, BottomSheet, ActionSheet and Snackbar. It is the
  * component's OWN outer view: `position: absolute` with every inset at 0, so
  * it covers the parent it is placed in — the page root, which the canvas
- * keeps at least a device tall and a built app keeps one screen tall. On the
- * web the page may scroll, so the layer is also at least a window tall. A
- * hidden overlay renders nothing once its exit animation has played.
+ * keeps at least a device tall and a built app keeps one screen tall. The
+ * layer is also at least one viewport tall (a web page may scroll): the
+ * device height when a style provider declares canvas dimensions, the window
+ * height otherwise. The window is wrong on the canvas — a browser window is
+ * taller than a phone frame, so centred and bottom content landed below the
+ * frame. A hidden overlay renders nothing once its exit animation has played.
  */
 const OverlayRoot = forwardRef<View, PropsWithChildren<OverlayRootProps>>(
   (
@@ -72,6 +75,8 @@ const OverlayRoot = forwardRef<View, PropsWithChildren<OverlayRootProps>>(
     const { mounted, progress } = useOverlayPresence(visible);
     const tones = useTones();
     const { height: windowHeight } = useWindowDimensions();
+    const { _canvas } = useStyle();
+    const viewportHeight = _canvas ? _canvas.height : windowHeight;
 
     const contentStyle = useMemo(() => {
       const scale = progress.interpolate({
@@ -109,7 +114,7 @@ const OverlayRoot = forwardRef<View, PropsWithChildren<OverlayRootProps>>(
         styled={{
           style: [
             StyleSheet.absoluteFill,
-            { zIndex, minHeight: windowHeight },
+            { zIndex, minHeight: viewportHeight },
             alignStyles[align],
             resolvedRoot.root,
           ],
@@ -142,10 +147,15 @@ const alignStyles: Record<OverlayAlign, ViewStyle> = {
   top: { justifyContent: 'flex-start', alignItems: 'stretch' },
 };
 
+// Edge-aligned content fills the layer and sits at its edge, so a percent
+// height on the content (BottomSheet's `maxHeight: '80%'`) resolves against
+// the layer. Sized to its content instead, the wrapper made the sheet cap
+// itself at 80% of its OWN height — shrunk, lifted off the bottom edge, with
+// the scrim showing underneath. `box-none` keeps the empty part tappable.
 const alignContent: Record<OverlayAlign, ViewStyle> = {
   center: { width: '100%', alignItems: 'center', padding: 24 },
-  bottom: { width: '100%' },
-  top: { width: '100%' },
+  bottom: { width: '100%', flex: 1, justifyContent: 'flex-end' },
+  top: { width: '100%', flex: 1, justifyContent: 'flex-start' },
 };
 
 export default OverlayRoot;

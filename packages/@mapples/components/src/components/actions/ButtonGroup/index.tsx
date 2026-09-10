@@ -1,6 +1,7 @@
-import { Children, forwardRef, PropsWithChildren } from 'react';
+import { forwardRef, PropsWithChildren, useMemo } from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
+import { ButtonGroupContext, ButtonGroupContextValue } from '@mapples/ui';
 import { View, ViewProps, ViewStyle } from 'react-native';
 
 import { ButtonGroupDirection } from './types';
@@ -9,7 +10,7 @@ import { ButtonGroupDirection } from './types';
 export interface ButtonGroupProps extends ViewProps {
   /** Main axis. Defaults to `row`. */
   direction?: ButtonGroupDirection;
-  /** Gives each of two or more children the same share of the group; a child fills its share with `fullWidth`. Defaults to `true`. */
+  /** Gives each `Button` in a row the same share of it. Defaults to `true`. */
   equal?: boolean;
   /** Space between children in points. Defaults to `8`. */
   gap?: number;
@@ -23,15 +24,16 @@ export interface ButtonGroupProps extends ViewProps {
 }
 
 /**
- * A row or column of `Button` children with a shared gap and, by default,
- * equal shares of the width ("Cancel" / "Confirm", "Sign in" / "Sign up").
- * Buttons inside set `fullWidth` to fill their share.
+ * A row or column of `Button` children with a shared gap. In a row each
+ * button takes an equal share of the width by default ("Cancel" /
+ * "Confirm", "Sign in" / "Sign up"); in a column each spans it. The buttons
+ * size themselves from the group's context, so no per-button prop is needed.
  *
  * @example
  * ```tsx
  * <ButtonGroup>
- *   <Button label="Cancel" variant="outlined" fullWidth onPress={close} />
- *   <Button label="Confirm" variant="filled" fullWidth onPress={confirm} />
+ *   <Button label="Cancel" variant="outlined" onPress={close} />
+ *   <Button label="Confirm" variant="filled" onPress={confirm} />
  * </ButtonGroup>
  * ```
  *
@@ -50,48 +52,31 @@ const ButtonGroup = forwardRef<View, PropsWithChildren<ButtonGroupProps>>(
     },
     ref,
   ) => {
-    const row = direction === 'row';
-    // Every child sits in its own cell that mirrors the group's axis: on
-    // device each Button gets an equal share; on the canvas the single
-    // drop-area child still lays its elements out along the same axis.
-    const cell: ViewStyle = row
-      ? {
-          flexGrow: 1,
-          flexShrink: 1,
-          flexBasis: fullWidth ? 0 : 'auto',
-          minWidth: 0,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap,
-        }
-      : { alignSelf: 'stretch', flexDirection: 'column', gap };
+    const group = useMemo<ButtonGroupContextValue>(
+      () => ({ direction, equal, fill: fullWidth }),
+      [direction, equal, fullWidth],
+    );
 
     return (
-      <StyledView
-        ref={ref}
-        styled={{
-          style: [
-            {
-              flexDirection: direction,
-              alignItems: row ? 'center' : 'stretch',
-              alignSelf: fullWidth ? 'stretch' : 'flex-start',
-              gap,
-            },
-            styled?.style,
-          ],
-        }}
-        {...rest}
-      >
-        {equal
-          ? Children.map(children, (child) =>
-              child === null ||
-              child === undefined ||
-              typeof child === 'boolean' ? null : (
-                <StyledView styled={{ style: cell }}>{child}</StyledView>
-              ),
-            )
-          : children}
-      </StyledView>
+      <ButtonGroupContext.Provider value={group}>
+        <StyledView
+          ref={ref}
+          styled={{
+            style: [
+              {
+                flexDirection: direction,
+                alignItems: direction === 'row' ? 'center' : 'stretch',
+                alignSelf: fullWidth ? 'stretch' : 'flex-start',
+                gap,
+              },
+              styled?.style,
+            ],
+          }}
+          {...rest}
+        >
+          {children}
+        </StyledView>
+      </ButtonGroupContext.Provider>
     );
   },
 );
