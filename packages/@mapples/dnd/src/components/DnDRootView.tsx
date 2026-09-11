@@ -166,6 +166,10 @@ const DnDRootView = <T extends object>({
   const pan = Gesture.Pan()
     // A few pixels of slack so taps never register as element move-drags.
     .minDistance(4)
+    // Element drags are one-finger gestures. A second finger belongs to the
+    // host's pinch/two-finger pan (native canvases), which must be free to
+    // activate instead of this pan swallowing both pointers.
+    .maxPointers(1)
     .onBegin((e) => {
       pressSV.set({ x: e.absoluteX, y: e.absoluteY });
     })
