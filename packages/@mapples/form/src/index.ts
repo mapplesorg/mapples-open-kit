@@ -49,5 +49,9 @@ export * from './components';
 // Export all hooks
 export * from './hooks';
 
+// Export the context itself for hosts that re-provide a form's state
+// elsewhere in the tree (a native portal cannot carry context across)
+export { default as FormContext, FormContextProvider } from './context';
+
 // Export FormState class for advanced usage
 export { FormState };
