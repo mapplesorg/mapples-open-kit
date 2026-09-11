@@ -1,5 +1,11 @@
 # @mapples/form
 
+## 1.3.0
+
+### Minor Changes
+
+- 9b97c94: Native canvases can bridge contexts across a portal boundary: `@mapples/dnd` exports `FrameSpaceContext` and its root pan gesture takes a single pointer so two-finger gestures reach the content; `@mapples/form` exports `FormContext`; `@mapples/state` exports `StateContext`.
+
 ## 1.2.2
 
 ### Patch Changes
