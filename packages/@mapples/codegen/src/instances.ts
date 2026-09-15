@@ -132,16 +132,10 @@ export function instanceLinker(
           });
           return;
         }
+        // Literal props on the tag are the instance's props (the master's
+        // signature names them); `styled` keeps its own slot.
         const attrs = (layout ?? {}) as Record<string, unknown>;
-        const { styled, ...rest } = attrs;
-        for (const key of Object.keys(rest)) {
-          warn({
-            kind: 'NON_LITERAL_PROP',
-            sid: node.sid,
-            prop: key,
-            detail: `prop \`${key}\` on <${name}> stays in code only — a Creator component instance takes no props besides \`styled\``,
-          });
-        }
+        const { styled, ...instanceProps } = attrs;
         if (node.children.length > 0) {
           warn({
             kind: 'NON_LITERAL_PROP',
@@ -152,6 +146,7 @@ export function instanceLinker(
         }
         node.type = 'ComponentInstance';
         node.props = {
+          ...instanceProps,
           componentUuid: component.uuid,
           componentName: component.name,
           ...(styled !== undefined ? { styled } : {}),
@@ -178,11 +173,13 @@ export function instanceLinker(
       const convert = (node: RenderDomNode): RenderDomNode => {
         const children = node.children.map(convert);
         if (node.type !== 'ComponentInstance') return { ...node, children };
-        const { componentUuid, componentName, styled } = node.props as {
-          componentUuid?: unknown;
-          componentName?: unknown;
-          styled?: unknown;
-        };
+        const { componentUuid, componentName, styled, ...instanceProps } =
+          node.props as {
+            componentUuid?: unknown;
+            componentName?: unknown;
+            styled?: unknown;
+            [key: string]: unknown;
+          };
         const component =
           typeof componentUuid === 'string'
             ? byUuid.get(componentUuid)
@@ -201,7 +198,10 @@ export function instanceLinker(
           props: {
             name: localName(component),
             importRef: `${resolver.moduleFor(file, component.file)}#default`,
-            layout: styled !== undefined ? { styled } : {},
+            layout: {
+              ...instanceProps,
+              ...(styled !== undefined ? { styled } : {}),
+            },
           },
           children,
         };

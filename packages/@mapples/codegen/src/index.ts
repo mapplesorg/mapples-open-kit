@@ -32,3 +32,10 @@ export {
 } from './instances';
 export { dirname, join, normalize, relative } from './paths';
 export { indexTree, treeToEdits, type IndexedNode } from './edits';
+export {
+  instancePropsDef,
+  labelFor,
+  type InstancePropKind,
+  type InstancePropSpec,
+  type InstancePropsDef,
+} from './props';
