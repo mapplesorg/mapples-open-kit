@@ -21,3 +21,9 @@ export {
   type CodemodResult,
   type ScanInfo,
 } from './codemod';
+export {
+  extractPropsSignature,
+  type PropsParam,
+  type PropsParamKind,
+  type PropsSignature,
+} from './signature';
