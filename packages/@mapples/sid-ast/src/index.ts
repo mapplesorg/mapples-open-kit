@@ -27,3 +27,4 @@ export {
   type PropsParamKind,
   type PropsSignature,
 } from './signature';
+export { findSyntaxErrors, type SyntaxProblem } from './syntax';
