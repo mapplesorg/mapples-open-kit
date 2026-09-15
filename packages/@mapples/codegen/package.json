@@ -1,0 +1,34 @@
+{
+  "name": "@mapples/codegen",
+  "version": "0.2.0-beta.2",
+  "description": "Pure RenderDom -> TSX file generation for Mapples pages and components. No I/O, no formatting.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "author": {
+    "name": "Oleksandr Soloviov",
+    "url": "https://mapples.org/people/olek_soloviov"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mapplesorg/mapples.git",
+    "directory": "packages/codegen"
+  },
+  "dependencies": {
+    "@mapples/sid-ast": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ]
+}
