@@ -32,6 +32,7 @@ export {
 } from './instances';
 export { dirname, join, normalize, relative } from './paths';
 export { indexTree, treeToEdits, type IndexedNode } from './edits';
+export { adoptPropConditions, type AdoptedConditions } from './conditions';
 export {
   instancePropsDef,
   labelFor,
