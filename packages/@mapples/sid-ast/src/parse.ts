@@ -3,7 +3,15 @@
 
 import ts from 'typescript';
 
-import { evalLiteral, NON_LITERAL } from './literal';
+import { evalLiteral, NON_LITERAL, type LiteralResolver } from './literal';
+import {
+  negateCondition,
+  propStateForCondition,
+  propStateOf,
+  type PropScope,
+  type PropState,
+} from './propConditions';
+import { signatureOf } from './signature';
 import {
   collectStyleDicts,
   countStyleRefs,
@@ -44,6 +52,18 @@ export interface ElementInfo {
   parentSid: string | null;
   childSids: string[]; // nearest $sid descendants, document order
   attrs: AttrInfo[];
+  /** The element is a direct JSX child (`<A><X/></A>`), where a guard can wrap it. */
+  jsxChild: boolean;
+  /** The prop test the element renders under: `{isActive && <X/>}` or a ternary branch. */
+  guard: ElementGuard | null;
+}
+
+export interface ElementGuard {
+  /** The whole `{…}` expression container. */
+  span: Span;
+  kind: 'and' | 'ternary';
+  /** The test as a condition — `_visible`'s key on the node. */
+  condition: string;
 }
 
 export interface Analysis {
@@ -51,6 +71,8 @@ export interface Analysis {
   nodes: Map<string, RenderDomNode>;
   info: Map<string, ElementInfo>;
   warnings: ExtractWarning[];
+  /** Render states the file's prop tests declare (`isActive && styles.x`), by state key. */
+  states: Map<string, PropState>;
   imports: Map<string, ImportedName>; // local identifier -> origin
   /** Where a style dictionary entry's object literal sits, or null when there is none. */
   styleEntrySpan(dict: string, key: string): Span | null;
@@ -139,15 +161,75 @@ export function analyze(
   );
   const imports = collectImports(sf);
   const styleDicts = collectStyleDicts(sf);
+  const signature = signatureOf(sf);
+  const propScope: PropScope | null = signature
+    ? {
+        params: new Map(signature.signature.params.map((p) => [p.name, p])),
+        bindings: signature.bindings,
+      }
+    : null;
+  const states = new Map<string, PropState>();
   const warnings: ExtractWarning[] = [];
   const nodes = new Map<string, RenderDomNode>();
   const info = new Map<string, ElementInfo>();
   const roots: RenderDomNode[] = [];
 
+  // `{isActive && <X $sid/>}` and `{isActive ? <A $sid/> : <B $sid/>}`:
+  // each guarded element, by its JSX node, with the test it renders under.
+  const guards = new Map<ts.Node, ElementGuard>();
+  const sidElement = (expr: ts.Expression): ts.Node | null => {
+    let e = expr;
+    while (ts.isParenthesizedExpression(e)) e = e.expression;
+    const parts = jsxParts(e);
+    return parts && getSidAttr(parts.open) !== null ? parts.element : null;
+  };
+  const readGuards = (container: ts.JsxExpression): void => {
+    if (propScope === null || !container.expression) return;
+    let e = container.expression;
+    while (ts.isParenthesizedExpression(e)) e = e.expression;
+    const span = { start: container.getStart(sf), end: container.getEnd() };
+    if (
+      ts.isBinaryExpression(e) &&
+      e.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+    ) {
+      const element = sidElement(e.right);
+      const state = element ? propStateOf(e.left, propScope) : null;
+      if (element && state) {
+        guards.set(element, { span, kind: 'and', condition: state.condition });
+        states.set(state.key, state);
+      }
+    } else if (ts.isConditionalExpression(e)) {
+      const state = propStateOf(e.condition, propScope);
+      if (state === null) return;
+      const whenTrue = sidElement(e.whenTrue);
+      const whenFalse = sidElement(e.whenFalse);
+      if (whenTrue) {
+        guards.set(whenTrue, {
+          span,
+          kind: 'ternary',
+          condition: state.condition,
+        });
+        states.set(state.key, state);
+      }
+      if (whenFalse) {
+        const negated = propStateForCondition(negateCondition(state.condition));
+        if (negated !== null) {
+          guards.set(whenFalse, {
+            span,
+            kind: 'ternary',
+            condition: negated.condition,
+          });
+          states.set(negated.key, negated);
+        }
+      }
+    }
+  };
+
   const visit = (
     node: ts.Node,
     parent: { dom: RenderDomNode; info: ElementInfo } | null,
   ): void => {
+    if (ts.isJsxExpression(node)) readGuards(node);
     const parts = jsxParts(node);
     if (parts) {
       const sid = getSidAttr(parts.open);
@@ -296,7 +378,10 @@ export function analyze(
         ts.isJsxExpression(prop.initializer) &&
         prop.initializer.expression
       ) {
-        value = evalLiteral(prop.initializer.expression, resolveStyleRef);
+        value =
+          name === 'styled'
+            ? evalStyled(prop.initializer.expression, resolveStyleRef)
+            : evalLiteral(prop.initializer.expression, resolveStyleRef);
       } else value = NON_LITERAL;
 
       if (value === NON_LITERAL) {
@@ -365,6 +450,22 @@ export function analyze(
       props.fallbackSize = fallbackSize ?? { w: 100, h: 100 };
     }
 
+    const guard = guards.get(element) ?? null;
+    if (guard !== null) {
+      if (dataProps?._visible !== undefined) {
+        warnings.push({
+          kind: 'NON_LITERAL_PROP',
+          sid,
+          prop: '_visible',
+          detail: `<${tagName}> renders under a prop test; its $data _visible binding is replaced by that test`,
+        });
+      }
+      dataProps = {
+        ...(dataProps ?? {}),
+        _visible: { key: guard.condition, active: true },
+      };
+    }
+
     const dom: RenderDomNode = {
       sid,
       type,
@@ -396,6 +497,8 @@ export function analyze(
       parentSid: parent?.dom.sid ?? null,
       childSids: [],
       attrs,
+      jsxChild: ts.isJsxElement(element.parent),
+      guard,
     };
 
     nodes.set(sid, dom);
@@ -407,6 +510,80 @@ export function analyze(
       roots.push(dom);
     }
     return { dom, info: elInfo };
+  };
+
+  /**
+   * A `styled` object whose keys may depend on a prop test:
+   * `style: isActive ? styles.on : styles.off`, `style: isActive && styles.on`
+   * or `style: [styles.base, isActive && styles.on]`. Each test becomes a
+   * state and its style a `style::<state>` variant over the base — the shape
+   * the canvas renders conditional styles from. NON_LITERAL when any key is
+   * something else.
+   */
+  const evalStyled = (
+    expr: ts.Expression,
+    resolve: LiteralResolver,
+  ): unknown | typeof NON_LITERAL => {
+    const literal = evalLiteral(expr, resolve);
+    if (literal !== NON_LITERAL || propScope === null) return literal;
+    let object = expr;
+    while (ts.isParenthesizedExpression(object)) object = object.expression;
+    if (!ts.isObjectLiteralExpression(object)) return NON_LITERAL;
+
+    const out: Record<string, unknown> = {};
+    const found = new Map<string, PropState>();
+    for (const property of object.properties) {
+      if (!ts.isPropertyAssignment(property)) return NON_LITERAL;
+      if (!ts.isIdentifier(property.name) && !ts.isStringLiteral(property.name))
+        return NON_LITERAL;
+      const key = property.name.text;
+      const plain = evalLiteral(property.initializer, resolve, [key]);
+      if (plain !== NON_LITERAL) {
+        out[key] = plain;
+        continue;
+      }
+
+      const variant = (test: ts.Expression, style: ts.Expression): boolean => {
+        const state = propStateOf(test, propScope);
+        if (state === null) return false;
+        const slot = `${key}::${state.key}`;
+        const value = evalLiteral(style, resolve, [slot]);
+        if (value === NON_LITERAL) return false;
+        found.set(state.key, state);
+        out[slot] = value;
+        return true;
+      };
+      const conditional = (element: ts.Expression): boolean => {
+        let e = element;
+        while (ts.isParenthesizedExpression(e)) e = e.expression;
+        return (
+          ts.isBinaryExpression(e) &&
+          e.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken &&
+          variant(e.left, e.right)
+        );
+      };
+
+      let init = property.initializer;
+      while (ts.isParenthesizedExpression(init)) init = init.expression;
+      if (ts.isConditionalExpression(init)) {
+        const base = evalLiteral(init.whenFalse, resolve, [key]);
+        if (base === NON_LITERAL || !variant(init.condition, init.whenTrue))
+          return NON_LITERAL;
+        out[key] = base;
+      } else if (ts.isArrayLiteralExpression(init)) {
+        for (const [i, element] of init.elements.entries()) {
+          if (conditional(element)) continue;
+          if (i !== 0) return NON_LITERAL;
+          const base = evalLiteral(element, resolve, [key]);
+          if (base === NON_LITERAL) return NON_LITERAL;
+          out[key] = base;
+        }
+      } else if (!conditional(init)) {
+        return NON_LITERAL;
+      }
+    }
+    for (const [key, state] of found) states.set(key, state);
+    return out;
   };
 
   const containsJsx = (n: ts.Node): boolean => {
@@ -430,6 +607,7 @@ export function analyze(
     nodes,
     info,
     warnings,
+    states,
     imports,
     styleEntrySpan: (dict, key) =>
       dictFor(dict)?.entries.get(key)?.span ?? null,

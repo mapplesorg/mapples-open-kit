@@ -2,8 +2,11 @@ export * from './types';
 export { extract } from './extract';
 export { patch } from './patch';
 export {
+  printChild,
+  printElement,
   printNode,
   printTree,
+  visibilityGuard,
   printValue,
   printAttr,
   type ExprAt,
@@ -22,7 +25,16 @@ export {
   type ScanInfo,
 } from './codemod';
 export {
+  negateCondition,
+  PROPS_SCOPE,
+  propOfCondition,
+  propStateForCondition,
+  propTestCode,
+  type PropState,
+} from './propConditions';
+export {
   extractPropsSignature,
+  type PropsBindings,
   type PropsParam,
   type PropsParamKind,
   type PropsSignature,

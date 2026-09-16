@@ -43,6 +43,18 @@ export interface ExtractResult {
   dom: RenderDomNode | null;
   warnings: ExtractWarning[];
   spans: Map<string, Span>;
+  /**
+   * Render states the file's prop tests declare, by state key — the
+   * conditions its `style::<key>` variants render under
+   * (`{ isActive: { name: 'isActive', condition: 'props.isActive::eq::true' } }`).
+   */
+  states: Record<string, RenderState>;
+}
+
+/** A document render state: what a `style::<key>` variant renders under. */
+export interface RenderState {
+  name: string;
+  condition: string;
 }
 
 export interface ExtractOptions {
@@ -51,6 +63,15 @@ export interface ExtractOptions {
    * name is then the RenderDom `type`). Default: ['@mapples/ui'].
    */
   primitiveModules?: readonly string[];
+}
+
+export interface PatchOptions extends ExtractOptions {
+  /**
+   * The document's render states. A `styled` variant under a state that
+   * tests a component prop prints as that test (`isActive && {…}`) instead of
+   * a literal `'style::isActive'` key.
+   */
+  states?: Record<string, RenderState>;
 }
 
 /** One surgical edit against a $sid subtree. Applied in order, re-analyzing between edits. */

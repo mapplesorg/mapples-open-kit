@@ -9,12 +9,15 @@ import {
   emittable,
   printAttr,
   printAttrsText,
-  printNode,
+  printChild,
+  printElement,
   printValue,
+  visibilityGuard,
 } from './print';
+import { propTestCode } from './propConditions';
 import type {
-  ExtractOptions,
   ExtractWarning,
+  PatchOptions,
   PatchResult,
   RenderDomNode,
   SidEdit,
@@ -50,8 +53,13 @@ function applySetProps(
   analysis: Analysis,
   edit: Extract<SidEdit, { kind: 'setProps' }>,
   warnings: ExtractWarning[],
+  options: PatchOptions,
 ): string {
+  const print = { states: options.states };
   const info = requireInfo(analysis, edit.sid);
+  // Among JSX children a prop-test `_visible` is the element's guard, not a
+  // `$data` entry; `applyGuard` writes it after the attributes.
+  const guarded = info.jsxChild || info.guard !== null;
   const current = analysis.nodes.get(edit.sid)!;
   const desired: RenderDomNode = {
     sid: edit.sid,
@@ -73,23 +81,36 @@ function applySetProps(
     // A re-typed node cannot be patched attribute-wise: reprint the shell,
     // carrying the user's non-literal attributes over verbatim and keeping the
     // inner region untouched.
-    const { elementName } = emittable({ ...desired, children: [] });
+    const { elementName } = emittable({ ...desired, children: [] }, guarded);
     const preserved = info.attrs
       .filter((a) => !a.literal)
       .map((a) => ' ' + a.raw)
       .join('');
     if (info.selfClosing || info.innerSpan === null) {
-      const replacement = `<${elementName}${printAttrsText(desired)}${preserved} />`;
-      return splice(source, info.span.start, info.span.end, replacement);
+      const replacement = `<${elementName}${printAttrsText(desired, print, guarded)}${preserved} />`;
+      return applyGuard(
+        splice(source, info.span.start, info.span.end, replacement),
+        edit.sid,
+        visibilityGuard(desired),
+        warnings,
+      );
     }
     const inner = source.slice(info.innerSpan.start, info.innerSpan.end);
-    const replacement = `<${elementName}${printAttrsText(desired)}${preserved}>${inner}</${elementName}>`;
-    return splice(source, info.span.start, info.span.end, replacement);
+    const replacement = `<${elementName}${printAttrsText(desired, print, guarded)}${preserved}>${inner}</${elementName}>`;
+    return applyGuard(
+      splice(source, info.span.start, info.span.end, replacement),
+      edit.sid,
+      visibilityGuard(desired),
+      warnings,
+    );
   }
 
   // 1. Attributes — surgical, one at a time. User expression props (non-literal
   //    attrs) are never touched; only canvas-owned literal attrs are rewritten.
-  const { attrs: desiredList } = emittable({ ...desired, children: [] });
+  const { attrs: desiredList } = emittable(
+    { ...desired, children: [] },
+    guarded,
+  );
   const desiredMap = new Map(
     desiredList.filter(([n]) => n !== '$sid').map(([n, v]) => [n, v]),
   );
@@ -137,7 +158,7 @@ function applySetProps(
         textEdits.push({
           start: attr.span.start,
           end: attr.span.end,
-          replacement: printAttr(attr.name, value, exprAt),
+          replacement: printAttr(attr.name, value, exprAt, options.states),
         });
       }
     } else {
@@ -172,7 +193,7 @@ function applySetProps(
         });
         continue;
       }
-      additions.push(' ' + printAttr(n, v));
+      additions.push(' ' + printAttr(n, v, undefined, options.states));
     }
     if (additions.length > 0) {
       textEdits.push({
@@ -204,7 +225,12 @@ function applySetProps(
       );
     } else if (text !== null) {
       // Self-closing element gaining text: rewrite `<X … />` -> `<X …>{'text'}</X>`.
-      const shell = printNode({ ...desired, children: [] }, '');
+      const shell = printElement(
+        { ...desired, children: [] },
+        '',
+        print,
+        guarded,
+      );
       out = splice(out, reInfo.span.start, reInfo.span.end, shell);
     }
   } else if (text !== currentText && info.childSids.length > 0) {
@@ -215,7 +241,48 @@ function applySetProps(
       detail: 'text change skipped: node has element children',
     });
   }
-  return out;
+  return applyGuard(out, edit.sid, visibilityGuard(desired), warnings);
+}
+
+/**
+ * Make the element render under `condition` (a prop test) or under none:
+ * wraps it as `{test && (<X/>)}`, rewrites or drops an `&&` guard. A ternary
+ * branch is the developer's structure — a changed test there is reported,
+ * not written. Only a direct JSX child can take a new guard.
+ */
+function applyGuard(
+  source: string,
+  sid: string,
+  condition: string | null,
+  warnings: ExtractWarning[],
+): string {
+  const info = requireInfo(analyze(source), sid);
+  if ((info.guard?.condition ?? null) === condition) return source;
+  const element = source.slice(info.span.start, info.span.end);
+  if (info.guard?.kind === 'ternary') {
+    warnings.push({
+      kind: 'NON_LITERAL_PROP',
+      sid,
+      prop: '_visible',
+      detail: `<${info.tagName}> is a branch of a conditional in the file; the Creator's visibility change was not written`,
+    });
+    return source;
+  }
+  const test = condition === null ? null : propTestCode(condition);
+  const wrapped = test === null ? element : `{${test} && (${element})}`;
+  if (info.guard) {
+    return splice(source, info.guard.span.start, info.guard.span.end, wrapped);
+  }
+  if (!info.jsxChild) {
+    warnings.push({
+      kind: 'NON_LITERAL_PROP',
+      sid,
+      prop: '_visible',
+      detail: `<${info.tagName}> is not a JSX child; its prop-test visibility stays in the Creator only`,
+    });
+    return source;
+  }
+  return splice(source, info.span.start, info.span.end, wrapped);
 }
 
 /** The value at a path inside a JSON value, or undefined when the path is not there. */
@@ -264,6 +331,7 @@ function applyInsert(
   source: string,
   analysis: Analysis,
   edit: Extract<SidEdit, { kind: 'insertChild' }>,
+  options: PatchOptions,
 ): string {
   let info = requireInfo(analysis, edit.parentSid);
   let out = source;
@@ -290,7 +358,12 @@ function applyInsert(
     Math.max(0, Math.min(edit.at, info.childSids.length)),
   );
   const indent = indentAt(out, info.span.start) + '  ';
-  return splice(out, anchor, anchor, printNode(edit.node, indent) + '\n');
+  return splice(
+    out,
+    anchor,
+    anchor,
+    printChild(edit.node, indent, { states: options.states }) + '\n',
+  );
 }
 
 function applyMove(
@@ -335,21 +408,21 @@ function applyMove(
 export function patch(
   source: string,
   edits: SidEdit[],
-  _options: ExtractOptions = {},
+  options: PatchOptions = {},
 ): PatchResult {
   const warnings: ExtractWarning[] = [];
   let out = source;
   for (const edit of edits) {
-    const analysis = analyze(out, _options);
+    const analysis = analyze(out, options);
     switch (edit.kind) {
       case 'setProps':
-        out = applySetProps(out, analysis, edit, warnings);
+        out = applySetProps(out, analysis, edit, warnings, options);
         break;
       case 'removeNode':
         out = applyRemove(out, analysis, edit.sid);
         break;
       case 'insertChild':
-        out = applyInsert(out, analysis, edit);
+        out = applyInsert(out, analysis, edit, options);
         break;
       case 'moveChild':
         out = applyMove(out, analysis, edit, warnings);
@@ -361,7 +434,18 @@ export function patch(
           out,
           info.span.start,
           info.span.end,
-          printNode(edit.node, indent).trimStart(),
+          printElement(
+            edit.node,
+            indent,
+            { states: options.states },
+            info.jsxChild || info.guard !== null,
+          ).trimStart(),
+        );
+        out = applyGuard(
+          out,
+          edit.node.sid,
+          visibilityGuard(edit.node),
+          warnings,
         );
         break;
       }
