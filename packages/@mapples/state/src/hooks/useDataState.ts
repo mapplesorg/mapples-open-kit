@@ -71,6 +71,40 @@ const useDataState = () => {
   );
 
   /**
+   * Evaluates a condition string (`dataProp::condition::value`) against the
+   * state. Reads keys directly — a condition's paths never join or read
+   * `(this)` — so `getValue` can resolve condition-keyed bindings through it.
+   */
+  const evaluateCondition = useCallback(
+    (conditionStr: string) => {
+      if (!isCondition(conditionStr)) return false;
+
+      const { dataProp, valueProp, condition, valueType } =
+        parseCondition(conditionStr);
+
+      const data = resolveKey(dataProp, '');
+
+      let compared;
+      if (typeof valueProp !== 'boolean' && valueType === 'dataProp') {
+        compared = resolveKey(valueProp, '');
+      } else if (valueType === 'boolean') {
+        compared = toBool(valueProp);
+      } else if (valueType === 'number') {
+        compared = toNumber(valueProp);
+      } else {
+        compared = valueProp;
+      }
+
+      if (!conditionMap[condition as Conditions]) {
+        return false;
+      }
+
+      return conditionMap[condition as Conditions](data, compared);
+    },
+    [resolveKey],
+  );
+
+  /**
    * Retrieves a value from the state using a DataProp configuration.
    *
    * Supports various key formats:
@@ -98,11 +132,18 @@ const useDataState = () => {
    */
   const getValue = useCallback(
     ({ key, active }: DataProp, altValue: unknown = 'N/A') => {
-      const keys = parseJoin(key);
-
       if (!active) {
         return;
       }
+
+      // A binding whose key is a condition (`props.isActive::eq::true`)
+      // resolves to the condition's result — how `_visible` shows an element
+      // only while a test holds.
+      if (isCondition(key)) {
+        return evaluateCondition(key);
+      }
+
+      const keys = parseJoin(key);
 
       if (keys && keys.length > 1) {
         const separator = keys.pop();
@@ -119,7 +160,7 @@ const useDataState = () => {
 
       return resolveKey(key, altValue);
     },
-    [value, resolveKey],
+    [value, resolveKey, evaluateCondition],
   );
 
   /**
@@ -148,34 +189,7 @@ const useDataState = () => {
    * @param conditionStr - The condition expression to evaluate
    * @returns `true` when the condition is satisfied, `false` otherwise
    */
-  const getConditionResult = useCallback(
-    (conditionStr: string) => {
-      if (!isCondition(conditionStr)) return false;
-
-      const { dataProp, valueProp, condition, valueType } =
-        parseCondition(conditionStr);
-
-      const data = getStateValue(dataProp);
-
-      let value;
-      if (typeof valueProp !== 'boolean' && valueType === 'dataProp') {
-        value = getStateValue(valueProp);
-      } else if (valueType === 'boolean') {
-        value = toBool(valueProp);
-      } else if (valueType === 'number') {
-        value = toNumber(valueProp);
-      } else {
-        value = valueProp;
-      }
-
-      if (!conditionMap[condition as Conditions]) {
-        return false;
-      }
-
-      return conditionMap[condition as Conditions](data, value);
-    },
-    [getStateValue],
-  );
+  const getConditionResult = evaluateCondition;
 
   return {
     getValue,
