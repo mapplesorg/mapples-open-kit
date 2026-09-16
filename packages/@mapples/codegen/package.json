@@ -1,14 +1,15 @@
 {
   "name": "@mapples/codegen",
-  "version": "0.2.0-beta.2",
-  "description": "Pure RenderDom -> TSX file generation for Mapples pages and components. No I/O, no formatting.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "version": "0.2.0-beta.4",
+  "description": "Pure RenderDom -> TSX file generation for Mapples pages and components: imports, hoisted styles, linked component instances. No I/O, no formatting.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "author": {
     "name": "Oleksandr Soloviov",
@@ -17,14 +18,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mapplesorg/mapples.git",
-    "directory": "packages/codegen"
+    "url": "https://github.com/mapplesorg/mapples-open-kit.git",
+    "directory": "packages/@mapples/codegen"
   },
   "dependencies": {
-    "@mapples/sid-ast": "workspace:*"
+    "@mapples/sid-ast": "workspace:^"
   },
   "devDependencies": {
     "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=18.18"
   },
   "files": [
     "dist",

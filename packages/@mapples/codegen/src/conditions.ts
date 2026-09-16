@@ -11,7 +11,7 @@ import {
   type RenderState,
 } from '@mapples/sid-ast';
 
-import { indexTree } from './edits';
+import { indexTree } from './edits.js';
 
 type States = Record<string, RenderState>;
 

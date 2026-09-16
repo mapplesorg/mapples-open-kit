@@ -12,7 +12,7 @@ export {
   withRouteMarker,
   type EmitComponentInput,
   type EmitPageInput,
-} from './emit';
+} from './emit.js';
 export {
   collectImports,
   importNeedsFor,
@@ -20,8 +20,8 @@ export {
   printImports,
   UI_MODULE,
   type ResolvedImports,
-} from './imports';
-export { hoistStyles, STYLE_MODULE, type HoistedStyles } from './styles';
+} from './imports.js';
+export { hoistStyles, STYLE_MODULE, type HoistedStyles } from './styles.js';
 export {
   instanceLinker,
   posixResolver,
@@ -29,14 +29,14 @@ export {
   type InstanceLinker,
   type LinkableComponent,
   type ModuleResolver,
-} from './instances';
-export { dirname, join, normalize, relative } from './paths';
-export { indexTree, treeToEdits, type IndexedNode } from './edits';
-export { adoptPropConditions, type AdoptedConditions } from './conditions';
+} from './instances.js';
+export { dirname, join, normalize, relative } from './paths.js';
+export { indexTree, treeToEdits, type IndexedNode } from './edits.js';
+export { adoptPropConditions, type AdoptedConditions } from './conditions.js';
 export {
   instancePropsDef,
   labelFor,
   type InstancePropKind,
   type InstancePropSpec,
   type InstancePropsDef,
-} from './props';
+} from './props.js';
