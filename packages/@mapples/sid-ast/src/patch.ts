@@ -3,8 +3,8 @@
 // byte-for-byte. Edits are applied one at a time, re-analyzing in between, so
 // spans never go stale.
 
-import { deepEqual } from './equal';
-import { analyze, type Analysis, type ElementInfo } from './parse';
+import { deepEqual } from './equal.js';
+import { analyze, type Analysis, type ElementInfo } from './parse.js';
 import {
   emittable,
   printAttr,
@@ -13,15 +13,15 @@ import {
   printElement,
   printValue,
   visibilityGuard,
-} from './print';
-import { propTestCode } from './propConditions';
+} from './print.js';
+import { propTestCode } from './propConditions.js';
 import type {
   ExtractWarning,
   PatchOptions,
   PatchResult,
   RenderDomNode,
   SidEdit,
-} from './types';
+} from './types.js';
 
 function sq(s: string): string {
   return `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;

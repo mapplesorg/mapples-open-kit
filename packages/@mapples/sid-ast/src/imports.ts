@@ -4,7 +4,7 @@
 
 import ts from 'typescript';
 
-import { DEFAULT_PRIMITIVE_MODULES } from './parse';
+import { DEFAULT_PRIMITIVE_MODULES } from './parse.js';
 
 export interface ImportNeed {
   module: string;

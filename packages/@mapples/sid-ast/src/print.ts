@@ -1,8 +1,12 @@
 // RenderDom -> JSX text. Deterministic: $sid first, then props sorted
 // lexicographically; object literal keys sorted; strings single-quoted.
 
-import { propOfCondition, propTestCode } from './propConditions';
-import { SIDECAR_FIELDS, type RenderDomNode, type RenderState } from './types';
+import { propOfCondition, propTestCode } from './propConditions.js';
+import {
+  SIDECAR_FIELDS,
+  type RenderDomNode,
+  type RenderState,
+} from './types.js';
 
 const IDENT_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 

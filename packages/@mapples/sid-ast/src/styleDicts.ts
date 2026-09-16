@@ -7,8 +7,8 @@
 
 import ts from 'typescript';
 
-import { evalLiteral, NON_LITERAL } from './literal';
-import type { Span } from './types';
+import { evalLiteral, NON_LITERAL } from './literal.js';
+import type { Span } from './types.js';
 
 export interface StyleDictEntry {
   key: string;

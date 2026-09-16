@@ -21,9 +21,9 @@
 
 import ts from 'typescript';
 
-import { evalLiteral } from './parse';
-import { collectStyleDicts as collectSharedStyleDicts } from './styleDicts';
-import type { Span } from './types';
+import { evalLiteral } from './parse.js';
+import { collectStyleDicts as collectSharedStyleDicts } from './styleDicts.js';
+import type { Span } from './types.js';
 
 export interface ScanInfo {
   hasSid: boolean;
