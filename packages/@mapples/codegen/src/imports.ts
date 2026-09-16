@@ -1,11 +1,87 @@
 import type { ImportNeed, RenderDomNode } from '@mapples/sid-ast';
 
 export interface ResolvedImports {
-  uiNames: string[]; // named imports from @mapples/ui, sorted
+  /** Every canvas element type the tree uses, sorted. */
+  uiNames: string[];
+  /** The same names by the package they are imported from, packages sorted. */
+  primitives: Map<string, string[]>;
   customs: Map<string, { module: string; exportName: string }>; // local name -> origin
 }
 
 export const UI_MODULE = '@mapples/ui';
+export const COMPONENTS_MODULE = '@mapples/components';
+
+/**
+ * The element types `@mapples/components` registers (its `Components`
+ * registry); every other canvas type is a `@mapples/ui` primitive. Keep in
+ * step with `packages/@mapples/components/src/components/*\/*\/schematic.ts`:
+ * a type missing here is imported from the wrong package.
+ */
+const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
+  'Accordion',
+  'ActionSheet',
+  'Avatar',
+  'AvatarGroup',
+  'Badge',
+  'Banner',
+  'BottomActionBar',
+  'BottomNavigationBar',
+  'BottomSheet',
+  'Breadcrumbs',
+  'ButtonGroup',
+  'Card',
+  'ChatComposer',
+  'Checkbox',
+  'Chip',
+  'ChipGroup',
+  'Dialog',
+  'Divider',
+  'EmptyState',
+  'Fab',
+  'ImageCarousel',
+  'InputField',
+  'List',
+  'ListItem',
+  'MediaCard',
+  'MessageBubble',
+  'NumberStepper',
+  'PageControl',
+  'PinInput',
+  'ProgressBar',
+  'ProgressCircle',
+  'RadioGroup',
+  'Rating',
+  'SearchBar',
+  'SectionHeader',
+  'SegmentedControl',
+  'SelectField',
+  'Skeleton',
+  'Slider',
+  'Snackbar',
+  'Spinner',
+  'StatTile',
+  'Steps',
+  'Switch',
+  'Table',
+  'Tabs',
+  'TextLink',
+  'Timeline',
+  'TopAppBar',
+]);
+
+/** The package a canvas element type is imported from. */
+export function moduleForType(type: string): string {
+  return COMPONENTS_TYPES.has(type) ? COMPONENTS_MODULE : UI_MODULE;
+}
+
+const byModule = (names: Set<string>): Map<string, string[]> => {
+  const grouped = new Map<string, string[]>();
+  for (const name of [...names].sort()) {
+    const module = moduleForType(name);
+    grouped.set(module, [...(grouped.get(module) ?? []), name]);
+  }
+  return new Map([...grouped].sort(([a], [b]) => (a < b ? -1 : 1)));
+};
 
 export function parseImportRef(ref: string): {
   module: string;
@@ -54,20 +130,22 @@ export function collectImports(root: RenderDomNode): ResolvedImports {
   for (const name of customs.keys()) {
     if (uiNames.has(name)) {
       throw new Error(
-        `Custom component ${name} collides with a @mapples/ui primitive of the same name`,
+        `Custom component ${name} collides with a ${moduleForType(name)} primitive of the same name`,
       );
     }
   }
 
-  return { uiNames: [...uiNames].sort(), customs };
+  return {
+    uiNames: [...uiNames].sort(),
+    primitives: byModule(uiNames),
+    customs,
+  };
 }
 
 export function printImports(resolved: ResolvedImports): string {
   const lines: string[] = [];
-  if (resolved.uiNames.length > 0) {
-    lines.push(
-      `import { ${resolved.uiNames.join(', ')} } from '${UI_MODULE}';`,
-    );
+  for (const [module, names] of resolved.primitives) {
+    lines.push(`import { ${names.join(', ')} } from '${module}';`);
   }
   const byModule = new Map<
     string,
@@ -105,9 +183,9 @@ export function printImports(resolved: ResolvedImports): string {
 
 /** ImportNeeds for @mapples/sid-ast upsertImports, from a merged tree. */
 export function importNeedsFor(root: RenderDomNode): ImportNeed[] {
-  const { uiNames, customs } = collectImportsTolerant(root);
+  const { primitives, customs } = collectImportsTolerant(root);
   const needs: ImportNeed[] = [];
-  if (uiNames.length > 0) needs.push({ module: UI_MODULE, named: uiNames });
+  for (const [module, named] of primitives) needs.push({ module, named });
   for (const [local, origin] of customs) {
     if (origin.module === '') continue; // locally-defined component: nothing to import
     needs.push(
@@ -137,5 +215,9 @@ function collectImportsTolerant(root: RenderDomNode): ResolvedImports {
     for (const child of node.children) walk(child);
   };
   walk(root);
-  return { uiNames: [...uiNames].sort(), customs };
+  return {
+    uiNames: [...uiNames].sort(),
+    primitives: byModule(uiNames),
+    customs,
+  };
 }

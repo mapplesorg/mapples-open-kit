@@ -8,6 +8,8 @@
 // marker line that carries the route id — the file's identity for renames.
 
 import {
+  INSTANCE_STYLED_MEMBER,
+  INSTANCE_STYLED_TYPE_IMPORTS,
   printNode,
   printValue,
   propOfCondition,
@@ -16,7 +18,12 @@ import {
   type RenderState,
 } from '@mapples/sid-ast';
 
-import { collectImports, printImports } from './imports.js';
+import {
+  collectImports,
+  moduleForType,
+  printImports,
+  type ResolvedImports,
+} from './imports.js';
 import { hoistStyles, STYLE_MODULE } from './styles.js';
 
 export const GENERATED_HEADER =
@@ -238,11 +245,22 @@ export function emitTree(
   suffix: 'Screen' | 'Component' = 'Screen',
   states: Record<string, RenderState> = {},
 ): string {
-  const imports = collectImports(root);
+  // A component takes its instances' styling the way the canvas renders an
+  // instance: `styled` on a View around its root (see sid-ast instanceStyled).
+  const isComponent = suffix === 'Component';
+  const imports = isComponent
+    ? withPrimitive(collectImports(root), 'View')
+    : collectImports(root);
   // Styles live in a `Styler.create` dictionary below the component, the way
   // hand-written Mapples code keeps them — never inline in the JSX.
   const styles = hoistStyles(root);
-  const jsx = printNode(root, '    ', { styleRef: styles.refFor, states });
+  const jsx = isComponent
+    ? [
+        '    <View styled={styled}>',
+        printNode(root, '      ', { styleRef: styles.refFor, states }),
+        '    </View>',
+      ].join('\n')
+    : printNode(root, '    ', { styleRef: styles.refFor, states });
   const componentName = pageComponentName(
     name,
     [...imports.uiNames, ...imports.customs.keys(), styles.dictName, 'Styler'],
@@ -250,10 +268,14 @@ export function emitTree(
   );
   const props = testedProps(root, states);
   const propsType = `${componentName}Props`;
+  const bindings = [
+    ...props.map(([p]) => p),
+    ...(isComponent ? ['styled'] : []),
+  ];
   const signature =
-    props.length === 0
+    bindings.length === 0
       ? `export default function ${componentName}() {`
-      : `export default function ${componentName}({ ${props.map(([p]) => p).join(', ')} }: ${propsType}) {`;
+      : `export default function ${componentName}({ ${bindings.join(', ')} }: ${propsType}) {`;
   const code = [
     ...leading,
     header,
@@ -262,12 +284,18 @@ export function emitTree(
     ...(styles.entries.length > 0
       ? [`import { Styler } from '${STYLE_MODULE}';`]
       : []),
+    ...(isComponent
+      ? INSTANCE_STYLED_TYPE_IMPORTS.map(
+          ({ module, name }) => `import type { ${name} } from '${module}';`,
+        )
+      : []),
     '',
-    ...(props.length === 0
+    ...(bindings.length === 0
       ? []
       : [
           `export interface ${propsType} {`,
           ...props.map(([p, type]) => `  ${p}?: ${type};`),
+          ...(isComponent ? [`  ${INSTANCE_STYLED_MEMBER}`] : []),
           '}',
           '',
         ]),
@@ -289,4 +317,20 @@ export function emitTree(
     '',
   ].join('\n');
   return code;
+}
+
+/** The imports with one more primitive (a no-op when the tree already uses it). */
+function withPrimitive(
+  imports: ResolvedImports,
+  name: string,
+): ResolvedImports {
+  if (imports.uiNames.includes(name)) return imports;
+  const module = moduleForType(name);
+  const primitives = new Map(imports.primitives);
+  primitives.set(module, [...(primitives.get(module) ?? []), name].sort());
+  return {
+    ...imports,
+    uiNames: [...imports.uiNames, name].sort(),
+    primitives: new Map([...primitives].sort(([a], [b]) => (a < b ? -1 : 1))),
+  };
 }
