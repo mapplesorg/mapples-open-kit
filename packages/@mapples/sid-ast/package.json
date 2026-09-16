@@ -1,6 +1,6 @@
 {
   "name": "@mapples/sid-ast",
-  "version": "0.2.0-beta.4",
+  "version": "1.5.0",
   "description": "Pure TSX <-> RenderDom extraction and surgical patching for $sid-tagged JSX. No I/O.",
   "type": "module",
   "main": "./dist/index.js",
