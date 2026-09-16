@@ -1,6 +1,6 @@
-export * from './types';
-export { extract } from './extract';
-export { patch } from './patch';
+export * from './types.js';
+export { extract } from './extract.js';
+export { patch } from './patch.js';
 export {
   printChild,
   printElement,
@@ -11,11 +11,11 @@ export {
   printAttr,
   type ExprAt,
   type PrintOptions,
-} from './print';
-export { normalizeJsxText } from './parse';
-export { deepEqual } from './equal';
-export { upsertImports, type ImportNeed } from './imports';
-export { extractExportedObjects, type ExportedObjects } from './exports';
+} from './print.js';
+export { normalizeJsxText } from './parse.js';
+export { deepEqual } from './equal.js';
+export { upsertImports, type ImportNeed } from './imports.js';
+export { extractExportedObjects, type ExportedObjects } from './exports.js';
 export {
   codemodAdopt,
   scanComponents,
@@ -23,7 +23,7 @@ export {
   type CodemodOptions,
   type CodemodResult,
   type ScanInfo,
-} from './codemod';
+} from './codemod.js';
 export {
   negateCondition,
   PROPS_SCOPE,
@@ -31,12 +31,12 @@ export {
   propStateForCondition,
   propTestCode,
   type PropState,
-} from './propConditions';
+} from './propConditions.js';
 export {
   extractPropsSignature,
   type PropsBindings,
   type PropsParam,
   type PropsParamKind,
   type PropsSignature,
-} from './signature';
-export { findSyntaxErrors, type SyntaxProblem } from './syntax';
+} from './signature.js';
+export { findSyntaxErrors, type SyntaxProblem } from './syntax.js';

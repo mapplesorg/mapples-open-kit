@@ -1,14 +1,15 @@
 {
   "name": "@mapples/sid-ast",
-  "version": "0.2.0-beta.2",
+  "version": "0.2.0-beta.4",
   "description": "Pure TSX <-> RenderDom extraction and surgical patching for $sid-tagged JSX. No I/O.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "author": {
     "name": "Oleksandr Soloviov",
@@ -17,14 +18,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mapplesorg/mapples.git",
-    "directory": "packages/sid-ast"
+    "url": "https://github.com/mapplesorg/mapples-open-kit.git",
+    "directory": "packages/@mapples/sid-ast"
   },
   "dependencies": {
     "typescript": "^5.7.2"
   },
   "devDependencies": {
     "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=18.18"
   },
   "files": [
     "dist",

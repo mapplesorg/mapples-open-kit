@@ -1,8 +1,8 @@
 // TSX -> RenderDom. Every element with $sid becomes a node; everything else —
 // non-$sid JSX, hooks, handlers, all non-JSX code — is invisible.
 
-import { analyze } from './parse';
-import type { ExtractOptions, ExtractResult, Span } from './types';
+import { analyze } from './parse.js';
+import type { ExtractOptions, ExtractResult, Span } from './types.js';
 
 export function extract(
   source: string,

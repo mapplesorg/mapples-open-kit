@@ -4,7 +4,7 @@
 
 import ts from 'typescript';
 
-import { evalLiteral, NON_LITERAL } from './literal';
+import { evalLiteral, NON_LITERAL } from './literal.js';
 
 export type PropsParamKind =
   | 'string'

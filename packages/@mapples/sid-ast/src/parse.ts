@@ -3,15 +3,15 @@
 
 import ts from 'typescript';
 
-import { evalLiteral, NON_LITERAL, type LiteralResolver } from './literal';
+import { evalLiteral, NON_LITERAL, type LiteralResolver } from './literal.js';
 import {
   negateCondition,
   propStateForCondition,
   propStateOf,
   type PropScope,
   type PropState,
-} from './propConditions';
-import { signatureOf } from './signature';
+} from './propConditions.js';
+import { signatureOf } from './signature.js';
 import {
   collectStyleDicts,
   countStyleRefs,
@@ -19,13 +19,13 @@ import {
   styleRefOf,
   type StyleDict,
   type StyleRef,
-} from './styleDicts';
+} from './styleDicts.js';
 import type {
   ExtractOptions,
   ExtractWarning,
   RenderDomNode,
   Span,
-} from './types';
+} from './types.js';
 
 export interface ImportedName {
   module: string;
@@ -82,7 +82,7 @@ export interface Analysis {
 
 export const DEFAULT_PRIMITIVE_MODULES = ['@mapples/ui'] as const;
 
-export { evalLiteral, NON_LITERAL } from './literal';
+export { evalLiteral, NON_LITERAL } from './literal.js';
 
 /** JSX text normalization (React semantics, simplified): whitespace runs containing a newline collapse; ends trimmed. */
 export function normalizeJsxText(raw: string): string {

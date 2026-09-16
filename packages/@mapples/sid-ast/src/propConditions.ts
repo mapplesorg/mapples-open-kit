@@ -9,7 +9,7 @@
 
 import ts from 'typescript';
 
-import type { PropsBindings, PropsParam } from './signature';
+import type { PropsBindings, PropsParam } from './signature.js';
 
 /** Where a component's props live in the data state its conditions read. */
 export const PROPS_SCOPE = 'props';
