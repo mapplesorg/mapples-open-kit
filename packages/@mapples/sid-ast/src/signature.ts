@@ -4,6 +4,8 @@
 
 import ts from 'typescript';
 
+import { evalLiteral, NON_LITERAL } from './literal';
+
 export type PropsParamKind =
   | 'string'
   | 'number'
@@ -28,6 +30,22 @@ export interface PropsSignature {
   /** The props type's name when it is a named interface/alias, else null (inline or none). */
   typeName: string | null;
   params: PropsParam[];
+  /**
+   * Literal defaults the component destructures its props with
+   * (`{ isActive = true }`), by prop name — what a component renders with
+   * when nothing passes the prop.
+   */
+  defaults: Record<string, unknown>;
+}
+
+/**
+ * How the component body names its props: destructured locals by the prop
+ * they bind (`{ isActive: active }` → `active` → `isActive`), and the
+ * parameter's own name when it is not destructured (`props`).
+ */
+export interface PropsBindings {
+  locals: Map<string, string>;
+  paramName: string | null;
 }
 
 const FC_NAMES = new Set([
@@ -50,7 +68,13 @@ export function extractPropsSignature(source: string): PropsSignature | null {
     true,
     ts.ScriptKind.TSX,
   );
+  return signatureOf(sf)?.signature ?? null;
+}
 
+/** The signature and the body's names for the props, from a parsed file. Internal. */
+export function signatureOf(
+  sf: ts.SourceFile,
+): { signature: PropsSignature; bindings: PropsBindings } | null {
   const typeDecls = new Map<
     string,
     ts.InterfaceDeclaration | ts.TypeAliasDeclaration
@@ -107,14 +131,47 @@ export function extractPropsSignature(source: string): PropsSignature | null {
   if (fn === null) return null;
 
   const param = fn.parameters[0];
+  const bindings: PropsBindings = { locals: new Map(), paramName: null };
+  const defaults: Record<string, unknown> = {};
+  if (param && ts.isIdentifier(param.name)) {
+    bindings.paramName = param.name.text;
+  } else if (param && ts.isObjectBindingPattern(param.name)) {
+    for (const element of param.name.elements) {
+      if (element.dotDotDotToken || !ts.isIdentifier(element.name)) continue;
+      const local = element.name.text;
+      const prop =
+        element.propertyName === undefined
+          ? local
+          : ts.isIdentifier(element.propertyName) ||
+              ts.isStringLiteral(element.propertyName)
+            ? element.propertyName.text
+            : null;
+      if (prop === null) continue;
+      bindings.locals.set(local, prop);
+      if (element.initializer) {
+        const value = evalLiteral(element.initializer);
+        if (value !== NON_LITERAL) defaults[prop] = value;
+      }
+    }
+  }
+
   const propsType = param?.type ?? fcPropsType;
-  if (!propsType) return { componentName, typeName: null, params: [] };
+  if (!propsType) {
+    return {
+      signature: { componentName, typeName: null, params: [], defaults },
+      bindings,
+    };
+  }
 
   const resolved = resolveMembers(propsType, typeDecls, sf, new Set());
   return {
-    componentName,
-    typeName: resolved.typeName,
-    params: resolved.members,
+    signature: {
+      componentName,
+      typeName: resolved.typeName,
+      params: resolved.members,
+      defaults,
+    },
+    bindings,
   };
 }
 
