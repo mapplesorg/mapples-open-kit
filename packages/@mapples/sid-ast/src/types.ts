@@ -30,13 +30,22 @@ export interface Span {
 export type ExtractWarningKind =
   | 'NON_LITERAL_PROP'
   | 'DUPLICATE_SID'
-  | 'UNKNOWN_ELEMENT_WITH_SID';
+  | 'UNKNOWN_ELEMENT_WITH_SID'
+  /** A component file whose shape `ensureInstanceStyled` does not rewrite. */
+  | 'INSTANCE_STYLING';
 
 export interface ExtractWarning {
   kind: ExtractWarningKind;
   sid?: string;
   prop?: string;
   detail: string;
+  /**
+   * `info`: expected in hand-written code — the file is fine and nothing is
+   * lost, the Creator just can't mirror it (an event handler the canvas
+   * preview doesn't run). Omitted means `warning`: a value or a change did
+   * not make it across.
+   */
+  severity?: 'info' | 'warning';
 }
 
 export interface ExtractResult {
@@ -60,7 +69,7 @@ export interface RenderState {
 export interface ExtractOptions {
   /**
    * Module specifiers whose imports count as Mapples primitives (the element
-   * name is then the RenderDom `type`). Default: ['@mapples/ui'].
+   * name is then the RenderDom `type`). Default: ['@mapples/ui', '@mapples/components'].
    */
   primitiveModules?: readonly string[];
 }

@@ -21,7 +21,8 @@
 
 import ts from 'typescript';
 
-import { evalLiteral } from './parse.js';
+import { isInstanceWrapper } from './instanceStyled.js';
+import { DEFAULT_PRIMITIVE_MODULES, evalLiteral } from './parse.js';
 import { collectStyleDicts as collectSharedStyleDicts } from './styleDicts.js';
 import type { Span } from './types.js';
 
@@ -104,6 +105,11 @@ export interface CodemodOptions {
   /** Module the swapped primitives are imported from (default '@mapples/ui'). */
   uiModule?: string;
   /**
+   * Modules whose imports already are canvas elements, tagged as they are
+   * (default: `DEFAULT_PRIMITIVE_MODULES`).
+   */
+  primitiveModules?: readonly string[];
+  /**
    * An import the caller links to a Creator component (a managed component
    * file): the element is tagged and its props translated like a primitive,
    * with no `$fallback` — the canvas renders the component itself.
@@ -169,6 +175,10 @@ export function codemodAdopt(
 ): CodemodResult {
   const rnModule = options.rnModule ?? 'react-native';
   const uiModule = options.uiModule ?? '@mapples/ui';
+  const primitiveModules = new Set<string>([
+    uiModule,
+    ...(options.primitiveModules ?? DEFAULT_PRIMITIVE_MODULES),
+  ]);
   const sf = ts.createSourceFile(
     'f.tsx',
     source,
@@ -571,7 +581,13 @@ export function codemodAdopt(
     }
 
     let skipChildren = false;
-    if (open && ts.isIdentifier(open.tagName) && !hasSidAttr(open.attributes)) {
+    if (
+      open &&
+      ts.isIdentifier(open.tagName) &&
+      !hasSidAttr(open.attributes) &&
+      // A component's `<View styled={styled}>` is code around its root.
+      !isInstanceWrapper(node, sf)
+    ) {
       const name = open.tagName.text;
       if (/^[A-Z]/.test(name)) {
         const origin = importOrigin.get(name);
@@ -629,7 +645,7 @@ export function codemodAdopt(
             kind: 'primitive',
             mappedName: mapped,
           });
-        } else if (origin?.module === uiModule) {
+        } else if (origin && primitiveModules.has(origin.module)) {
           // Already a Mapples primitive in code: tag it, and translate the
           // react-native-style props a developer writes from habit
           // (`style={…}`, a Text child) — a `styled` it already has is kept.

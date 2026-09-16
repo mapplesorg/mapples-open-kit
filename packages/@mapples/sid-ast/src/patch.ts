@@ -189,7 +189,7 @@ function applySetProps(
           kind: 'NON_LITERAL_PROP',
           sid: edit.sid,
           prop: n,
-          detail: `prop \`${n}\` is a user expression in the file; canvas value not applied`,
+          detail: `\`${n}\` on <${info.tagName}> is set in code, so the Creator's value for it was not written to the file`,
         });
         continue;
       }
@@ -238,7 +238,7 @@ function applySetProps(
       kind: 'NON_LITERAL_PROP',
       sid: edit.sid,
       prop: 'children',
-      detail: 'text change skipped: node has element children',
+      detail: `<${info.tagName}> has child elements, so the Creator's text change was not written to the file`,
     });
   }
   return applyGuard(out, edit.sid, visibilityGuard(desired), warnings);
@@ -378,7 +378,7 @@ function applyMove(
     warnings.push({
       kind: 'NON_LITERAL_PROP',
       sid: edit.sid,
-      detail: `move skipped: ${edit.sid} is not a child of ${edit.parentSid}`,
+      detail: `the Creator's move of $sid="${edit.sid}" was not written: the file doesn't have it inside $sid="${edit.parentSid}"`,
     });
     return source;
   }

@@ -80,13 +80,25 @@ export interface Analysis {
   styleRefCount(dict: string, key: string): number;
 }
 
-export const DEFAULT_PRIMITIVE_MODULES = ['@mapples/ui'] as const;
+export const DEFAULT_PRIMITIVE_MODULES = [
+  '@mapples/ui',
+  '@mapples/components',
+] as const;
 
 export { evalLiteral, NON_LITERAL } from './literal.js';
 
 /** JSX text normalization (React semantics, simplified): whitespace runs containing a newline collapse; ends trimmed. */
 export function normalizeJsxText(raw: string): string {
   return raw.replace(/[ \t]*\r?\n[ \t]*/g, ' ').trim();
+}
+
+/**
+ * React's event-prop convention (`onPress`, `onChangeText`): a handler, which
+ * is code the file owns — the canvas stores no value for it (its actions live
+ * in `$actions`).
+ */
+export function isEventProp(name: string): boolean {
+  return /^on[A-Z]/.test(name);
 }
 
 function collectImports(sf: ts.SourceFile): Map<string, ImportedName> {
@@ -257,7 +269,7 @@ export function analyze(
       warnings.push({
         kind: 'DUPLICATE_SID',
         sid,
-        detail: `sid ${sid} appears more than once; later occurrence ignored`,
+        detail: `$sid="${sid}" is used by more than one element; the canvas ignores the copy — remove $sid from it and it gets its own id`,
       });
       return null;
     }
@@ -287,7 +299,7 @@ export function analyze(
         warnings.push({
           kind: 'NON_LITERAL_PROP',
           sid,
-          detail: `unanalyzable attribute on <${tagName}>; keeping last-known value from base`,
+          detail: `the spread on <${tagName}> is code the Creator can't read; the canvas keeps the props it last had`,
         });
         continue;
       }
@@ -314,7 +326,7 @@ export function analyze(
           kind: 'NON_LITERAL_PROP',
           sid,
           prop: '$fallback',
-          detail: '$fallback must be a literal {w, h}',
+          detail: `$fallback on <${tagName}> must be a literal like {{ w: 100, h: 100 }}; the canvas keeps the size it last had`,
         });
         continue;
       }
@@ -345,8 +357,8 @@ export function analyze(
           prop: name,
           detail:
             name === '$refs'
-              ? '$refs must be a literal object of ref(...) strings'
-              : `${name} must be a literal JSON object`,
+              ? `$refs on <${tagName}> must be an object literal of ref(...) strings; the canvas keeps the references it last had`
+              : `${name} on <${tagName}> must be a plain object literal; the canvas keeps the value it last had`,
         });
         continue;
       }
@@ -371,6 +383,31 @@ export function analyze(
         styleRefs.push({ dict: ref.dict.name, key: ref.entry.key, path });
         return literal;
       };
+      if (isEventProp(name)) {
+        attrs.push({ name, span: attrSpan, literal: false, raw });
+        const handler =
+          prop.initializer !== undefined &&
+          ts.isJsxExpression(prop.initializer) &&
+          prop.initializer.expression !== undefined &&
+          evalLiteral(prop.initializer.expression) === NON_LITERAL;
+        warnings.push(
+          handler
+            ? {
+                kind: 'NON_LITERAL_PROP',
+                sid,
+                prop: name,
+                severity: 'info',
+                detail: `\`${name}\` on <${tagName}> runs your code in the app; the canvas preview doesn't run it`,
+              }
+            : {
+                kind: 'NON_LITERAL_PROP',
+                sid,
+                prop: name,
+                detail: `\`${name}\` on <${tagName}> needs a function, like ${name}={() => …}`,
+              },
+        );
+        continue;
+      }
       if (!prop.initializer) value = true;
       else if (ts.isStringLiteral(prop.initializer))
         value = prop.initializer.text;
@@ -390,7 +427,7 @@ export function analyze(
           kind: 'NON_LITERAL_PROP',
           sid,
           prop: name,
-          detail: `prop \`${name}\` on <${tagName}> is an expression; keeping last-known value from base`,
+          detail: `\`${name}\` on <${tagName}> is computed in code; the canvas shows the value it last had in the Creator`,
         });
         continue;
       }
@@ -422,7 +459,7 @@ export function analyze(
               kind: 'NON_LITERAL_PROP',
               sid,
               prop: 'children',
-              detail: `text child of <${tagName}> is an expression; keeping last-known value from base`,
+              detail: `the text of <${tagName}> is computed in code; the canvas shows the text it last had in the Creator`,
             });
           }
         }
@@ -439,7 +476,7 @@ export function analyze(
         warnings.push({
           kind: 'UNKNOWN_ELEMENT_WITH_SID',
           sid,
-          detail: `<${tagName}> carries $sid but is not imported; recorded as local Custom (#${tagName})`,
+          detail: `<${tagName}> isn't imported, so the canvas can't render it and shows a placeholder`,
         });
       }
       props.name = tagName;
@@ -457,7 +494,7 @@ export function analyze(
           kind: 'NON_LITERAL_PROP',
           sid,
           prop: '_visible',
-          detail: `<${tagName}> renders under a prop test; its $data _visible binding is replaced by that test`,
+          detail: `<${tagName}> is wrapped in a prop test in the code, which replaces its $data _visible binding`,
         });
       }
       dataProps = {

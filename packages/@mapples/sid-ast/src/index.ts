@@ -12,9 +12,9 @@ export {
   type ExprAt,
   type PrintOptions,
 } from './print.js';
-export { normalizeJsxText } from './parse.js';
+export { isEventProp, normalizeJsxText } from './parse.js';
 export { deepEqual } from './equal.js';
-export { upsertImports, type ImportNeed } from './imports.js';
+export { moveNamedImports, upsertImports, type ImportNeed } from './imports.js';
 export { extractExportedObjects, type ExportedObjects } from './exports.js';
 export {
   codemodAdopt,
@@ -40,3 +40,10 @@ export {
   type PropsSignature,
 } from './signature.js';
 export { findSyntaxErrors, type SyntaxProblem } from './syntax.js';
+export {
+  ensureInstanceStyled,
+  INSTANCE_STYLED_MEMBER,
+  INSTANCE_STYLED_TYPE_IMPORTS,
+  isInstanceWrapper,
+  type InstanceStyledResult,
+} from './instanceStyled.js';
