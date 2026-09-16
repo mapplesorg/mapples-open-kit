@@ -15,9 +15,9 @@
 
 import type { ExtractWarning, RenderDomNode } from '@mapples/sid-ast';
 
-import { pageComponentName } from './emit';
-import { parseImportRef } from './imports';
-import { dirname, join, normalize, relative } from './paths';
+import { pageComponentName } from './emit.js';
+import { parseImportRef } from './imports.js';
+import { dirname, join, normalize, relative } from './paths.js';
 
 export interface InstanceLinker {
   /** File language -> canvas language, in place. Reports what could not link. */
