@@ -141,7 +141,8 @@ export function instanceLinker(
             kind: 'NON_LITERAL_PROP',
             sid: node.sid,
             prop: 'children',
-            detail: `children of <${name}> are not part of the Creator instance — kept in code only`,
+            severity: 'info',
+            detail: `children of <${name}> stay in code only — a Creator component instance has no children`,
           });
         }
         node.type = 'ComponentInstance';

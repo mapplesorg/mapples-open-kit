@@ -15,7 +15,9 @@ export {
 } from './emit.js';
 export {
   collectImports,
+  COMPONENTS_MODULE,
   importNeedsFor,
+  moduleForType,
   parseImportRef,
   printImports,
   UI_MODULE,
