@@ -1,6 +1,7 @@
 // Surgical import maintenance — used after patching a Mapplet so that
 // newly-inserted elements are actually imported. Pure: string in, string out.
-// Only ADDS imports; user imports are never removed or reordered.
+// `upsertImports` only ADDS imports; `moveNamedImports` re-homes names a
+// generator put in the wrong package. Nothing else is removed or reordered.
 
 import ts from 'typescript';
 
@@ -127,4 +128,82 @@ export function upsertImports(source: string, needs: ImportNeed[]): string {
         : `${leading}\n\n${block}\n\n${rest}`;
   }
   return out;
+}
+
+/**
+ * Re-home the plain named imports (`{ A }`, not `{ A as B }`) of `from` that
+ * belong to another package: `moduleFor(name)` names it. A declaration left
+ * empty goes; the names join the target package's import (created when the
+ * file has none). Returns the source unchanged when nothing is misplaced.
+ */
+export function moveNamedImports(
+  source: string,
+  from: string,
+  moduleFor: (name: string) => string,
+): string {
+  const sf = ts.createSourceFile(
+    'f.tsx',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const edits: { start: number; end: number; replacement: string }[] = [];
+  const moved = new Map<string, string[]>();
+  for (const stmt of sf.statements) {
+    if (
+      !ts.isImportDeclaration(stmt) ||
+      !ts.isStringLiteral(stmt.moduleSpecifier) ||
+      stmt.moduleSpecifier.text !== from
+    )
+      continue;
+    const clause = stmt.importClause;
+    const bindings = clause?.namedBindings;
+    if (
+      !clause ||
+      clause.isTypeOnly ||
+      !bindings ||
+      !ts.isNamedImports(bindings)
+    )
+      continue;
+    const stay: string[] = [];
+    for (const el of bindings.elements) {
+      const name = el.name.text;
+      const target = el.propertyName || el.isTypeOnly ? from : moduleFor(name);
+      if (target === from) {
+        stay.push(el.getText(sf));
+      } else {
+        moved.set(target, [...(moved.get(target) ?? []), name]);
+      }
+    }
+    if (stay.length === bindings.elements.length) continue;
+    if (stay.length > 0) {
+      edits.push({
+        start: bindings.getStart(sf),
+        end: bindings.getEnd(),
+        replacement: `{ ${stay.join(', ')} }`,
+      });
+    } else if (clause.name) {
+      // `import A, { B } from` -> `import A from`: the comma goes too.
+      edits.push({
+        start: clause.name.getEnd(),
+        end: bindings.getEnd(),
+        replacement: '',
+      });
+    } else {
+      // The whole declaration moves: take its line with it.
+      let end = stmt.getEnd();
+      if (source[end] === '\n') end += 1;
+      edits.push({ start: stmt.getStart(sf), end, replacement: '' });
+    }
+  }
+  if (moved.size === 0) return source;
+  edits.sort((a, b) => b.start - a.start);
+  let out = source;
+  for (const e of edits)
+    out = out.slice(0, e.start) + e.replacement + out.slice(e.end);
+  return upsertImports(
+    out,
+    [...moved].map(([module, named]) => ({ module, named })),
+  );
 }
