@@ -7,7 +7,14 @@
 // a page that is not in the navigation yet. Routed files open with a route
 // marker line that carries the route id — the file's identity for renames.
 
-import { printNode, printValue, type RenderDomNode } from '@mapples/sid-ast';
+import {
+  printNode,
+  printValue,
+  propOfCondition,
+  visibilityGuard,
+  type RenderDomNode,
+  type RenderState,
+} from '@mapples/sid-ast';
 
 import { collectImports, printImports } from './imports';
 import { hoistStyles, STYLE_MODULE } from './styles';
@@ -130,6 +137,8 @@ export interface EmitPageInput {
   root: RenderDomNode;
   /** Present for a routed page: the file opens with its route marker. */
   route?: { id: string; name: string };
+  /** The document's render states (see `EmitComponentInput.states`). */
+  states?: Record<string, RenderState>;
 }
 
 export function emitPage(page: EmitPageInput): string {
@@ -137,6 +146,9 @@ export function emitPage(page: EmitPageInput): string {
     page.name,
     page.root,
     page.route ? [routeMarkerLine(page.route.id, page.route.name)] : [],
+    GENERATED_HEADER,
+    'Screen',
+    page.states,
   );
 }
 
@@ -147,6 +159,12 @@ export const COMPONENT_HEADER =
 export interface EmitComponentInput {
   name: string;
   root: RenderDomNode;
+  /**
+   * The document's render states. Style variants under a state that tests a
+   * component prop print as that test (`isActive && styles.cardIsActive`),
+   * and the component destructures the props they read.
+   */
+  states?: Record<string, RenderState>;
 }
 
 /** A Creator component as a file: same shape as a page, no route. */
@@ -157,7 +175,59 @@ export function emitComponent(component: EmitComponentInput): string {
     [],
     COMPONENT_HEADER,
     'Component',
+    component.states,
   );
+}
+
+/** The TS type a prop condition implies for the prop it tests. */
+function propTypeOf(condition: string): string {
+  const [, op, value = ''] = condition.split('::');
+  if ((op === 'eq' || op === 'neq') && (value === 'true' || value === 'false'))
+    return 'boolean';
+  if (/^-?\d+(\.\d+)?$/.test(value)) return 'number';
+  return 'string';
+}
+
+/**
+ * The props the tree tests — its style variants' states and the prop tests
+ * elements render under (`{isActive && <X/>}`) — with the type each test
+ * implies, in name order. A state no element varies under is not the file's
+ * to declare.
+ */
+function testedProps(
+  root: RenderDomNode,
+  states: Record<string, RenderState>,
+): [string, string][] {
+  const used = new Set<string>();
+  const guards: string[] = [];
+  const visit = (node: RenderDomNode): void => {
+    const guard = visibilityGuard(node);
+    if (guard !== null) guards.push(guard);
+    const styled =
+      node.type === 'Custom'
+        ? ((node.props.layout as Record<string, unknown> | undefined) ?? {})
+            .styled
+        : node.props.styled;
+    if (typeof styled === 'object' && styled !== null) {
+      for (const slot of Object.keys(styled)) {
+        const stateKey = slot.split('::')[1];
+        if (stateKey !== undefined && states[stateKey]) used.add(stateKey);
+      }
+    }
+    node.children.forEach(visit);
+  };
+  visit(root);
+  const props = new Map<string, string>();
+  const conditions = [
+    ...[...used].map((stateKey) => states[stateKey]!.condition),
+    ...guards,
+  ];
+  for (const condition of conditions) {
+    const prop = propOfCondition(condition);
+    if (prop !== null && !props.has(prop))
+      props.set(prop, propTypeOf(condition));
+  }
+  return [...props].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 }
 
 export function emitTree(
@@ -166,17 +236,24 @@ export function emitTree(
   leading: string[],
   header: string = GENERATED_HEADER,
   suffix: 'Screen' | 'Component' = 'Screen',
+  states: Record<string, RenderState> = {},
 ): string {
   const imports = collectImports(root);
   // Styles live in a `Styler.create` dictionary below the component, the way
   // hand-written Mapples code keeps them — never inline in the JSX.
   const styles = hoistStyles(root);
-  const jsx = printNode(root, '    ', { styleRef: styles.refFor });
+  const jsx = printNode(root, '    ', { styleRef: styles.refFor, states });
   const componentName = pageComponentName(
     name,
     [...imports.uiNames, ...imports.customs.keys(), styles.dictName, 'Styler'],
     suffix,
   );
+  const props = testedProps(root, states);
+  const propsType = `${componentName}Props`;
+  const signature =
+    props.length === 0
+      ? `export default function ${componentName}() {`
+      : `export default function ${componentName}({ ${props.map(([p]) => p).join(', ')} }: ${propsType}) {`;
   const code = [
     ...leading,
     header,
@@ -186,7 +263,15 @@ export function emitTree(
       ? [`import { Styler } from '${STYLE_MODULE}';`]
       : []),
     '',
-    `export default function ${componentName}() {`,
+    ...(props.length === 0
+      ? []
+      : [
+          `export interface ${propsType} {`,
+          ...props.map(([p, type]) => `  ${p}?: ${type};`),
+          '}',
+          '',
+        ]),
+    signature,
     '  return (',
     jsx,
     '  );',

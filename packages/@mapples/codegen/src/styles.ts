@@ -148,13 +148,23 @@ export function hoistStyles(
     if (styled) {
       const words = keyWords(node, isRoot);
       for (const [styledKey, value] of Object.entries(styled)) {
-        if (!(styledKey in STYLED_SUFFIX)) continue;
+        // `style::isActive` — the `style` variant under a render state —
+        // hoists as `cardIsActive` next to its base `card`.
+        const [baseKey, stateKey] = styledKey.split('::') as [
+          string,
+          string | undefined,
+        ];
+        if (!(baseKey in STYLED_SUFFIX)) continue;
         if (typeof value !== 'object' || value === null || Array.isArray(value))
           continue;
         if (Object.keys(value).length === 0) continue;
-        const suffix = STYLED_SUFFIX[styledKey]!;
+        const suffix = STYLED_SUFFIX[baseKey]!;
+        const stateWord =
+          stateKey === undefined ? '' : capitalize(stateKey.replace(/\W/g, ''));
         const key = unique(
-          suffix === '' ? words.style : `${words.stem}${suffix}`,
+          suffix === ''
+            ? `${words.style}${stateWord}`
+            : `${words.stem}${suffix}${stateWord}`,
         );
         entries.push([key, value]);
         refs.set(`${node.sid}|${styledKey}`, key);
