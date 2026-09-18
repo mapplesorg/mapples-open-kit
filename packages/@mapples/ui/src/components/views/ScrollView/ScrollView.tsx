@@ -1,14 +1,16 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
 import { StyledScrollView, WithStyledProps } from '@mapples/style';
-import { ViewProps as RNViewProps } from 'react-native';
+import { ScrollViewProps as RNScrollViewProps } from 'react-native';
 
 /**
  * Props for the ScrollView component.
  *
  * @public
  */
-export type ViewProps = PropsWithChildren<WithStyledProps<RNViewProps>>;
+export type ScrollViewProps = PropsWithChildren<
+  WithStyledProps<RNScrollViewProps>
+>;
 
 /**
  * A customizable scrollable view component with built-in styling support.
@@ -35,7 +37,7 @@ export type ViewProps = PropsWithChildren<WithStyledProps<RNViewProps>>;
  * @public
  */
 const ScrollView = forwardRef(
-  ({ styled, children, ...props }: ViewProps, ref) => {
+  ({ styled, children, ...props }: ScrollViewProps, ref) => {
     return (
       <StyledScrollView
         showsVerticalScrollIndicator={false}
