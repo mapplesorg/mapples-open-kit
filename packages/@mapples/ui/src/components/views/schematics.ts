@@ -7,7 +7,10 @@ import {
 import { GradientBackgroundSchematic } from './GradientBackground';
 import { ImageBackgroundViewSchematics } from './ImageBackgroundView';
 import { SafeAreaViewSchematic } from './SafeAreaView';
-import { HorizontalScrollView, ScrollViewSchematic } from './ScrollView';
+import {
+  HorizontalScrollViewSchematic,
+  ScrollViewSchematic,
+} from './ScrollView';
 import { ContainerSchematic, ViewSchematic } from './View';
 
 /**
@@ -25,7 +28,7 @@ export const ViewsSchematics = {
   [GradientBackgroundSchematic.type]: GradientBackgroundSchematic,
   [SafeAreaViewSchematic.type]: SafeAreaViewSchematic,
   [ScrollViewSchematic.type]: ScrollViewSchematic,
-  [HorizontalScrollView.type]: HorizontalScrollView,
+  [HorizontalScrollViewSchematic.type]: HorizontalScrollViewSchematic,
   [ImageBackgroundViewSchematics.type]: ImageBackgroundViewSchematics,
   [FlatListSchematic.type]: FlatListSchematic,
   [GridTwoColumnsSchematic.type]: GridTwoColumnsSchematic,
