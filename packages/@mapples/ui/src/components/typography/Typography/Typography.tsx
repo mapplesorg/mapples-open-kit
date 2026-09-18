@@ -3,6 +3,7 @@ import { forwardRef, PropsWithChildren } from 'react';
 import {
   WithStyledProps,
   Typography as StyledTypography,
+  TypographyProps as StyledTypographyProps,
 } from '@mapples/style';
 import { isNumber, isString } from 'lodash';
 import { TextProps as RNTextProps, Text } from 'react-native';
@@ -16,6 +17,10 @@ export type TextProps = PropsWithChildren<
   WithStyledProps<RNTextProps> & {
     /** The text content to display */
     text?: string;
+    /** The typography variant to apply (e.g. `Headline`, `Body`, `Caption`) */
+    variant?: StyledTypographyProps['variant'];
+    /** Colour that overrides the variant's colour, or `false` to apply none */
+    color?: StyledTypographyProps['color'];
   }
 >;
 
