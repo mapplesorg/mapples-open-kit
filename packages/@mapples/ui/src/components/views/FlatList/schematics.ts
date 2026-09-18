@@ -1,6 +1,7 @@
 import { RegisteredComponent } from '@mapples/types';
 
 import FlatList from './FlatList';
+import { GridFourColumns, GridThreeColumns, GridTwoColumns } from './Grid';
 
 /**
  * Schematic configuration for the FlatList component.
@@ -18,8 +19,8 @@ export const FlatListSchematic: RegisteredComponent = {
  * @public
  */
 export const GridTwoColumnsSchematic: RegisteredComponent = {
-  ...FlatListSchematic,
   type: 'GridTwoColumns',
+  Component: GridTwoColumns as unknown as any,
 };
 
 /**
@@ -28,8 +29,8 @@ export const GridTwoColumnsSchematic: RegisteredComponent = {
  * @public
  */
 export const GridThreeColumnsSchematic: RegisteredComponent = {
-  ...FlatListSchematic,
   type: 'GridThreeColumns',
+  Component: GridThreeColumns as unknown as any,
 };
 
 /**
@@ -38,6 +39,6 @@ export const GridThreeColumnsSchematic: RegisteredComponent = {
  * @public
  */
 export const GridFourColumnsSchematic: RegisteredComponent = {
-  ...FlatListSchematic,
   type: 'GridFourColumns',
+  Component: GridFourColumns as unknown as any,
 };

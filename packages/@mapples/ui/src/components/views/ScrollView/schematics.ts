@@ -1,5 +1,6 @@
 import { RegisteredComponent } from '@mapples/types';
 
+import HorizontalScrollView from './HorizontalScrollView';
 import ScrollView from './ScrollView';
 
 /**
@@ -17,7 +18,7 @@ export const ScrollViewSchematic: RegisteredComponent = {
  *
  * @public
  */
-export const HorizontalScrollView: RegisteredComponent = {
-  ...ScrollViewSchematic,
+export const HorizontalScrollViewSchematic: RegisteredComponent = {
   type: 'HorizontalScrollView',
+  Component: HorizontalScrollView,
 };
