@@ -17,7 +17,16 @@ export type ApiValueSource =
    * A value from the triggering action's event payload (e.g. form values,
    * input text). `path` narrows into the payload; omitted = whole payload.
    */
-  | { kind: 'event'; path?: string };
+  | { kind: 'event'; path?: string }
+  /**
+   * A value from the triggering action's resolved data (`Action.payload.data`):
+   * what the element's `dataProp` resolved in its own scope — a list row's
+   * item when the element binds `(this)` — merged with its `staticData`, or a
+   * route's params for an on-enter action. `path` narrows into it; omitted =
+   * the whole value. The way a row-scoped value reaches a request, which a
+   * `state` source (resolved where the runtime is mounted) cannot see.
+   */
+  | { kind: 'data'; path?: string };
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
