@@ -34,6 +34,26 @@ export interface NavigationDocument {
   rootNavigatorId: string;
   /** Flat map of every navigator in the document, keyed by {@link NavigatorNode.id}. */
   navigators: Record<string, NavigatorNode>;
+  /** Editor-only canvas preferences. Ignored by the runtime. */
+  canvas?: NavigationCanvasSettings;
+}
+
+/**
+ * Editor-only preferences about how the navigation is *drawn on the canvas*.
+ * The runtime never reads this, the same way it never reads
+ * {@link NavigatorNode.canvas} — it lives here so the choice travels with the
+ * project rather than with one editor.
+ *
+ * @interface NavigationCanvasSettings
+ */
+export interface NavigationCanvasSettings {
+  /**
+   * Draw each screen's navigator chrome (headers, and the tab bar of a tabs
+   * navigator it belongs to) on its canvas frame, inset from the design area
+   * exactly as the running app insets it. Unset means on: a frame that hides
+   * the chrome is claiming space the screen will not actually have.
+   */
+  chrome?: boolean;
 }
 
 /**
@@ -95,11 +115,89 @@ export interface RouteNode {
   presentation?: 'card' | 'modal' | 'transparentModal';
   /** Per-screen option overrides (header, tab/drawer label & icon). */
   options?: ScreenOptions;
-  /** Reserved for deep linking. No v1 UI. */
+  /**
+   * The route's path segment under its navigator — the exported app's
+   * expo-router file segment (`profile`, `(auth)` for a group, `send-money`),
+   * which the CLI reads and writes on sync. A `:token` (or `[token]`) segment
+   * is a param — `product/:id` — that every navigate action to the route must
+   * supply (see {@link routePathParams}) and the screen reads as
+   * `route.<token>`. Absent: derived from the route name, no params.
+   */
   path?: string;
-  /** Reserved for a state condition guard. No v1 UI. */
+  /**
+   * Access guard: a condition in the grammar element visibility uses
+   * (`dataProp::condition::value`, e.g. `vars.session.token::isNotEmpty::`)
+   * that must hold for the screen to show. When it fails the navigator sends
+   * the user to {@link guardFallbackRouteId} instead. Meant for "signed in"
+   * style checks — a screen waiting for its data binds `api.<name>.loading`,
+   * a guard on the response would bounce the user before the request settles.
+   */
   guard?: string;
+  /** Id of the route shown when {@link guard} fails. Required with a guard. */
+  guardFallbackRouteId?: string;
+  /**
+   * An action emitted each time the screen gains focus, with the route's
+   * params as its event value and merged into its data — typically a
+   * `mapples:request` so the screen loads what it shows
+   * (`/product/:id` → `GET /products/{id}` with `{id}` bound to `route.id`).
+   */
+  onEnter?: RouteEnterAction;
 }
+
+/**
+ * The action a route emits on focus. The same shape an element's action prop
+ * carries: the type, plus the literal payload the runtime merges into
+ * `Action.payload.data` (a request's `requestId` and follow-ups).
+ *
+ * @interface RouteEnterAction
+ */
+export interface RouteEnterAction {
+  type: string;
+  staticData?: Record<string, unknown>;
+}
+
+/**
+ * Root of every route-param binding (`route.id`). Params live in their own
+ * `@mapples/state` context, like `vars.*` and `api.*`, so a nested data-state
+ * provider never shadows them.
+ */
+export const ROUTE_NAMESPACE = 'route';
+
+/**
+ * Param segments of a {@link RouteNode.path}: `:token` as authored in the
+ * Creator, or `[token]` as an expo-router file the CLI adopted.
+ */
+const ROUTE_PATH_TOKEN_PATTERN =
+  /(?:^|\/):([A-Za-z_][A-Za-z0-9_]*)(?=\/|$)|(?:^|\/)\[([A-Za-z_][A-Za-z0-9_]*)\](?=\/|$)/g;
+
+/**
+ * The param names a route path declares, in order of first appearance —
+ * `shop/:category/:id` → `['category', 'id']`. Empty without a path.
+ */
+export const routePathParams = (path?: string): string[] => {
+  const names: string[] = [];
+  for (const match of (path ?? '').matchAll(ROUTE_PATH_TOKEN_PATTERN)) {
+    const name = match[1] ?? match[2];
+    if (!names.includes(name)) names.push(name);
+  }
+  return names;
+};
+
+/** One path segment: a literal, an expo-router `(group)`, or a param. */
+const ROUTE_SEGMENT =
+  '(?:[A-Za-z0-9._-]+|\\([A-Za-z0-9._-]+\\)|:[A-Za-z_][A-Za-z0-9_]*|\\[[A-Za-z_][A-Za-z0-9_]*\\])';
+
+const ROUTE_PATH_PATTERN = new RegExp(
+  `^\\/?${ROUTE_SEGMENT}(?:\\/${ROUTE_SEGMENT})*\\/?$`,
+);
+
+/**
+ * Whether a route path is well-formed: one or more segments, each a literal
+ * (`[A-Za-z0-9._-]+`), a `(group)`, or a `:name` / `[name]` param. A leading
+ * or trailing slash is tolerated (the CLI strips them).
+ */
+export const isValidRoutePath = (path: string): boolean =>
+  ROUTE_PATH_PATTERN.test(path);
 
 /**
  * Navigator-level presentation options. Only the field matching the
@@ -108,7 +206,11 @@ export interface RouteNode {
  * @interface NavigatorOptions
  */
 export interface NavigatorOptions {
-  /** Header options — applies to `stack` navigators. */
+  /**
+   * Header options. Every navigator type draws a header, so these apply to
+   * all three — turning `visible` off is how a nested navigator stops
+   * stacking a second header under its parent's.
+   */
   header?: HeaderOptions;
   /** Tab bar options — applies to `tabs` navigators. */
   tabBar?: TabBarOptions;
@@ -125,7 +227,12 @@ export interface NavigatorOptions {
  * @interface HeaderOptions
  */
 export interface HeaderOptions {
-  /** Whether the header is shown. */
+  /**
+   * Whether the header is shown. Unset means shown — that is the navigator
+   * default, and `resolveNavigatorHeader` in `@mapples/navigation` makes it
+   * explicit so editors can present a plain on/off rather than a tri-state
+   * that reads "off" while the header is up.
+   */
   visible?: boolean;
   /** Header title text. */
   title?: string;

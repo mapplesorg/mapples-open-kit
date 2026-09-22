@@ -1,4 +1,8 @@
-import { NavigationDocument, NavigatorNode } from './navigation';
+import {
+  isValidRoutePath,
+  NavigationDocument,
+  NavigatorNode,
+} from './navigation';
 
 /**
  * Codes for the invariants enforced by {@link validateNavigationDocument}.
@@ -9,6 +13,8 @@ import { NavigationDocument, NavigatorNode } from './navigation';
  * - `INITIAL_ROUTE_INVALID` — `initialRouteId` is not one of the navigator's routes.
  * - `DUPLICATE_ROUTE_NAME` — two routes share a name within one navigator.
  * - `PRESENTATION_NOT_STACK` — a `presentation` is set on a non-stack navigator's route.
+ * - `ROUTE_PATH_INVALID` — a route `path` has a malformed segment.
+ * - `GUARD_FALLBACK_INVALID` — a guarded route names no fallback, itself, or an absent route.
  */
 export type NavigationValidationCode =
   | 'ROOT_MISSING'
@@ -16,7 +22,9 @@ export type NavigationValidationCode =
   | 'NAVIGATOR_CYCLE'
   | 'INITIAL_ROUTE_INVALID'
   | 'DUPLICATE_ROUTE_NAME'
-  | 'PRESENTATION_NOT_STACK';
+  | 'PRESENTATION_NOT_STACK'
+  | 'ROUTE_PATH_INVALID'
+  | 'GUARD_FALLBACK_INVALID';
 
 /**
  * A single validation failure produced by {@link validateNavigationDocument}.
@@ -56,7 +64,9 @@ export interface NavigationValidationResult {
  *   most one parent);
  * - each navigator's `initialRouteId`, when set, names one of its routes;
  * - route names are unique within their parent navigator;
- * - `presentation` is only set on routes whose parent navigator is a `stack`.
+ * - `presentation` is only set on routes whose parent navigator is a `stack`;
+ * - a route `path`, when set, is made of literal, `(group)` or `:param` segments;
+ * - a guarded route names a fallback route that exists and is not itself.
  *
  * The check is exhaustive: all violations are collected rather than failing on
  * the first.
@@ -125,6 +135,36 @@ function validateNavigator(
         navigatorId: navigator.id,
         routeId: route.id,
       });
+    }
+
+    // A path is the exported app's deep link and the source of the params
+    // the screen reads: a malformed one would generate a broken route file.
+    if (route.path !== undefined && !isValidRoutePath(route.path)) {
+      errors.push({
+        code: 'ROUTE_PATH_INVALID',
+        message: `Route "${route.name}" has an invalid path "${route.path}" — expected segments like "product/:id"`,
+        navigatorId: navigator.id,
+        routeId: route.id,
+      });
+    }
+
+    // A guard with nowhere to go, or one that sends the user back to the
+    // guarded screen, loops the navigator.
+    if (route.guard !== undefined) {
+      const fallback = route.guardFallbackRouteId;
+      const exists =
+        !!fallback &&
+        Object.values(navigators).some((candidate) =>
+          (candidate.routes ?? []).some((other) => other.id === fallback),
+        );
+      if (!fallback || fallback === route.id || !exists) {
+        errors.push({
+          code: 'GUARD_FALLBACK_INVALID',
+          message: `Guarded route "${route.name}" needs a fallback route other than itself`,
+          navigatorId: navigator.id,
+          routeId: route.id,
+        });
+      }
     }
 
     // navigator targets must resolve, and contribute to the parent count.
