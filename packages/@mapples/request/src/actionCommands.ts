@@ -1,3 +1,4 @@
+import { isValueSource, resolveValueSource } from '@mapples/state';
 import {
   Action,
   ApiDocument,
@@ -6,7 +7,7 @@ import {
   apiRequestStateKey,
   HttpMethod,
 } from '@mapples/types';
-import { get, isPlainObject } from 'lodash';
+import { isPlainObject } from 'lodash';
 
 import { RequestActionType } from './constants';
 import { TransportAuth, TransportRequest } from './transport';
@@ -44,31 +45,11 @@ export interface RequestResolutionContext {
   sample?: boolean;
 }
 
-const isValueSource = (value: unknown): value is ApiValueSource =>
-  isPlainObject(value) &&
-  ['static', 'state', 'event'].includes(
-    (value as { kind?: string }).kind ?? '',
-  );
-
 const resolveSource = (
   source: ApiValueSource,
   action: Action,
   context: RequestResolutionContext,
-): unknown => {
-  switch (source.kind) {
-    case 'static':
-      return source.value;
-    case 'state':
-      return context.getStateValue?.(source.dataProp);
-    case 'event': {
-      // The event's own first argument (form values, input text), not
-      // `payload.data`: that one is merged with the action's `staticData`, so
-      // it drops a non-object argument and mixes `requestId` into the rest.
-      const payload: unknown = action.payload?.originalEventData?.[0];
-      return source.path ? get(payload, source.path) : payload;
-    }
-  }
-};
+): unknown => resolveValueSource(source, action, context.getStateValue);
 
 const resolveTemplate = (
   template: unknown,
