@@ -32,6 +32,8 @@ export * from './types';
 export * from './actionCommands';
 export * from './writable/types';
 export { useVariablesState } from './writable/context';
+export { ApiStateContextProvider, useApiState } from './api/context';
+export type { ApiState } from './api/context';
 // The data-state context itself, for hosts that re-provide it elsewhere in
 // the tree (a native portal cannot carry context across).
 export { default as StateContext, StateContextProvider } from './context';

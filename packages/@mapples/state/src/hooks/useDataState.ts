@@ -10,17 +10,23 @@ import {
   toBool,
   toNumber,
 } from '@mapples/inlang';
-import { DataProp, VARIABLES_NAMESPACE } from '@mapples/types';
+import { API_NAMESPACE, DataProp, VARIABLES_NAMESPACE } from '@mapples/types';
 import { get, join } from 'lodash';
 
+import { useApiState } from '../api/context';
 import StateContext from '../context';
 import { useVariablesState } from '../writable/context';
 
 const NS_PREFIX = `${VARIABLES_NAMESPACE}.`;
+const API_PREFIX = `${API_NAMESPACE}.`;
 
 /** Whether a binding path targets the writable variables store. */
 const isVariablesKey = (key: string) =>
   key === VARIABLES_NAMESPACE || key.startsWith(NS_PREFIX);
+
+/** Whether a binding path targets the API response state. */
+const isApiKey = (key: string) =>
+  key === API_NAMESPACE || key.startsWith(API_PREFIX);
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -52,12 +58,14 @@ const useDataState = () => {
   const { value } = useContext(StateContext);
   const variablesState = useVariablesState();
   const variablesValue = variablesState?.value;
+  const apiValue = useApiState();
 
   /**
    * Resolve one key segment: `vars.*` keys route to the writable variables
-   * store (a parallel context that scope providers never shadow); everything
-   * else reads the nearest `StateProvider` as before. With no
-   * `VariablesProvider` mounted, `vars.*` falls through to `altValue`.
+   * store and `api.*` keys to the API response state (parallel contexts that
+   * scope providers never shadow); everything else reads the nearest
+   * `StateProvider` as before. With no `VariablesProvider` / request runtime
+   * mounted, those keys fall through to `altValue`.
    */
   const resolveKey = useCallback(
     (key: string, altValue?: unknown) => {
@@ -65,9 +73,13 @@ const useDataState = () => {
         if (key === VARIABLES_NAMESPACE) return variablesValue ?? altValue;
         return get(variablesValue, key.slice(NS_PREFIX.length), altValue);
       }
+      if (isApiKey(key)) {
+        if (key === API_NAMESPACE) return apiValue ?? altValue;
+        return get(apiValue, key.slice(API_PREFIX.length), altValue);
+      }
       return get(value, key, altValue);
     },
-    [value, variablesValue],
+    [value, variablesValue, apiValue],
   );
 
   /**
