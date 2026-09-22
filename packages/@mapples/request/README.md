@@ -63,6 +63,9 @@ Path tokens, query parameters and JSON body leaves take an `ApiValueSource`:
 - `{ kind: 'static', value }` — a literal.
 - `{ kind: 'state', dataProp }` — a `@mapples/state` path, resolved where the handler is mounted (`vars.*`, `api.*`, root data state).
 - `{ kind: 'event', path? }` — the triggering event's first argument (form values, input text); `path` narrows into it.
+- `{ kind: 'data', path? }` — the action's resolved data (`Action.payload.data`): the pressed list row when the element's action binds `(this)`, or the route's params when a screen's `onEnter` runs the request; `path` narrows into it. The way a row-scoped value reaches a request — a `state` source resolves where the handler is mounted, above the list.
+
+A request a screen runs on enter (`RouteNode.onEnter`) binds its path token to the route param: `{ kind: 'state', dataProp: 'route.id' }` for `/product/:id` → `GET /products/{id}`. The resolver is `resolveValueSource` from `@mapples/state`, shared with the navigation runtime's route params.
 
 ## Modes
 
