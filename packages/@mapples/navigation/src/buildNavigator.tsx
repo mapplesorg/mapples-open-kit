@@ -1,6 +1,8 @@
 import { ComponentType, useMemo } from 'react';
 
+import { NavigationDocument } from '@mapples/types';
 import { Text, View } from 'react-native';
+
 
 // React Navigation is consumed through expo-router's vendored copy, centralized
 // in `./vendor` (SDK 56+ blocks external `@react-navigation/*`).
@@ -11,8 +13,10 @@ import {
   mapStackScreenOptions,
   mapTabBarOptions,
   mapTabItemOptions,
+  resolveNavigatorHeader,
 } from './mappers';
 import { NavigatorModel, ScreenModel } from './model';
+import RouteScreen from './RouteScreen';
 import { MapplesNavigationProps, RefResolvers } from './types';
 import {
   type BottomTabNavigationOptions,
@@ -24,6 +28,8 @@ import {
 
 /** Everything a navigator needs to resolve its screens. */
 export interface NavigatorBuildContext {
+  /** The document being rendered — route guards resolve their fallback in it. */
+  document: NavigationDocument;
   pages: MapplesNavigationProps['pages'];
   fallback?: MapplesNavigationProps['fallback'];
   resolvers: RefResolvers;
@@ -73,7 +79,16 @@ const screenComponent = (
 
   const { pageUuid } = screen.target;
   const Page = ctx.pages[pageUuid];
-  if (Page) return Page as ComponentType;
+  if (Page) {
+    // Every page screen gets its route's params, on-enter action and guard.
+    const Routed: ComponentType = () => (
+      <RouteScreen route={screen.route} document={ctx.document}>
+        <Page />
+      </RouteScreen>
+    );
+    Routed.displayName = `RouteScreen(${screen.routeName})`;
+    return Routed;
+  }
 
   if (ctx.fallback) {
     const Fallback = ctx.fallback;
@@ -103,7 +118,7 @@ const StackNavigatorView = ({
     <Stack.Navigator
       initialRouteName={model.initialRouteName}
       screenOptions={mapHeaderOptions(
-        model.node.options?.header,
+        resolveNavigatorHeader(model.node.options?.header),
         ctx.resolvers,
       )}
     >
@@ -144,25 +159,37 @@ const TabsNavigatorView = ({
   return (
     <Tabs.Navigator
       initialRouteName={model.initialRouteName}
-      screenOptions={mapTabBarOptions(
-        model.node.options?.tabBar,
-        ctx.resolvers,
-      )}
+      screenOptions={{
+        ...mapTabBarOptions(model.node.options?.tabBar, ctx.resolvers),
+        // Bottom tabs draw a header of their own. Until these were mapped, a
+        // tabs navigator nested in a stack always stacked a second header
+        // under its parent's, with no option that could turn it off.
+        ...mapHeaderOptions(
+          resolveNavigatorHeader(model.node.options?.header),
+          ctx.resolvers,
+        ),
+      }}
     >
       {model.screens.length ? (
-        model.screens.map((screen) => (
-          <Tabs.Screen
-            key={screen.routeId}
-            name={screen.routeName}
-            component={screenComponent(screen, ctx)}
-            options={
-              mapTabItemOptions(
-                screen.route,
-                ctx.resolvers,
-              ) as BottomTabNavigationOptions
-            }
-          />
-        ))
+        model.screens.map((screen) => {
+          const options = mapTabItemOptions(
+            screen.route,
+            ctx.resolvers,
+          ) as BottomTabNavigationOptions;
+          // Same guard as the stack: with no explicit title, React Navigation
+          // labels the tab and its header with the screen name, which is
+          // navigator-qualified (`<navigator>:<route>`). Default to the bare
+          // route name so the prefix never reaches the UI.
+          if (options.title === undefined) options.title = screen.route.name;
+          return (
+            <Tabs.Screen
+              key={screen.routeId}
+              name={screen.routeName}
+              component={screenComponent(screen, ctx)}
+              options={options}
+            />
+          );
+        })
       ) : (
         <Tabs.Screen
           name={EMPTY_ROUTE_NAME}
@@ -185,25 +212,33 @@ const DrawerNavigatorView = ({
   return (
     <Drawer.Navigator
       initialRouteName={model.initialRouteName}
-      screenOptions={mapDrawerOptions(
-        model.node.options?.drawer,
-        ctx.resolvers,
-      )}
+      screenOptions={{
+        ...mapDrawerOptions(model.node.options?.drawer, ctx.resolvers),
+        // See the tabs navigator: a drawer draws its own header too.
+        ...mapHeaderOptions(
+          resolveNavigatorHeader(model.node.options?.header),
+          ctx.resolvers,
+        ),
+      }}
     >
       {model.screens.length ? (
-        model.screens.map((screen) => (
-          <Drawer.Screen
-            key={screen.routeId}
-            name={screen.routeName}
-            component={screenComponent(screen, ctx)}
-            options={
-              mapDrawerItemOptions(
-                screen.route,
-                ctx.resolvers,
-              ) as DrawerNavigationOptions
-            }
-          />
-        ))
+        model.screens.map((screen) => {
+          const options = mapDrawerItemOptions(
+            screen.route,
+            ctx.resolvers,
+          ) as DrawerNavigationOptions;
+          // See the tabs navigator: the qualified screen name must not become
+          // the drawer item's label or its header title.
+          if (options.title === undefined) options.title = screen.route.name;
+          return (
+            <Drawer.Screen
+              key={screen.routeId}
+              name={screen.routeName}
+              component={screenComponent(screen, ctx)}
+              options={options}
+            />
+          );
+        })
       ) : (
         <Drawer.Screen
           name={EMPTY_ROUTE_NAME}

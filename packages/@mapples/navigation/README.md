@@ -33,6 +33,14 @@ Components emit these `Action.type` strings (see `NavigationActionType`):
 | `mapples:closeDrawer` | — | Close the nearest drawer |
 | `mapples:switchTab` | `{ routeName }` | Switch to a sibling tab |
 
+## Route params, on-enter actions and guards
+
+Every page screen is wrapped in `RouteScreen`, which applies what its `RouteNode` declares:
+
+- **Params.** A route with `path: '/product/:id'` expects an `id`. A `mapples:navigate` action supplies it under `payload.data.params` — a literal, or a value source resolved at press time (`{ kind: 'data', path: 'id' }` reads the pressed list row when the element's action `dataProp` is `(this)`; `{ kind: 'state', dataProp: 'vars.selected' }` reads state). The screen reads them as `route.<token>` bindings, and root-mounted handlers read the focused screen's through `ActiveRouteProvider` (mount one above `MapplesNavigation`).
+- **On enter.** `onEnter: { type, staticData }` is emitted on every focus, with the params as the event value and merged into the data — `{ type: 'mapples:request', staticData: { requestId } }` loads a screen's own data.
+- **Guard.** `guard` is a condition in the element-visibility grammar (`vars.session.token::isNotEmpty::`); while it fails the screen renders nothing and the user is sent to `guardFallbackRouteId`. Access checks only — data readiness is a `_visible` binding on `api.<name>.loading`.
+
 ## Ref resolution
 
 Option values may be `ref(theme:<uuid>:<name>)` (resolved against `@mapples/style`)

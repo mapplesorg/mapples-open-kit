@@ -21,6 +21,9 @@
     },
     {
       "path": "../action/tsconfig.build.json"
+    },
+    {
+      "path": "../state/tsconfig.build.json"
     }
   ]
 }
