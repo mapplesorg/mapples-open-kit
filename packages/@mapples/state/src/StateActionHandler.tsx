@@ -3,7 +3,11 @@ import { useEffect } from 'react';
 import { useActionStore } from '@mapples/action';
 import { VARIABLES_NAMESPACE } from '@mapples/types';
 
-import { SetStateCommand, toSetStateCommands } from './actionCommands';
+import {
+  SetStateCommand,
+  setStateFollowUp,
+  toSetStateCommands,
+} from './actionCommands';
 import useDataState from './hooks/useDataState';
 import { useVariablesState } from './writable/context';
 import { getVariableValue } from './writable/VariablesProvider';
@@ -79,6 +83,17 @@ const StateActionHandler = () => {
       const commands = toSetStateCommands(action, { getStateValue });
       if (!commands) return;
       for (const command of commands) apply(command);
+      // The writes are queued state updates; the follow-up goes out after
+      // them on the same bus, so a navigate lands on a screen whose guard
+      // already sees the new value.
+      const followUp = setStateFollowUp(action);
+      if (followUp) {
+        actionStore.next({
+          time: Date.now(),
+          type: followUp.type,
+          payload: { data: followUp.data },
+        });
+      }
     });
 
     return () => subscription.unsubscribe();

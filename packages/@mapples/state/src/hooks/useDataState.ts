@@ -10,15 +10,22 @@ import {
   toBool,
   toNumber,
 } from '@mapples/inlang';
-import { API_NAMESPACE, DataProp, VARIABLES_NAMESPACE } from '@mapples/types';
+import {
+  API_NAMESPACE,
+  DataProp,
+  ROUTE_NAMESPACE,
+  VARIABLES_NAMESPACE,
+} from '@mapples/types';
 import { get, join } from 'lodash';
 
 import { useApiState } from '../api/context';
 import StateContext from '../context';
+import { useActiveRoute, useRouteParams } from '../route/context';
 import { useVariablesState } from '../writable/context';
 
 const NS_PREFIX = `${VARIABLES_NAMESPACE}.`;
 const API_PREFIX = `${API_NAMESPACE}.`;
+const ROUTE_PREFIX = `${ROUTE_NAMESPACE}.`;
 
 /** Whether a binding path targets the writable variables store. */
 const isVariablesKey = (key: string) =>
@@ -27,6 +34,10 @@ const isVariablesKey = (key: string) =>
 /** Whether a binding path targets the API response state. */
 const isApiKey = (key: string) =>
   key === API_NAMESPACE || key.startsWith(API_PREFIX);
+
+/** Whether a binding path targets the screen's route params. */
+const isRouteKey = (key: string) =>
+  key === ROUTE_NAMESPACE || key.startsWith(ROUTE_PREFIX);
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -59,13 +70,19 @@ const useDataState = () => {
   const variablesState = useVariablesState();
   const variablesValue = variablesState?.value;
   const apiValue = useApiState();
+  // Inside a screen its own params; above the navigator (where the action
+  // handlers mount) the focused screen's.
+  const screenParams = useRouteParams();
+  const activeRoute = useActiveRoute();
+  const routeValue = screenParams ?? activeRoute?.params ?? null;
 
   /**
    * Resolve one key segment: `vars.*` keys route to the writable variables
-   * store and `api.*` keys to the API response state (parallel contexts that
-   * scope providers never shadow); everything else reads the nearest
-   * `StateProvider` as before. With no `VariablesProvider` / request runtime
-   * mounted, those keys fall through to `altValue`.
+   * store, `api.*` keys to the API response state and `route.*` keys to the
+   * screen's params (parallel contexts that scope providers never shadow);
+   * everything else reads the nearest `StateProvider` as before. With no
+   * `VariablesProvider` / request runtime / routed screen mounted, those keys
+   * fall through to `altValue`.
    */
   const resolveKey = useCallback(
     (key: string, altValue?: unknown) => {
@@ -77,9 +94,13 @@ const useDataState = () => {
         if (key === API_NAMESPACE) return apiValue ?? altValue;
         return get(apiValue, key.slice(API_PREFIX.length), altValue);
       }
+      if (isRouteKey(key)) {
+        if (key === ROUTE_NAMESPACE) return routeValue ?? altValue;
+        return get(routeValue, key.slice(ROUTE_PREFIX.length), altValue);
+      }
       return get(value, key, altValue);
     },
-    [value, variablesValue, apiValue],
+    [value, variablesValue, apiValue, routeValue],
   );
 
   /**
