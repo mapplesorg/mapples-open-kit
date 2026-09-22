@@ -23,6 +23,7 @@
   "peerDependencies": {
     "@mapples/action": "*",
     "@mapples/render": "*",
+    "@mapples/state": "*",
     "@mapples/style": "*",
     "@mapples/types": "*",
     "expo-router": ">=56.0.0 <58",

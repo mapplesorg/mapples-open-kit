@@ -1,15 +1,48 @@
+import { isValueSource, resolveValueSource } from '@mapples/state';
 import { Action, NavigationDocument } from '@mapples/types';
 
 import { NavigationActionType } from './constants';
 import { findRouteNameForPage, resolveScreenName } from './model';
 import { NavigationCommand } from './types';
 
-/** Shape of the `payload.data` a `mapples:navigate` action carries. */
+/**
+ * Shape of the `payload.data` a `mapples:navigate` action carries. A param is
+ * a literal, or an authored value source (`{ kind: 'data', path: 'id' }` for
+ * the pressed row's id, `{ kind: 'state', dataProp: 'vars.selected' }`)
+ * resolved at emit time.
+ */
 interface NavigatePayload {
   routeName?: string;
   pageUuid?: string;
   params?: Record<string, unknown>;
 }
+
+/** What resolving a navigate action's params may need. */
+export interface NavigationResolutionContext {
+  /** Resolves `state`-kind param sources (a `@mapples/state` lookup). */
+  getStateValue?: (path: string) => unknown;
+}
+
+/**
+ * Resolve authored params to the values the screen receives. A param whose
+ * source resolves to nothing is dropped: the screen's `route.<name>` binding
+ * then reads as unset rather than as the literal "undefined".
+ */
+const resolveParams = (
+  params: Record<string, unknown> | undefined,
+  action: Action,
+  context: NavigationResolutionContext,
+): Record<string, unknown> | undefined => {
+  if (!params) return undefined;
+  const resolved: Record<string, unknown> = {};
+  for (const [name, value] of Object.entries(params)) {
+    const param = isValueSource(value)
+      ? resolveValueSource(value, action, context.getStateValue)
+      : value;
+    if (param !== undefined && param !== null) resolved[name] = param;
+  }
+  return resolved;
+};
 
 /**
  * Translate an emitted {@link Action} into a {@link NavigationCommand}, or
@@ -21,6 +54,7 @@ interface NavigatePayload {
 export const toNavigationCommand = (
   action: Action,
   document: NavigationDocument,
+  context: NavigationResolutionContext = {},
 ): NavigationCommand | null => {
   switch (action.type) {
     case NavigationActionType.Navigate: {
@@ -34,7 +68,11 @@ export const toNavigationCommand = (
       if (!target) return null;
       const routeName = resolveScreenName(document, target);
       if (!routeName) return null;
-      return { kind: 'navigate', routeName, params: data.params };
+      return {
+        kind: 'navigate',
+        routeName,
+        params: resolveParams(data.params, action, context),
+      };
     }
     case NavigationActionType.GoBack:
       return { kind: 'goBack' };

@@ -38,3 +38,11 @@ export {
   type DrawerNavigationOptions,
 } from 'expo-router/build/react-navigation/drawer';
 export { createNativeStackNavigator } from 'expo-router/build/react-navigation/native-stack';
+// Screen-scoped hooks for the route wrapper. The vendored copies carry
+// `@deprecated` tags pointing at `expo-router`'s root export; that root pulls
+// the whole router in, which is exactly what this file exists to avoid.
+export {
+  useFocusEffect,
+  useIsFocused,
+  useRoute,
+} from 'expo-router/build/react-navigation/core';

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { useActionStore } from '@mapples/action';
+import { useDataState } from '@mapples/state';
 import { NavigationDocument } from '@mapples/types';
 
 import { toNavigationCommand } from './actionCommands';
@@ -23,10 +24,15 @@ const NavigationActionHandler = ({
   document,
 }: NavigationActionHandlerProps) => {
   const actionStore = useActionStore();
+  const { getValue } = useDataState();
 
   useEffect(() => {
     const subscription = actionStore.subscribe((action) => {
-      const command = toNavigationCommand(action, document);
+      const command = toNavigationCommand(action, document, {
+        // `null`, not `getValue`'s display default: an unresolved param must
+        // not reach the screen as the literal string "N/A".
+        getStateValue: (path) => getValue({ key: path, active: true }, null),
+      });
       if (!command || !navigationRef.isReady()) return;
 
       switch (command.kind) {
@@ -59,7 +65,7 @@ const NavigationActionHandler = ({
     });
 
     return () => subscription.unsubscribe();
-  }, [actionStore, document, navigationRef]);
+  }, [actionStore, document, getValue, navigationRef]);
 
   return null;
 };

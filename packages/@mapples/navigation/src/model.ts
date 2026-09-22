@@ -106,6 +106,40 @@ export const buildNavigationModel = (
  * document) that targets a given page. Used to resolve `pageUuid` navigation
  * targets to a screen name.
  */
+/**
+ * The qualified screen name of a route id, or `null` when no navigator holds
+ * it. What a guard's fallback resolves to before it is navigated to.
+ */
+export const routeNameForId = (
+  document: NavigationDocument,
+  routeId: string,
+): string | null => {
+  for (const navigator of Object.values(document.navigators)) {
+    const route = navigator.routes.find((candidate) => candidate.id === routeId);
+    if (route) return qualifyRouteName(navigator.name, route.name);
+  }
+  return null;
+};
+
+/**
+ * The route a navigation target names — an exact `<navigator>:<route>` match,
+ * or the first route with a bare legacy name. What an editor reads to learn
+ * the params (`route.path`) a target expects.
+ */
+export const resolveRoute = (
+  document: NavigationDocument,
+  target: string,
+): RouteNode | null => {
+  let bareMatch: RouteNode | null = null;
+  for (const navigator of Object.values(document.navigators)) {
+    for (const route of navigator.routes) {
+      if (qualifyRouteName(navigator.name, route.name) === target) return route;
+      if (route.name === target && bareMatch === null) bareMatch = route;
+    }
+  }
+  return bareMatch;
+};
+
 export const findRouteNameForPage = (
   document: NavigationDocument,
   pageUuid: string,
