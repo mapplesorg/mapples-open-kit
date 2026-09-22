@@ -36,6 +36,27 @@ export const StateActionType = {
   SetState: 'mapples:setState',
 } as const;
 
+/**
+ * The action re-emitted once every operation of a `mapples:setState` has
+ * been applied — `{ type: 'mapples:navigate', data: { routeName } }` lets a
+ * sign-in button set the session and move on in one press. Carried in
+ * `staticData.onDone`, the way a request carries `onSuccess`.
+ */
+export interface SetStateFollowUp {
+  type: string;
+  data?: unknown;
+}
+
+/** The follow-up a `mapples:setState` action carries, if any. */
+export const setStateFollowUp = (action: Action): SetStateFollowUp | null => {
+  const onDone = (action.payload?.data as { onDone?: unknown } | undefined)
+    ?.onDone;
+  return isPlainObject(onDone) &&
+    typeof (onDone as { type?: unknown }).type === 'string'
+    ? (onDone as SetStateFollowUp)
+    : null;
+};
+
 /** A resolved write, ready to apply against the writable store. */
 export interface SetStateCommand {
   target: string;

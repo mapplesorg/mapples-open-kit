@@ -34,6 +34,14 @@ export * from './writable/types';
 export { useVariablesState } from './writable/context';
 export { ApiStateContextProvider, useApiState } from './api/context';
 export type { ApiState } from './api/context';
+export {
+  ActiveRouteProvider,
+  RouteParamsProvider,
+  useActiveRoute,
+  useRouteParams,
+} from './route/context';
+export type { ActiveRouteState, RouteParams } from './route/context';
+export { isValueSource, resolveValueSource } from './valueSource';
 // The data-state context itself, for hosts that re-provide it elsewhere in
 // the tree (a native portal cannot carry context across).
 export { default as StateContext, StateContextProvider } from './context';
