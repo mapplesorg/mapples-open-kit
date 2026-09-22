@@ -83,6 +83,14 @@ export interface ApiDocument {
   requests: Record<string, ApiRequest>;
 }
 
+/**
+ * Root of every request state key. Responses live in their own context, which
+ * scope providers (a frame's data state, a list row) never shadow, so
+ * `api.*` bindings resolve the same anywhere in the tree — the way `vars.*`
+ * does. `validateApiDocument` rejects a state key outside this namespace.
+ */
+export const API_NAMESPACE = 'api';
+
 /** The default state key a request's responses are stored under. */
 export const apiRequestStateKey = (request: ApiRequest): string =>
-  request.stateKey || `api.${request.name}`;
+  request.stateKey || `${API_NAMESPACE}.${request.name}`;
