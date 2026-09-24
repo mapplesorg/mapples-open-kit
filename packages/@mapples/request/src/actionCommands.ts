@@ -243,3 +243,17 @@ export const toTransportRequest = (
   body: command.body,
   auth: command.auth,
 });
+
+/**
+ * Whether a request can run with no triggering action: a GET whose params
+ * are all literals or app state. An `event` / `data` source only exists when
+ * an element fires the request, and `route.*` only once a screen is entered,
+ * so those wait for their trigger.
+ */
+export const isAutoRunnable = (request: ApiRequest): boolean =>
+  request.method === 'GET' &&
+  Object.values(request.params ?? {}).every(
+    (source) =>
+      source.kind === 'static' ||
+      (source.kind === 'state' && !source.dataProp.startsWith('route.')),
+  );
