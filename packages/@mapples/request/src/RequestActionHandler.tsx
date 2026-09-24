@@ -1,13 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useActionStore } from '@mapples/action';
 import { useDataState } from '@mapples/state';
 
 import {
+  isAutoRunnable,
   RequestCommand,
   toRequestCommand,
   toTransportRequest,
 } from './actionCommands';
+import { RequestActionType } from './constants';
 import { useRequestRuntime } from './RequestProvider';
 
 /** Artificial latency for sample mode so loading states are visible. */
@@ -104,6 +106,32 @@ const RequestActionHandler = () => {
 
     return () => subscription.unsubscribe();
   }, [actionStore, getValue, runtime]);
+
+  // Entering `fetch` mode runs the auto-runnable GETs once, through the bus
+  // so they take the same path as a pressed element. Declared after the
+  // subscription so it is in place when these are emitted; the ref keeps a
+  // document edit (a new runtime value) from running them again.
+  const mode = runtime?.mode;
+  const autoRun = !!runtime?.autoRun && !!runtime.document;
+  const ranForMode = useRef<string | null>(null);
+  useEffect(() => {
+    if (!autoRun || mode !== 'fetch') {
+      ranForMode.current = null;
+      return;
+    }
+    if (ranForMode.current === mode) return;
+    ranForMode.current = mode;
+    for (const request of Object.values(runtime!.document!.requests)) {
+      if (!isAutoRunnable(request)) continue;
+      actionStore.next({
+        time: Date.now(),
+        type: RequestActionType.Execute,
+        payload: { data: { requestId: request.id } },
+      });
+    }
+    // Only a mode change (or the runtime becoming able to run) re-runs them.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actionStore, autoRun, mode]);
 
   return null;
 };

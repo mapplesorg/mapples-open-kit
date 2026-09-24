@@ -9,7 +9,12 @@ import {
 } from 'react';
 
 import { ApiState, ApiStateContextProvider } from '@mapples/state';
-import { Action, API_NAMESPACE, ApiDocument } from '@mapples/types';
+import {
+  Action,
+  API_NAMESPACE,
+  ApiDocument,
+  apiRequestStateKey,
+} from '@mapples/types';
 import { set } from 'lodash';
 
 import { createFetchTransport, RequestTransport } from './transport';
@@ -29,6 +34,8 @@ export interface RequestRuntimeContextType {
   mode: RequestExecutionMode;
   transport: RequestTransport;
   onRequestError?: (error: Error, action: Action) => void;
+  /** See {@link RequestProviderProps.autoRun}. */
+  autoRun: boolean;
   setResponse: (stateKey: string, state: ResponseState) => void;
 }
 
@@ -56,6 +63,19 @@ export interface RequestProviderProps {
    * thrown from the action subscription.
    */
   onRequestError?: (error: Error, action: Action) => void;
+  /**
+   * Seed every request that has a `responseSample` with it, as a settled
+   * response, until a real one arrives — so an editor preview shows bound
+   * data before any request has run. Off in a shipped app: a sample is
+   * design-time data, not a response.
+   */
+  previewSamples?: boolean;
+  /**
+   * In `fetch` mode, run every GET request that needs nothing from a
+   * triggering action once when the runtime enters `fetch` mode (see
+   * `isAutoRunnable`) — the editor's "Live data" switch.
+   */
+  autoRun?: boolean;
 }
 
 const STATE_KEY_PREFIX = `${API_NAMESPACE}.`;
@@ -75,8 +95,17 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
   transport,
   secrets,
   onRequestError,
+  previewSamples = false,
+  autoRun = false,
 }) => {
   const [responses, setResponses] = useState<Record<string, ResponseState>>({});
+  // Responses belong to the mode that produced them: leaving `fetch` must not
+  // keep showing live data as if it were the preview, nor the reverse.
+  const [responsesMode, setResponsesMode] = useState(mode);
+  if (mode !== responsesMode) {
+    setResponsesMode(mode);
+    setResponses({});
+  }
 
   const setResponse = useCallback(
     (stateKey: string, response: ResponseState) => {
@@ -88,8 +117,23 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
   // State keys are dot paths under the namespace (`api.login`) — expand the
   // remainder into the nested object shape bindings resolve against.
   const apiState = useMemo(() => {
+    const samples: Record<string, ResponseState> = {};
+    if (previewSamples && document) {
+      for (const request of Object.values(document.requests)) {
+        if (request.responseSample === undefined) continue;
+        samples[apiRequestStateKey(request)] = {
+          loading: false,
+          data: request.responseSample,
+          status: 200,
+        };
+      }
+    }
+
     const result: ApiState = {};
-    for (const [stateKey, response] of Object.entries(responses)) {
+    for (const [stateKey, response] of Object.entries({
+      ...samples,
+      ...responses,
+    })) {
       if (!stateKey.startsWith(STATE_KEY_PREFIX)) {
         throw new Error(
           `State key "${stateKey}" is outside the "${API_NAMESPACE}" namespace`,
@@ -98,7 +142,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       set(result, stateKey.slice(STATE_KEY_PREFIX.length), response);
     }
     return result;
-  }, [responses]);
+  }, [document, previewSamples, responses]);
 
   const resolvedTransport = useMemo(
     () => transport ?? createFetchTransport(secrets),
@@ -111,9 +155,10 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       mode,
       transport: resolvedTransport,
       onRequestError,
+      autoRun,
       setResponse,
     }),
-    [document, mode, resolvedTransport, onRequestError, setResponse],
+    [document, mode, resolvedTransport, onRequestError, autoRun, setResponse],
   );
 
   return (
