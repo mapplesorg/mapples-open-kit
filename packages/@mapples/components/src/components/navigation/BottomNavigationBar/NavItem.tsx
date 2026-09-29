@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 
 import {
   StyledPressable,
@@ -16,8 +16,25 @@ import { defaults } from './defaults';
 import {
   BOTTOM_NAVIGATION_ICON_SIZE,
   BOTTOM_NAVIGATION_INDICATOR,
-  BottomNavigationItem,
 } from './types';
+
+/**
+ * What an item draws. `BottomNavigationBar` passes its destinations (glyph
+ * names); `TabBarItems` passes a navigator's routes, whose icon arrives as a
+ * renderer instead.
+ */
+export interface NavItemData {
+  label: string;
+  value: string;
+  /** Glyph from the project icon family. */
+  iconName?: string;
+  /** Glyph while active; defaults to `iconName`. */
+  activeIconName?: string;
+  /** Count pinned to the glyph; hidden at 0. */
+  badgeCount?: number;
+  /** Draws the icon at the colour/size asked for — used instead of the glyph names. */
+  renderIcon?: (props: { color?: string; size?: number }) => ReactNode;
+}
 
 /** Resolved colours an item paints with. */
 export interface NavItemColors {
@@ -46,9 +63,13 @@ export interface NavItemSlots {
 }
 
 export interface NavItemProps {
-  item: BottomNavigationItem;
+  item: NavItemData;
   active: boolean;
   showLabel: boolean;
+  /** Whether the active pill is drawn. Defaults to `true`. */
+  showIndicator?: boolean;
+  /** Glyph size. Defaults to 24. */
+  iconSize?: number;
   colors: NavItemColors;
   slots: NavItemSlots;
   onPress: (value: string) => void;
@@ -64,6 +85,8 @@ const NavItem: FC<NavItemProps> = ({
   item,
   active,
   showLabel,
+  showIndicator = true,
+  iconSize = BOTTOM_NAVIGATION_ICON_SIZE,
   colors,
   slots,
   onPress,
@@ -113,38 +136,38 @@ const NavItem: FC<NavItemProps> = ({
           ],
         }}
       >
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            defaults.indicator,
-            {
-              borderRadius: RADII.pill,
-              backgroundColor: colors.indicator,
-            },
-            resolved.indicator,
-            { opacity: progress },
-          ]}
-        />
+        {showIndicator ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              defaults.indicator,
+              {
+                borderRadius: RADII.pill,
+                backgroundColor: colors.indicator,
+              },
+              resolved.indicator,
+              { opacity: progress },
+            ]}
+          />
+        ) : null}
         <StyledView
           styled={{
-            style: [
-              defaults.icon,
-              {
-                width: BOTTOM_NAVIGATION_ICON_SIZE,
-                height: BOTTOM_NAVIGATION_ICON_SIZE,
-              },
-            ],
+            style: [defaults.icon, { width: iconSize, height: iconSize }],
           }}
         >
-          <Icon
-            iconName={
-              active && item.activeIconName
-                ? item.activeIconName
-                : item.iconName
-            }
-            size={BOTTOM_NAVIGATION_ICON_SIZE}
-            color={glyphColor}
-          />
+          {item.renderIcon ? (
+            item.renderIcon({ color: glyphColor, size: iconSize })
+          ) : item.iconName ? (
+            <Icon
+              iconName={
+                active && item.activeIconName
+                  ? item.activeIconName
+                  : item.iconName
+              }
+              size={iconSize}
+              color={glyphColor}
+            />
+          ) : null}
           {badge !== null ? (
             <StyledView
               pointerEvents="none"
