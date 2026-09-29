@@ -9,7 +9,13 @@
 
 export { default } from './MapplesApp';
 export type { MapplesAppProps } from './MapplesApp';
-export { normalizeKey, remapFonts } from './utils';
+export {
+  normalizeKey,
+  remapFonts,
+  resolveAssets,
+  toStyleContext,
+} from './utils';
+export type { CliAssetEntry, CliAssetModule, CliThemeModule } from './utils';
 export { default as MapplesAppProvider } from './MapplesAppProvider';
 export type { NavigationMap } from './NavigationContext';
 export {
