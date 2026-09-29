@@ -256,6 +256,23 @@ export interface HeaderOptions {
 export interface TabBarOptions {
   /** Whether the tab bar is shown. */
   visible?: boolean;
+  /**
+   * A saved component that renders the bar instead of the stock one. The
+   * design owns the look: `backgroundColor`, the tints and the label fields
+   * are inert while this is set; `visible` still applies. The runtime mounts
+   * the component as React Navigation's `tabBar` and hands it the routes
+   * through the navigator-chrome context (`TabBarItems` reads them).
+   * Mutually exclusive with {@link native}.
+   */
+  componentUuid?: string;
+  /**
+   * Render the exported app's bar with expo-router's `NativeTabs` (the
+   * platform tab bar: liquid glass on iOS 26, Material on Android). Only the
+   * exported app can honour it — the Creator's Play mode keeps the JavaScript
+   * bar, and the canvas draws a platform-styled placeholder. Mutually
+   * exclusive with {@link componentUuid}.
+   */
+  native?: boolean;
   /** Tab bar background colour. */
   backgroundColor?: string;
   /** Tint for the active tab. */
@@ -274,6 +291,14 @@ export interface TabBarOptions {
  * @interface DrawerOptions
  */
 export interface DrawerOptions {
+  /**
+   * A saved component that renders the drawer's content instead of the stock
+   * item list. `position`, `drawerType`, `width` and `backgroundColor` still
+   * shape the drawer itself; the tints are inert. The runtime mounts the
+   * component as React Navigation's `drawerContent` and hands it the routes
+   * through the navigator-chrome context (`DrawerItems` reads them).
+   */
+  componentUuid?: string;
   /** Which edge the drawer opens from. */
   position?: 'left' | 'right';
   /** How the drawer animates relative to the screen. */
