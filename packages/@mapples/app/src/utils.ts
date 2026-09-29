@@ -1,4 +1,5 @@
 import { AnyObject } from '@mapples/render';
+import type { DeepPartial, StyleContextType } from '@mapples/style';
 import { keys, reduce } from 'lodash';
 
 /**
@@ -86,4 +87,89 @@ export const remapFonts = (assets: AnyObject) => {
     },
     {},
   );
+};
+
+/**
+ * The module `mapples sync` writes as `mapples/theme.ts`: one exported
+ * document per token section. Each is the canvas singleton's `data`.
+ */
+export interface CliThemeModule {
+  theme?: DeepPartial<StyleContextType>['themeConfig'];
+  typography?: DeepPartial<StyleContextType>['typographyConfig'];
+  sizing?: DeepPartial<StyleContextType>['sizingConfig'];
+}
+
+/**
+ * Maps the CLI's `theme.ts` onto the style configuration `Styler.init`
+ * merges with the defaults (responsive breakpoints included).
+ */
+export const toStyleContext = (
+  mod: CliThemeModule | undefined,
+): DeepPartial<StyleContextType> => ({
+  themeConfig: mod?.theme,
+  typographyConfig: mod?.typography,
+  sizingConfig: mod?.sizing,
+});
+
+/**
+ * One entry of the CLI's `mapples/assetMap.ts`, keyed by the canvas `as_…`
+ * id. `source` is the bundled file; the rest is the asset record's
+ * metadata (`mapples` ≥ the assetMap-metadata release). Older maps hold the
+ * bare `require` as the value.
+ */
+export interface CliAssetEntry {
+  source: unknown;
+  type?: string;
+  /** File name without extension — the family name a font registers under. */
+  name?: string;
+  /** Local file name with extension — the third segment of a `ref(...)`. */
+  file?: string;
+  uuid?: string;
+  mime?: string;
+}
+
+/** The module `mapples sync` writes as `mapples/assetMap.ts`. */
+export interface CliAssetModule {
+  assetMap?: Record<string, CliAssetEntry | unknown>;
+  default?: Record<string, CliAssetEntry | unknown>;
+}
+
+const isCliEntry = (value: unknown): value is CliAssetEntry =>
+  typeof value === 'object' && value !== null && 'source' in value;
+
+/**
+ * Resolves what an app renders assets from: the renderer looks a node's
+ * `ref(type:uuid:file)` up in `assets`, expo-font registers `fonts`.
+ *
+ * Accepts either the CLI's `assetMap.ts` module (keys `as_…`, values with
+ * metadata) or a map already keyed by `ref(...)` — the `assets` prop of
+ * `MapplesApp`, or a map generated before the metadata release. A CLI entry
+ * without `uuid`/`file` still registers its font by `name`; it just cannot
+ * be addressed by a `ref(...)`.
+ */
+export const resolveAssets = (
+  input: CliAssetModule | AnyObject | undefined,
+): { assets: AnyObject; fonts: AnyObject } => {
+  const raw =
+    (input as CliAssetModule | undefined)?.assetMap ??
+    (input as CliAssetModule | undefined)?.default ??
+    (input as AnyObject | undefined) ??
+    {};
+  const assets: AnyObject = {};
+  const fonts: AnyObject = {};
+  for (const [key, value] of Object.entries(raw)) {
+    if (!isCliEntry(value)) {
+      // a ref(...)-keyed map: as given
+      assets[key] = value;
+      continue;
+    }
+    if (value.uuid && value.file) {
+      assets[`ref(${value.type ?? 'file'}:${value.uuid}:${value.file})`] =
+        value.source;
+    }
+    if (value.type === 'font' && value.name) {
+      fonts[value.name] = value.source;
+    }
+  }
+  return { assets, fonts: { ...remapFonts(assets), ...fonts } };
 };

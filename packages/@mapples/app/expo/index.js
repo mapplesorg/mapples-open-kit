@@ -1,38 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 
+// The files the `mapples` CLI writes (`mapples sync`): design tokens and the
+// asset map, both under <app root>/mapples/. An app that has not synced yet
+// resolves to the empty module, so `MapplesApp` falls back to the defaults
+// instead of Metro failing on a missing file.
+const CLI_FILES = {
+  'mapples::style': 'mapples/theme.ts',
+  'mapples::assets': 'mapples/assetMap.ts',
+};
+const EMPTY = require.resolve('./empty.js');
+
 const mapplesResolver = (resolver) => (context, moduleName, platform) => {
-  if (moduleName === 'mapples::style') {
-    const config = JSON.parse(
-      fs.readFileSync(path.resolve('./.mapplesrc.json'), 'utf-8'),
+  const cliFile = CLI_FILES[moduleName];
+  if (cliFile) {
+    const target = path.resolve(cliFile);
+    return context.resolveRequest(
+      context,
+      fs.existsSync(target) ? target : EMPTY,
+      platform,
     );
-    const stylePath = path.resolve(
-      `./${config.sourceDir}/${config.dirs.style}/style.json`,
-    );
-
-    return context.resolveRequest(context, stylePath, platform);
-  }
-
-  if (moduleName === 'mapples::assets') {
-    const config = JSON.parse(
-      fs.readFileSync(path.resolve('./.mapplesrc.json'), 'utf-8'),
-    );
-    const assetsPath = path.resolve(
-      `./${config.sourceDir}/${config.dirs.assets}/assetMap`,
-    );
-
-    return context.resolveRequest(context, assetsPath, platform);
-  }
-
-  if (moduleName === 'mapples::navigation') {
-    const config = JSON.parse(
-      fs.readFileSync(path.resolve('./.mapplesrc.json'), 'utf-8'),
-    );
-    const navigationMap = path.resolve(
-      `./${config.sourceDir}/${config.dirs.navigation}/navigationMap`,
-    );
-
-    return context.resolveRequest(context, navigationMap, platform);
   }
 
   if (resolver) {

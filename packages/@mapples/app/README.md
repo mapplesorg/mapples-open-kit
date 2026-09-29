@@ -305,49 +305,25 @@ interface MapplesAppProps {
 
 ## Metro Configuration
 
-This package requires Metro configuration to work properly with Expo applications. Update your `metro.config.js`:
+`MapplesApp` reads the files the [`mapples` CLI](https://www.npmjs.com/package/mapples) writes on `mapples sync`: `mapples/theme.ts` (design tokens) and `mapples/assetMap.ts` (bundled assets with their metadata). `mapplesResolver` maps the `mapples::style` and `mapples::assets` imports to those files — or to an empty module before the first sync, so the app renders with the defaults. Add it to your `metro.config.js`:
 
-```javascript
+```js
 const { getDefaultConfig } = require('expo/metro-config');
 const { mapplesResolver } = require('@mapples/app/expo');
 
-module.exports = (() => {
-  const config = getDefaultConfig(__dirname);
+const config = getDefaultConfig(__dirname);
 
-  const { transformer, resolver } = config;
+config.resolver.resolveRequest = mapplesResolver(
+  (context, moduleName, platform) => {
+    // add your custom resolvers here
+    return context.resolveRequest(context, moduleName, platform);
+  },
+);
 
-  config.transformer = {
-    ...transformer,
-    babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
-  };
-  config.resolver = {
-    ...resolver,
-    assetExts: resolver.assetExts.filter((ext) => ext !== 'svg'),
-    sourceExts: [...resolver.sourceExts, 'svg'],
-  };
-
-  config.resolver.resolveRequest = mapplesResolver(
-    (context, moduleName, platform) => {
-      // add your custom resolvers here
-      return context.resolveRequest(context, moduleName, platform);
-    },
-  );
-
-  return config;
-})();
+module.exports = config;
 ```
 
-### Dependencies
-
-Make sure you have the required dependencies installed:
-
-```bash
-npm install react-native-svg react-native-svg-transformer
-# or
-yarn add react-native-svg react-native-svg-transformer
-```
-
-For more information about SVG transformation, see the [react-native-svg-transformer documentation](https://github.com/kristerkari/react-native-svg-transformer).
+No `.mapplesrc.json` is needed. Navigation comes from the expo-router layouts the CLI generates; the `navigation` prop is only for a hand-wired action map.
 
 ## Development
 
