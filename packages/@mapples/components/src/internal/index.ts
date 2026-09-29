@@ -20,3 +20,5 @@ export * from './useOverlayPresence';
 export * from './useSlotValue';
 export { default as useTimingValue } from './useTimingValue';
 export * from './useTimingValue';
+export { default as ChromeNotice } from './ChromeNotice';
+export * from './ChromeNotice';

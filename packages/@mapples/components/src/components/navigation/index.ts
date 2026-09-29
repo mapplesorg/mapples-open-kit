@@ -8,6 +8,16 @@ export * from './BottomNavigationBar';
 export * from './BottomNavigationBar/schematic';
 export * from './BottomNavigationBar/types';
 
+export { default as TabBarItems } from './TabBarItems';
+export * from './TabBarItems';
+export * from './TabBarItems/schematic';
+export * from './TabBarItems/types';
+
+export { default as DrawerItems } from './DrawerItems';
+export * from './DrawerItems';
+export * from './DrawerItems/schematic';
+export * from './DrawerItems/types';
+
 export { default as Tabs } from './Tabs';
 export * from './Tabs';
 export * from './Tabs/schematic';
