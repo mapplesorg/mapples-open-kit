@@ -100,6 +100,14 @@ export interface MapplesNavigationProps {
   /** Rendered when a route references a missing page. */
   fallback?: ComponentType<{ pageUuid: string }>;
   /**
+   * componentUuid → the saved component a navigator names as its custom
+   * chrome (`options.tabBar.componentUuid` / `options.drawer.componentUuid`).
+   * Mounted as React Navigation's `tabBar` / `drawerContent` through
+   * `TabBarHost` / `DrawerContentHost`. A navigator that names a uuid missing
+   * here is a host error and throws.
+   */
+  chrome?: Record<string, ComponentType>;
+  /**
    * Render inside `NavigationIndependentTree` instead of a `NavigationContainer`
    * — required when the host app already owns a container (expo-router / Creator).
    */

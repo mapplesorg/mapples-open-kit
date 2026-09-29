@@ -31,10 +31,13 @@ export {
 
 export {
   createBottomTabNavigator,
+  BottomTabBarHeightCallbackContext,
+  type BottomTabBarProps,
   type BottomTabNavigationOptions,
 } from 'expo-router/build/react-navigation/bottom-tabs';
 export {
   createDrawerNavigator,
+  type DrawerContentComponentProps,
   type DrawerNavigationOptions,
 } from 'expo-router/build/react-navigation/drawer';
 export { createNativeStackNavigator } from 'expo-router/build/react-navigation/native-stack';

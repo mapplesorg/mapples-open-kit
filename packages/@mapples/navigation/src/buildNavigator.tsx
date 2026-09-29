@@ -1,11 +1,12 @@
-import { ComponentType, useMemo } from 'react';
+import { ComponentType, useCallback, useMemo } from 'react';
 
 import { NavigationDocument } from '@mapples/types';
 import { Text, View } from 'react-native';
 
-
 // React Navigation is consumed through expo-router's vendored copy, centralized
 // in `./vendor` (SDK 56+ blocks external `@react-navigation/*`).
+import { DrawerContentHost, TabBarHost } from './chrome';
+import { EMPTY_ROUTE_NAME } from './constants';
 import {
   mapDrawerItemOptions,
   mapDrawerOptions,
@@ -19,9 +20,11 @@ import { NavigatorModel, ScreenModel } from './model';
 import RouteScreen from './RouteScreen';
 import { MapplesNavigationProps, RefResolvers } from './types';
 import {
+  type BottomTabBarProps,
   type BottomTabNavigationOptions,
   createBottomTabNavigator,
   createDrawerNavigator,
+  type DrawerContentComponentProps,
   type DrawerNavigationOptions,
   createNativeStackNavigator,
 } from './vendor';
@@ -32,18 +35,32 @@ export interface NavigatorBuildContext {
   document: NavigationDocument;
   pages: MapplesNavigationProps['pages'];
   fallback?: MapplesNavigationProps['fallback'];
+  /** The custom chrome components, by the uuid the navigator options name. */
+  chrome?: MapplesNavigationProps['chrome'];
   resolvers: RefResolvers;
 }
 
-const MissingScreen: ComponentType = () => null;
-
 /**
- * React Navigation requires every navigator to have at least one screen. A
- * navigator with no routes is a valid intermediate state in the editor (you
- * create it, then add screens), so render a single placeholder rather than
- * crashing.
+ * The saved component a navigator names as its chrome. Naming one the host
+ * did not supply is a wiring error — the design would silently be the stock
+ * bar otherwise — so it throws rather than falling back.
  */
-const EMPTY_ROUTE_NAME = '__mapples_empty__';
+const chromeComponent = (
+  ctx: NavigatorBuildContext,
+  model: NavigatorModel,
+  componentUuid: string | undefined,
+): ComponentType | undefined => {
+  if (!componentUuid) return undefined;
+  const Chrome = ctx.chrome?.[componentUuid];
+  if (!Chrome) {
+    throw new Error(
+      `[@mapples/navigation] navigator "${model.name}" names chrome component ${componentUuid}, which the host did not provide`,
+    );
+  }
+  return Chrome;
+};
+
+const MissingScreen: ComponentType = () => null;
 
 // Blank the header title / tab / drawer label so the internal placeholder route
 // name never leaks into the preview chrome.
@@ -156,9 +173,20 @@ const TabsNavigatorView = ({
   ctx: NavigatorBuildContext;
 }) => {
   const Tabs = useMemo(() => createBottomTabNavigator(), []);
+  const Chrome = chromeComponent(
+    ctx,
+    model,
+    model.node.options?.tabBar?.componentUuid,
+  );
+  const tabBar = useCallback(
+    (props: BottomTabBarProps) =>
+      Chrome ? <TabBarHost {...props} Chrome={Chrome} /> : null,
+    [Chrome],
+  );
   return (
     <Tabs.Navigator
       initialRouteName={model.initialRouteName}
+      tabBar={Chrome ? tabBar : undefined}
       screenOptions={{
         ...mapTabBarOptions(model.node.options?.tabBar, ctx.resolvers),
         // Bottom tabs draw a header of their own. Until these were mapped, a
@@ -209,9 +237,20 @@ const DrawerNavigatorView = ({
   ctx: NavigatorBuildContext;
 }) => {
   const Drawer = useMemo(() => createDrawerNavigator(), []);
+  const Chrome = chromeComponent(
+    ctx,
+    model,
+    model.node.options?.drawer?.componentUuid,
+  );
+  const drawerContent = useCallback(
+    (props: DrawerContentComponentProps) =>
+      Chrome ? <DrawerContentHost {...props} Chrome={Chrome} /> : null,
+    [Chrome],
+  );
   return (
     <Drawer.Navigator
       initialRouteName={model.initialRouteName}
+      drawerContent={Chrome ? drawerContent : undefined}
       screenOptions={{
         ...mapDrawerOptions(model.node.options?.drawer, ctx.resolvers),
         // See the tabs navigator: a drawer draws its own header too.
