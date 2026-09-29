@@ -10,6 +10,7 @@ export { default as NavigationActionHandler } from './NavigationActionHandler';
 export { default as useRefResolvers } from './useRefResolvers';
 export { NavigatorView } from './buildNavigator';
 export type { NavigatorBuildContext } from './buildNavigator';
+export * from './chrome';
 
 export * from './types';
 export * from './constants';

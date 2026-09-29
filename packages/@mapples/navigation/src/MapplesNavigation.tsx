@@ -20,6 +20,7 @@ const MapplesNavigation: FC<MapplesNavigationProps> = ({
   document,
   pages,
   fallback,
+  chrome,
   independent,
   navigationRef: externalRef,
 }) => {
@@ -30,7 +31,7 @@ const MapplesNavigation: FC<MapplesNavigationProps> = ({
 
   if (!model) return null;
 
-  const ctx = { document, pages, fallback, resolvers };
+  const ctx = { document, pages, fallback, chrome, resolvers };
 
   const container = (
     <NavigationContainer ref={navigationRef as typeof internalRef}>
