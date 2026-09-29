@@ -76,6 +76,22 @@ export interface NavigatorCanvasRect {
 }
 
 /**
+ * Editor-only cell of a navigator's section on the Creator storyboard grid:
+ * the column and row it occupies in its parent's grid (the canvas itself for
+ * a top-level section). The runtime ignores it entirely — it exists so the
+ * canvas can persist where the section sits, the way pages persist their
+ * frame placement in `_canvasProps`.
+ *
+ * @interface StoryboardCell
+ */
+export interface StoryboardCell {
+  /** Column in the parent's grid. Any integer — the grid has no edge. */
+  col: number;
+  /** Row in the parent's grid. */
+  row: number;
+}
+
+/**
  * A single navigator (stack, tabs, or drawer) and its ordered child routes.
  *
  * @interface NavigatorNode
@@ -93,7 +109,14 @@ export interface NavigatorNode {
   routes: RouteNode[];
   /** Presentation/styling options scoped to this navigator. */
   options?: NavigatorOptions;
-  /** Editor-only canvas placement. Ignored by the runtime. */
+  /** Editor-only storyboard cell. Ignored by the runtime. */
+  cell?: StoryboardCell;
+  /**
+   * Editor-only canvas placement from before the storyboard grid. Ignored by
+   * the runtime and by the Creator, kept so older documents still parse.
+   *
+   * @deprecated Sections sit in a {@link cell} now.
+   */
   canvas?: NavigatorCanvasRect;
 }
 
