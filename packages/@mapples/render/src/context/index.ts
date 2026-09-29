@@ -1,2 +1,4 @@
 export { default as RenderContext } from './RenderContext';
 export * from './RenderContext';
+export { default as NavigatorChromeContext } from './NavigatorChromeContext';
+export * from './NavigatorChromeContext';
