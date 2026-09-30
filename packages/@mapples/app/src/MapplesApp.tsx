@@ -18,6 +18,8 @@ import * as themeModule from 'mapples::style';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { NavigationMap, NavigationProvider } from './NavigationContext';
+import MapplesRuntime, { MapplesRuntimeProps } from './runtime/MapplesRuntime';
+import { MapplesProject, syncedProject } from './runtime/project';
 import { resolveAssets, toStyleContext } from './utils';
 
 const rootStyle = { flex: 1 } as const;
@@ -38,6 +40,16 @@ export interface MapplesAppProps {
   FontLoadingIndicator?: JSX.Element;
   /** Font loaded callback **/
   onFontLoaded?: () => void;
+  /**
+   * The navigation, API and variables documents the behaviour runtime
+   * executes. Defaults to the files `mapples sync` writes
+   * (`mapples/navigation.ts`, `mapples/api.ts`, `mapples/variables.ts`).
+   */
+  project?: MapplesProject;
+  /** Persistence for `persist: true` app variables. */
+  variablesStorage?: MapplesRuntimeProps['variablesStorage'];
+  /** Performs API requests (default: direct `fetch` with the synced secrets). */
+  transport?: MapplesRuntimeProps['transport'];
 }
 
 /**
@@ -88,7 +100,11 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   navigation,
   FontLoadingIndicator,
   onFontLoaded,
+  project,
+  variablesStorage,
+  transport,
 }) => {
+  const runtimeProject = useMemo(() => project ?? syncedProject(), [project]);
   const resolved = useMemo(
     () => resolveAssets(assets ?? assetsModule),
     [assets],
@@ -121,7 +137,13 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
           assets={resolved.assets}
         >
           <NavigationProvider navigation={navigation}>
-            {children}
+            <MapplesRuntime
+              project={runtimeProject}
+              variablesStorage={variablesStorage}
+              transport={transport}
+            >
+              {children}
+            </MapplesRuntime>
           </NavigationProvider>
         </RenderProvider>
       </StyleProvider>
