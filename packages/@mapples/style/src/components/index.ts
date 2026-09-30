@@ -6,7 +6,10 @@ export {
   default as StyleProvider,
   type StyleProviderProps,
 } from './StyleProvider';
-export { default as StyledFlatList } from './StyledFlatList';
+export {
+  default as StyledFlatList,
+  type StyledFlatListProps,
+} from './StyledFlatList';
 export {
   default as NavigationThemeProvider,
   type NavigationThemeProviderProps,
