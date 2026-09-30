@@ -7,6 +7,7 @@
 
 export { default as MapplesNavigation } from './MapplesNavigation';
 export { default as NavigationActionHandler } from './NavigationActionHandler';
+export { default as RouteScreen, RouteGuard } from './RouteScreen';
 export { default as useRefResolvers } from './useRefResolvers';
 export { NavigatorView } from './buildNavigator';
 export type { NavigatorBuildContext } from './buildNavigator';

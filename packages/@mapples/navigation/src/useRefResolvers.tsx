@@ -2,6 +2,7 @@ import { createElement } from 'react';
 
 import { useRender } from '@mapples/render';
 import { ThemeMap, useTheme } from '@mapples/style';
+import { parseGlyphRef } from '@mapples/types';
 import { Image, ImageSourcePropType } from 'react-native';
 
 import { parseRef } from './refs';
@@ -20,12 +21,15 @@ const lookupToken = (map: ThemeMap, path: string): string | undefined => {
 /**
  * Builds {@link RefResolvers} from the host's style + render contexts:
  * `ref(theme:…)` resolves against `@mapples/style`'s active theme, `ref(icon:…)`
- * against `@mapples/render`'s assets map. Unresolvable refs warn and fall back to
- * a default rather than crashing.
+ * against `@mapples/render`'s assets map, and `ref(glyph:<family>:<name>)`
+ * through the host's registered `Icon` component (the font-glyph element an
+ * `Icon` node renders). Unresolvable theme / asset refs warn and fall back to
+ * a default rather than crashing; a glyph ref on a host without an `Icon`
+ * component is a wiring error and throws.
  */
 const useRefResolvers = (): RefResolvers => {
   const { theme, themeConfig } = useTheme();
-  const { assets } = useRender();
+  const { assets, components } = useRender();
 
   const resolveColor = (value?: string): string | undefined => {
     if (!value) return undefined;
@@ -43,6 +47,24 @@ const useRefResolvers = (): RefResolvers => {
 
   const resolveIcon = (value?: string): IconRenderer | undefined => {
     if (!value) return undefined;
+
+    const glyph = parseGlyphRef(value);
+    if (glyph) {
+      const GlyphIcon = components.Icon?.Component;
+      if (!GlyphIcon) {
+        throw new Error(
+          `[@mapples/navigation] ${value} needs an "Icon" component registered with the RenderProvider`,
+        );
+      }
+      // eslint-disable-next-line react/display-name
+      return ({ size, color }) =>
+        createElement(GlyphIcon, {
+          iconStyle: glyph.family,
+          iconName: glyph.name,
+          size: size ?? 24,
+          color,
+        } as object);
+    }
 
     const parsed = parseRef(value);
     if (!parsed || parsed.type !== 'icon') return undefined;

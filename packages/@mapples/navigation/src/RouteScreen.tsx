@@ -26,6 +26,63 @@ interface RouteScreenProps {
 }
 
 /**
+ * A route's access guard: whether it holds, and — while the route is focused
+ * and refused, on arrival or when the guard flips (a sign-out on a guarded
+ * screen) — the redirect to its fallback. The redirect REPLACES the history
+ * (`replace: true`) the way expo-router's `Stack.Protected` drops protected
+ * screens: a guarded area the user may not see must not stay reachable
+ * through back buttons on the fallback.
+ */
+const useRouteGuard = (
+  route: RouteNode,
+  document: NavigationDocument,
+): boolean => {
+  const actionStore = useActionStore();
+  const focused = useIsFocused();
+  const { getConditionResult } = useDataState();
+
+  const allowed =
+    route.guard === undefined ||
+    route.guard === '' ||
+    getConditionResult(route.guard);
+
+  const fallback = route.guardFallbackRouteId;
+  useEffect(() => {
+    if (allowed || !focused) return;
+    const target = fallback ? routeNameForId(document, fallback) : null;
+    if (!target) {
+      // The validator rejects a guard without a fallback; a document that
+      // reached the runtime without one is a defect, not a screen to blank.
+      throw new Error(
+        `Guarded route "${route.name}" has no fallback route to send the user to`,
+      );
+    }
+    actionStore.next({
+      time: Date.now(),
+      type: NavigationActionType.Navigate,
+      payload: { data: { routeName: target, replace: true } },
+    });
+  }, [actionStore, allowed, document, fallback, focused, route.name]);
+
+  return allowed;
+};
+
+/**
+ * Wraps the nested navigator a route enters with that route's guard: a
+ * refused guard renders nothing of the area and sends the user to the
+ * fallback. Params and on-enter stay with the screens inside — a navigator
+ * route publishing its (empty) params would overwrite the focused screen's.
+ */
+export const RouteGuard: FC<PropsWithChildren<RouteScreenProps>> = ({
+  route,
+  document,
+  children,
+}) => {
+  const allowed = useRouteGuard(route, document);
+  return allowed ? <>{children}</> : null;
+};
+
+/**
  * Wraps a page screen with what its route declares: the params it was
  * navigated to with (`route.*` bindings, and the focused-screen params the
  * root handlers read), the `onEnter` action emitted on every focus, and the
@@ -44,16 +101,11 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
   );
   const actionStore = useActionStore();
   const activeRoute = useActiveRoute();
-  const focused = useIsFocused();
-  const { getConditionResult } = useDataState();
-
-  const allowed =
-    route.guard === undefined ||
-    route.guard === '' ||
-    getConditionResult(route.guard);
+  const allowed = useRouteGuard(route, document);
 
   const { onEnter } = route;
   const setActiveParams = activeRoute?.setParams;
+  const releaseActiveParams = activeRoute?.releaseParams;
 
   // Each focus (and each param change while focused) is one entry. The
   // params are published to the root first; the entry action is emitted only
@@ -64,8 +116,8 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
     useCallback(() => {
       setActiveParams?.(routeParams);
       setEntry((count) => count + 1);
-      return () => setActiveParams?.(null);
-    }, [routeParams, setActiveParams]),
+      return () => releaseActiveParams?.(routeParams);
+    }, [releaseActiveParams, routeParams, setActiveParams]),
   );
 
   const paramsPublished = !activeRoute || activeRoute.params === routeParams;
@@ -87,26 +139,6 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
       },
     });
   }, [actionStore, allowed, entry, onEnter, paramsPublished, routeParams]);
-
-  // Redirect while focused and refused — on arrival, and when the guard flips
-  // (a sign-out on the guarded screen itself).
-  const fallback = route.guardFallbackRouteId;
-  useEffect(() => {
-    if (allowed || !focused) return;
-    const target = fallback ? routeNameForId(document, fallback) : null;
-    if (!target) {
-      // The validator rejects a guard without a fallback; a document that
-      // reached the runtime without one is a defect, not a screen to blank.
-      throw new Error(
-        `Guarded route "${route.name}" has no fallback route to send the user to`,
-      );
-    }
-    actionStore.next({
-      time: Date.now(),
-      type: NavigationActionType.Navigate,
-      payload: { data: { routeName: target } },
-    });
-  }, [actionStore, allowed, document, fallback, focused, route.name]);
 
   if (!allowed) return null;
 
