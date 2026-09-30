@@ -196,9 +196,16 @@ function applySetProps(
       additions.push(' ' + printAttr(n, v, undefined, options.states));
     }
     if (additions.length > 0) {
+      // Right after the last attribute, not at the end of the attribute
+      // region: that region runs up to `/>` and so includes the space before
+      // it — appending there printed `…}  $data={…}/>`.
+      const insertAt = info.attrs.reduce(
+        (end, attr) => Math.max(end, attr.span.end),
+        info.attrsSpan.start,
+      );
       textEdits.push({
-        start: info.attrsSpan.end,
-        end: info.attrsSpan.end,
+        start: insertAt,
+        end: insertAt,
         replacement: additions.join(''),
       });
     }
