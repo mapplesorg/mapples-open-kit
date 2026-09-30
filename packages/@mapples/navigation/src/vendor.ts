@@ -26,6 +26,7 @@ export {
   NavigationContainer,
   NavigationIndependentTree,
   createNavigationContainerRef,
+  CommonActions,
   DrawerActions,
 } from 'expo-router/react-navigation';
 

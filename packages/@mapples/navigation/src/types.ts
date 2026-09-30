@@ -15,7 +15,7 @@ export type IconRenderer = (props: {
 export interface RefResolvers {
   /** Resolve a colour value or `ref(theme:…)` to a concrete colour. */
   resolveColor: (value?: string) => string | undefined;
-  /** Resolve `ref(icon:…)` to an icon renderer. */
+  /** Resolve `ref(icon:…)` / `ref(glyph:…)` to an icon renderer. */
   resolveIcon: (value?: string) => IconRenderer | undefined;
 }
 
@@ -67,7 +67,16 @@ export interface DrawerItemOptionsPatch {
 
 /** A resolved navigation intent, applied to the navigation container ref. */
 export type NavigationCommand =
-  | { kind: 'navigate'; routeName: string; params?: Record<string, unknown> }
+  | {
+      kind: 'navigate';
+      routeName: string;
+      params?: Record<string, unknown>;
+      /**
+       * Replace the history with the target instead of pushing it — a guard
+       * redirect, or an authored navigate that must not leave a way back.
+       */
+      replace?: boolean;
+    }
   | { kind: 'goBack' }
   | { kind: 'openDrawer' }
   | { kind: 'closeDrawer' }

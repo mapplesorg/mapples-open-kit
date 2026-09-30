@@ -1,6 +1,11 @@
 import { ComponentType, useCallback, useMemo } from 'react';
 
-import { NavigationDocument } from '@mapples/types';
+import {
+  NavigationDocument,
+  routeHeaderVisible,
+  routeItemLabel,
+  routeTitle,
+} from '@mapples/types';
 import { Text, View } from 'react-native';
 
 // React Navigation is consumed through expo-router's vendored copy, centralized
@@ -17,7 +22,7 @@ import {
   resolveNavigatorHeader,
 } from './mappers';
 import { NavigatorModel, ScreenModel } from './model';
-import RouteScreen from './RouteScreen';
+import RouteScreen, { RouteGuard } from './RouteScreen';
 import { MapplesNavigationProps, RefResolvers } from './types';
 import {
   type BottomTabBarProps,
@@ -88,9 +93,16 @@ const screenComponent = (
 ): ComponentType => {
   if (screen.target.kind === 'navigator') {
     const child = screen.target.child;
-    const Child: ComponentType = () => (
-      <NavigatorView model={child} ctx={ctx} />
-    );
+    // A guard on the route entering a nested navigator protects the whole
+    // area under it.
+    const Child: ComponentType = () =>
+      screen.route.guard ? (
+        <RouteGuard route={screen.route} document={ctx.document}>
+          <NavigatorView model={child} ctx={ctx} />
+        </RouteGuard>
+      ) : (
+        <NavigatorView model={child} ctx={ctx} />
+      );
     return Child;
   }
 
@@ -117,6 +129,22 @@ const screenComponent = (
   return MissingScreen;
 };
 
+/**
+ * The header visibility and title every navigator type gives a screen — the
+ * shared `@mapples/types` rules the canvas frame chrome and the CLI's
+ * generated layouts apply too. A route entering a nested navigator draws no
+ * header (the nested one does), so Play never stacks two bars. The title is
+ * always set: left unset, React Navigation would show the navigator-qualified
+ * screen name (`<navigator>:<route>`).
+ */
+const sharedScreenOptions = (
+  model: NavigatorModel,
+  screen: ScreenModel,
+): { headerShown: boolean; title: string } => ({
+  headerShown: routeHeaderVisible(model.node, screen.route),
+  title: routeTitle(model.node, screen.route),
+});
+
 const StackNavigatorView = ({
   model,
   ctx,
@@ -125,12 +153,6 @@ const StackNavigatorView = ({
   ctx: NavigatorBuildContext;
 }) => {
   const Stack = useMemo(() => createNativeStackNavigator(), []);
-  // When neither the navigator nor the route sets a header title, React
-  // Navigation falls back to the screen name — which is now navigator-qualified
-  // (`<navigator>:<route>`). Default the title to the bare route name in that
-  // case so the prefix never surfaces in the UI; a navigator-level title still
-  // applies to every screen as before.
-  const navHasTitle = model.node.options?.header?.title !== undefined;
   return (
     <Stack.Navigator
       initialRouteName={model.initialRouteName}
@@ -142,9 +164,7 @@ const StackNavigatorView = ({
       {model.screens.length ? (
         model.screens.map((screen) => {
           const options = mapStackScreenOptions(screen.route, ctx.resolvers);
-          if (options.title === undefined && !navHasTitle) {
-            options.title = screen.route.name;
-          }
+          Object.assign(options, sharedScreenOptions(model, screen));
           return (
             <Stack.Screen
               key={screen.routeId}
@@ -204,11 +224,9 @@ const TabsNavigatorView = ({
             screen.route,
             ctx.resolvers,
           ) as BottomTabNavigationOptions;
-          // Same guard as the stack: with no explicit title, React Navigation
-          // labels the tab and its header with the screen name, which is
-          // navigator-qualified (`<navigator>:<route>`). Default to the bare
-          // route name so the prefix never reaches the UI.
-          if (options.title === undefined) options.title = screen.route.name;
+          Object.assign(options, sharedScreenOptions(model, screen), {
+            tabBarLabel: routeItemLabel('tabs', screen.route),
+          });
           return (
             <Tabs.Screen
               key={screen.routeId}
@@ -266,9 +284,9 @@ const DrawerNavigatorView = ({
             screen.route,
             ctx.resolvers,
           ) as DrawerNavigationOptions;
-          // See the tabs navigator: the qualified screen name must not become
-          // the drawer item's label or its header title.
-          if (options.title === undefined) options.title = screen.route.name;
+          Object.assign(options, sharedScreenOptions(model, screen), {
+            drawerLabel: routeItemLabel('drawer', screen.route),
+          });
           return (
             <Drawer.Screen
               key={screen.routeId}
