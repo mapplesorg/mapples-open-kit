@@ -1,8 +1,12 @@
 import { forwardRef, Fragment, ReactElement, Ref } from 'react';
 
 import StateProvider from '@mapples/state';
-import { StyledFlatList, StyledProp, StyledView } from '@mapples/style';
-import type { StyledFlatListProps } from '@mapples/style/src/components/StyledFlatList';
+import {
+  StyledFlatList,
+  type StyledFlatListProps,
+  StyledProp,
+  StyledView,
+} from '@mapples/style';
 import type { ListRenderItem, View as RNView, ViewStyle } from 'react-native';
 
 /**
