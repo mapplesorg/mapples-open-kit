@@ -154,9 +154,17 @@ export interface RouteNode {
    * the user to {@link guardFallbackRouteId} instead. Meant for "signed in"
    * style checks — a screen waiting for its data binds `api.<name>.loading`,
    * a guard on the response would bounce the user before the request settles.
+   *
+   * On a route that enters a nested navigator the guard protects that whole
+   * area — every screen under it (expo-router's `Stack.Protected` around the
+   * group). The fallback must then lie outside the guarded area.
    */
   guard?: string;
-  /** Id of the route shown when {@link guard} fails. Required with a guard. */
+  /**
+   * Id of the route shown when {@link guard} fails. Required with a guard;
+   * never the guarded route itself nor, for a navigator route, a route
+   * inside the navigator it guards.
+   */
   guardFallbackRouteId?: string;
   /**
    * An action emitted each time the screen gains focus, with the route's
@@ -340,17 +348,90 @@ export interface DrawerOptions {
  * Per-screen option overrides. Extends {@link HeaderOptions} (each field
  * optional) and adds tab/drawer item presentation for the screen.
  *
- * Icon fields accept a reference of the form `ref(icon:<uuid>:<name>)`.
+ * Icon fields accept an uploaded icon asset, `ref(icon:<uuid>:<name>)`, or a
+ * built-in font glyph, `ref(glyph:<family>:<name>)` (see {@link buildGlyphRef}).
  *
  * @interface ScreenOptions
  */
 export interface ScreenOptions extends Partial<HeaderOptions> {
-  /** Tab bar icon — `ref(icon:<uuid>:<name>)`. */
+  /** Tab bar icon — `ref(icon:<uuid>:<name>)` or `ref(glyph:<family>:<name>)`. */
   tabIcon?: string;
   /** Tab bar label override. */
   tabLabel?: string;
-  /** Drawer icon — `ref(icon:<uuid>:<name>)`. */
+  /** Drawer icon — `ref(icon:<uuid>:<name>)` or `ref(glyph:<family>:<name>)`. */
   drawerIcon?: string;
   /** Drawer label override. */
   drawerLabel?: string;
 }
+
+/**
+ * A built-in font glyph used as a tab / drawer icon: the icon family's key as
+ * `@mapples/ui` persists it (`ionicons`, `material-icons`, …) and the glyph's
+ * name in that family — the same pair an `Icon` element renders
+ * (`iconStyle` + `iconName`).
+ *
+ * @interface GlyphRef
+ */
+export interface GlyphRef {
+  family: string;
+  name: string;
+}
+
+const GLYPH_REF_PATTERN = /^ref\(glyph:([^:()]+):([^()]+)\)$/;
+
+/**
+ * The `ref(glyph:<family>:<name>)` string a {@link ScreenOptions} icon field
+ * stores for a built-in glyph. The family is pinned in the ref (rather than
+ * following the project's icon family) so the exported app can import the
+ * one font it names.
+ */
+export const buildGlyphRef = (family: string, name: string): string =>
+  `ref(glyph:${family}:${name})`;
+
+/** The family and glyph of a `ref(glyph:…)` string, or `null` if it isn't one. */
+export const parseGlyphRef = (value?: string): GlyphRef | null => {
+  if (!value) return null;
+  const match = GLYPH_REF_PATTERN.exec(value);
+  return match ? { family: match[1], name: match[2] } : null;
+};
+
+/**
+ * Whether a route's screen shows its navigator's header. The route's own
+ * `visible` wins. Otherwise a route that enters a nested navigator shows
+ * none — the nested navigator draws the header of the screen inside it, and
+ * drawing the parent's too stacks two bars (`Auth` over `Sign in`) — and a
+ * page route follows its navigator (shown unless the navigator turns it off).
+ *
+ * The one rule the canvas frame chrome and the exported app's generated
+ * layouts (the `mapples` CLI mirrors it) both apply.
+ */
+export const routeHeaderVisible = (
+  navigator: NavigatorNode,
+  route: RouteNode,
+): boolean =>
+  route.options?.visible ??
+  (route.target.kind === 'navigator'
+    ? false
+    : (navigator.options?.header?.visible ?? true));
+
+/**
+ * The title a route's screen shows in its header: the route's own, else the
+ * navigator's, else the route name.
+ */
+export const routeTitle = (
+  navigator: NavigatorNode,
+  route: RouteNode,
+): string =>
+  route.options?.title ?? navigator.options?.header?.title ?? route.name;
+
+/**
+ * The label a route's tab or drawer item shows: the route's `tabLabel` /
+ * `drawerLabel`, else the route name — never the header title, which a
+ * navigator-wide title would otherwise put on every item.
+ */
+export const routeItemLabel = (
+  kind: 'tabs' | 'drawer',
+  route: RouteNode,
+): string =>
+  (kind === 'tabs' ? route.options?.tabLabel : route.options?.drawerLabel) ??
+  route.name;
