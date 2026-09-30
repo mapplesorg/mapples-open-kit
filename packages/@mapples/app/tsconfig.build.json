@@ -11,13 +11,25 @@
   },
   "references": [
     {
+      "path": "../action/tsconfig.build.json"
+    },
+    {
       "path": "../components/tsconfig.build.json"
     },
     {
       "path": "../fonts/tsconfig.build.json"
     },
     {
+      "path": "../navigation/tsconfig.build.json"
+    },
+    {
       "path": "../render/tsconfig.build.json"
+    },
+    {
+      "path": "../request/tsconfig.build.json"
+    },
+    {
+      "path": "../state/tsconfig.build.json"
     },
     {
       "path": "../style/tsconfig.build.json"
