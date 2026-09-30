@@ -15,7 +15,4 @@ const PREFIX_HEX = 20;
 
 export const textHash = (text: string): string =>
   HASH_PREFIX +
-  bytesToHex(blake3(utf8ToBytes(JSON.stringify(text)))).slice(
-    0,
-    PREFIX_HEX,
-  );
+  bytesToHex(blake3(utf8ToBytes(JSON.stringify(text)))).slice(0, PREFIX_HEX);
