@@ -14,7 +14,8 @@ import {
  * - `DUPLICATE_ROUTE_NAME` — two routes share a name within one navigator.
  * - `PRESENTATION_NOT_STACK` — a `presentation` is set on a non-stack navigator's route.
  * - `ROUTE_PATH_INVALID` — a route `path` has a malformed segment.
- * - `GUARD_FALLBACK_INVALID` — a guarded route names no fallback, itself, or an absent route.
+ * - `GUARD_FALLBACK_INVALID` — a guarded route names no fallback, itself, an absent route,
+ *   or (on a navigator route) a route inside the area it guards.
  */
 export type NavigationValidationCode =
   | 'ROOT_MISSING'
@@ -66,7 +67,8 @@ export interface NavigationValidationResult {
  * - route names are unique within their parent navigator;
  * - `presentation` is only set on routes whose parent navigator is a `stack`;
  * - a route `path`, when set, is made of literal, `(group)` or `:param` segments;
- * - a guarded route names a fallback route that exists and is not itself.
+ * - a guarded route names a fallback route that exists, is not itself and,
+ *   for a navigator route, lies outside the navigator it guards.
  *
  * The check is exhaustive: all violations are collected rather than failing on
  * the first.
@@ -149,7 +151,8 @@ function validateNavigator(
     }
 
     // A guard with nowhere to go, or one that sends the user back to the
-    // guarded screen, loops the navigator.
+    // guarded screen — or into the area a navigator route guards — loops
+    // the navigator.
     if (route.guard !== undefined) {
       const fallback = route.guardFallbackRouteId;
       const exists =
@@ -157,10 +160,16 @@ function validateNavigator(
         Object.values(navigators).some((candidate) =>
           (candidate.routes ?? []).some((other) => other.id === fallback),
         );
-      if (!fallback || fallback === route.id || !exists) {
+      const inside =
+        !!fallback &&
+        route.target.kind === 'navigator' &&
+        navigatorRouteIds(route.target.navigatorId, navigators).has(fallback);
+      if (!fallback || fallback === route.id || !exists || inside) {
         errors.push({
           code: 'GUARD_FALLBACK_INVALID',
-          message: `Guarded route "${route.name}" needs a fallback route other than itself`,
+          message: inside
+            ? `Guarded route "${route.name}" sends the user to a route inside the area it guards`
+            : `Guarded route "${route.name}" needs a fallback route other than itself`,
           navigatorId: navigator.id,
           routeId: route.id,
         });
@@ -194,6 +203,31 @@ function validateNavigator(
       navigatorId: navigator.id,
     });
   }
+}
+
+/**
+ * Every route id under a navigator, nested navigators' routes included — the
+ * area a guard on the route entering it protects. Cycle-safe (cycles are
+ * reported separately).
+ */
+export function navigatorRouteIds(
+  navigatorId: string,
+  navigators: Record<string, NavigatorNode>,
+): Set<string> {
+  const ids = new Set<string>();
+  const visit = (id: string, seen: Set<string>): void => {
+    const navigator = navigators[id];
+    if (!navigator || seen.has(id)) return;
+    seen.add(id);
+    for (const route of navigator.routes ?? []) {
+      ids.add(route.id);
+      if (route.target.kind === 'navigator') {
+        visit(route.target.navigatorId, seen);
+      }
+    }
+  };
+  visit(navigatorId, new Set());
+  return ids;
 }
 
 /** Flag any navigator targeted by more than one route (not a tree). */
