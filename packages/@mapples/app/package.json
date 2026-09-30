@@ -41,6 +41,6 @@
     "app.plugin.js",
     "README.md",
     "package.json",
-    "expo/index.js"
+    "expo"
   ]
 }
