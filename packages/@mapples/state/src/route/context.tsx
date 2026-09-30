@@ -2,6 +2,7 @@ import {
   createContext,
   FC,
   PropsWithChildren,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -30,6 +31,13 @@ export interface ActiveRouteState {
   params: RouteParams | null;
   /** Called by a screen when it gains focus; `null` when the last one leaves. */
   setParams: (params: RouteParams | null) => void;
+  /**
+   * Called by a screen when it loses focus: clears the params only while
+   * they are still that screen's. The next screen's focus can run before
+   * the previous one's blur (a navigate into another navigator), and a
+   * plain `setParams(null)` would then wipe the params it just published.
+   */
+  releaseParams: (params: RouteParams) => void;
 }
 
 /**
@@ -43,9 +51,12 @@ const ActiveRouteContext = createContext<ActiveRouteState | null>(null);
 /** Tracks the focused screen's params for handlers mounted above the navigator. */
 export const ActiveRouteProvider: FC<PropsWithChildren> = ({ children }) => {
   const [params, setParams] = useState<RouteParams | null>(null);
+  const releaseParams = useCallback((released: RouteParams) => {
+    setParams((current) => (current === released ? null : current));
+  }, []);
   const value = useMemo<ActiveRouteState>(
-    () => ({ params, setParams }),
-    [params],
+    () => ({ params, setParams, releaseParams }),
+    [params, releaseParams],
   );
   return (
     <ActiveRouteContext.Provider value={value}>
