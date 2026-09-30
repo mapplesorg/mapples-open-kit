@@ -104,6 +104,25 @@ const NavItem: FC<NavItemProps> = ({
     colors.active,
   );
   const glyphColor = active ? activeGlyph : inactiveGlyph;
+  // A destination with no icon at all (a navigator route nobody gave one) is
+  // a label-only tab: the label takes the icon's place — always shown, with
+  // the active pill behind it — instead of an empty pill over a caption.
+  const iconless = !item.renderIcon && !item.iconName;
+  const labelColor = active ? colors.active : colors.inactive;
+  const indicatorPill = showIndicator ? (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        defaults.indicator,
+        {
+          borderRadius: RADII.pill,
+          backgroundColor: colors.indicator,
+        },
+        resolved.indicator,
+        { opacity: progress },
+      ]}
+    />
+  ) : null;
   const badge =
     typeof item.badgeCount === 'number' && item.badgeCount > 0
       ? item.badgeCount > BADGE_MAX
@@ -125,77 +144,89 @@ const NavItem: FC<NavItemProps> = ({
         ],
       }}
     >
-      <StyledView
-        styled={{
-          style: [
-            defaults.iconBox,
-            {
-              width: BOTTOM_NAVIGATION_INDICATOR.width,
-              height: BOTTOM_NAVIGATION_INDICATOR.height,
-            },
-          ],
-        }}
-      >
-        {showIndicator ? (
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              defaults.indicator,
-              {
-                borderRadius: RADII.pill,
-                backgroundColor: colors.indicator,
-              },
-              resolved.indicator,
-              { opacity: progress },
-            ]}
-          />
-        ) : null}
+      {iconless ? (
         <StyledView
           styled={{
-            style: [defaults.icon, { width: iconSize, height: iconSize }],
+            style: [
+              defaults.labelBox,
+              { minHeight: BOTTOM_NAVIGATION_INDICATOR.height },
+            ],
           }}
         >
-          {item.renderIcon ? (
-            item.renderIcon({ color: glyphColor, size: iconSize })
-          ) : item.iconName ? (
-            <Icon
-              iconName={
-                active && item.activeIconName
-                  ? item.activeIconName
-                  : item.iconName
-              }
-              size={iconSize}
-              color={glyphColor}
-            />
-          ) : null}
-          {badge !== null ? (
-            <StyledView
-              pointerEvents="none"
-              styled={{
-                style: [
-                  defaults.badge,
-                  { backgroundColor: colors.badge },
-                  slots.styleBadge,
-                ],
-              }}
-            >
-              <Typography
-                variant={TYPOGRAPHY_PARTS.helper}
-                color={colors.onBadge}
-                style={defaults.badgeText}
-              >
-                {badge}
-              </Typography>
-            </StyledView>
-          ) : null}
+          {indicatorPill}
+          <Typography
+            variant={TYPOGRAPHY_PARTS.label}
+            numberOfLines={1}
+            style={[
+              { color: labelColor },
+              slots.styleLabel,
+              active && slots.styleLabelActive,
+            ]}
+          >
+            {item.label}
+          </Typography>
         </StyledView>
-      </StyledView>
-      {showLabel ? (
+      ) : null}
+      {iconless ? null : (
+        <StyledView
+          styled={{
+            style: [
+              defaults.iconBox,
+              {
+                width: BOTTOM_NAVIGATION_INDICATOR.width,
+                height: BOTTOM_NAVIGATION_INDICATOR.height,
+              },
+            ],
+          }}
+        >
+          {indicatorPill}
+          <StyledView
+            styled={{
+              style: [defaults.icon, { width: iconSize, height: iconSize }],
+            }}
+          >
+            {item.renderIcon ? (
+              item.renderIcon({ color: glyphColor, size: iconSize })
+            ) : item.iconName ? (
+              <Icon
+                iconName={
+                  active && item.activeIconName
+                    ? item.activeIconName
+                    : item.iconName
+                }
+                size={iconSize}
+                color={glyphColor}
+              />
+            ) : null}
+            {badge !== null ? (
+              <StyledView
+                pointerEvents="none"
+                styled={{
+                  style: [
+                    defaults.badge,
+                    { backgroundColor: colors.badge },
+                    slots.styleBadge,
+                  ],
+                }}
+              >
+                <Typography
+                  variant={TYPOGRAPHY_PARTS.helper}
+                  color={colors.onBadge}
+                  style={defaults.badgeText}
+                >
+                  {badge}
+                </Typography>
+              </StyledView>
+            ) : null}
+          </StyledView>
+        </StyledView>
+      )}
+      {showLabel && !iconless ? (
         <Typography
           variant={TYPOGRAPHY_PARTS.helper}
           numberOfLines={1}
           style={[
-            { color: active ? colors.active : colors.inactive },
+            { color: labelColor },
             slots.styleLabel,
             active && slots.styleLabelActive,
           ]}

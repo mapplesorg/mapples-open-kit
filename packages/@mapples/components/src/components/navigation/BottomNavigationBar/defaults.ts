@@ -21,6 +21,11 @@ export const defaults = Styler.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  labelBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
   indicator: {
     position: 'absolute',
     top: 0,
