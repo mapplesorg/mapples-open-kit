@@ -3,6 +3,9 @@ import { useContext } from 'react';
 import NavigatorChromeContext, {
   NavigatorChrome,
 } from '../context/NavigatorChromeContext';
+import NavigatorChromeItemContext, {
+  NavigatorChromeItemScope,
+} from '../context/NavigatorChromeItemContext';
 
 /**
  * The navigator chrome a host provides, or `undefined` when the component is
@@ -11,6 +14,31 @@ import NavigatorChromeContext, {
  */
 export const useOptionalNavigatorChrome = (): NavigatorChrome | undefined =>
   useContext(NavigatorChromeContext);
+
+/**
+ * The route a chrome template copy is rendered for, or `undefined` outside a
+ * repeating container (`TabTemplate`). Item elements use this to tell the
+ * designer where they belong instead of failing.
+ */
+export const useOptionalNavigatorChromeItem = ():
+  | NavigatorChromeItemScope
+  | undefined => useContext(NavigatorChromeItemContext);
+
+/**
+ * The route a chrome template copy is rendered for.
+ *
+ * @throws When no `NavigatorChromeItemProvider` is above — the element is not
+ * inside a repeating chrome container.
+ */
+export const useNavigatorChromeItem = (): NavigatorChromeItemScope => {
+  const scope = useContext(NavigatorChromeItemContext);
+  if (!scope) {
+    throw new Error(
+      'useNavigatorChromeItem: no chrome item — the element is not inside a tab item template',
+    );
+  }
+  return scope;
+};
 
 /**
  * The navigator chrome a host provides.
