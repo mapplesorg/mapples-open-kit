@@ -14,6 +14,7 @@ import {
   API_NAMESPACE,
   DataProp,
   ROUTE_NAMESPACE,
+  TAB_NAMESPACE,
   VARIABLES_NAMESPACE,
 } from '@mapples/types';
 import { get, join } from 'lodash';
@@ -21,11 +22,13 @@ import { get, join } from 'lodash';
 import { useApiState } from '../api/context';
 import StateContext from '../context';
 import { useActiveRoute, useRouteParams } from '../route/context';
+import { useTabScope } from '../tab/context';
 import { useVariablesState } from '../writable/context';
 
 const NS_PREFIX = `${VARIABLES_NAMESPACE}.`;
 const API_PREFIX = `${API_NAMESPACE}.`;
 const ROUTE_PREFIX = `${ROUTE_NAMESPACE}.`;
+const TAB_PREFIX = `${TAB_NAMESPACE}.`;
 
 /** Whether a binding path targets the writable variables store. */
 const isVariablesKey = (key: string) =>
@@ -38,6 +41,10 @@ const isApiKey = (key: string) =>
 /** Whether a binding path targets the screen's route params. */
 const isRouteKey = (key: string) =>
   key === ROUTE_NAMESPACE || key.startsWith(ROUTE_PREFIX);
+
+/** Whether a binding path targets the tab a designed tab bar repeats. */
+const isTabKey = (key: string) =>
+  key === TAB_NAMESPACE || key.startsWith(TAB_PREFIX);
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -75,14 +82,16 @@ const useDataState = () => {
   const screenParams = useRouteParams();
   const activeRoute = useActiveRoute();
   const routeValue = screenParams ?? activeRoute?.params ?? null;
+  const tabValue = useTabScope();
 
   /**
    * Resolve one key segment: `vars.*` keys route to the writable variables
-   * store, `api.*` keys to the API response state and `route.*` keys to the
-   * screen's params (parallel contexts that scope providers never shadow);
-   * everything else reads the nearest `StateProvider` as before. With no
-   * `VariablesProvider` / request runtime / routed screen mounted, those keys
-   * fall through to `altValue`.
+   * store, `api.*` keys to the API response state, `route.*` keys to the
+   * screen's params and `tab.*` keys to the tab a designed tab bar repeats
+   * (parallel contexts that scope providers never shadow); everything else
+   * reads the nearest `StateProvider` as before. With no `VariablesProvider`
+   * / request runtime / routed screen / tab scope mounted, those keys fall
+   * through to `altValue`.
    */
   const resolveKey = useCallback(
     (key: string, altValue?: unknown) => {
@@ -98,9 +107,13 @@ const useDataState = () => {
         if (key === ROUTE_NAMESPACE) return routeValue ?? altValue;
         return get(routeValue, key.slice(ROUTE_PREFIX.length), altValue);
       }
+      if (isTabKey(key)) {
+        if (key === TAB_NAMESPACE) return tabValue ?? altValue;
+        return get(tabValue, key.slice(TAB_PREFIX.length), altValue);
+      }
       return get(value, key, altValue);
     },
-    [value, variablesValue, apiValue, routeValue],
+    [value, variablesValue, apiValue, routeValue, tabValue],
   );
 
   /**
