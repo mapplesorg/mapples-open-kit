@@ -195,6 +195,14 @@ export interface RouteEnterAction {
 export const ROUTE_NAMESPACE = 'route';
 
 /**
+ * Root of the bindings a designed tab bar's per-tab template reads
+ * (`tab.label`, `tab.active`, `tab.index`). Each repeated tab provides its
+ * own scope through a `@mapples/state` context kept apart from the data
+ * state, like `route.*`, so a component's `props.*` stay readable inside it.
+ */
+export const TAB_NAMESPACE = 'tab';
+
+/**
  * Param segments of a {@link RouteNode.path}: `:token` as authored in the
  * Creator, or `[token]` as an expo-router file the CLI adopted.
  */
@@ -304,6 +312,12 @@ export interface TabBarOptions {
    * exclusive with {@link componentUuid}.
    */
   native?: boolean;
+  /**
+   * The designed bar ({@link componentUuid}) lies over the screens instead of
+   * below them: screens keep their full height and scroll underneath. Inert
+   * on the stock and the native bar.
+   */
+  floating?: boolean;
   /** Tab bar background colour. */
   backgroundColor?: string;
   /** Tint for the active tab. */
