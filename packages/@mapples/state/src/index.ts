@@ -41,6 +41,8 @@ export {
   useRouteParams,
 } from './route/context';
 export type { ActiveRouteState, RouteParams } from './route/context';
+export { TabScopeProvider, useTabScope } from './tab/context';
+export type { TabScope } from './tab/context';
 export { isValueSource, resolveValueSource } from './valueSource';
 // The data-state context itself, for hosts that re-provide it elsewhere in
 // the tree (a native portal cannot carry context across).
