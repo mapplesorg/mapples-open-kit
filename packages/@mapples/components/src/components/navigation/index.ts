@@ -13,6 +13,21 @@ export * from './TabBarItems';
 export * from './TabBarItems/schematic';
 export * from './TabBarItems/types';
 
+export { default as TabTemplate } from './TabTemplate';
+export * from './TabTemplate';
+export * from './TabTemplate/schematic';
+export * from './TabTemplate/types';
+
+export { default as TabIcon } from './TabIcon';
+export * from './TabIcon';
+export * from './TabIcon/schematic';
+export * from './TabIcon/types';
+
+export { default as TabLabel } from './TabLabel';
+export * from './TabLabel';
+export * from './TabLabel/schematic';
+export * from './TabLabel/types';
+
 export { default as DrawerItems } from './DrawerItems';
 export * from './DrawerItems';
 export * from './DrawerItems/schematic';
