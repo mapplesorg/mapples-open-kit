@@ -24,8 +24,14 @@ import {
 import { chromeItemsOf, routeByKey } from './chromeItems';
 
 export interface TabBarHostProps extends BottomTabBarProps {
-  /** The saved component that draws the bar (it contains a `TabBarItems`). */
+  /** The saved component that draws the bar (it contains a `TabTemplate` or `TabBarItems`). */
   Chrome: ComponentType;
+  /**
+   * The bar lies over the screens instead of below them
+   * (`TabBarOptions.floating`): screens keep their full height. The host then
+   * keeps the design clear of the bottom safe area itself.
+   */
+  floating?: boolean;
 }
 
 /**
@@ -43,6 +49,11 @@ export interface TabBarHostProps extends BottomTabBarProps {
  *
  * A custom `tabBar` never sees `tabBarStyle`, so `visible: false` (which the
  * runtime maps to `display: 'none'`) is honoured here by rendering nothing.
+ *
+ * A `floating` bar is taken out of the navigator's layout and pinned to the
+ * bottom edge, so the screens run underneath it. Its height is still
+ * reported: a screen that wants its last row clear of the bar pads by
+ * `useBottomTabBarHeight()`.
  */
 const TabBarHost: FC<TabBarHostProps> = ({
   state,
@@ -50,6 +61,7 @@ const TabBarHost: FC<TabBarHostProps> = ({
   navigation,
   insets,
   Chrome,
+  floating = false,
 }) => {
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
@@ -101,12 +113,27 @@ const TabBarHost: FC<TabBarHostProps> = ({
   if (hidden) return null;
 
   return (
-    <View onLayout={onLayout}>
+    <View
+      onLayout={onLayout}
+      pointerEvents={floating ? 'box-none' : undefined}
+      style={
+        floating ? [styles.floating, { paddingBottom: insets.bottom }] : null
+      }
+    >
       <NavigatorChromeProvider value={chrome}>
         <Chrome />
       </NavigatorChromeProvider>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  floating: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});
 
 export default TabBarHost;
