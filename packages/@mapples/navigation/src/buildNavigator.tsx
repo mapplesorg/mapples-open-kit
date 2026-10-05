@@ -198,10 +198,13 @@ const TabsNavigatorView = ({
     model,
     model.node.options?.tabBar?.componentUuid,
   );
+  const floating = model.node.options?.tabBar?.floating === true;
   const tabBar = useCallback(
     (props: BottomTabBarProps) =>
-      Chrome ? <TabBarHost {...props} Chrome={Chrome} /> : null,
-    [Chrome],
+      Chrome ? (
+        <TabBarHost {...props} Chrome={Chrome} floating={floating} />
+      ) : null,
+    [Chrome, floating],
   );
   return (
     <Tabs.Navigator
