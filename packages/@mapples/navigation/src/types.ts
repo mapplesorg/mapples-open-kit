@@ -1,10 +1,11 @@
 import { ComponentType, ReactNode } from 'react';
+import { ColorValue } from 'react-native';
 
 import { NavigationDocument } from '@mapples/types';
 
 /** Renders an icon for a tab/drawer item, given the runtime colour/size. */
 export type IconRenderer = (props: {
-  color?: string;
+  color?: ColorValue;
   size?: number;
 }) => ReactNode;
 
