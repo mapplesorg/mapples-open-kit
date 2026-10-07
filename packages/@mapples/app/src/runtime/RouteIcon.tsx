@@ -1,11 +1,12 @@
 import { FC } from 'react';
+import { ColorValue } from 'react-native';
 
 import { useRefResolvers } from '@mapples/navigation';
 
 interface RouteIconProps {
   /** A route's `tabIcon` / `drawerIcon`: `ref(glyph:<family>:<name>)` or `ref(icon:<uuid>:<file>)`. */
   icon: string;
-  color?: string;
+  color?: ColorValue;
   size?: number;
 }
 
