@@ -40,6 +40,12 @@ export interface LiveHelloFrame {
     name?: string | null;
   };
   presence: LiveMember[];
+  /**
+   * The live agent-session lease as a v2 `agent` frame, or null when none is
+   * live. Editor and CLI sockets only; absent from viewers and from hubs
+   * that predate it, which clients read as "ask the agent-session route".
+   */
+  agent?: LiveAgentFrame | null;
   /** Unix seconds; the socket closes 4408 then (JWT sockets only). */
   exp?: number;
 }
