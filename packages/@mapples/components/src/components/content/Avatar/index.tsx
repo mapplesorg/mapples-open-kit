@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledImage,
@@ -75,7 +81,9 @@ const BADGE_MAX = 99;
  *
  * @public
  */
-const Avatar = forwardRef<View, PropsWithChildren<AvatarProps>>(
+const Avatar: ForwardRefExoticComponent<
+  PropsWithChildren<AvatarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<AvatarProps>>(
   (
     {
       source,

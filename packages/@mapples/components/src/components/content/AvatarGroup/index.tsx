@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -65,7 +71,9 @@ export interface AvatarGroupProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const AvatarGroup = forwardRef<View, PropsWithChildren<AvatarGroupProps>>(
+const AvatarGroup: ForwardRefExoticComponent<
+  PropsWithChildren<AvatarGroupProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<AvatarGroupProps>>(
   (
     {
       items,

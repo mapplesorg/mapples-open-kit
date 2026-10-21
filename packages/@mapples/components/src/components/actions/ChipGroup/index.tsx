@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledScrollView, StyledView } from '@mapples/style';
 import { Tone } from '@mapples/ui';
@@ -77,7 +83,9 @@ const selectedOf = (value: ChipGroupValue): string[] =>
  *
  * @public
  */
-const ChipGroup = forwardRef<View, PropsWithChildren<ChipGroupProps>>(
+const ChipGroup: ForwardRefExoticComponent<
+  PropsWithChildren<ChipGroupProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ChipGroupProps>>(
   (
     {
       options,

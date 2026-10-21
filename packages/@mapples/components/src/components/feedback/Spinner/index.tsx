@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import { Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -43,7 +49,9 @@ export interface SpinnerProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Spinner = forwardRef<View, PropsWithChildren<SpinnerProps>>(
+const Spinner: ForwardRefExoticComponent<
+  PropsWithChildren<SpinnerProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SpinnerProps>>(
   (
     {
       size = 'md',

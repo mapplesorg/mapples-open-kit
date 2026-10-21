@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -78,7 +86,10 @@ export interface ChatComposerProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const ChatComposer = forwardRef<View, PropsWithChildren<ChatComposerProps>>(
+const ChatComposer: ForwardRefExoticComponent<
+  PropsWithChildren<ChatComposerProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ChatComposerProps>>(
   (
     {
       value,

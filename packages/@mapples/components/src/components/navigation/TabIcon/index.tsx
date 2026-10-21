@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useMemo } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useMemo,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { useOptionalNavigatorChromeItem } from '@mapples/render';
 import {
@@ -64,7 +71,9 @@ const boxOf = (slot: StyledProp<object> | undefined): object | undefined => {
  *
  * @public
  */
-const TabIcon = forwardRef<View, PropsWithChildren<TabIconProps>>(
+const TabIcon: ForwardRefExoticComponent<
+  PropsWithChildren<TabIconProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TabIconProps>>(
   (
     {
       size = TAB_ICON_SIZE,

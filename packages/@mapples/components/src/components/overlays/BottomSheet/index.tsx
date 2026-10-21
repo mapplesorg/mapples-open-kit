@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -78,7 +85,9 @@ const DISMISS_VELOCITY = 800;
  *
  * @public
  */
-const BottomSheet = forwardRef<View, PropsWithChildren<BottomSheetProps>>(
+const BottomSheet: ForwardRefExoticComponent<
+  PropsWithChildren<BottomSheetProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<BottomSheetProps>>(
   (
     {
       visible,

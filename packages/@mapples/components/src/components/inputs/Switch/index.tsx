@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography, useStyled } from '@mapples/style';
 import {
@@ -82,7 +88,9 @@ export interface SwitchProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Switch = forwardRef<View, PropsWithChildren<SwitchProps>>(
+const Switch: ForwardRefExoticComponent<
+  PropsWithChildren<SwitchProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SwitchProps>>(
   (
     {
       value,

@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useMemo } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useMemo,
+  type ComponentProps,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, useStyle, useStyled } from '@mapples/style';
 import { useTones } from '@mapples/ui';
@@ -54,7 +62,9 @@ const OVERLAY_Z_INDEX = 1000;
  * taller than a phone frame, so centred and bottom content landed below the
  * frame. A hidden overlay renders nothing once its exit animation has played.
  */
-const OverlayRoot = forwardRef<View, PropsWithChildren<OverlayRootProps>>(
+const OverlayRoot: ForwardRefExoticComponent<
+  PropsWithChildren<OverlayRootProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<OverlayRootProps>>(
   (
     {
       visible,
@@ -98,7 +108,7 @@ const OverlayRoot = forwardRef<View, PropsWithChildren<OverlayRootProps>>(
       return {
         opacity: progress,
         transform,
-      } as unknown as Animated.WithAnimatedObject<ViewStyle>;
+      } as unknown as ComponentProps<typeof Animated.View>['style'];
     }, [enter, progress]);
 
     const resolvedRoot = useStyled({ root: style }) as { root?: ViewStyle };

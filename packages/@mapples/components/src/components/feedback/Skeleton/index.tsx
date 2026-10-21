@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, useStyled } from '@mapples/style';
 import { RADII, useTones } from '@mapples/ui';
@@ -60,7 +66,9 @@ export interface SkeletonProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Skeleton = forwardRef<View, PropsWithChildren<SkeletonProps>>(
+const Skeleton: ForwardRefExoticComponent<
+  PropsWithChildren<SkeletonProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SkeletonProps>>(
   (
     {
       variant = 'rect',

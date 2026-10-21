@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -88,7 +95,9 @@ export interface BannerProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Banner = forwardRef<View, PropsWithChildren<BannerProps>>(
+const Banner: ForwardRefExoticComponent<
+  PropsWithChildren<BannerProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<BannerProps>>(
   (
     {
       title,

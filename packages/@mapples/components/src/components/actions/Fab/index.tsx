@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -71,7 +77,9 @@ export interface FabProps extends Omit<PressableProps, 'children' | 'style'> {
  *
  * @public
  */
-const Fab = forwardRef<View, PropsWithChildren<FabProps>>(
+const Fab: ForwardRefExoticComponent<
+  PropsWithChildren<FabProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<FabProps>>(
   (
     {
       iconName = 'add',

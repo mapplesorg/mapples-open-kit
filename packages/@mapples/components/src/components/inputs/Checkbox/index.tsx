@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -82,7 +88,9 @@ export interface CheckboxProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Checkbox = forwardRef<View, PropsWithChildren<CheckboxProps>>(
+const Checkbox: ForwardRefExoticComponent<
+  PropsWithChildren<CheckboxProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<CheckboxProps>>(
   (
     {
       value,

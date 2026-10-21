@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -74,7 +80,9 @@ export interface StatTileProps extends Omit<
  *
  * @public
  */
-const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
+const StatTile: ForwardRefExoticComponent<
+  PropsWithChildren<StatTileProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<StatTileProps>>(
   (
     {
       label,

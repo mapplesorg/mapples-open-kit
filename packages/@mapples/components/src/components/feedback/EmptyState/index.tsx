@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledImage,
@@ -91,7 +97,9 @@ export interface EmptyStateProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const EmptyState = forwardRef<View, PropsWithChildren<EmptyStateProps>>(
+const EmptyState: ForwardRefExoticComponent<
+  PropsWithChildren<EmptyStateProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<EmptyStateProps>>(
   (
     {
       title,

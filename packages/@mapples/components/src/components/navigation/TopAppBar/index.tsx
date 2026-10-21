@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -100,7 +106,9 @@ export interface TopAppBarProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const TopAppBar = forwardRef<View, PropsWithChildren<TopAppBarProps>>(
+const TopAppBar: ForwardRefExoticComponent<
+  PropsWithChildren<TopAppBarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TopAppBarProps>>(
   (
     {
       title,

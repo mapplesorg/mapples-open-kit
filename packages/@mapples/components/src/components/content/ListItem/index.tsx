@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useContext } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useContext,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledImage,
@@ -127,7 +134,9 @@ export interface ListItemProps extends Omit<
  *
  * @public
  */
-const ListItem = forwardRef<View, PropsWithChildren<ListItemProps>>(
+const ListItem: ForwardRefExoticComponent<
+  PropsWithChildren<ListItemProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ListItemProps>>(
   (
     {
       title,

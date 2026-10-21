@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useEffect } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -73,7 +81,9 @@ export interface SnackbarProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Snackbar = forwardRef<View, PropsWithChildren<SnackbarProps>>(
+const Snackbar: ForwardRefExoticComponent<
+  PropsWithChildren<SnackbarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SnackbarProps>>(
   (
     {
       message,

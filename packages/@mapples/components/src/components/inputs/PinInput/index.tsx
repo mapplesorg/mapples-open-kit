@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useRef } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -89,7 +97,9 @@ export interface PinInputProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const PinInput = forwardRef<View, PropsWithChildren<PinInputProps>>(
+const PinInput: ForwardRefExoticComponent<
+  PropsWithChildren<PinInputProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<PinInputProps>>(
   (
     {
       value,
@@ -122,7 +132,7 @@ const PinInput = forwardRef<View, PropsWithChildren<PinInputProps>>(
     const tones = useTones();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<string>(fieldName);
-    const inputRef = useRef<TextInput>(null);
+    const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
     const [text, setText] = useControllableState<string>({
       value: field.bound ? (field.value ?? '') : value,
       defaultValue,

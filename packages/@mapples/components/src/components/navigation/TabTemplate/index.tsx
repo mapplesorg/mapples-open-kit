@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   NavigatorChromeItemProvider,
@@ -49,7 +55,9 @@ export interface TabTemplateProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const TabTemplate = forwardRef<View, PropsWithChildren<TabTemplateProps>>(
+const TabTemplate: ForwardRefExoticComponent<
+  PropsWithChildren<TabTemplateProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TabTemplateProps>>(
   ({ safeAreaBottom = true, styled, children, ...rest }, ref) => {
     const chrome = useOptionalNavigatorChrome();
 

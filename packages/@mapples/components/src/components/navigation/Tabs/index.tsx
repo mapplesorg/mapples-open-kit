@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledScrollView, StyledView } from '@mapples/style';
 import { Tokens, Tone, useTones } from '@mapples/ui';
@@ -78,7 +86,9 @@ export interface TabsProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
+const Tabs: ForwardRefExoticComponent<
+  PropsWithChildren<TabsProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TabsProps>>(
   (
     {
       items,

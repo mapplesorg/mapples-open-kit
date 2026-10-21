@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography, useStyled } from '@mapples/style';
 import { Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -72,7 +79,9 @@ export interface ProgressBarProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const ProgressBar = forwardRef<View, PropsWithChildren<ProgressBarProps>>(
+const ProgressBar: ForwardRefExoticComponent<
+  PropsWithChildren<ProgressBarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ProgressBarProps>>(
   (
     {
       value = 0,
