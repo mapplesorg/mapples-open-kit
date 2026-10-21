@@ -5,6 +5,7 @@ import {
   RefObject,
   useContext,
   useMemo,
+  type ComponentRef,
 } from 'react';
 
 import { View } from 'react-native';
@@ -17,7 +18,7 @@ export interface FrameSpaceContextType {
    * (`measureLayout(frameRoot)`), yielding scale-independent frame-local
    * layout rects.
    */
-  frameRootRef: RefObject<View | null>;
+  frameRootRef: RefObject<ComponentRef<typeof View> | null>;
 }
 
 const FrameSpaceContext = createContext<FrameSpaceContextType | null>(null);
@@ -27,7 +28,7 @@ export const useFrameSpace = () => useContext(FrameSpaceContext);
 
 export interface FrameSpaceProps {
   frameKey: string;
-  frameRootRef: RefObject<View | null>;
+  frameRootRef: RefObject<ComponentRef<typeof View> | null>;
 }
 
 /**

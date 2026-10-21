@@ -5,6 +5,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type ComponentRef,
 } from 'react';
 
 import { LayoutRectangle, useWindowDimensions, View } from 'react-native';
@@ -31,7 +32,7 @@ import useDropContext from './useDropContext';
  * @public
  */
 const useDrop = <DragData extends object, DropData extends object = DragData>(
-  ref: RefObject<View | null>,
+  ref: RefObject<ComponentRef<typeof View> | null>,
   config?: DropTargetConfig,
   data?: DropData,
 ) => {
