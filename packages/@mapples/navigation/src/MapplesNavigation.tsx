@@ -30,6 +30,12 @@ const MapplesNavigation: FC<MapplesNavigationProps> = ({
   const navigationRef = externalRef ?? internalRef;
 
   if (!model) return null;
+  if (!NavigationContainer || !NavigationIndependentTree) {
+    throw new Error(
+      'MapplesNavigation needs the NavigationContainer and NavigationIndependentTree that expo-router 58 no longer vendors. ' +
+        'Exported apps navigate through expo-router routes (@mapples/app) instead.',
+    );
+  }
 
   const ctx = { document, pages, fallback, chrome, resolvers };
 
