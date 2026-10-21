@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useMemo } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useMemo,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
 import { ButtonGroupContext, ButtonGroupContextValue } from '@mapples/ui';
@@ -39,7 +46,9 @@ export interface ButtonGroupProps extends ViewProps {
  *
  * @public
  */
-const ButtonGroup = forwardRef<View, PropsWithChildren<ButtonGroupProps>>(
+const ButtonGroup: ForwardRefExoticComponent<
+  PropsWithChildren<ButtonGroupProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ButtonGroupProps>>(
   (
     {
       direction = 'row',

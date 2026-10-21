@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledImage,
@@ -92,7 +98,9 @@ export interface MediaCardProps extends Omit<
  *
  * @public
  */
-const MediaCard = forwardRef<View, PropsWithChildren<MediaCardProps>>(
+const MediaCard: ForwardRefExoticComponent<
+  PropsWithChildren<MediaCardProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<MediaCardProps>>(
   (
     {
       source,

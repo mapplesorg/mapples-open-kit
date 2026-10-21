@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -94,7 +101,9 @@ export interface DialogProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Dialog = forwardRef<View, PropsWithChildren<DialogProps>>(
+const Dialog: ForwardRefExoticComponent<
+  PropsWithChildren<DialogProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<DialogProps>>(
   (
     {
       visible,

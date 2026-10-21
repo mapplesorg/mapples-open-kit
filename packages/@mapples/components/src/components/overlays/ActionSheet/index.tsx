@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -89,7 +96,9 @@ export interface ActionSheetProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const ActionSheet = forwardRef<View, PropsWithChildren<ActionSheetProps>>(
+const ActionSheet: ForwardRefExoticComponent<
+  PropsWithChildren<ActionSheetProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ActionSheetProps>>(
   (
     {
       visible,

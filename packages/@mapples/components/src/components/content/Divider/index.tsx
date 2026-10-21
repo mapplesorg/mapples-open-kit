@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import { Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -41,7 +47,9 @@ export interface DividerProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Divider = forwardRef<View, PropsWithChildren<DividerProps>>(
+const Divider: ForwardRefExoticComponent<
+  PropsWithChildren<DividerProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<DividerProps>>(
   (
     {
       orientation = 'horizontal',

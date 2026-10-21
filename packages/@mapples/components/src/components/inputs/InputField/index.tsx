@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  ForwardRefExoticComponent,
+  RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -122,7 +129,15 @@ export interface InputFieldProps extends Omit<
  *
  * @public
  */
-const InputField = forwardRef<TextInput, PropsWithChildren<InputFieldProps>>(
+// Annotated so the emitted type names the instance through `ComponentRef`:
+// React Native 0.88's TextInput instance type is not exported.
+const InputField: ForwardRefExoticComponent<
+  PropsWithChildren<InputFieldProps> &
+    RefAttributes<ComponentRef<typeof TextInput>>
+> = forwardRef<
+  ComponentRef<typeof TextInput>,
+  PropsWithChildren<InputFieldProps>
+>(
   (
     {
       label,

@@ -1,4 +1,12 @@
-import { forwardRef, useCallback, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useRef,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledFlatList, StyledProp, StyledView } from '@mapples/style';
 import { ImageProps } from 'expo-image';
@@ -110,7 +118,9 @@ export interface ImageCarouselProps<T extends ImageCarouselDataItem> {
  * />
  * ```
  */
-const ImageCarousel = forwardRef<View, ImageCarouselProps<any>>(
+const ImageCarousel: ForwardRefExoticComponent<
+  ImageCarouselProps<any> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, ImageCarouselProps<any>>(
   (
     {
       styled,

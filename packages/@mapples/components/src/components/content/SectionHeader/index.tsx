@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import { Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -44,7 +50,13 @@ export interface SectionHeaderProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const SectionHeader = forwardRef<View, PropsWithChildren<SectionHeaderProps>>(
+const SectionHeader: ForwardRefExoticComponent<
+  PropsWithChildren<SectionHeaderProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<
+  ComponentRef<typeof View>,
+  PropsWithChildren<SectionHeaderProps>
+>(
   (
     {
       title,

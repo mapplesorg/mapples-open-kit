@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledPressable, StyledProp, StyledView } from '@mapples/style';
 import { ELEVATION, RADII, Tokens, useTones } from '@mapples/ui';
@@ -38,7 +44,9 @@ export interface CardProps extends Omit<PressableProps, 'children' | 'style'> {
  *
  * @public
  */
-const Card = forwardRef<View, PropsWithChildren<CardProps>>(
+const Card: ForwardRefExoticComponent<
+  PropsWithChildren<CardProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<CardProps>>(
   (
     {
       variant = 'elevated',

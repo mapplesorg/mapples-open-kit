@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useRef } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -107,7 +115,9 @@ export interface SearchBarProps extends Omit<
  *
  * @public
  */
-const SearchBar = forwardRef<View, PropsWithChildren<SearchBarProps>>(
+const SearchBar: ForwardRefExoticComponent<
+  PropsWithChildren<SearchBarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SearchBarProps>>(
   (
     {
       value,
@@ -133,7 +143,7 @@ const SearchBar = forwardRef<View, PropsWithChildren<SearchBarProps>>(
     ref,
   ) => {
     const tones = useTones();
-    const inputRef = useRef<TextInput>(null);
+    const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
     const [text, setText] = useControllableState<string>({
       value,
       defaultValue,

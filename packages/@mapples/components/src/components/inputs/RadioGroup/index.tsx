@@ -1,4 +1,11 @@
-import { FC, forwardRef, PropsWithChildren } from 'react';
+import {
+  FC,
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography, useStyled } from '@mapples/style';
 import {
@@ -202,7 +209,9 @@ const RadioItem: FC<RadioItemProps> = ({
  *
  * @public
  */
-const RadioGroup = forwardRef<View, PropsWithChildren<RadioGroupProps>>(
+const RadioGroup: ForwardRefExoticComponent<
+  PropsWithChildren<RadioGroupProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<RadioGroupProps>>(
   (
     {
       options,

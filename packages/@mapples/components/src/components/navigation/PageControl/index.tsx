@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -73,7 +79,9 @@ const clamp = (value: number, min: number, max: number) =>
  *
  * @public
  */
-const PageControl = forwardRef<View, PropsWithChildren<PageControlProps>>(
+const PageControl: ForwardRefExoticComponent<
+  PropsWithChildren<PageControlProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<PageControlProps>>(
   (
     {
       count = 3,

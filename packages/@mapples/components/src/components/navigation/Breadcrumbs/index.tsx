@@ -1,4 +1,11 @@
-import { forwardRef, Fragment, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  Fragment,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import { Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -84,7 +91,9 @@ const collapse = (items: BreadcrumbItem[], maxItems: number): Crumb[] => {
  *
  * @public
  */
-const Breadcrumbs = forwardRef<View, PropsWithChildren<BreadcrumbsProps>>(
+const Breadcrumbs: ForwardRefExoticComponent<
+  PropsWithChildren<BreadcrumbsProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<BreadcrumbsProps>>(
   (
     {
       items,

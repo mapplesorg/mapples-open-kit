@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -82,7 +88,9 @@ export interface ChipProps extends Omit<PressableProps, 'children' | 'style'> {
  *
  * @public
  */
-const Chip = forwardRef<View, PropsWithChildren<ChipProps>>(
+const Chip: ForwardRefExoticComponent<
+  PropsWithChildren<ChipProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ChipProps>>(
   (
     {
       label,

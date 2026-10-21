@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -97,7 +104,13 @@ const decimalsOf = (step: number) => {
  *
  * @public
  */
-const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
+const NumberStepper: ForwardRefExoticComponent<
+  PropsWithChildren<NumberStepperProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<
+  ComponentRef<typeof View>,
+  PropsWithChildren<NumberStepperProps>
+>(
   (
     {
       value,

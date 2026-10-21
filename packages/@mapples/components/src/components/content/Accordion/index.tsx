@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -83,7 +90,9 @@ export interface AccordionProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Accordion = forwardRef<View, PropsWithChildren<AccordionProps>>(
+const Accordion: ForwardRefExoticComponent<
+  PropsWithChildren<AccordionProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<AccordionProps>>(
   (
     {
       title,

@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { useOptionalNavigatorChrome } from '@mapples/render';
 import {
@@ -63,7 +69,9 @@ export interface DrawerItemsProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const DrawerItems = forwardRef<View, PropsWithChildren<DrawerItemsProps>>(
+const DrawerItems: ForwardRefExoticComponent<
+  PropsWithChildren<DrawerItemsProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<DrawerItemsProps>>(
   (
     {
       showIcons = true,

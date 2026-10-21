@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import { RADII, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -49,7 +55,9 @@ export interface BadgeProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Badge = forwardRef<View, PropsWithChildren<BadgeProps>>(
+const Badge: ForwardRefExoticComponent<
+  PropsWithChildren<BadgeProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<BadgeProps>>(
   (
     {
       label,

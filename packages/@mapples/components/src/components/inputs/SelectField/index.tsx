@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -127,7 +135,9 @@ export interface SelectFieldProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const SelectField = forwardRef<View, PropsWithChildren<SelectFieldProps>>(
+const SelectField: ForwardRefExoticComponent<
+  PropsWithChildren<SelectFieldProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SelectFieldProps>>(
   (
     {
       label,

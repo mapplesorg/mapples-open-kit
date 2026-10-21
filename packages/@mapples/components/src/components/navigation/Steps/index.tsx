@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
 import { Tokens, Tone, useTones } from '@mapples/ui';
@@ -72,7 +78,9 @@ export interface StepsProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Steps = forwardRef<View, PropsWithChildren<StepsProps>>(
+const Steps: ForwardRefExoticComponent<
+  PropsWithChildren<StepsProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<StepsProps>>(
   (
     {
       items,

@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { useOptionalNavigatorChrome } from '@mapples/render';
 import { StyledProp, StyledView } from '@mapples/style';
@@ -65,7 +71,9 @@ export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const TabBarItems = forwardRef<View, PropsWithChildren<TabBarItemsProps>>(
+const TabBarItems: ForwardRefExoticComponent<
+  PropsWithChildren<TabBarItemsProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TabBarItemsProps>>(
   (
     {
       labelVisibility = 'always',

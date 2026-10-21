@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useMemo } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useMemo,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -46,7 +53,9 @@ export interface ListProps extends ViewProps {
  *
  * @public
  */
-const List = forwardRef<View, PropsWithChildren<ListProps>>(
+const List: ForwardRefExoticComponent<
+  PropsWithChildren<ListProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ListProps>>(
   (
     {
       variant = 'plain',

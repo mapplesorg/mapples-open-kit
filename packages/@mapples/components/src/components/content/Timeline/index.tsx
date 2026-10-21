@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -71,7 +77,9 @@ export interface TimelineProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Timeline = forwardRef<View, PropsWithChildren<TimelineProps>>(
+const Timeline: ForwardRefExoticComponent<
+  PropsWithChildren<TimelineProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TimelineProps>>(
   (
     {
       items,

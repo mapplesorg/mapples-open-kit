@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import { Icon, Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -64,7 +70,13 @@ export interface ProgressCircleProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const ProgressCircle = forwardRef<View, PropsWithChildren<ProgressCircleProps>>(
+const ProgressCircle: ForwardRefExoticComponent<
+  PropsWithChildren<ProgressCircleProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<
+  ComponentRef<typeof View>,
+  PropsWithChildren<ProgressCircleProps>
+>(
   (
     {
       value = 0,

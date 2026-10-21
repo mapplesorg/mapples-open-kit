@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -84,7 +91,9 @@ export interface TableProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Table = forwardRef<View, PropsWithChildren<TableProps>>(
+const Table: ForwardRefExoticComponent<
+  PropsWithChildren<TableProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TableProps>>(
   (
     {
       columns,
