@@ -27,7 +27,7 @@
     "@mapples/navigation": "*",
     "@mapples/request": "*",
     "@mapples/state": "*",
-    "expo-router": ">=56.0.0 <58",
+    "expo-router": ">=56.0.0 <59",
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0",
     "react-native-gesture-handler": ">=2.24.0",
