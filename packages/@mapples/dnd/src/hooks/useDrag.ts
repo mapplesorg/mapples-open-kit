@@ -1,4 +1,11 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentRef,
+} from 'react';
 
 import { LayoutRectangle, View } from 'react-native';
 import { filter } from 'rxjs';
@@ -19,7 +26,7 @@ import useDnD from './useDnD';
  * @public
  */
 const useDrag = <DragData extends object, DropData extends object = DragData>(
-  ref: RefObject<View | null>,
+  ref: RefObject<ComponentRef<typeof View> | null>,
   item: DragItem<DragData>,
 ) => {
   const { monitor } = useDnD<DragData, DropData>();

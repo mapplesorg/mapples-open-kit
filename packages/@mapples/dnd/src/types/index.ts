@@ -247,7 +247,13 @@ export interface FrameEntry {
  * Type representing a layout position with required configuration properties.
  * @public
  */
-export type LayoutPosition = LayoutRectangle & Required<DropTargetLayoutConfig>;
+/** A measured rectangle the monitor updates in place (React Native 0.88 types `LayoutRectangle` read-only). */
+type MutableLayoutRectangle = {
+  -readonly [K in keyof LayoutRectangle]: LayoutRectangle[K];
+};
+
+export type LayoutPosition = MutableLayoutRectangle &
+  Required<DropTargetLayoutConfig>;
 
 /**
  * Interface representing a drop item with layout and data information.
