@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+import { TextStyle } from 'react-native';
+
 import useStyle from './useStyle';
 
 /**
@@ -42,7 +44,7 @@ const useTypography = () => {
   const { typographyConfig } = useStyle();
 
   const getTypographyStyle = useCallback(
-    (key = typographyConfig.default) => {
+    (key = typographyConfig.default): TextStyle => {
       if (!typographyConfig.typography[key]) {
         console.warn(
           `Typography style "${key}" not found. Please check your typography config.`,

@@ -7,9 +7,11 @@ import {
   isUndefined,
   compact,
 } from 'lodash';
-import { ColorValue, StyleProp, StyleSheet, TextStyle } from 'react-native';
+import { ColorValue, StyleProp, TextStyle } from 'react-native';
 
 import { CalcValue, HEX, MultiplyValue, RGB, RGBA, ThemeMap } from '../types';
+
+import { flattenStyleProp } from './style';
 
 /**
  * Recursively extracts all key paths from a nested object.
@@ -85,8 +87,11 @@ export const normalizeTextStyleWeb = (
     return;
   }
 
-  const { lineHeight, letterSpacing, ...otherTextStyle } =
-    StyleSheet.flatten(textStyle);
+  const flattened = flattenStyleProp(textStyle);
+  if (!flattened) {
+    return;
+  }
+  const { lineHeight, letterSpacing, ...otherTextStyle } = flattened;
 
   const normalizedStyle = {
     ...otherTextStyle,

@@ -12,5 +12,7 @@ export {
 } from './StyledFlatList';
 export {
   default as NavigationThemeProvider,
+  useNavigationTheme,
+  type NavigationTheme,
   type NavigationThemeProviderProps,
 } from './NavigationThemeProvider';
