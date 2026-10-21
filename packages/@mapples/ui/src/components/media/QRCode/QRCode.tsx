@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -79,7 +85,9 @@ export type QRCodeProps = PropsWithChildren<
  *
  * @public
  */
-const QRCode = forwardRef<View, QRCodeProps>(
+const QRCode: ForwardRefExoticComponent<
+  QRCodeProps & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, QRCodeProps>(
   (
     {
       styled,

@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { useFormSubmit } from '@mapples/form';
 import { View } from 'react-native';
@@ -29,7 +35,10 @@ export type SubmitButtonProps = Omit<ButtonProps, 'onPress'>;
  *
  * @public
  */
-const SubmitButton = forwardRef<View, PropsWithChildren<SubmitButtonProps>>(
+const SubmitButton: ForwardRefExoticComponent<
+  PropsWithChildren<SubmitButtonProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SubmitButtonProps>>(
   ({ loading, ...props }, ref) => {
     const { submitForm, submitting } = useFormSubmit();
 

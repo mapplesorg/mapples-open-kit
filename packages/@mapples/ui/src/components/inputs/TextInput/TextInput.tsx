@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  ForwardRefExoticComponent,
+  RefAttributes,
+} from 'react';
 
 import { StyledTextInput } from '@mapples/style';
 import { TextInputProps, TextInput as RNTextInput } from 'react-native';
@@ -34,29 +42,35 @@ import { TextInputProps, TextInput as RNTextInput } from 'react-native';
  *
  * @public
  */
-const TextInput = forwardRef<RNTextInput, PropsWithChildren<TextInputProps>>(
-  ({ children, value, defaultValue, onChangeText, ...props }, ref) => {
-    const [internal, setInternal] = useState(defaultValue ?? '');
-    const controlled = value !== undefined;
+// Annotated so the emitted type names the instance through `ComponentRef`:
+// React Native 0.88's TextInput instance type is not exported.
+const TextInput: ForwardRefExoticComponent<
+  PropsWithChildren<TextInputProps> &
+    RefAttributes<ComponentRef<typeof RNTextInput>>
+> = forwardRef<
+  ComponentRef<typeof RNTextInput>,
+  PropsWithChildren<TextInputProps>
+>(({ children, value, defaultValue, onChangeText, ...props }, ref) => {
+  const [internal, setInternal] = useState(defaultValue ?? '');
+  const controlled = value !== undefined;
 
-    const handleChangeText = useCallback(
-      (next: string) => {
-        if (!controlled) setInternal(next);
-        onChangeText?.(next);
-      },
-      [controlled, onChangeText],
-    );
+  const handleChangeText = useCallback(
+    (next: string) => {
+      if (!controlled) setInternal(next);
+      onChangeText?.(next);
+    },
+    [controlled, onChangeText],
+  );
 
-    return (
-      <StyledTextInput
-        ref={ref}
-        {...props}
-        value={controlled ? value : internal}
-        onChangeText={handleChangeText}
-      />
-    );
-  },
-);
+  return (
+    <StyledTextInput
+      ref={ref}
+      {...props}
+      value={controlled ? value : internal}
+      onChangeText={handleChangeText}
+    />
+  );
+});
 TextInput.displayName = 'TextInput';
 
 export default TextInput;
