@@ -1,4 +1,9 @@
-import { forwardRef } from 'react';
+import {
+  forwardRef,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   styled,
@@ -42,26 +47,30 @@ export type SvgProps = WithStyledProps<ViewProps> & {
  *
  * @public
  */
-const Svg = forwardRef<View, SvgProps>(({ styled, content, ...props }, ref) => {
-  const { styleSvg, style, ...styledProps } = styled || {};
+const Svg: ForwardRefExoticComponent<
+  SvgProps & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, SvgProps>(
+  ({ styled, content, ...props }, ref) => {
+    const { styleSvg, style, ...styledProps } = styled || {};
 
-  const uri =
-    content && content.trim().length > 0
-      ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content.trim())}`
-      : undefined;
+    const uri =
+      content && content.trim().length > 0
+        ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content.trim())}`
+        : undefined;
 
-  const svgStyle = (styleSvg ?? style) as StyledProp<ViewStyle>;
+    const svgStyle = (styleSvg ?? style) as StyledProp<ViewStyle>;
 
-  return (
-    <StyledView ref={ref} styled={{ style, ...styledProps }} {...props}>
-      {uri ? (
-        <StyledSvgUri uri={uri} styled={{ style: svgStyle }} />
-      ) : (
-        <StyledView styled={{ style: styler.placeholder }} />
-      )}
-    </StyledView>
-  );
-});
+    return (
+      <StyledView ref={ref} styled={{ style, ...styledProps }} {...props}>
+        {uri ? (
+          <StyledSvgUri uri={uri} styled={{ style: svgStyle }} />
+        ) : (
+          <StyledView styled={{ style: styler.placeholder }} />
+        )}
+      </StyledView>
+    );
+  },
+);
 Svg.displayName = 'Svg';
 
 const styler = Styler.create({

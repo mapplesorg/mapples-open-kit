@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useEffect } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useEffect,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { styled, StyledProps, StyledView, StyledProp } from '@mapples/style';
 import type { VideoContentFit } from 'expo-video';
@@ -78,7 +85,9 @@ const requireExpoVideo = (): typeof import('expo-video') => {
  *
  * @public
  */
-const Video = forwardRef<View, VideoProps>(
+const Video: ForwardRefExoticComponent<
+  VideoProps & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, VideoProps>(
   ({ styled, source, autoPlay, loop, controls, contentFit, ...props }, ref) => {
     // Resolved before the hook so a missing package throws a clear error
     // instead of a hooks-order crash.

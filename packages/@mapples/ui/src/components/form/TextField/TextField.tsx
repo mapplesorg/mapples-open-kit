@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  ForwardRefExoticComponent,
+  RefAttributes,
+} from 'react';
 
 import { useFormField } from '@mapples/form';
 import { StyledTextInput } from '@mapples/style';
@@ -38,20 +44,26 @@ export interface TextFieldProps extends Omit<TextInputProps, 'onChangeText'> {
  *
  * @public
  */
-const TextField = forwardRef<TextInput, PropsWithChildren<TextFieldProps>>(
-  ({ children, fieldName, ...props }, ref) => {
-    const { value, setValue } = useFormField<string>(fieldName || 'unknown');
+// Annotated so the emitted type names the instance through `ComponentRef`:
+// React Native 0.88's TextInput instance type is not exported.
+const TextField: ForwardRefExoticComponent<
+  PropsWithChildren<TextFieldProps> &
+    RefAttributes<ComponentRef<typeof TextInput>>
+> = forwardRef<
+  ComponentRef<typeof TextInput>,
+  PropsWithChildren<TextFieldProps>
+>(({ children, fieldName, ...props }, ref) => {
+  const { value, setValue } = useFormField<string>(fieldName || 'unknown');
 
-    return (
-      <StyledTextInput
-        ref={ref}
-        {...props}
-        value={value || ''}
-        onChangeText={setValue}
-      />
-    );
-  },
-);
+  return (
+    <StyledTextInput
+      ref={ref}
+      {...props}
+      value={value || ''}
+      onChangeText={setValue}
+    />
+  );
+});
 TextField.displayName = 'TextField';
 
 export default TextField;

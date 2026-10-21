@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -71,7 +77,9 @@ export type IconProps = PropsWithChildren<
  *
  * @public
  */
-const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
+const Icon: ForwardRefExoticComponent<
+  PropsWithChildren<IconProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<IconProps>>(
   ({ styled, iconStyle, iconName, size, color, ...props }, ref) => {
     const { themeConfig } = useStyle();
     const { styleSvg, ...styledViewProps } = styled || {};

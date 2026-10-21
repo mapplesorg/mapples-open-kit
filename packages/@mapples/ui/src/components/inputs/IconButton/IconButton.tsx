@@ -4,6 +4,9 @@ import {
   PropsWithChildren,
   useCallback,
   useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
 } from 'react';
 
 import {
@@ -113,7 +116,9 @@ const BADGE_MAX = 99;
  *
  * @public
  */
-const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
+const IconButton: ForwardRefExoticComponent<
+  PropsWithChildren<IconProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<IconProps>>(
   (
     {
       styled,

@@ -4,6 +4,9 @@ import {
   useCallback,
   useContext,
   useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
 } from 'react';
 
 import {
@@ -172,7 +175,9 @@ const groupStyle = (
  *
  * @public
  */
-const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
+const Button: ForwardRefExoticComponent<
+  PropsWithChildren<ButtonProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ButtonProps>>(
   (
     {
       label,
