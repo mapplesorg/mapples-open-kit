@@ -26,6 +26,10 @@
     "@mapples/state": "*",
     "@mapples/style": "*",
     "@mapples/types": "*",
+    "@react-navigation/bottom-tabs": "^7.21.0",
+    "@react-navigation/drawer": "^7.14.4",
+    "@react-navigation/native": "^7.5.1",
+    "@react-navigation/native-stack": "^7.21.0",
     "expo-router": ">=56.0.0 <59",
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0",
@@ -36,6 +40,10 @@
     "rxjs": "^7.0.0"
   },
   "devDependencies": {
+    "@react-navigation/bottom-tabs": "^7.21.0",
+    "@react-navigation/drawer": "^7.14.4",
+    "@react-navigation/native": "^7.5.1",
+    "@react-navigation/native-stack": "^7.21.0",
     "@types/react": ">=18.0.0 <20.0.0",
     "typescript": "~6.0.3"
   },
@@ -43,5 +51,19 @@
     "dist",
     "README.md",
     "package.json"
-  ]
+  ],
+  "peerDependenciesMeta": {
+    "@react-navigation/bottom-tabs": {
+      "optional": true
+    },
+    "@react-navigation/drawer": {
+      "optional": true
+    },
+    "@react-navigation/native": {
+      "optional": true
+    },
+    "@react-navigation/native-stack": {
+      "optional": true
+    }
+  }
 }

@@ -8,8 +8,8 @@ import {
 } from '@mapples/types';
 import { Text, View } from 'react-native';
 
-// React Navigation is consumed through expo-router's vendored copy, centralized
-// in `./vendor` (SDK 56+ blocks external `@react-navigation/*`).
+// The navigators come from the host's React Navigation (`ctx.backend`).
+import { NavigationBackend } from './backend';
 import { DrawerContentHost, TabBarHost } from './chrome';
 import { EMPTY_ROUTE_NAME } from './constants';
 import {
@@ -22,17 +22,14 @@ import {
   resolveNavigatorHeader,
 } from './mappers';
 import { NavigatorModel, ScreenModel } from './model';
+import type {
+  BottomTabBarProps,
+  BottomTabNavigationOptions,
+  DrawerContentComponentProps,
+  DrawerNavigationOptions,
+} from './reactNavigation';
 import RouteScreen, { RouteGuard } from './RouteScreen';
 import { MapplesNavigationProps, RefResolvers } from './types';
-import {
-  type BottomTabBarProps,
-  type BottomTabNavigationOptions,
-  createBottomTabNavigator,
-  createDrawerNavigator,
-  type DrawerContentComponentProps,
-  type DrawerNavigationOptions,
-  createNativeStackNavigator,
-} from './vendor';
 
 /** Everything a navigator needs to resolve its screens. */
 export interface NavigatorBuildContext {
@@ -43,6 +40,8 @@ export interface NavigatorBuildContext {
   /** The custom chrome components, by the uuid the navigator options name. */
   chrome?: MapplesNavigationProps['chrome'];
   resolvers: RefResolvers;
+  /** The React Navigation the navigators are built with. */
+  backend: NavigationBackend;
 }
 
 /**
@@ -152,7 +151,11 @@ const StackNavigatorView = ({
   model: NavigatorModel;
   ctx: NavigatorBuildContext;
 }) => {
-  const Stack = useMemo(() => createNativeStackNavigator(), []);
+  const { createNativeStackNavigator } = ctx.backend;
+  const Stack = useMemo(
+    () => createNativeStackNavigator(),
+    [createNativeStackNavigator],
+  );
   return (
     <Stack.Navigator
       initialRouteName={model.initialRouteName}
@@ -192,7 +195,11 @@ const TabsNavigatorView = ({
   model: NavigatorModel;
   ctx: NavigatorBuildContext;
 }) => {
-  const Tabs = useMemo(() => createBottomTabNavigator(), []);
+  const { createBottomTabNavigator } = ctx.backend;
+  const Tabs = useMemo(
+    () => createBottomTabNavigator(),
+    [createBottomTabNavigator],
+  );
   const Chrome = chromeComponent(
     ctx,
     model,
@@ -257,7 +264,11 @@ const DrawerNavigatorView = ({
   model: NavigatorModel;
   ctx: NavigatorBuildContext;
 }) => {
-  const Drawer = useMemo(() => createDrawerNavigator(), []);
+  const { createDrawerNavigator } = ctx.backend;
+  const Drawer = useMemo(
+    () => createDrawerNavigator(),
+    [createDrawerNavigator],
+  );
   const Chrome = chromeComponent(
     ctx,
     model,

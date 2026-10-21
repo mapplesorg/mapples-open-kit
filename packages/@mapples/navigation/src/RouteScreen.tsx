@@ -16,9 +16,9 @@ import {
 } from '@mapples/state';
 import { NavigationDocument, RouteNode } from '@mapples/types';
 
+import { useNavigationHooks } from './backend';
 import { NavigationActionType } from './constants';
 import { routeNameForId } from './model';
-import { useFocusEffect, useIsFocused, useRoute } from './vendor';
 
 interface RouteScreenProps {
   route: RouteNode;
@@ -38,6 +38,7 @@ const useRouteGuard = (
   document: NavigationDocument,
 ): boolean => {
   const actionStore = useActionStore();
+  const { useIsFocused } = useNavigationHooks();
   const focused = useIsFocused();
   const { getConditionResult } = useDataState();
 
@@ -94,6 +95,7 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
   document,
   children,
 }) => {
+  const { useRoute, useFocusEffect } = useNavigationHooks();
   const { params } = useRoute();
   const routeParams = useMemo(
     () => (params ?? {}) as Record<string, unknown>,

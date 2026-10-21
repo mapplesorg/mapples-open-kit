@@ -4,14 +4,19 @@ import { NavigatorChrome, NavigatorChromeProvider } from '@mapples/render';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { DrawerContentComponentProps } from '../vendor';
+import type { DrawerContentComponentProps as ReactNavigationDrawerProps } from '../reactNavigation';
+import type { DrawerContentComponentProps as ExpoRouterDrawerProps } from '../vendor';
 
 import { chromeItemsOf, routeByKey } from './chromeItems';
 
-export interface DrawerContentHostProps extends DrawerContentComponentProps {
+/** expo-router's `Drawer` (exported apps) or React Navigation's (a `MapplesNavigation` tree). */
+export type DrawerContentHostProps = (
+  | ExpoRouterDrawerProps
+  | ReactNavigationDrawerProps
+) & {
   /** The saved component that draws the drawer (it contains a `DrawerItems`). */
   Chrome: ComponentType;
-}
+};
 
 /**
  * Mounts a designed drawer as React Navigation's `drawerContent`.
@@ -36,7 +41,10 @@ const DrawerContentHost: FC<DrawerContentHostProps> = ({
 
   const select = useCallback(
     (routeId: string) => {
-      const route = routeByKey(state.routes, routeId);
+      const route = routeByKey<{ key: string; name: string; params?: object }>(
+        state.routes,
+        routeId,
+      );
       if (route.key !== focused?.key) {
         navigation.navigate(route.name, route.params);
       }
