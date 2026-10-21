@@ -3,6 +3,12 @@ import { ColorValue } from 'react-native';
 
 import { NavigationDocument } from '@mapples/types';
 
+import type { NavigationBackend } from './backend';
+import type {
+  NavigationContainerRefWithCurrent,
+  ParamListBase,
+} from './reactNavigation';
+
 /** Renders an icon for a tab/drawer item, given the runtime colour/size. */
 export type IconRenderer = (props: {
   color?: ColorValue;
@@ -83,25 +89,6 @@ export type NavigationCommand =
   | { kind: 'closeDrawer' }
   | { kind: 'switchTab'; routeName: string };
 
-/**
- * Structural subset of React Navigation's container ref the runtime uses.
- * Typed here (rather than importing `@react-navigation/native`) so this module
- * stays free of the React Navigation dependency. A real
- * `NavigationContainerRef` satisfies it.
- */
-export interface MapplesNavigationRef {
-  isReady: () => boolean;
-  canGoBack: () => boolean;
-  goBack: () => void;
-  navigate: (name: string, params?: object) => void;
-  dispatch: (action: unknown) => void;
-  getCurrentRoute: () => { name: string } | undefined;
-  addListener: (
-    type: string,
-    callback: (...args: unknown[]) => void,
-  ) => () => void;
-}
-
 /** Props for {@link MapplesNavigation}. */
 export interface MapplesNavigationProps {
   document: NavigationDocument;
@@ -118,14 +105,21 @@ export interface MapplesNavigationProps {
    */
   chrome?: Record<string, ComponentType>;
   /**
-   * Render inside `NavigationIndependentTree` instead of a `NavigationContainer`
-   * — required when the host app already owns a container (expo-router / Creator).
+   * The React Navigation to build the tree with — container, navigators,
+   * actions and hooks of one copy. Inside an expo-router 58 app that is
+   * `@react-navigation/*` itself: expo-router no longer vendors a container
+   * that can stand apart from its root.
+   */
+  backend: NavigationBackend;
+  /**
+   * Wrap the container in the backend's `NavigationIndependentTree` — required
+   * when the host app already owns a container of the same React Navigation.
    */
   independent?: boolean;
   /**
    * Externally-created container ref. Supply one to observe/drive navigation
    * from the host (e.g. the Creator preview's selection sync). When omitted, an
-   * internal ref is created.
+   * internal ref is created. It belongs to the backend's React Navigation.
    */
-  navigationRef?: MapplesNavigationRef;
+  navigationRef?: NavigationContainerRefWithCurrent<ParamListBase>;
 }

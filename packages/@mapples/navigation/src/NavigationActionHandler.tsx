@@ -5,13 +5,18 @@ import { useDataState } from '@mapples/state';
 import { NavigationDocument } from '@mapples/types';
 
 import { toNavigationCommand } from './actionCommands';
+import { NavigationActions } from './backend';
 import { buildScreenNavigateTarget, entersGuardFromFallback } from './model';
-import { MapplesNavigationRef } from './types';
-import { CommonActions, DrawerActions } from './vendor';
+import type {
+  NavigationContainerRefWithCurrent,
+  ParamListBase,
+} from './reactNavigation';
 
 interface NavigationActionHandlerProps {
-  navigationRef: MapplesNavigationRef;
+  navigationRef: NavigationContainerRefWithCurrent<ParamListBase>;
   document: NavigationDocument;
+  /** The action creators of the React Navigation behind `navigationRef`. */
+  actions: NavigationActions;
 }
 
 /**
@@ -22,6 +27,7 @@ interface NavigationActionHandlerProps {
 const NavigationActionHandler = ({
   navigationRef,
   document,
+  actions,
 }: NavigationActionHandlerProps) => {
   const actionStore = useActionStore();
   const { getValue } = useDataState();
@@ -33,14 +39,15 @@ const NavigationActionHandler = ({
   // because the write just refused it (a sign-out on a guarded screen) — hit
   // the store while nothing was subscribed and was lost. The latest values
   // are read through refs instead, updated before any passive effect runs.
-  const latest = useRef({ document, getValue });
+  const latest = useRef({ document, getValue, actions });
   useLayoutEffect(() => {
-    latest.current = { document, getValue };
-  }, [document, getValue]);
+    latest.current = { document, getValue, actions };
+  }, [document, getValue, actions]);
 
   useEffect(() => {
     const subscription = actionStore.subscribe((action) => {
-      const { document, getValue } = latest.current;
+      const { document, getValue, actions } = latest.current;
+      const { CommonActions, DrawerActions } = actions;
       const command = toNavigationCommand(action, document, {
         // `null`, not `getValue`'s display default: an unresolved param must
         // not reach the screen as the literal string "N/A".

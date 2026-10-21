@@ -10,6 +10,13 @@ export { default as NavigationActionHandler } from './NavigationActionHandler';
 export { default as RouteScreen, RouteGuard } from './RouteScreen';
 export { default as useRefResolvers } from './useRefResolvers';
 export { NavigatorView } from './buildNavigator';
+export {
+  NavigationHooksContext,
+  useNavigationHooks,
+  type NavigationActions,
+  type NavigationBackend,
+  type NavigationHooks,
+} from './backend';
 export type { NavigatorBuildContext } from './buildNavigator';
 export * from './chrome';
 

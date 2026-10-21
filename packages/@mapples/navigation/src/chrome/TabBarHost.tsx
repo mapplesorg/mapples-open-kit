@@ -16,14 +16,16 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import {
-  BottomTabBarHeightCallbackContext,
-  BottomTabBarProps,
-} from '../vendor';
+import { useNavigationHooks } from '../backend';
+import type { BottomTabBarProps as ReactNavigationTabBarProps } from '../reactNavigation';
+import type { BottomTabBarProps as ExpoRouterTabBarProps } from '../vendor';
 
 import { chromeItemsOf, routeByKey } from './chromeItems';
 
-export interface TabBarHostProps extends BottomTabBarProps {
+export type TabBarHostProps = (
+  | ExpoRouterTabBarProps
+  | ReactNavigationTabBarProps
+) & {
   /** The saved component that draws the bar (it contains a `TabTemplate` or `TabBarItems`). */
   Chrome: ComponentType;
   /**
@@ -32,7 +34,7 @@ export interface TabBarHostProps extends BottomTabBarProps {
    * keeps the design clear of the bottom safe area itself.
    */
   floating?: boolean;
-}
+};
 
 /**
  * Mounts a designed tab bar as React Navigation's `tabBar`.
@@ -41,7 +43,9 @@ export interface TabBarHostProps extends BottomTabBarProps {
  * context the design reads, forwards tab presses the way the stock bar does
  * (`tabPress` first, then navigate), and reports its measured height so
  * `useBottomTabBarHeight()` stays right. Reads nothing but React Navigation's
- * own props, so an exported expo-router app uses it as-is:
+ * own props, so an exported expo-router app uses it as-is. It takes both tab
+ * bar contracts: expo-router 58's tabs hand it `emitter` + `navigateToTab`,
+ * React Navigation's (a `MapplesNavigation` tree) `navigation`:
  *
  * ```tsx
  * <Tabs tabBar={(props) => <TabBarHost {...props} Chrome={MainTabBar} />} />
@@ -56,13 +60,16 @@ export interface TabBarHostProps extends BottomTabBarProps {
  * `useBottomTabBarHeight()`.
  */
 const TabBarHost: FC<TabBarHostProps> = ({
-  state,
-  descriptors,
-  navigation,
-  insets,
   Chrome,
   floating = false,
+  ...tabBar
 }) => {
+  const { state, descriptors, insets } = tabBar;
+  const events = 'navigateToTab' in tabBar ? tabBar.emitter : tabBar.navigation;
+  const navigateToTab =
+    'navigateToTab' in tabBar ? tabBar.navigateToTab : undefined;
+  const navigation = 'navigateToTab' in tabBar ? undefined : tabBar.navigation;
+  const { BottomTabBarHeightCallbackContext } = useNavigationHooks();
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
   const focused = state.routes[state.index];
@@ -81,16 +88,21 @@ const TabBarHost: FC<TabBarHostProps> = ({
 
   const select = useCallback(
     (routeId: string) => {
-      const route = routeByKey(state.routes, routeId);
-      const event = navigation.emit({
+      const route = routeByKey<{ key: string; name: string; params?: object }>(
+        state.routes,
+        routeId,
+      );
+      const event = events.emit({
         type: 'tabPress',
         target: route.key,
         canPreventDefault: true,
       });
       if (route.key === focused?.key || event.defaultPrevented) return;
-      navigation.navigate(route.name, route.params);
+      // expo-router's tabs switch by route key, React Navigation's by name.
+      if (navigateToTab) navigateToTab(route.key);
+      else if (navigation) navigation.navigate(route.name, route.params);
     },
-    [state.routes, navigation, focused?.key],
+    [state.routes, events, navigateToTab, navigation, focused?.key],
   );
 
   const chrome = useMemo<NavigatorChrome>(
