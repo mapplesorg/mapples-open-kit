@@ -13,6 +13,11 @@ export * from './ProgressCircle';
 export * from './ProgressCircle/schematic';
 export * from './ProgressCircle/types';
 
+export { default as CountdownTimer } from './CountdownTimer';
+export * from './CountdownTimer';
+export * from './CountdownTimer/schematic';
+export * from './CountdownTimer/types';
+
 export { default as ActivityRings } from './ActivityRings';
 export * from './ActivityRings';
 export * from './ActivityRings/schematic';
@@ -42,5 +47,10 @@ export { default as EmptyState } from './EmptyState';
 export * from './EmptyState';
 export * from './EmptyState/schematic';
 export * from './EmptyState/types';
+
+export { default as BreathingGuide } from './BreathingGuide';
+export * from './BreathingGuide';
+export * from './BreathingGuide/schematic';
+export * from './BreathingGuide/types';
 
 export * from './schematics';

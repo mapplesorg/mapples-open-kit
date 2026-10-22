@@ -180,3 +180,54 @@ export const readWeekStart = (
   }
   return weekStart;
 };
+
+/** English short month names from January — DateTile defaults. */
+export const MONTH_SHORT_NAMES = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+] as const;
+
+/**
+ * Twelve month labels from January: the author's (validated) or `fallback`.
+ */
+export const readMonthLabels = (
+  labels: unknown,
+  fallback: readonly string[],
+  component: string,
+): readonly string[] => {
+  if (labels === undefined || labels === null) return fallback;
+  if (
+    !Array.isArray(labels) ||
+    labels.length !== 12 ||
+    labels.some((label) => typeof label !== 'string')
+  ) {
+    throw new Error(
+      `${component}: monthLabels must be 12 strings starting from January`,
+    );
+  }
+  return labels as string[];
+};
+
+/** The `'YYYY-MM'` string of a year and month (1–12). */
+export const formatMonth = (year: number, month: number): string =>
+  `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}`;
+
+/** The year and month (1–12) `delta` months after (or before) the given one. */
+export const addMonths = (
+  year: number,
+  month: number,
+  delta: number,
+): { year: number; month: number } => {
+  const index = year * 12 + (month - 1) + delta;
+  return { year: Math.floor(index / 12), month: (index % 12) + 1 };
+};

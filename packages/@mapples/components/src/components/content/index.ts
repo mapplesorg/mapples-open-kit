@@ -73,6 +73,11 @@ export * from './CalendarHeatmap';
 export * from './CalendarHeatmap/schematic';
 export * from './CalendarHeatmap/types';
 
+export { default as DateTile } from './DateTile';
+export * from './DateTile';
+export * from './DateTile/schematic';
+export * from './DateTile/types';
+
 export { default as MessageBubble } from './MessageBubble';
 export * from './MessageBubble';
 export * from './MessageBubble/schematic';
@@ -81,5 +86,39 @@ export * from './MessageBubble/types';
 export { default as ImageCarousel } from './ImageCarousel';
 export * from './ImageCarousel';
 export * from './ImageCarousel/schematic';
+
+export { default as PlaybackControls } from './PlaybackControls';
+export * from './PlaybackControls';
+export * from './PlaybackControls/schematic';
+export * from './PlaybackControls/types';
+
+export { default as WaveformSeekBar } from './WaveformSeekBar';
+export * from './WaveformSeekBar';
+export * from './WaveformSeekBar/schematic';
+export * from './WaveformSeekBar/types';
+
+export { default as MiniPlayer } from './MiniPlayer';
+export * from './MiniPlayer';
+export * from './MiniPlayer/schematic';
+export * from './MiniPlayer/types';
+
+export { default as ReorderableList } from './ReorderableList';
+export * from './ReorderableList';
+export * from './ReorderableList/schematic';
+export * from './ReorderableList/types';
+
+export { default as MasonryGrid } from './MasonryGrid';
+export * from './MasonryGrid';
+export * from './MasonryGrid/schematic';
+export * from './MasonryGrid/types';
+
+export { default as TicketCard } from './TicketCard';
+export * from './TicketCard';
+export * from './TicketCard/schematic';
+export * from './TicketCard/types';
+
+export { default as MapView } from './MapView';
+export * from './MapView/schematic';
+export * from './MapView/types';
 
 export * from './schematics';
