@@ -41,10 +41,10 @@ export const MapplesScreen: FC<PropsWithChildren<MapplesScreenProps>> = ({
         .find((candidate) => candidate.id === routeId)
     : undefined;
   if (!document || !route) {
-    // The layout naming this route and mapples/navigation.ts are written by
+    // The layout naming this route and navigation.ts are written by
     // the same sync; a route one of them lacks is a stale or hand-edited file.
     throw new Error(
-      `[@mapples/app] route ${routeId} is not in mapples/navigation.ts — run \`mapples sync\``,
+      `[@mapples/app] route ${routeId} is not in the synced navigation.ts — run \`mapples sync\``,
     );
   }
 

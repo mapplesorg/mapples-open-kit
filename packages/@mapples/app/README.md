@@ -305,7 +305,7 @@ interface MapplesAppProps {
 
 ## Metro Configuration
 
-`MapplesApp` reads the files the [`mapples` CLI](https://www.npmjs.com/package/mapples) writes on `mapples sync`: `mapples/theme.ts` (design tokens) and `mapples/assetMap.ts` (bundled assets with their metadata). `mapplesResolver` maps the `mapples::style` and `mapples::assets` imports to those files — or to an empty module before the first sync, so the app renders with the defaults. Add it to your `metro.config.js`:
+`MapplesApp` reads the files the [`mapples` CLI](https://www.npmjs.com/package/mapples) writes on `mapples sync` into the app's `mapplesDir` (`.mapples/config.json`; `src/mapples` in apps with `src/app`, `mapples` otherwise): `theme.ts` (design tokens), `assetMap.ts` (bundled assets with their metadata) and the `navigation.ts` / `api.ts` / `variables.ts` documents. `mapplesResolver` maps the `mapples::style`, `mapples::assets`, `mapples::navigation`, `mapples::api` and `mapples::variables` imports to those files — or to an empty module before the first sync, so the app renders with the defaults. It reads `mapplesDir` once when Metro starts; restart Metro after changing it. Add it to your `metro.config.js`:
 
 ```js
 const { getDefaultConfig } = require('expo/metro-config');

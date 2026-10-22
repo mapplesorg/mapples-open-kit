@@ -90,7 +90,7 @@ export const remapFonts = (assets: AnyObject) => {
 };
 
 /**
- * The module `mapples sync` writes as `mapples/theme.ts`: one exported
+ * The module `mapples sync` writes as `<mapplesDir>/theme.ts`: one exported
  * document per token section. Each is the canvas singleton's `data`.
  */
 export interface CliThemeModule {
@@ -112,7 +112,7 @@ export const toStyleContext = (
 });
 
 /**
- * One entry of the CLI's `mapples/assetMap.ts`, keyed by the canvas `as_…`
+ * One entry of the CLI's `<mapplesDir>/assetMap.ts`, keyed by the canvas `as_…`
  * id. `source` is the bundled file; the rest is the asset record's
  * metadata (`mapples` ≥ the assetMap-metadata release). Older maps hold the
  * bare `require` as the value.
@@ -128,7 +128,7 @@ export interface CliAssetEntry {
   mime?: string;
 }
 
-/** The module `mapples sync` writes as `mapples/assetMap.ts`. */
+/** The module `mapples sync` writes as `<mapplesDir>/assetMap.ts`. */
 export interface CliAssetModule {
   assetMap?: Record<string, CliAssetEntry | unknown>;
   default?: Record<string, CliAssetEntry | unknown>;
