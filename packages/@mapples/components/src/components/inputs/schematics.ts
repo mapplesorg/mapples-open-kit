@@ -2,6 +2,7 @@ import { RegisteredComponents } from '@mapples/types';
 
 import { ChatComposerSchematic } from './ChatComposer/schematic';
 import { CheckboxSchematic } from './Checkbox/schematic';
+import { DayPickerSchematic } from './DayPicker/schematic';
 import { InputFieldSchematic } from './InputField/schematic';
 import { NumberStepperSchematic } from './NumberStepper/schematic';
 import { PinInputSchematic } from './PinInput/schematic';
@@ -24,5 +25,6 @@ export const InputsSchematics: RegisteredComponents = {
   [RadioGroupSchematic.type]: RadioGroupSchematic,
   [NumberStepperSchematic.type]: NumberStepperSchematic,
   [RatingSchematic.type]: RatingSchematic,
+  [DayPickerSchematic.type]: DayPickerSchematic,
   [ChatComposerSchematic.type]: ChatComposerSchematic,
 };

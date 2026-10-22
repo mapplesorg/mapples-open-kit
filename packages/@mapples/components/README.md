@@ -44,10 +44,10 @@ import { InputField, Switch, Card } from '@mapples/components';
 | Area | Components |
 | --- | --- |
 | Actions | `Fab`, `Chip`, `ChipGroup`, `SegmentedControl`, `ButtonGroup`, `BottomActionBar` (plus the themed `Button` / `IconButton` of `@mapples/ui`) |
-| Inputs | `InputField`, `SearchBar`, `PinInput`, `SelectField`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `NumberStepper`, `Rating`, `ChatComposer` |
-| Content | `Card`, `MediaCard`, `ListItem`, `List`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `MessageBubble`, `ImageCarousel` |
+| Inputs | `InputField`, `SearchBar`, `PinInput`, `SelectField`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `NumberStepper`, `Rating`, `DayPicker`, `ChatComposer` |
+| Content | `Card`, `MediaCard`, `ListItem`, `List`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `BarChart`, `LineChart`, `CalendarHeatmap`, `MessageBubble`, `ImageCarousel` |
 | Navigation | `TopAppBar`, `BottomNavigationBar`, `Tabs`, `Breadcrumbs`, `PageControl`, `Steps`, `TextLink` |
-| Feedback | `Badge`, `ProgressBar`, `ProgressCircle`, `Spinner`, `Skeleton`, `Banner`, `Snackbar`, `EmptyState` |
+| Feedback | `Badge`, `ProgressBar`, `ProgressCircle`, `ActivityRings`, `Spinner`, `Skeleton`, `Banner`, `Snackbar`, `EmptyState` |
 | Overlays | `Dialog`, `BottomSheet`, `ActionSheet` |
 
 ## Conventions

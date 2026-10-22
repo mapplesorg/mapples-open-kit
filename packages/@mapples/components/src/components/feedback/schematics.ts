@@ -1,5 +1,6 @@
 import { RegisteredComponents } from '@mapples/types';
 
+import { ActivityRingsSchematic } from './ActivityRings/schematic';
 import { BadgeSchematic } from './Badge/schematic';
 import { BannerSchematic } from './Banner/schematic';
 import { EmptyStateSchematic } from './EmptyState/schematic';
@@ -14,6 +15,7 @@ export const FeedbackSchematics: RegisteredComponents = {
   [BadgeSchematic.type]: BadgeSchematic,
   [ProgressBarSchematic.type]: ProgressBarSchematic,
   [ProgressCircleSchematic.type]: ProgressCircleSchematic,
+  [ActivityRingsSchematic.type]: ActivityRingsSchematic,
   [SpinnerSchematic.type]: SpinnerSchematic,
   [SkeletonSchematic.type]: SkeletonSchematic,
   [BannerSchematic.type]: BannerSchematic,

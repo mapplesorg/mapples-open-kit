@@ -58,6 +58,21 @@ export * from './Timeline';
 export * from './Timeline/schematic';
 export * from './Timeline/types';
 
+export { default as BarChart } from './BarChart';
+export * from './BarChart';
+export * from './BarChart/schematic';
+export * from './BarChart/types';
+
+export { default as LineChart } from './LineChart';
+export * from './LineChart';
+export * from './LineChart/schematic';
+export * from './LineChart/types';
+
+export { default as CalendarHeatmap } from './CalendarHeatmap';
+export * from './CalendarHeatmap';
+export * from './CalendarHeatmap/schematic';
+export * from './CalendarHeatmap/types';
+
 export { default as MessageBubble } from './MessageBubble';
 export * from './MessageBubble';
 export * from './MessageBubble/schematic';

@@ -48,6 +48,11 @@ export * from './Rating';
 export * from './Rating/schematic';
 export * from './Rating/types';
 
+export { default as DayPicker } from './DayPicker';
+export * from './DayPicker';
+export * from './DayPicker/schematic';
+export * from './DayPicker/types';
+
 export { default as ChatComposer } from './ChatComposer';
 export * from './ChatComposer';
 export * from './ChatComposer/schematic';
