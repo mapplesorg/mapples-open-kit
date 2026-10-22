@@ -15,12 +15,11 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -143,6 +142,7 @@ const SearchBar: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
     const [text, setText] = useControllableState<string>({
       value,
@@ -151,8 +151,8 @@ const SearchBar: ForwardRefExoticComponent<
     });
     const interaction = useInteractionState({ onFocus, onBlur }, disabled);
 
-    const spec = CONTROL_SIZES[size];
-    const focusColor = tones.tone('primary').main;
+    const spec = shape.control[size];
+    const focusColor = tones.tone('primary').ink;
     const textColor = tones.resolve(Tokens.color.text);
     const borderColor = interaction.focused
       ? focusColor
@@ -199,7 +199,8 @@ const SearchBar: ForwardRefExoticComponent<
               {
                 minHeight: spec.height,
                 paddingHorizontal: spec.paddingX - 4,
-                borderRadius: variant === 'filled' ? RADII.pill : spec.radius,
+                borderRadius:
+                  variant === 'filled' ? shape.radius.pill : spec.radius,
                 borderColor,
                 backgroundColor:
                   variant === 'filled' ? tones.fill : 'transparent',

@@ -133,11 +133,11 @@ const Tabs: ForwardRefExoticComponent<
     const indicatorColor = useSlotColor(
       styled?.styleIndicator,
       'backgroundColor',
-      underline ? palette.main : palette.container,
+      underline ? palette.ink : palette.container,
     );
     const error = tones.tone('error');
     const colors = {
-      active: palette.main,
+      active: palette.ink,
       inactive: tones.resolve(Tokens.color.textSecondary),
       badge: error.main,
       onBadge: error.contrast,

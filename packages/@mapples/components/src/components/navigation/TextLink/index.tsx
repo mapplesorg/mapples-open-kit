@@ -94,7 +94,7 @@ const TextLink: ForwardRefExoticComponent<
     const labelColor = useSlotColor(
       styled?.styleLabel,
       'color',
-      tones.tone(tone).main,
+      tones.tone(tone).ink,
     );
     const glyphColor = useSlotColor(styled?.styleIcon, 'color', labelColor);
 

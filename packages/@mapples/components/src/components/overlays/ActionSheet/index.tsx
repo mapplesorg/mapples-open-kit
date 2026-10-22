@@ -11,9 +11,9 @@ import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   DISABLED_OPACITY,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -120,6 +120,7 @@ const ActionSheet: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const items = readOptions(options, 'ActionSheet');
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
@@ -156,7 +157,7 @@ const ActionSheet: ForwardRefExoticComponent<
               style: [
                 defaults.group,
                 {
-                  borderRadius: RADII.lg,
+                  borderRadius: shape.radius.lg,
                   backgroundColor: surface,
                   borderWidth: tones.isDark ? 1 : 0,
                   borderColor: tones.outline,
@@ -253,7 +254,7 @@ const ActionSheet: ForwardRefExoticComponent<
                 style: [
                   defaults.cancel,
                   {
-                    borderRadius: RADII.lg,
+                    borderRadius: shape.radius.lg,
                     backgroundColor: surface,
                     borderWidth: tones.isDark ? 1 : 0,
                     borderColor: tones.outline,

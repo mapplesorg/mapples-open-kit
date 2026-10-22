@@ -11,10 +11,10 @@ import {
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   DISABLED_OPACITY,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -130,6 +130,8 @@ const PinInput: ForwardRefExoticComponent<
     }
 
     const tones = useTones();
+
+    const shape = useShape();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<string>(fieldName);
     const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
@@ -201,7 +203,7 @@ const PinInput: ForwardRefExoticComponent<
           const borderColor = hasError
             ? errorColor
             : active
-              ? palette.main
+              ? palette.ink
               : tones.outlineStrong;
           return (
             <Pressable
@@ -217,7 +219,7 @@ const PinInput: ForwardRefExoticComponent<
                     {
                       width: geometry.cell,
                       height: geometry.cell,
-                      borderRadius: RADII.sm,
+                      borderRadius: shape.radius.sm,
                       borderColor,
                       borderWidth: active ? 2 : 1,
                     },

@@ -16,15 +16,14 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
   ELEVATION,
   Icon,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -163,6 +162,7 @@ const SelectField: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const items = readOptions(options, 'SelectField');
     const field = useOptionalFormField<string>(fieldName);
@@ -199,14 +199,14 @@ const SelectField: ForwardRefExoticComponent<
     const selected = items.find((option) => option.value === current);
     const error = errorText || field.error;
     const hasError = !!error;
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
     const textColor = tones.resolve(Tokens.color.text);
     const secondary = tones.resolve(Tokens.color.textSecondary);
     const errorColor = tones.tone('error').main;
     const borderColor = hasError
       ? errorColor
       : open
-        ? palette.main
+        ? palette.ink
         : variant === 'outlined'
           ? tones.outlineStrong
           : 'transparent';
@@ -261,7 +261,7 @@ const SelectField: ForwardRefExoticComponent<
               {option.label}
             </Typography>
             {isSelected ? (
-              <Glyph name="check" size={spec.iconSize} color={palette.main} />
+              <Glyph name="check" size={spec.iconSize} color={palette.ink} />
             ) : null}
           </StyledView>
         </Pressable>
@@ -353,7 +353,7 @@ const SelectField: ForwardRefExoticComponent<
               style: [
                 defaults.menu,
                 {
-                  borderRadius: RADII.md,
+                  borderRadius: shape.radius.md,
                   borderWidth: 1,
                   borderColor: tones.outline,
                   backgroundColor: tones.resolve(Tokens.color.surface),

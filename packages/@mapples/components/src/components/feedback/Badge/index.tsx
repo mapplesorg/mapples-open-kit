@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
-import { RADII, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, Tone, useShape, useTones } from '@mapples/ui';
 import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { defaults } from './defaults';
@@ -74,6 +74,7 @@ const Badge: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const geometry = BADGE_GEOMETRY[size];
     if (
@@ -119,7 +120,7 @@ const Badge: ForwardRefExoticComponent<
               : {
                   minWidth: geometry.height,
                   height: geometry.height,
-                  borderRadius: RADII.pill,
+                  borderRadius: shape.radius.pill,
                   paddingHorizontal: geometry.paddingX,
                 },
             { backgroundColor: palette.main },

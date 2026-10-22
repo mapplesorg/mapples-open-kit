@@ -1,7 +1,7 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
-import { ELEVATION, RADII, Tokens, Tone, useTones } from '@mapples/ui';
+import { ELEVATION, Tokens, Tone, useShape, useTones } from '@mapples/ui';
 import { Platform, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { useControllableState } from '../../../internal';
@@ -101,6 +101,7 @@ const BottomNavigationBar = forwardRef<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const destinations = readBottomNavigationItems(items);
     const [current, setCurrent] = useControllableState<string>({
@@ -115,7 +116,7 @@ const BottomNavigationBar = forwardRef<
       : 0;
     const error = tones.tone('error');
     const colors = {
-      active: palette.main,
+      active: palette.ink,
       inactive: tones.resolve(Tokens.color.textSecondary),
       indicator: palette.container,
       badge: error.main,
@@ -140,7 +141,7 @@ const BottomNavigationBar = forwardRef<
                   marginTop: BOTTOM_NAVIGATION_FLOATING_MARGIN,
                   marginBottom: BOTTOM_NAVIGATION_FLOATING_MARGIN + safeInset,
                   paddingHorizontal: 8,
-                  borderRadius: RADII.pill,
+                  borderRadius: shape.radius.pill,
                   boxShadow: ELEVATION,
                   borderWidth: tones.isDark ? 1 : 0,
                   borderColor: tones.outline,

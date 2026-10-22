@@ -13,7 +13,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { Icon, RADII, Tokens, Tone, useTones } from '@mapples/ui';
+import { Icon, Tokens, Tone, useShape, useTones } from '@mapples/ui';
 import { ImageProps } from 'expo-image';
 import {
   ImageStyle,
@@ -103,10 +103,15 @@ const Avatar: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const themeShape = useShape();
     const palette = tones.tone(tone);
     const edge = AVATAR_EDGE[size];
     const radius =
-      shape === 'circle' ? edge / 2 : shape === 'rounded' ? RADII.sm : 0;
+      shape === 'circle'
+        ? edge / 2
+        : shape === 'rounded'
+          ? themeShape.radius.sm
+          : 0;
     const initials = name ? initialsOf(name) : '';
     const statusColor = {
       none: 'transparent',
@@ -158,7 +163,7 @@ const Avatar: ForwardRefExoticComponent<
             variant="Label"
             style={[
               {
-                color: palette.main,
+                color: palette.ink,
                 fontSize: Math.round(edge * 0.4),
                 lineHeight: Math.round(edge * 0.5),
               },
@@ -171,7 +176,7 @@ const Avatar: ForwardRefExoticComponent<
           <Icon
             iconName={iconName ?? 'person'}
             size={Math.round(edge * 0.55)}
-            color={palette.main}
+            color={palette.ink}
           />
         )}
         {status !== 'none' ? (

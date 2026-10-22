@@ -16,8 +16,10 @@ import {
   DISABLED_OPACITY,
   ELEVATION,
   Icon,
+  RADII,
   Tokens,
   TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { PressableProps, TextStyle, View, ViewStyle } from 'react-native';
@@ -101,6 +103,7 @@ const Fab: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const isDisabled = !!disabled;
     const extended = !!label;
     const geometry = FAB_GEOMETRY[size];
@@ -120,7 +123,16 @@ const Fab: ForwardRefExoticComponent<
     const labelColor = useSlotColor(styled?.styleLabel, 'color', foreground);
     const glyphColor = useSlotColor(styled?.styleIcon, 'color', foreground);
 
-    const radius = extended ? FAB_EXTENDED.radius : geometry.radius;
+    // The default corners scale with the project's large radius (cards,
+    // sheets), capped at a circle.
+    const edge = extended ? FAB_EXTENDED.height : geometry.edge;
+    const radius = Math.min(
+      edge / 2,
+      Math.round(
+        ((extended ? FAB_EXTENDED.radius : geometry.radius) * shape.radius.lg) /
+          RADII.lg,
+      ),
+    );
     const hitSlop = extended
       ? 0
       : Math.max(0, (FAB_TOUCH_TARGET - geometry.edge) / 2);

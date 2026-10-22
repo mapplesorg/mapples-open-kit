@@ -10,9 +10,9 @@ import {
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   ELEVATION,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -69,6 +69,7 @@ const List: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const context = useMemo<ListContextValue>(
       () => ({ dividers, dividerInset }),
       [dividerInset, dividers],
@@ -106,7 +107,8 @@ const List: ForwardRefExoticComponent<
             styled={{
               style: [
                 variant !== 'plain' && {
-                  borderRadius: variant === 'card' ? RADII.lg : RADII.md,
+                  borderRadius:
+                    variant === 'card' ? shape.radius.lg : shape.radius.md,
                   backgroundColor: tones.resolve(Tokens.color.surface),
                   overflow: 'hidden',
                   borderWidth: variant === 'card' || tones.isDark ? 1 : 0,

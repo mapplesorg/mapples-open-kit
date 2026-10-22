@@ -15,9 +15,9 @@ import {
 import {
   ELEVATION,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { PressableProps, TextStyle, View, ViewStyle } from 'react-native';
@@ -108,6 +108,7 @@ const StatTile: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const interactive = !!onPress;
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -130,7 +131,7 @@ const StatTile: ForwardRefExoticComponent<
       defaults.root,
       {
         alignItems: centered ? ('center' as const) : ('stretch' as const),
-        borderRadius: RADII.lg,
+        borderRadius: shape.radius.lg,
         backgroundColor:
           variant === 'filled'
             ? tones.fill

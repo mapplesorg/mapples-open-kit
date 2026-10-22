@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 import { StyledView, Typography } from '@mapples/style';
-import { RADII, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, useShape, useTones } from '@mapples/ui';
 
 export interface ChromeNoticeProps {
   /** What the element is and where it works. */
@@ -19,6 +19,7 @@ export interface ChromeNoticeProps {
  */
 const ChromeNotice: FC<ChromeNoticeProps> = ({ message }) => {
   const tones = useTones();
+  const shape = useShape();
   return (
     <StyledView
       accessibilityRole="text"
@@ -31,7 +32,7 @@ const ChromeNotice: FC<ChromeNoticeProps> = ({ message }) => {
           paddingVertical: 8,
           borderWidth: 1,
           borderStyle: 'dashed',
-          borderRadius: RADII.sm,
+          borderRadius: shape.radius.sm,
           borderColor: tones.outlineStrong,
         },
       }}

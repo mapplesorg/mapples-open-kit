@@ -11,9 +11,9 @@ import {
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   ELEVATION,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -106,6 +106,7 @@ const Snackbar: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
       defaultValue: defaultVisible,
@@ -151,7 +152,7 @@ const Snackbar: ForwardRefExoticComponent<
             style: [
               defaults.container,
               {
-                borderRadius: RADII.md,
+                borderRadius: shape.radius.md,
                 backgroundColor: background,
                 boxShadow: ELEVATION,
               },

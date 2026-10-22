@@ -9,10 +9,10 @@ import {
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   DISABLED_OPACITY,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -100,6 +100,7 @@ const PageControl: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const geometry = PAGE_CONTROL_GEOMETRY[size];
     const [current, setCurrent] = useControllableState<number>({
       value,
@@ -179,7 +180,7 @@ const PageControl: ForwardRefExoticComponent<
                             ? geometry.bar
                             : geometry.dot,
                         height: geometry.dot,
-                        borderRadius: RADII.pill,
+                        borderRadius: shape.radius.pill,
                         backgroundColor: active ? activeColor : inactiveColor,
                       },
                       styled?.styleDot,

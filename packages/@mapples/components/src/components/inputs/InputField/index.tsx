@@ -14,13 +14,13 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
   Icon,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -172,6 +172,7 @@ const InputField: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<string>(fieldName);
     const [text, setText] = useControllableState<string>({
@@ -201,13 +202,13 @@ const InputField: ForwardRefExoticComponent<
 
     const error = errorText || field.error;
     const hasError = !!error;
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
     const textColor = tones.resolve(Tokens.color.text);
     const errorColor = tones.tone('error').main;
     const borderColor = hasError
       ? errorColor
       : interaction.focused
-        ? palette.main
+        ? palette.ink
         : variant === 'outlined'
           ? tones.outlineStrong
           : 'transparent';

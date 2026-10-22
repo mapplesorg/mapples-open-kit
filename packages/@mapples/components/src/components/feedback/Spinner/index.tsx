@@ -69,7 +69,7 @@ const Spinner: ForwardRefExoticComponent<
     const primary = tones.tone('primary');
     const color =
       tone === 'primary'
-        ? primary.main
+        ? primary.ink
         : tone === 'neutral'
           ? tones.resolve(Tokens.color.textSecondary)
           : primary.contrast;

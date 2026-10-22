@@ -12,7 +12,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { RADII, Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, Tokens, useShape, useTones } from '@mapples/ui';
 import {
   PressableProps,
   TextStyle,
@@ -89,6 +89,7 @@ const AvatarGroup: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const members = readAvatarGroupItems(items, 'AvatarGroup');
     const shown = members.slice(0, Math.max(0, max));
     const hidden = members.length - shown.length;
@@ -110,7 +111,7 @@ const AvatarGroup: ForwardRefExoticComponent<
       {
         borderWidth: AVATAR_GROUP_RING,
         borderColor: surface,
-        borderRadius: RADII.pill,
+        borderRadius: shape.radius.pill,
         marginStart: index > 0 ? -overlap : 0,
       },
       styled?.styleAvatar,

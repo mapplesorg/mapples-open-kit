@@ -13,7 +13,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { RADII, Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, Tokens, useShape, useTones } from '@mapples/ui';
 import { get } from 'lodash';
 import {
   LayoutChangeEvent,
@@ -113,6 +113,7 @@ const Table: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const [containerWidth, setContainerWidth] = useState(0);
     const cols = readTableColumns(columns, 'Table');
     const rows = readTableData(data, 'Table');
@@ -181,7 +182,7 @@ const Table: ForwardRefExoticComponent<
           style: [
             defaults.root,
             {
-              borderRadius: RADII.md,
+              borderRadius: shape.radius.md,
               borderWidth: 1,
               borderColor: tones.outline,
               backgroundColor: tones.resolve(Tokens.color.surface),

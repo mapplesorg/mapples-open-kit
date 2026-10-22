@@ -17,10 +17,10 @@ import {
   DISABLED_OPACITY,
   ELEVATION,
   Icon,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -143,6 +143,8 @@ const SegmentedControl = forwardRef<
     }
 
     const tones = useTones();
+
+    const shape = useShape();
     const palette = tones.tone(tone);
     const geometry = SEGMENTED_CONTROL_GEOMETRY[size];
     const [current, setCurrent] = useControllableState<string>({
@@ -185,7 +187,7 @@ const SegmentedControl = forwardRef<
     const activeColor = useSlotColor(
       styled?.styleLabelActive,
       'color',
-      palette.main,
+      palette.ink,
     );
     const inactiveColor = useSlotColor(
       styled?.styleLabel,
@@ -204,7 +206,7 @@ const SegmentedControl = forwardRef<
             {
               height: geometry.height,
               padding: SEGMENTED_CONTROL_INSET,
-              borderRadius: RADII.pill,
+              borderRadius: shape.radius.pill,
               backgroundColor: tones.fill,
               alignSelf: fullWidth ? 'stretch' : 'flex-start',
             },
@@ -221,7 +223,7 @@ const SegmentedControl = forwardRef<
             {
               top: SEGMENTED_CONTROL_INSET,
               bottom: SEGMENTED_CONTROL_INSET,
-              borderRadius: RADII.pill,
+              borderRadius: shape.radius.pill,
               backgroundColor: tones.resolve(Tokens.color.surface),
               boxShadow: ELEVATION,
               borderWidth: tones.isDark ? 1 : 0,
@@ -254,7 +256,7 @@ const SegmentedControl = forwardRef<
                   {
                     height: segmentHeight,
                     paddingHorizontal: geometry.paddingX,
-                    borderRadius: RADII.pill,
+                    borderRadius: shape.radius.pill,
                   },
                   fullWidth && { flex: 1 },
                   styled?.styleSegment,

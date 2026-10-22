@@ -102,7 +102,7 @@ const TabIcon: ForwardRefExoticComponent<
     const ownColor = useSlotColor(
       styled?.style,
       'color',
-      tones.tone('primary').main,
+      tones.tone('primary').ink,
     );
     const activeColor = useSlotColor(styled?.styleActive, 'color', ownColor);
     const box = useMemo(() => boxOf(styled?.style), [styled?.style]);

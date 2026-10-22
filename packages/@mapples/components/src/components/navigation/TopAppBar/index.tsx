@@ -137,7 +137,7 @@ const TopAppBar: ForwardRefExoticComponent<
     const glyphColor = useSlotColor(
       styled?.styleIcon,
       'color',
-      tones.tone(tone).main,
+      tones.tone(tone).ink,
     );
     const textColor = tones.resolve(Tokens.color.text);
     const secondaryColor = tones.resolve(Tokens.color.textSecondary);

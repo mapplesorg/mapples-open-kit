@@ -15,9 +15,9 @@ import {
 } from '@mapples/style';
 import {
   ELEVATION,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { ImageProps } from 'expo-image';
@@ -125,6 +125,7 @@ const MediaCard: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const interactive = !!onPress;
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -144,7 +145,7 @@ const MediaCard: ForwardRefExoticComponent<
       defaults.root,
       {
         flexDirection: horizontal ? ('row' as const) : ('column' as const),
-        borderRadius: RADII.lg,
+        borderRadius: shape.radius.lg,
         backgroundColor: variant === 'filled' ? tones.fill : surface,
         borderWidth: variant === 'outlined' || tones.isDark ? 1 : 0,
         borderColor: tones.outline,
@@ -187,7 +188,7 @@ const MediaCard: ForwardRefExoticComponent<
               styled={{
                 style: [
                   defaults.tag,
-                  { borderRadius: RADII.pill, backgroundColor: surface },
+                  { borderRadius: shape.radius.pill, backgroundColor: surface },
                   styled?.styleTag,
                 ],
               }}

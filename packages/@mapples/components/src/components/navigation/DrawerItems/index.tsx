@@ -13,7 +13,13 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { RADII, Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import {
+  TYPOGRAPHY_PARTS,
+  Tokens,
+  Tone,
+  useShape,
+  useTones,
+} from '@mapples/ui';
 import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { ChromeNotice, useSlotColor } from '../../../internal';
@@ -86,6 +92,7 @@ const DrawerItems: ForwardRefExoticComponent<
   ) => {
     const chrome = useOptionalNavigatorChrome();
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const inactiveIcon = useSlotColor(
       styled?.styleIcon,
@@ -95,7 +102,7 @@ const DrawerItems: ForwardRefExoticComponent<
     const activeIcon = useSlotColor(
       styled?.styleIconActive,
       'color',
-      palette.main,
+      palette.ink,
     );
 
     if (!chrome || chrome.kind !== 'drawer') {
@@ -128,7 +135,7 @@ const DrawerItems: ForwardRefExoticComponent<
                   defaults.row,
                   {
                     height: rowHeight,
-                    borderRadius: RADII.pill,
+                    borderRadius: shape.radius.pill,
                   },
                   item.active && { backgroundColor: palette.container },
                   styled?.styleRow,
@@ -159,7 +166,7 @@ const DrawerItems: ForwardRefExoticComponent<
                 numberOfLines={1}
                 style={[
                   defaults.label,
-                  { color: item.active ? palette.main : inactiveLabel },
+                  { color: item.active ? palette.ink : inactiveLabel },
                   styled?.styleLabel,
                   item.active && styled?.styleLabelActive,
                 ]}

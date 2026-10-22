@@ -12,10 +12,10 @@ import {
   Button,
   ELEVATION,
   Icon,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -129,6 +129,7 @@ const Dialog: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
       defaultValue: defaultVisible,
@@ -162,7 +163,7 @@ const Dialog: ForwardRefExoticComponent<
               defaults.card,
               {
                 maxWidth,
-                borderRadius: RADII.xl,
+                borderRadius: shape.radius.xl,
                 backgroundColor: tones.resolve(Tokens.color.surface),
                 boxShadow: ELEVATION,
                 borderWidth: tones.isDark ? 1 : 0,
@@ -189,7 +190,7 @@ const Dialog: ForwardRefExoticComponent<
             </Pressable>
           ) : null}
           {iconName ? (
-            <Icon iconName={iconName} size={28} color={tones.tone(tone).main} />
+            <Icon iconName={iconName} size={28} color={tones.tone(tone).ink} />
           ) : null}
           {title || message ? (
             <StyledView styled={{ style: defaults.header }}>
