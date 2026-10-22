@@ -55,7 +55,7 @@ const useSizing = () => {
   const getSize = useCallback(
     (size: string): DimensionValue => {
       if (isMultiply(size)) {
-        return sizingConfig.base * parseInt(replace(size, '*', ''), 10);
+        return sizingConfig.base * parseFloat(replace(size, '*', ''));
       }
 
       if (isCalc(size)) {
@@ -65,7 +65,7 @@ const useSizing = () => {
       const sizeValue = get(sizingConfig, size);
 
       if (isMultiply(sizeValue)) {
-        return sizingConfig.base * parseInt(replace(sizeValue, '*', ''), 10);
+        return sizingConfig.base * parseFloat(replace(sizeValue, '*', ''));
       }
 
       if (isCalc(sizeValue)) {
