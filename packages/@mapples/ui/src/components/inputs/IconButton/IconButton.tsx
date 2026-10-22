@@ -31,9 +31,9 @@ import {
 } from 'react-native';
 import { SvgProps, SvgUri } from 'react-native-svg';
 
+import useShape from '../../../hooks/useShape';
 import useTones from '../../../hooks/useTones';
 import {
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
   IconButtonVariant,
@@ -144,6 +144,7 @@ const IconButton: ForwardRefExoticComponent<
   ) => {
     const { styleSvg, ...styledViewProps } = styled || {};
     const tones = useTones();
+    const shape = useShape();
     const [pressed, setPressed] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [internalSelected, setInternalSelected] = useState(false);
@@ -252,7 +253,9 @@ const IconButton: ForwardRefExoticComponent<
       );
     }
 
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
+    // Round, unless the project is sharp (its pill radius is 0).
+    const corner = Math.min(spec.height / 2, shape.radius.pill);
     const palette = tones.tone(tone);
     const text = tones.resolve('theme.text.primary');
     const isDisabled = !!disabled;
@@ -267,16 +270,16 @@ const IconButton: ForwardRefExoticComponent<
         break;
       case 'tonal':
         background = palette.container;
-        glyph = isSelected ? palette.main : palette.onContainer;
+        glyph = isSelected ? palette.ink : palette.onContainer;
         break;
       case 'outlined':
         border = tones.outlineStrong;
         background = isSelected ? palette.container : 'transparent';
-        glyph = isSelected ? palette.main : text;
+        glyph = isSelected ? palette.ink : text;
         break;
       default:
         background = isSelected ? palette.container : 'transparent';
-        glyph = isSelected ? palette.main : text;
+        glyph = isSelected ? palette.ink : text;
     }
     const authoredGlyph = ejectStyle?.color;
     const glyphColor =
@@ -312,7 +315,7 @@ const IconButton: ForwardRefExoticComponent<
             {
               width: spec.height,
               height: spec.height,
-              borderRadius: spec.height / 2,
+              borderRadius: corner,
               backgroundColor: background,
               borderWidth: border ? 1 : 0,
               borderColor: border ?? 'transparent',
@@ -334,7 +337,7 @@ const IconButton: ForwardRefExoticComponent<
                     glyphColor,
                     pressed ? 'pressed' : 'hover',
                   ),
-                  borderRadius: spec.height / 2,
+                  borderRadius: corner,
                 },
               ],
             }}

@@ -68,6 +68,75 @@ export const RADII = {
   pill: 999,
 } as const;
 
+export type RadiusKey = keyof typeof RADII;
+
+/** The corner radii and control geometry of a project. */
+export interface Shape {
+  radius: Record<RadiusKey, number>;
+  control: Record<ControlSize, ControlSizeSpec>;
+}
+
+/** The shape when a project's sizing names no `radius`, `radiusLarge` or `control`. */
+export const DEFAULT_SHAPE: Shape = { radius: RADII, control: CONTROL_SIZES };
+
+/**
+ * The project sizing keys the shape reads — what the design setup writes:
+ * `radius` (controls, chips, small surfaces), `radiusLarge` (cards, sheets,
+ * dialogs) and `control` (the height of an `md` control).
+ */
+export const SHAPE_SIZING_KEYS = {
+  radius: 'sizing.radius',
+  radiusLarge: 'sizing.radiusLarge',
+  control: 'sizing.control',
+} as const;
+
+/**
+ * Derives the shape from a project's sizing. Each value left undefined keeps
+ * the default, so the defaults reproduce {@link RADII} and
+ * {@link CONTROL_SIZES} exactly.
+ *
+ * - `radius` sets `md` and scales `xs`/`sm` with it; `radiusLarge` sets `lg`
+ *   and scales `xl`. A `radius` of 0 is a sharp direction: pills square off.
+ * - `control` sets the `md` height; `sm`/`lg` keep their 8 pt steps. Control
+ *   corners follow `radius` and never exceed half the height (a pill).
+ */
+export const resolveShape = (
+  radius: number | undefined,
+  radiusLarge: number | undefined,
+  control: number | undefined,
+): Shape => {
+  const small = radius ?? RADII.md;
+  const large = radiusLarge ?? RADII.lg;
+  const height = control ?? CONTROL_SIZES.md.height;
+  const sharp = small === 0;
+  const scaleSmall = small / RADII.md;
+
+  const controlSpec = (size: ControlSize): ControlSizeSpec => {
+    const base = CONTROL_SIZES[size];
+    const sized = base.height + (height - CONTROL_SIZES.md.height);
+    const corner = sharp
+      ? 0
+      : Math.min(sized / 2, Math.max(0, base.radius + small - RADII.md));
+    return { ...base, height: sized, radius: corner };
+  };
+
+  return {
+    radius: {
+      xs: Math.round(RADII.xs * scaleSmall),
+      sm: Math.round(RADII.sm * scaleSmall),
+      md: small,
+      lg: large,
+      xl: Math.round((large * RADII.xl) / RADII.lg),
+      pill: sharp ? 0 : RADII.pill,
+    },
+    control: {
+      sm: controlSpec('sm'),
+      md: controlSpec('md'),
+      lg: controlSpec('lg'),
+    },
+  };
+};
+
 /** Opacity of a disabled control. */
 export const DISABLED_OPACITY = 0.38;
 
