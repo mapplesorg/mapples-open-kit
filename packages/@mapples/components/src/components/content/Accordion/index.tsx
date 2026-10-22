@@ -154,7 +154,10 @@ const Accordion: ForwardRefExoticComponent<
             defaults.root,
             variant !== 'plain' && {
               borderRadius: shape.radius.md,
-              borderWidth: variant === 'outlined' || tones.isDark ? 1 : 0,
+              borderWidth:
+                variant === 'outlined' || tones.isDark
+                  ? shape.borderWidth(1)
+                  : 0,
               borderColor: tones.outline,
               backgroundColor:
                 variant === 'filled'

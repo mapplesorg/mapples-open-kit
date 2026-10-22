@@ -2,8 +2,11 @@
 export const STEPS_ORIENTATIONS = ['horizontal', 'vertical'] as const;
 export type StepsOrientation = (typeof STEPS_ORIENTATIONS)[number];
 
-/** Indicator style: numbers, small dots, or a check for done steps. */
-export const STEPS_VARIANTS = ['numbered', 'dot', 'icon'] as const;
+/**
+ * Indicator style: numbers, small dots, a check for done steps, or a row of
+ * equal bars (`segments`, filled up to the current step).
+ */
+export const STEPS_VARIANTS = ['numbered', 'dot', 'icon', 'segments'] as const;
 export type StepsVariant = (typeof STEPS_VARIANTS)[number];
 
 /** Where a step stands relative to `current`. */
@@ -18,7 +21,7 @@ export interface StepItem {
 }
 
 export interface StepsGeometry {
-  /** Indicator diameter. */
+  /** Indicator diameter (the bar thickness for `segments`). */
   indicator: number;
   /** Indicator border width. */
   border: number;
@@ -31,7 +34,11 @@ export const STEPS_GEOMETRY: Record<StepsVariant, StepsGeometry> = {
   numbered: { indicator: 28, border: 2, glyph: 16 },
   dot: { indicator: 10, border: 2, glyph: 0 },
   icon: { indicator: 28, border: 2, glyph: 16 },
+  segments: { indicator: 4, border: 0, glyph: 0 },
 };
+
+/** Gap between the bars of the `segments` variant, in points. */
+export const STEPS_SEGMENT_GAP = 4;
 
 /** Connector thickness in points. */
 export const STEPS_CONNECTOR_THICKNESS = 2;

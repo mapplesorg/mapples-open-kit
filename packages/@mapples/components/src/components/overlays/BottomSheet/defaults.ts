@@ -17,8 +17,27 @@ export const defaults = Styler.create({
     height: 4,
     borderRadius: 2,
   },
+  titleRow: {
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   content: {
     padding: 24,
     gap: 12,
+  },
+  // Fills the free height: a snapping sheet's surface, its scroll area.
+  fill: {
+    flex: 1,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 24,
+    borderTopWidth: 1,
   },
 });

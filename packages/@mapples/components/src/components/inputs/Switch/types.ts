@@ -6,6 +6,13 @@ export type SwitchSize = (typeof SWITCH_SIZES)[number];
 export const SWITCH_LABEL_POSITIONS = ['left', 'right'] as const;
 export type SwitchLabelPosition = (typeof SWITCH_LABEL_POSITIONS)[number];
 
+/** Track and thumb corners: full circle, or a rounded square from the project shape. */
+export const SWITCH_SHAPES = ['round', 'rounded'] as const;
+export type SwitchShape = (typeof SWITCH_SHAPES)[number];
+
+/** The thumb's default drop shadow. */
+export const SWITCH_THUMB_SHADOW = '0px 1px 3px rgba(0, 0, 0, 0.25)';
+
 export interface SwitchGeometry {
   width: number;
   height: number;

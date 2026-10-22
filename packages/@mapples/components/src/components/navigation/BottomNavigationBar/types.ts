@@ -14,12 +14,15 @@ export type BottomNavigationVariant =
 
 /**
  * The mark on the active destination: a pill behind the glyph, a short bar
- * on the item's top edge, a dot under the label, or none (colour only).
+ * on the item's top edge, a dot under the label, an expanding pill (the
+ * active item grows into a filled pill with glyph and label side by side;
+ * items are sized to their content), or none (colour only).
  */
 export const BOTTOM_NAVIGATION_INDICATORS = [
   'pill',
   'bar',
   'dot',
+  'expand',
   'none',
 ] as const;
 export type BottomNavigationIndicator =
@@ -58,6 +61,20 @@ export const BOTTOM_NAVIGATION_INDICATOR = { width: 64, height: 32 } as const;
 export const BOTTOM_NAVIGATION_BAR_INDICATOR = {
   width: 32,
   height: 3,
+} as const;
+
+/** Geometry of the `expand` indicator's pill. */
+export const BOTTOM_NAVIGATION_EXPAND = {
+  /** Smallest pill height; grows with `iconSize` (glyph + 16). */
+  height: 40,
+  /** Inner padding left and right of the pill. */
+  paddingHorizontal: 12,
+  /** Space between the glyph and the label. */
+  gap: 8,
+  /** Widest the label gets before it is truncated. */
+  labelMaxWidth: 120,
+  /** Space between items. */
+  itemGap: 4,
 } as const;
 
 /** Diameter of the `dot` indicator under the active label. */

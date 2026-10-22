@@ -10,6 +10,15 @@ export const defaults = Styler.create({
     position: 'absolute',
     left: 0,
   },
+  outlined: {
+    overflow: 'hidden',
+  },
+  divider: {
+    alignSelf: 'stretch',
+  },
+  struck: {
+    textDecorationLine: 'line-through',
+  },
   segment: {
     flexDirection: 'row',
     alignItems: 'center',

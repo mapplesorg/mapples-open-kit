@@ -42,7 +42,7 @@ import {
 } from '../../../internal';
 
 import { defaults } from './defaults';
-import { InputFieldVariant } from './types';
+import { INPUT_FIELD_RULE, InputFieldVariant } from './types';
 
 /** Props for {@link InputField}. */
 export interface InputFieldProps extends Omit<
@@ -51,6 +51,8 @@ export interface InputFieldProps extends Omit<
 > {
   /** Text above the field. */
   label?: string;
+  /** Supporting text above the field, under the label (`helperText` sits below the field). */
+  description?: string;
   /** Current text (controlled). Omit to let the field keep its own state. */
   value?: string;
   /** Initial text while uncontrolled. */
@@ -63,10 +65,18 @@ export interface InputFieldProps extends Omit<
   errorText?: string;
   /** Glyph before the text (project icon family). */
   leadingIconName?: string;
-  /** Glyph after the text (project icon family). */
+  /** Glyph after the text (project icon family). Not with `trailingActionLabel`. */
   trailingIconName?: string;
   /** Fires when the trailing glyph is pressed. */
   onTrailingIconPress?: () => void;
+  /** Text before the input, such as a currency ('€'). */
+  prefix?: string;
+  /** Text after the input, such as a unit ('kg'). */
+  suffix?: string;
+  /** A tone-coloured text button at the end of the field ('Apply'). Not with `trailingIconName`. */
+  trailingActionLabel?: string;
+  /** Fires when the trailing text button is pressed. */
+  onTrailingActionPress?: () => void;
   /** Adds an eye toggle that reveals a secure entry. */
   showPasswordToggle?: boolean;
   /** Adds a clear glyph while the field has text. */
@@ -79,9 +89,9 @@ export interface InputFieldProps extends Omit<
   disabled?: boolean;
   /** Height of a single-line field. Defaults to `md`. */
   size?: ControlSize;
-  /** Surface: outlined box or tinted fill. Defaults to `outlined`. */
+  /** Surface: outlined box, tinted fill, bottom rule only (`underlined`) or none (`plain`). Defaults to `outlined`. */
   variant?: InputFieldVariant;
-  /** Colour role of the focused state. Defaults to `primary`. */
+  /** Colour role of the focused state and the trailing text button. Defaults to `primary`. */
   tone?: Tone;
   /** Binds the text to a field of the enclosing `FormView`; its error shows once touched. */
   fieldName?: string;
@@ -99,6 +109,14 @@ export interface InputFieldProps extends Omit<
     styleInput?: StyledProp<TextStyle>;
     /** The label. */
     styleLabel?: StyledProp<TextStyle>;
+    /** The description above the field. */
+    styleDescription?: StyledProp<TextStyle>;
+    /** The prefix text. */
+    stylePrefix?: StyledProp<TextStyle>;
+    /** The suffix text. */
+    styleSuffix?: StyledProp<TextStyle>;
+    /** The trailing text button's label. */
+    styleTrailingAction?: StyledProp<TextStyle>;
     /** The helper text. */
     styleHelper?: StyledProp<TextStyle>;
     /** The error text. */
@@ -109,8 +127,10 @@ export interface InputFieldProps extends Omit<
 }
 
 /**
- * The form text field: a label above, an outlined or filled box with
- * optional leading/trailing glyphs, helper or error text below. Handles
+ * The form text field: a label and description above; an outlined, filled,
+ * underlined or plain field with optional leading/trailing glyphs,
+ * prefix/suffix text and a trailing text button; helper or error text
+ * below. Handles
  * secure entry with an eye toggle, clearing, multi-line growth and the
  * keyboard/autofill props of a native input.
  *
@@ -124,6 +144,12 @@ export interface InputFieldProps extends Omit<
  *   leadingIconName="mail-outline"
  *   value={email}
  *   onChangeText={setEmail}
+ * />
+ * <InputField
+ *   label="Promo code"
+ *   variant="underlined"
+ *   trailingActionLabel="Apply"
+ *   onTrailingActionPress={apply}
  * />
  * ```
  *
@@ -141,6 +167,7 @@ const InputField: ForwardRefExoticComponent<
   (
     {
       label,
+      description,
       value,
       defaultValue = '',
       onChangeText,
@@ -149,6 +176,10 @@ const InputField: ForwardRefExoticComponent<
       leadingIconName,
       trailingIconName,
       onTrailingIconPress,
+      prefix,
+      suffix,
+      trailingActionLabel,
+      onTrailingActionPress,
       showPasswordToggle = false,
       clearable = false,
       onClear,
@@ -171,6 +202,12 @@ const InputField: ForwardRefExoticComponent<
     },
     ref,
   ) => {
+    if (trailingIconName && trailingActionLabel) {
+      throw new Error(
+        'InputField: trailingIconName and trailingActionLabel are exclusive — set one',
+      );
+    }
+
     const tones = useTones();
     const shape = useShape();
     const palette = tones.tone(tone);
@@ -205,13 +242,38 @@ const InputField: ForwardRefExoticComponent<
     const spec = shape.control[size];
     const textColor = tones.resolve(Tokens.color.text);
     const errorColor = tones.tone('error').main;
+    const underlined = variant === 'underlined';
     const borderColor = hasError
       ? errorColor
       : interaction.focused
         ? palette.ink
-        : variant === 'outlined'
+        : variant === 'outlined' || underlined
           ? tones.outlineStrong
           : 'transparent';
+    const secondary = tones.resolve(Tokens.color.textSecondary);
+    const multilinePadding = multiline ? 10 : 0;
+    const focusedRule = shape.emphasisWidth(INPUT_FIELD_RULE.focused);
+    const rule = interaction.focused
+      ? focusedRule
+      : shape.borderWidth(INPUT_FIELD_RULE.rest);
+    const surface: ViewStyle =
+      variant === 'outlined' || variant === 'filled'
+        ? {
+            paddingHorizontal: spec.paddingX - 4,
+            borderRadius: spec.radius,
+            borderWidth: shape.borderWidth(1),
+            borderColor,
+            backgroundColor: variant === 'filled' ? tones.fill : 'transparent',
+          }
+        : underlined
+          ? {
+              ...defaults.bare,
+              borderBottomWidth: rule,
+              borderBottomColor: borderColor,
+              // Keeps the height steady while the rule thickens.
+              paddingBottom: multilinePadding + focusedRule - rule,
+            }
+          : defaults.bare;
     const glyphColor = useSlotColor(
       styled?.styleIcon,
       'color',
@@ -233,39 +295,42 @@ const InputField: ForwardRefExoticComponent<
           ],
         }}
       >
-        {label ? (
-          <Typography
-            variant={TYPOGRAPHY_PARTS.label}
-            style={[
-              { color: tones.resolve(Tokens.color.textSecondary) },
-              styled?.styleLabel,
-            ]}
-          >
-            {label}
-            {required ? (
+        {label || description ? (
+          <StyledView styled={{ style: defaults.header }}>
+            {label ? (
               <Typography
                 variant={TYPOGRAPHY_PARTS.label}
-                style={{ color: errorColor }}
+                style={[{ color: secondary }, styled?.styleLabel]}
               >
-                {' *'}
+                {label}
+                {required ? (
+                  <Typography
+                    variant={TYPOGRAPHY_PARTS.label}
+                    style={{ color: errorColor }}
+                  >
+                    {' *'}
+                  </Typography>
+                ) : null}
               </Typography>
             ) : null}
-          </Typography>
+            {description ? (
+              <Typography
+                variant={TYPOGRAPHY_PARTS.helper}
+                style={[{ color: secondary }, styled?.styleDescription]}
+              >
+                {description}
+              </Typography>
+            ) : null}
+          </StyledView>
         ) : null}
         <StyledView
           styled={{
             style: [
               defaults.field,
-              {
-                minHeight: spec.height,
-                paddingHorizontal: spec.paddingX - 4,
-                borderRadius: spec.radius,
-                borderColor,
-                backgroundColor:
-                  variant === 'filled' ? tones.fill : 'transparent',
-              },
+              { minHeight: spec.height },
               multiline && defaults.multiline,
-              multiline && { paddingVertical: 10 },
+              multiline && { paddingVertical: multilinePadding },
+              surface,
               styled?.styleField,
               interaction.focused && styled?.styleFieldFocused,
               hasError && styled?.styleFieldError,
@@ -279,9 +344,18 @@ const InputField: ForwardRefExoticComponent<
               color={glyphColor}
             />
           ) : null}
+          {prefix ? (
+            <Typography
+              variant={TYPOGRAPHY_PARTS.body}
+              style={[{ color: secondary }, styled?.stylePrefix]}
+            >
+              {prefix}
+            </Typography>
+          ) : null}
           <StyledTextInput
             ref={ref}
             accessibilityLabel={label}
+            accessibilityHint={description}
             accessibilityState={{ disabled }}
             editable={!disabled}
             value={text}
@@ -307,6 +381,14 @@ const InputField: ForwardRefExoticComponent<
             }}
             {...rest}
           />
+          {suffix ? (
+            <Typography
+              variant={TYPOGRAPHY_PARTS.body}
+              style={[{ color: secondary }, styled?.styleSuffix]}
+            >
+              {suffix}
+            </Typography>
+          ) : null}
           {clearable && text.length > 0 && !disabled ? (
             <Pressable
               accessibilityRole="button"
@@ -348,6 +430,26 @@ const InputField: ForwardRefExoticComponent<
               />
             </Pressable>
           ) : null}
+          {trailingActionLabel ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={trailingActionLabel}
+              accessibilityState={{
+                disabled: disabled || !onTrailingActionPress,
+              }}
+              disabled={disabled || !onTrailingActionPress}
+              hitSlop={8}
+              onPress={onTrailingActionPress}
+              style={defaults.glyphButton}
+            >
+              <Typography
+                variant={TYPOGRAPHY_PARTS.button}
+                style={[{ color: palette.ink }, styled?.styleTrailingAction]}
+              >
+                {trailingActionLabel}
+              </Typography>
+            </Pressable>
+          ) : null}
         </StyledView>
         {hasError ? (
           <Typography
@@ -360,10 +462,7 @@ const InputField: ForwardRefExoticComponent<
         ) : helperText ? (
           <Typography
             variant={TYPOGRAPHY_PARTS.helper}
-            style={[
-              { color: tones.resolve(Tokens.color.textSecondary) },
-              styled?.styleHelper,
-            ]}
+            style={[{ color: secondary }, styled?.styleHelper]}
           >
             {helperText}
           </Typography>

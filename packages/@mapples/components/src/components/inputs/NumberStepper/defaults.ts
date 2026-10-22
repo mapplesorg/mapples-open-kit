@@ -7,8 +7,15 @@ export const defaults = Styler.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
   },
+  split: {
+    gap: 8,
+  },
   label: {
     paddingStart: 12,
+    paddingEnd: 4,
+  },
+  labelSplit: {
+    paddingStart: 0,
     paddingEnd: 4,
   },
   button: {

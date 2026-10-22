@@ -11,6 +11,8 @@ export interface Option {
   iconName?: string;
   /** Supporting text where the control shows one (RadioGroup). */
   description?: string;
+  /** Trailing detail where the control shows one, such as a price (RadioGroup). */
+  meta?: string;
   /** Not selectable. */
   disabled?: boolean;
   /** Painted in the error tone (ActionSheet). */

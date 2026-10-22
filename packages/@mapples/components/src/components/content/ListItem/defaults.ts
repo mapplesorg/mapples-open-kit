@@ -31,7 +31,6 @@ export const defaults = Styler.create({
   radio: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
   },
   divider: {
     height: 1,

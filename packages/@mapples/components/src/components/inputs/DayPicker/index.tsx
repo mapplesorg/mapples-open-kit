@@ -235,7 +235,10 @@ const DayPicker: ForwardRefExoticComponent<
               },
               scrollable ? { width } : defaults.cellEqual,
               styled?.styleCell,
-              isToday && { borderWidth: 2, borderColor: palette.ink },
+              isToday && {
+                borderWidth: shape.emphasisWidth(2),
+                borderColor: palette.ink,
+              },
               isToday && styled?.styleCellToday,
               isSelected && styled?.styleCellSelected,
               !!day.disabled && { opacity: DISABLED_OPACITY },

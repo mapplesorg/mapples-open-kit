@@ -9,9 +9,9 @@ import {
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
-  ELEVATION,
   TYPOGRAPHY_PARTS,
   Tokens,
+  useElevation,
   useShape,
   useTones,
 } from '@mapples/ui';
@@ -70,6 +70,7 @@ const List: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const context = useMemo<ListContextValue>(
       () => ({ dividers, dividerInset }),
       [dividerInset, dividers],
@@ -111,10 +112,13 @@ const List: ForwardRefExoticComponent<
                     variant === 'card' ? shape.radius.lg : shape.radius.md,
                   backgroundColor: tones.resolve(Tokens.color.surface),
                   overflow: 'hidden',
-                  borderWidth: variant === 'card' || tones.isDark ? 1 : 0,
+                  borderWidth:
+                    variant === 'card' || tones.isDark
+                      ? shape.borderWidth(1)
+                      : 0,
                   borderColor: tones.outline,
                 },
-                variant === 'card' && { boxShadow: ELEVATION },
+                variant === 'card' && { boxShadow: elevation },
               ],
             }}
           >

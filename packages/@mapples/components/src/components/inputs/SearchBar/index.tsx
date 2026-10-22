@@ -201,6 +201,7 @@ const SearchBar: ForwardRefExoticComponent<
                 paddingHorizontal: spec.paddingX - 4,
                 borderRadius:
                   variant === 'filled' ? shape.radius.pill : spec.radius,
+                borderWidth: shape.borderWidth(1),
                 borderColor,
                 backgroundColor:
                   variant === 'filled' ? tones.fill : 'transparent',

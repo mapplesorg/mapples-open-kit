@@ -6,9 +6,11 @@ export const defaults = Styler.create({
     flexDirection: 'row',
     alignSelf: 'flex-start',
   },
+  dotsRow: {
+    alignItems: 'center',
+  },
   cell: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

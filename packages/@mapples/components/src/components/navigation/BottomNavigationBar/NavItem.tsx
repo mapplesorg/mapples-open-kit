@@ -13,8 +13,10 @@ import { Animated, TextStyle, ViewStyle } from 'react-native';
 import { DURATION, useSlotColor, useTimingValue } from '../../../internal';
 
 import { defaults } from './defaults';
+import ExpandLabel from './ExpandLabel';
 import {
   BOTTOM_NAVIGATION_BAR_INDICATOR,
+  BOTTOM_NAVIGATION_EXPAND,
   BOTTOM_NAVIGATION_ICON_SIZE,
   BOTTOM_NAVIGATION_INDICATOR,
   BottomNavigationIndicator,
@@ -48,6 +50,10 @@ export interface NavItemColors {
   indicator: string;
   /** The `bar` and `dot` indicators. Defaults to `active`. */
   mark?: string;
+  /** The `expand` pill's fill. */
+  fill: string;
+  /** Glyph and label on the `expand` fill. */
+  onFill: string;
   /** Badge fill. */
   badge: string;
   /** Badge text. */
@@ -70,6 +76,7 @@ export interface NavItemSlots {
 export interface NavItemProps {
   item: NavItemData;
   active: boolean;
+  /** Whether the label shows (ignored by `expand`, whose label rides in the active pill). */
   showLabel: boolean;
   /** The mark on the active item. */
   indicator: BottomNavigationIndicator;
@@ -85,7 +92,9 @@ const BADGE_MAX = 99;
 /**
  * One destination of a `BottomNavigationBar`: the glyph, the label, a count
  * badge, and the active mark (a pill behind the glyph, a bar on the top
- * edge or a dot under the label) that fades in while active.
+ * edge or a dot under the label) that fades in while active. With the
+ * `expand` mark the item is sized to its content and, while active, grows
+ * into a filled pill with the label beside the glyph.
  */
 const NavItem: FC<NavItemProps> = ({
   item,
@@ -98,8 +107,16 @@ const NavItem: FC<NavItemProps> = ({
   onPress,
 }) => {
   const shape = useShape();
+  const expand = mark === 'expand';
   const progress = useTimingValue(active ? 1 : 0, {
     duration: DURATION.fast,
+  });
+  // The `expand` pill animates a width, a layout property the native driver
+  // cannot touch, so it runs on its own JS-driven value (fill and width
+  // share it to stay in step).
+  const expansion = useTimingValue(active ? 1 : 0, {
+    duration: DURATION.base,
+    native: false,
   });
   const resolved = useStyled({ indicator: slots.styleIndicator }) as {
     indicator?: ViewStyle;
@@ -108,7 +125,7 @@ const NavItem: FC<NavItemProps> = ({
   const activeGlyph = useSlotColor(
     slots.styleIconActive,
     'color',
-    colors.active,
+    expand ? colors.onFill : colors.active,
   );
   const glyphColor = active ? activeGlyph : inactiveGlyph;
   const markColor = colors.mark ?? colors.active;
@@ -117,19 +134,26 @@ const NavItem: FC<NavItemProps> = ({
   // place — always shown, with the active pill behind it and the badge next
   // to it — instead of an empty pill over a caption.
   const iconless = !item.renderIcon && !item.iconName;
-  const labelColor = active ? colors.active : colors.inactive;
+  const labelColor = active
+    ? expand
+      ? colors.onFill
+      : colors.active
+    : colors.inactive;
+  const expandHeight = Math.max(BOTTOM_NAVIGATION_EXPAND.height, iconSize + 16);
+  // `pill` is a tinted container behind the glyph; `expand` is the tone's
+  // full fill behind the glyph and label.
   const indicatorPill =
-    mark === 'pill' ? (
+    mark === 'pill' || expand ? (
       <Animated.View
         pointerEvents="none"
         style={[
           defaults.indicator,
           {
             borderRadius: shape.radius.pill,
-            backgroundColor: colors.indicator,
+            backgroundColor: expand ? colors.fill : colors.indicator,
           },
           resolved.indicator,
-          { opacity: progress },
+          { opacity: expand ? expansion : progress },
         ]}
       />
     ) : null;
@@ -202,6 +226,26 @@ const NavItem: FC<NavItemProps> = ({
         </Typography>
       </StyledView>
     ) : null;
+  const glyph = (
+    <StyledView
+      styled={{
+        style: [defaults.icon, { width: iconSize, height: iconSize }],
+      }}
+    >
+      {item.renderIcon ? (
+        item.renderIcon({ color: glyphColor, size: iconSize })
+      ) : item.iconName ? (
+        <Icon
+          iconName={
+            active && item.activeIconName ? item.activeIconName : item.iconName
+          }
+          size={iconSize}
+          color={glyphColor}
+        />
+      ) : null}
+      {badgeView}
+    </StyledView>
+  );
   const iconBox = (
     <StyledView
       styled={{
@@ -215,26 +259,23 @@ const NavItem: FC<NavItemProps> = ({
       }}
     >
       {indicatorPill}
-      <StyledView
-        styled={{
-          style: [defaults.icon, { width: iconSize, height: iconSize }],
-        }}
-      >
-        {item.renderIcon ? (
-          item.renderIcon({ color: glyphColor, size: iconSize })
-        ) : item.iconName ? (
-          <Icon
-            iconName={
-              active && item.activeIconName
-                ? item.activeIconName
-                : item.iconName
-            }
-            size={iconSize}
-            color={glyphColor}
-          />
-        ) : null}
-        {badgeView}
-      </StyledView>
+      {glyph}
+    </StyledView>
+  );
+  const expandPill = (
+    <StyledView
+      styled={{ style: [defaults.expandPill, { height: expandHeight }] }}
+    >
+      {indicatorPill}
+      {glyph}
+      <ExpandLabel
+        label={item.label}
+        expansion={expansion}
+        open={active}
+        color={labelColor}
+        styleLabel={slots.styleLabel}
+        styleLabelActive={active ? slots.styleLabelActive : undefined}
+      />
     </StyledView>
   );
 
@@ -247,6 +288,7 @@ const NavItem: FC<NavItemProps> = ({
       styled={{
         style: [
           defaults.item,
+          expand ? defaults.itemFit : defaults.itemFill,
           slots.styleItem,
           active && slots.styleItemActive,
         ],
@@ -258,7 +300,11 @@ const NavItem: FC<NavItemProps> = ({
           styled={{
             style: [
               defaults.labelBox,
-              { minHeight: BOTTOM_NAVIGATION_INDICATOR.height },
+              {
+                minHeight: expand
+                  ? expandHeight
+                  : BOTTOM_NAVIGATION_INDICATOR.height,
+              },
             ],
           }}
         >
@@ -280,8 +326,14 @@ const NavItem: FC<NavItemProps> = ({
           {badgeView}
         </StyledView>
       ) : null}
-      {iconless ? null : showLabel ? iconBox : withDot(iconBox)}
-      {showLabel && !iconless
+      {iconless
+        ? null
+        : expand
+          ? expandPill
+          : showLabel
+            ? iconBox
+            : withDot(iconBox)}
+      {showLabel && !iconless && !expand
         ? withDot(
             <Typography
               variant={TYPOGRAPHY_PARTS.helper}

@@ -10,11 +10,11 @@ import {
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   Button,
-  ELEVATION,
   Icon,
   TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
+  useElevation,
   useShape,
   useTones,
 } from '@mapples/ui';
@@ -130,6 +130,7 @@ const Dialog: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
       defaultValue: defaultVisible,
@@ -165,8 +166,8 @@ const Dialog: ForwardRefExoticComponent<
                 maxWidth,
                 borderRadius: shape.radius.xl,
                 backgroundColor: tones.resolve(Tokens.color.surface),
-                boxShadow: ELEVATION,
-                borderWidth: tones.isDark ? 1 : 0,
+                boxShadow: elevation,
+                borderWidth: tones.isDark ? shape.borderWidth(1) : 0,
                 borderColor: tones.outline,
               },
               styled?.styleDialog,

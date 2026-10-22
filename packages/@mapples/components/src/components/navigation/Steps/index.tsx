@@ -14,6 +14,7 @@ import { defaults } from './defaults';
 import Step, { StepColors } from './Step';
 import {
   readStepItems,
+  STEPS_SEGMENT_GAP,
   StepItem,
   StepsOrientation,
   StepStatus,
@@ -28,8 +29,14 @@ export interface StepsProps extends Omit<ViewProps, 'children'> {
   current?: number;
   /** Layout direction. Defaults to `horizontal`. */
   orientation?: StepsOrientation;
-  /** Indicator style. Defaults to `numbered`. */
+  /**
+   * Indicator style: `numbered`, `dot`, `icon` (a check on done steps) or
+   * `segments` (a row of equal bars, done and current filled with the tone,
+   * labels under them). Defaults to `numbered`.
+   */
   variant?: StepsVariant;
+  /** Shows each step's label and description. Defaults to `true`. */
+  showLabels?: boolean;
   /** Makes every step pressable, firing `onStepPress`. */
   clickable?: boolean;
   /** Fires with the pressed step's index (with `clickable`). */
@@ -42,11 +49,11 @@ export interface StepsProps extends Omit<ViewProps, 'children'> {
     style?: StyledProp<ViewStyle>;
     /** One step (indicator, connectors and texts). */
     styleStep?: StyledProp<ViewStyle>;
-    /** Every indicator circle. */
+    /** Every indicator circle (every bar with `segments`). */
     styleIndicator?: StyledProp<ViewStyle>;
-    /** The current step's indicator. */
+    /** The current step's indicator or bar. */
     styleIndicatorActive?: StyledProp<ViewStyle>;
-    /** A done step's indicator. */
+    /** A done step's indicator or bar. */
     styleIndicatorDone?: StyledProp<ViewStyle>;
     /** Every label. */
     styleLabel?: StyledProp<TextStyle>;
@@ -63,9 +70,9 @@ export interface StepsProps extends Omit<ViewProps, 'children'> {
 
 /**
  * A step indicator for checkout, onboarding and wizard flows — numbered,
- * dotted, or with a check on done steps — laid out as equal columns or a
- * vertical rail. `current` marks the active step; everything before it is
- * done.
+ * dotted, with a check on done steps, or a row of segment bars — laid out as
+ * equal columns or a vertical rail. `current` marks the active step;
+ * everything before it is done.
  *
  * @example
  * ```tsx
@@ -73,6 +80,11 @@ export interface StepsProps extends Omit<ViewProps, 'children'> {
  *   items={[{ label: 'Cart' }, { label: 'Address' }, { label: 'Payment' }]}
  *   current={1}
  *   variant="icon"
+ * />
+ * <Steps
+ *   items={[{ label: '1 Shipping' }, { label: '2 Payment' }, { label: '3 Review' }]}
+ *   current={1}
+ *   variant="segments"
  * />
  * ```
  *
@@ -87,6 +99,7 @@ const Steps: ForwardRefExoticComponent<
       current = 0,
       orientation = 'horizontal',
       variant = 'numbered',
+      showLabels = true,
       clickable = false,
       onStepPress,
       tone = 'primary',
@@ -103,6 +116,8 @@ const Steps: ForwardRefExoticComponent<
 
     const colors: StepColors = {
       main: palette.main,
+      ink: palette.ink,
+      track: tones.fill,
       contrast: palette.contrast,
       pending: tones.outlineStrong,
       text: tones.resolve(Tokens.color.text),
@@ -121,6 +136,7 @@ const Steps: ForwardRefExoticComponent<
             orientation === 'horizontal'
               ? defaults.horizontal
               : defaults.vertical,
+            variant === 'segments' && { gap: STEPS_SEGMENT_GAP },
             styled?.style,
           ],
         }}
@@ -139,6 +155,7 @@ const Steps: ForwardRefExoticComponent<
             orientation={orientation}
             variant={variant}
             colors={colors}
+            showLabels={showLabels}
             slots={{
               styleStep: styled?.styleStep,
               styleIndicator: styled?.styleIndicator,

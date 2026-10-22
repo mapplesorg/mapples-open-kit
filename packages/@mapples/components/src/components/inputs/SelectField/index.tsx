@@ -18,11 +18,11 @@ import {
 import {
   ControlSize,
   DISABLED_OPACITY,
-  ELEVATION,
   Icon,
   TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
+  useElevation,
   useShape,
   useTones,
 } from '@mapples/ui';
@@ -163,6 +163,7 @@ const SelectField: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const palette = tones.tone(tone);
     const items = readOptions(options, 'SelectField');
     const field = useOptionalFormField<string>(fieldName);
@@ -302,6 +303,7 @@ const SelectField: ForwardRefExoticComponent<
                 minHeight: spec.height,
                 paddingHorizontal: spec.paddingX - 4,
                 borderRadius: spec.radius,
+                borderWidth: shape.borderWidth(1),
                 borderColor,
                 backgroundColor:
                   variant === 'filled' ? tones.fill : 'transparent',
@@ -354,10 +356,10 @@ const SelectField: ForwardRefExoticComponent<
                 defaults.menu,
                 {
                   borderRadius: shape.radius.md,
-                  borderWidth: 1,
+                  borderWidth: shape.borderWidth(1),
                   borderColor: tones.outline,
                   backgroundColor: tones.resolve(Tokens.color.surface),
-                  boxShadow: ELEVATION,
+                  boxShadow: elevation,
                 },
                 styled?.styleMenu,
               ],

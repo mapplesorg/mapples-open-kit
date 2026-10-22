@@ -240,10 +240,16 @@ const CalendarHeatmap: ForwardRefExoticComponent<
           borderRadius: radius,
           backgroundColor: future ? 'transparent' : cellColor(level),
         },
-        future && { borderWidth: 1, borderColor: tones.outline },
+        future && {
+          borderWidth: shape.borderWidth(1),
+          borderColor: tones.outline,
+        },
         styled?.styleCell,
         future && { backgroundColor: 'transparent' },
-        isToday && { borderWidth: 2, borderColor: palette.ink },
+        isToday && {
+          borderWidth: shape.emphasisWidth(2),
+          borderColor: palette.ink,
+        },
         isToday && styled?.styleCellToday,
       ];
       const number =
