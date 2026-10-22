@@ -80,11 +80,24 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
   const updateLayout = useCallback(() => {
     ref.current?.measureInWindow?.((x, y, width, height) => {
       layoutRef.current = { x, y, width, height };
-    });
 
-    if (!idRef.current || !layoutRef.current) return;
-    monitor.updateDragElementLayout(idRef.current, layoutRef.current);
+      if (!idRef.current) return;
+      monitor.updateDragElementLayout(idRef.current, layoutRef.current);
+    });
   }, [monitor, ref]);
+
+  // The rect is in window coordinates, so it goes stale when a scrolling
+  // container (the component palette) moves the element; a forced layout
+  // update re-reads it, or the press hits whichever source used to be there.
+  useEffect(() => {
+    const subscription = monitor.events
+      .pipe(filter((e) => e.type === DnDEventType.LayoutForceUpdate))
+      .subscribe(() => {
+        updateLayout();
+      });
+
+    return () => subscription.unsubscribe();
+  }, [monitor.events, updateLayout]);
 
   useEffect(() => {
     const events = monitor.events
