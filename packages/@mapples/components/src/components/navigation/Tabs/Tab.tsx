@@ -6,7 +6,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { Icon, RADII, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { Icon, TYPOGRAPHY_PARTS, useShape, useTones } from '@mapples/ui';
 import { LayoutChangeEvent, TextStyle, ViewStyle } from 'react-native';
 
 import { useInteractionState, useSlotColor } from '../../../internal';
@@ -73,6 +73,7 @@ const Tab: FC<TabProps> = ({
   onLayout,
 }) => {
   const tones = useTones();
+  const shape = useShape();
   const geometry = TABS_GEOMETRY[size];
   const interaction = useInteractionState();
   const labelColor = useSlotColor(
@@ -107,7 +108,7 @@ const Tab: FC<TabProps> = ({
           {
             height: geometry.height,
             paddingHorizontal: geometry.paddingX,
-            borderRadius: variant === 'pill' ? RADII.pill : 0,
+            borderRadius: variant === 'pill' ? shape.radius.pill : 0,
           },
           grow && { flex: 1 },
           slots.styleTab,

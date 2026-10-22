@@ -188,7 +188,7 @@ const ProgressCircle: ForwardRefExoticComponent<
               <Icon
                 iconName={iconName}
                 size={Math.round(size * 0.4)}
-                color={palette.main}
+                color={palette.ink}
               />
             ) : centreText ? (
               <Typography

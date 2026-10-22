@@ -17,9 +17,9 @@ import {
 import {
   DISABLED_OPACITY,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { ImageProps } from 'expo-image';
@@ -170,6 +170,7 @@ const ListItem: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const list = useContext(ListContext);
     const isDisabled = !!disabled;
     const interaction = useInteractionState(
@@ -268,7 +269,7 @@ const ListItem: ForwardRefExoticComponent<
                       {
                         width: photoEdge,
                         height: photoEdge,
-                        borderRadius: RADII.sm,
+                        borderRadius: shape.radius.sm,
                         backgroundColor: tones.fill,
                       },
                       styled?.styleImage,

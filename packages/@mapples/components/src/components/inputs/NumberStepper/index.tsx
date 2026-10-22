@@ -14,12 +14,11 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  CONTROL_SIZES,
   DISABLED_OPACITY,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -143,6 +142,8 @@ const NumberStepper: ForwardRefExoticComponent<
     }
 
     const tones = useTones();
+
+    const shape = useShape();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<number>(fieldName);
     const initial = defaultValue ?? min ?? 0;
@@ -171,9 +172,9 @@ const NumberStepper: ForwardRefExoticComponent<
 
     const atMin = min !== undefined && current <= min;
     const atMax = max !== undefined && current >= max;
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
     const textColor = tones.resolve(Tokens.color.text);
-    const glyphColor = useSlotColor(styled?.styleIcon, 'color', palette.main);
+    const glyphColor = useSlotColor(styled?.styleIcon, 'color', palette.ink);
     const valueText = current.toFixed(decimals);
 
     const button = (direction: 1 | -1) => {
@@ -191,7 +192,7 @@ const NumberStepper: ForwardRefExoticComponent<
               {
                 width: spec.height,
                 height: spec.height,
-                borderRadius: RADII.pill,
+                borderRadius: shape.radius.pill,
               },
               styled?.styleButton,
               bounded && [
@@ -224,7 +225,7 @@ const NumberStepper: ForwardRefExoticComponent<
             defaults.root,
             {
               height: spec.height,
-              borderRadius: RADII.pill,
+              borderRadius: shape.radius.pill,
               backgroundColor: tones.fill,
             },
             styled?.style,

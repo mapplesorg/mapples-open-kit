@@ -14,7 +14,13 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { DISABLED_OPACITY, Icon, RADII, Tokens, useTones } from '@mapples/ui';
+import {
+  DISABLED_OPACITY,
+  Icon,
+  Tokens,
+  useShape,
+  useTones,
+} from '@mapples/ui';
 import {
   LayoutChangeEvent,
   Pressable,
@@ -118,6 +124,8 @@ const ChatComposer: ForwardRefExoticComponent<
     }
 
     const tones = useTones();
+
+    const shape = useShape();
     const palette = tones.tone('primary');
     const [text, setText] = useControllableState<string>({
       value,
@@ -193,7 +201,7 @@ const ChatComposer: ForwardRefExoticComponent<
               {
                 minHeight: button,
                 paddingVertical: paddingY,
-                borderRadius: RADII.pill,
+                borderRadius: shape.radius.pill,
                 backgroundColor: tones.fill,
               },
             ],

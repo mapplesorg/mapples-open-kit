@@ -16,9 +16,9 @@ import {
 import {
   DISABLED_OPACITY,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -110,6 +110,7 @@ const Accordion: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const [isExpanded, setExpanded] = useControllableState<boolean>({
       value: expanded,
       defaultValue: defaultExpanded,
@@ -152,7 +153,7 @@ const Accordion: ForwardRefExoticComponent<
           style: [
             defaults.root,
             variant !== 'plain' && {
-              borderRadius: RADII.md,
+              borderRadius: shape.radius.md,
               borderWidth: variant === 'outlined' || tones.isDark ? 1 : 0,
               borderColor: tones.outline,
               backgroundColor:

@@ -108,7 +108,7 @@ const RadioItem: FC<RadioItemProps> = ({
   const dotColor = useSlotColor(
     styled?.styleDot,
     'backgroundColor',
-    palette.main,
+    palette.ink,
   );
   const resolved = useStyled({ dot: styled?.styleDot }) as { dot?: ViewStyle };
   const dot = diameter / 2;
@@ -139,7 +139,7 @@ const RadioItem: FC<RadioItemProps> = ({
                 width: diameter,
                 height: diameter,
                 borderRadius: diameter / 2,
-                borderColor: selected ? palette.main : outline,
+                borderColor: selected ? palette.ink : outline,
               },
               styled?.styleRadio,
               selected && styled?.styleRadioSelected,

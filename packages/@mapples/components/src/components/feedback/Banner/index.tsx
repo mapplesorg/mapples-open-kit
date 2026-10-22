@@ -16,9 +16,9 @@ import {
 import {
   Button,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -122,6 +122,7 @@ const Banner: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
@@ -142,7 +143,7 @@ const Banner: ForwardRefExoticComponent<
     const secondary = filled
       ? palette.contrast
       : tones.resolve(Tokens.color.textSecondary);
-    const accent = filled ? palette.contrast : palette.main;
+    const accent = filled ? palette.contrast : palette.ink;
     const glyphColor = useSlotColor(styled?.styleIcon, 'color', accent);
     // On a solid fill the text buttons take the contrast colour (their tone
     // colour would vanish into the background).
@@ -166,10 +167,10 @@ const Banner: ForwardRefExoticComponent<
             {
               paddingStart: 16,
               paddingEnd: dismissible ? 8 : 16,
-              borderRadius: RADII.md,
+              borderRadius: shape.radius.md,
               backgroundColor: background,
               borderWidth: outlined ? 1 : 0,
-              borderColor: outlined ? palette.main : 'transparent',
+              borderColor: outlined ? palette.ink : 'transparent',
             },
             styled?.style,
           ],

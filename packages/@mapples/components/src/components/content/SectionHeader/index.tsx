@@ -134,7 +134,7 @@ const SectionHeader: ForwardRefExoticComponent<
           >
             <Typography
               variant={TYPOGRAPHY_PARTS.link}
-              style={[{ color: tones.tone(tone).main }, styled?.styleAction]}
+              style={[{ color: tones.tone(tone).ink }, styled?.styleAction]}
             >
               {actionLabel}
             </Typography>

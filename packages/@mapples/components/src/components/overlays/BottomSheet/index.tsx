@@ -13,7 +13,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { RADII, Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, Tokens, useShape, useTones } from '@mapples/ui';
 import {
   DimensionValue,
   TextStyle,
@@ -108,6 +108,7 @@ const BottomSheet: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
       defaultValue: defaultVisible,
@@ -158,8 +159,8 @@ const BottomSheet: ForwardRefExoticComponent<
               {
                 maxHeight,
                 height,
-                borderTopLeftRadius: RADII.xl,
-                borderTopRightRadius: RADII.xl,
+                borderTopLeftRadius: shape.radius.xl,
+                borderTopRightRadius: shape.radius.xl,
                 backgroundColor: tones.resolve(Tokens.color.surface),
                 borderTopWidth: tones.isDark ? 1 : 0,
                 borderColor: tones.outline,

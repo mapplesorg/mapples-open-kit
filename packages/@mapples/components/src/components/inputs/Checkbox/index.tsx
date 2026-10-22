@@ -9,10 +9,10 @@ import {
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   DISABLED_OPACITY,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -112,6 +112,7 @@ const Checkbox: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<boolean>(fieldName);
 
@@ -197,7 +198,7 @@ const Checkbox: ForwardRefExoticComponent<
                 {
                   width: edge,
                   height: edge,
-                  borderRadius: RADII.xs,
+                  borderRadius: shape.radius.xs,
                   borderColor: active ? fill : border,
                   backgroundColor: active ? fill : 'transparent',
                 },

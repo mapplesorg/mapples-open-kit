@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { StyledProp, StyledView, useStyled } from '@mapples/style';
-import { RADII, useTones } from '@mapples/ui';
+import { useShape, useTones } from '@mapples/ui';
 import {
   Animated,
   DimensionValue,
@@ -109,10 +109,13 @@ const Skeleton: ForwardRefExoticComponent<
         : isText
           ? SKELETON_HEIGHT.text
           : SKELETON_HEIGHT.rect);
-    const cornerRadius = radius ?? (isCircle ? circleEdge / 2 : RADII.sm);
+    const shape = useShape();
+    const cornerRadius =
+      radius ?? (isCircle ? circleEdge / 2 : shape.radius.sm);
     const count = isText ? lines : 1;
 
     const tones = useTones();
+
     const color = useSlotColor(
       styled?.styleLine,
       'backgroundColor',

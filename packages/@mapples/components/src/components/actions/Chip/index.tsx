@@ -15,9 +15,9 @@ import {
 import {
   DISABLED_OPACITY,
   Icon,
-  RADII,
   Tokens,
   Tone,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -117,6 +117,7 @@ const Chip: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const isDisabled = !!disabled;
     const geometry = CHIP_GEOMETRY[size];
@@ -138,7 +139,7 @@ const Chip: ForwardRefExoticComponent<
     const labelColor = useSlotColor(
       isSelected ? styled?.styleLabelSelected : styled?.styleLabel,
       'color',
-      isSelected ? palette.main : text,
+      isSelected ? palette.ink : text,
     );
     const glyphColor = useSlotColor(styled?.styleIcon, 'color', labelColor);
     const showClose = closable || variant === 'input';
@@ -163,7 +164,7 @@ const Chip: ForwardRefExoticComponent<
             {
               height: geometry.height,
               paddingHorizontal: geometry.paddingX,
-              borderRadius: RADII.pill,
+              borderRadius: shape.radius.pill,
               borderColor: isSelected ? 'transparent' : tones.outlineStrong,
               backgroundColor: isSelected ? palette.container : 'transparent',
             },

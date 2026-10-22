@@ -119,7 +119,7 @@ const Rating: ForwardRefExoticComponent<
     const star = RATING_STAR[size];
     const increment = allowHalf ? 0.5 : 1;
     const interactive = !readOnly && !disabled;
-    const fillColor = useSlotColor(styled?.styleStar, 'color', palette.main);
+    const fillColor = useSlotColor(styled?.styleStar, 'color', palette.ink);
     const emptyColor = useSlotColor(
       styled?.styleStarEmpty,
       'color',

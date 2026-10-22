@@ -121,7 +121,7 @@ const EmptyState: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const palette = tones.tone(tone);
-    const glyphColor = useSlotColor(styled?.styleIcon, 'color', palette.main);
+    const glyphColor = useSlotColor(styled?.styleIcon, 'color', palette.ink);
 
     return (
       <StyledView

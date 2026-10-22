@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { StyledPressable, StyledProp, StyledView } from '@mapples/style';
-import { ELEVATION, RADII, Tokens, useTones } from '@mapples/ui';
+import { ELEVATION, Tokens, useShape, useTones } from '@mapples/ui';
 import { PressableProps, View, ViewStyle } from 'react-native';
 
 import { useInteractionState } from '../../../internal';
@@ -65,6 +65,7 @@ const Card: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const interactive = pressable || !!onPress;
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -75,7 +76,7 @@ const Card: ForwardRefExoticComponent<
     const style = [
       {
         alignSelf: 'stretch' as const,
-        borderRadius: RADII.lg,
+        borderRadius: shape.radius.lg,
         padding,
         gap: 12,
         overflow: 'hidden' as const,

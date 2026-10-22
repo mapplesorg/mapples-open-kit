@@ -116,7 +116,7 @@ const Breadcrumbs: ForwardRefExoticComponent<
     const linkColor = useSlotColor(
       styled?.styleItem,
       'color',
-      tones.tone(tone).main,
+      tones.tone(tone).ink,
     );
     const currentColor = useSlotColor(
       styled?.styleItemCurrent,

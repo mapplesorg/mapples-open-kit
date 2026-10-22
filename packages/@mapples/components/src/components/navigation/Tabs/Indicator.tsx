@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 import { StyledProp, useStyled } from '@mapples/style';
-import { RADII } from '@mapples/ui';
+import { useShape } from '@mapples/ui';
 import { Animated, ViewStyle } from 'react-native';
 
 import { useTimingValue } from '../../../internal';
@@ -34,6 +34,7 @@ const Indicator: FC<IndicatorProps> = ({
   color,
   styled,
 }) => {
+  const shape = useShape();
   const translateX = useTimingValue(layout.x);
   const width = useTimingValue(layout.width, { native: false });
   const resolved = useStyled({ indicator: styled }) as {
@@ -57,7 +58,7 @@ const Indicator: FC<IndicatorProps> = ({
           {
             height: '100%',
             backgroundColor: color,
-            borderRadius: underline ? TABS_UNDERLINE_HEIGHT : RADII.pill,
+            borderRadius: underline ? TABS_UNDERLINE_HEIGHT : shape.radius.pill,
           },
           resolved.indicator,
           { width },

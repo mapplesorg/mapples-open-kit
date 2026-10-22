@@ -100,7 +100,7 @@ const TabBarItems: ForwardRefExoticComponent<
 
     const error = tones.tone('error');
     const colors = {
-      active: palette.main,
+      active: palette.ink,
       inactive: tones.resolve(Tokens.color.textSecondary),
       indicator: palette.container,
       badge: error.main,

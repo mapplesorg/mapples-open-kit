@@ -7,7 +7,7 @@ import {
   Typography,
   useStyled,
 } from '@mapples/style';
-import { Icon, RADII, TYPOGRAPHY_PARTS } from '@mapples/ui';
+import { Icon, TYPOGRAPHY_PARTS, useShape } from '@mapples/ui';
 import { Animated, TextStyle, ViewStyle } from 'react-native';
 
 import { DURATION, useSlotColor, useTimingValue } from '../../../internal';
@@ -91,6 +91,7 @@ const NavItem: FC<NavItemProps> = ({
   slots,
   onPress,
 }) => {
+  const shape = useShape();
   const progress = useTimingValue(active ? 1 : 0, {
     duration: DURATION.fast,
   });
@@ -115,7 +116,7 @@ const NavItem: FC<NavItemProps> = ({
       style={[
         defaults.indicator,
         {
-          borderRadius: RADII.pill,
+          borderRadius: shape.radius.pill,
           backgroundColor: colors.indicator,
         },
         resolved.indicator,
