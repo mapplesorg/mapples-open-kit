@@ -30,8 +30,23 @@ export const FONT_FAMILIES = [
 
 export type FontFamily = (typeof FONT_FAMILIES)[number];
 
-export const FONT_WEIGHTS = ['Regular', 'Medium', 'SemiBold', 'Bold'] as const;
+export const FONT_WEIGHTS = [
+  'Regular',
+  'Medium',
+  'SemiBold',
+  'Bold',
+  'ExtraBold',
+  'Black',
+] as const;
 export type FontWeight = (typeof FONT_WEIGHTS)[number];
+
+/** The four weights most families ship; `ExtraBold` / `Black` only where listed. */
+export const STANDARD_FONT_WEIGHTS = [
+  'Regular',
+  'Medium',
+  'SemiBold',
+  'Bold',
+] as const satisfies readonly FontWeight[];
 
 export type FontCategory = 'sans' | 'serif' | 'mono';
 
@@ -48,55 +63,55 @@ export interface FontMeta {
 export const FONT_META: Record<FontFamily, FontMeta> = {
   Inter: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'neutral, highly legible UI sans',
     pairsWith: ['Playfair Display', 'Fraunces', 'IBM Plex Mono'],
   },
   Manrope: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'modern geometric, friendly tech',
     pairsWith: ['Fraunces', 'Inter', 'IBM Plex Mono'],
   },
   'DM Sans': {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'low-contrast geometric, calm product UI',
     pairsWith: ['Playfair Display', 'Fraunces'],
   },
   'Plus Jakarta Sans': {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'rounded geometric, startup/fintech',
     pairsWith: ['Inter', 'Fraunces'],
   },
   Poppins: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'round geometric, playful consumer apps',
     pairsWith: ['Nunito', 'Inter'],
   },
   Nunito: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'soft rounded terminals, approachable',
     pairsWith: ['Poppins', 'Outfit'],
   },
   'Space Grotesk': {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'quirky technical grotesk, dev tools',
     pairsWith: ['Inter', 'IBM Plex Mono'],
   },
   Sora: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'wide geometric display sans, bold headlines',
     pairsWith: ['Inter', 'DM Sans'],
   },
   Outfit: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'clean geometric display, fashion/lifestyle',
     pairsWith: ['DM Sans', 'Nunito'],
   },
@@ -108,7 +123,7 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
   },
   Fraunces: {
     category: 'serif',
-    weights: ['Regular', 'SemiBold', 'Bold'],
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'soft wonky serif, warm and characterful',
     pairsWith: ['Manrope', 'Inter', 'DM Sans'],
   },
@@ -120,25 +135,25 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
   },
   'Inter Tight': {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'tightly spaced Inter for compact editorial UI',
     pairsWith: ['Instrument Serif', 'Playfair Display', 'IBM Plex Mono'],
   },
   'Nunito Sans': {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'gentle humanist sans, calm wellness apps',
     pairsWith: ['Fraunces', 'Playfair Display'],
   },
   Jost: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'Futura-like geometric, refined and airy',
     pairsWith: ['Cormorant Garamond', 'Playfair Display'],
   },
   Lexend: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'wide, highly readable sans, bold and blunt',
     pairsWith: ['IBM Plex Mono', 'Inter'],
   },
@@ -150,13 +165,13 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
   },
   'Bricolage Grotesque': {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'expressive ink-trap grotesk, warm consumer brands',
     pairsWith: ['DM Sans', 'Inter'],
   },
   Syne: {
     category: 'sans',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'eccentric wide display sans, events and culture',
     pairsWith: ['Inter', 'DM Sans'],
   },
@@ -168,7 +183,7 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
   },
   'Cormorant Garamond': {
     category: 'serif',
-    weights: FONT_WEIGHTS,
+    weights: STANDARD_FONT_WEIGHTS,
     character: 'high-contrast Garamond, luxury and real estate',
     pairsWith: ['Jost', 'Inter', 'Manrope'],
   },
