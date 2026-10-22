@@ -1,3 +1,5 @@
+import { BOTTOM_NAVIGATION_INDICATORS } from '../BottomNavigationBar/types';
+
 /** When tab labels show. */
 export const TAB_BAR_ITEMS_LABEL_VISIBILITIES = [
   'always',
@@ -7,8 +9,8 @@ export const TAB_BAR_ITEMS_LABEL_VISIBILITIES = [
 export type TabBarItemsLabelVisibility =
   (typeof TAB_BAR_ITEMS_LABEL_VISIBILITIES)[number];
 
-/** The mark behind the active tab's icon. */
-export const TAB_BAR_ITEMS_INDICATORS = ['pill', 'none'] as const;
+/** The mark on the active tab (same marks as `BottomNavigationBar`). */
+export const TAB_BAR_ITEMS_INDICATORS = BOTTOM_NAVIGATION_INDICATORS;
 export type TabBarItemsIndicator = (typeof TAB_BAR_ITEMS_INDICATORS)[number];
 
 /** Default glyph size. */

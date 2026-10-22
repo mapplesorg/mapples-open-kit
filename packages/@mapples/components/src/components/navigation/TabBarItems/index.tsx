@@ -26,7 +26,7 @@ import {
 export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
   /** When labels show. Defaults to `always`. */
   labelVisibility?: TabBarItemsLabelVisibility;
-  /** The mark behind the active icon. Defaults to `pill`. */
+  /** The mark on the active tab: pill behind the icon, bar on the top edge, dot under the label, or none. Defaults to `pill`. */
   indicator?: TabBarItemsIndicator;
   /** Glyph size. Defaults to 24. */
   iconSize?: number;
@@ -137,7 +137,7 @@ const TabBarItems: ForwardRefExoticComponent<
               labelVisibility === 'always' ||
               (labelVisibility === 'selected' && item.active)
             }
-            showIndicator={indicator === 'pill'}
+            indicator={indicator}
             iconSize={iconSize}
             colors={colors}
             slots={{

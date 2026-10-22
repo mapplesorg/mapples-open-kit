@@ -1,4 +1,4 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import { forwardRef, Fragment, PropsWithChildren } from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
 import { ELEVATION, Tokens, Tone, useShape, useTones } from '@mapples/ui';
@@ -11,6 +11,8 @@ import NavItem from './NavItem';
 import {
   BOTTOM_NAVIGATION_FLOATING_MARGIN,
   BOTTOM_NAVIGATION_HEIGHT,
+  BOTTOM_NAVIGATION_ICON_SIZE,
+  BottomNavigationIndicator,
   BottomNavigationItem,
   BottomNavigationLabelVisibility,
   BottomNavigationVariant,
@@ -31,6 +33,16 @@ export interface BottomNavigationBarProps extends Omit<ViewProps, 'children'> {
   labelVisibility?: BottomNavigationLabelVisibility;
   /** Flush bar or floating pill. Defaults to `plain`. */
   variant?: BottomNavigationVariant;
+  /**
+   * The mark on the active destination: `pill` behind the glyph, `bar` on
+   * the item's top edge, `dot` under the label, or `none` (colour only).
+   * Defaults to `pill`.
+   */
+  indicator?: BottomNavigationIndicator;
+  /** Glyph size in pt. Defaults to 24. */
+  iconSize?: number;
+  /** Draws hairline separators between destinations. Defaults to `false`. */
+  dividers?: boolean;
   /** Pads the bottom for the home indicator (34 pt on iOS, 8 elsewhere). Defaults to `true`. */
   safeAreaBottom?: boolean;
   /** Colour role of the active destination. Defaults to `primary`. */
@@ -51,15 +63,20 @@ export interface BottomNavigationBarProps extends Omit<ViewProps, 'children'> {
     styleLabel?: StyledProp<TextStyle>;
     /** The active label. */
     styleLabelActive?: StyledProp<TextStyle>;
-    /** The pill behind the active glyph. */
+    /** The active mark, whichever `indicator` draws (pill, bar or dot). */
     styleIndicator?: StyledProp<ViewStyle>;
-    /** The count badges. */
+    /** The count badges (`backgroundColor` is the fill). */
     styleBadge?: StyledProp<ViewStyle>;
+    /** The count text in the badges (`color`). */
+    styleBadgeLabel?: StyledProp<TextStyle>;
+    /** The separators between destinations (with `dividers`). */
+    styleDivider?: StyledProp<ViewStyle>;
   };
 }
 
 /**
- * An in-content tab bar with an animated active pill, labels and badges.
+ * An in-content tab bar with an animated active mark (pill, top bar or dot),
+ * labels and badges; items may be label-only.
  * It paints a bar inside the page — it is not a stand-in for a tabs
  * navigator, whose bar the app shell owns. `value` is two-way bindable so
  * sibling panels can follow it.
@@ -91,6 +108,9 @@ const BottomNavigationBar = forwardRef<
       onValueChange,
       labelVisibility = 'always',
       variant = 'plain',
+      indicator = 'pill',
+      iconSize = BOTTOM_NAVIGATION_ICON_SIZE,
+      dividers = false,
       safeAreaBottom = true,
       tone = 'primary',
       styled,
@@ -104,6 +124,15 @@ const BottomNavigationBar = forwardRef<
     const shape = useShape();
     const palette = tones.tone(tone);
     const destinations = readBottomNavigationItems(items);
+    if (
+      typeof iconSize !== 'number' ||
+      !Number.isFinite(iconSize) ||
+      iconSize <= 0
+    ) {
+      throw new Error(
+        `BottomNavigationBar: iconSize must be a positive number (got ${String(iconSize)})`,
+      );
+    }
     const [current, setCurrent] = useControllableState<string>({
       value,
       defaultValue: defaultValue ?? destinations[0].value,
@@ -119,6 +148,7 @@ const BottomNavigationBar = forwardRef<
       active: palette.ink,
       inactive: tones.resolve(Tokens.color.textSecondary),
       indicator: palette.container,
+      mark: palette.main,
       badge: error.main,
       onBadge: error.contrast,
     };
@@ -156,30 +186,46 @@ const BottomNavigationBar = forwardRef<
         {...rest}
       >
         <StyledView styled={{ style: defaults.items }}>
-          {destinations.map((item) => {
+          {destinations.map((item, index) => {
             const active = item.value === current;
             return (
-              <NavItem
-                key={item.value}
-                item={item}
-                active={active}
-                showLabel={
-                  labelVisibility === 'always' ||
-                  (labelVisibility === 'selected' && active)
-                }
-                colors={colors}
-                slots={{
-                  styleItem: styled?.styleItem,
-                  styleItemActive: styled?.styleItemActive,
-                  styleIcon: styled?.styleIcon,
-                  styleIconActive: styled?.styleIconActive,
-                  styleLabel: styled?.styleLabel,
-                  styleLabelActive: styled?.styleLabelActive,
-                  styleIndicator: styled?.styleIndicator,
-                  styleBadge: styled?.styleBadge,
-                }}
-                onPress={setCurrent}
-              />
+              <Fragment key={item.value}>
+                {dividers && index > 0 ? (
+                  <StyledView
+                    pointerEvents="none"
+                    styled={{
+                      style: [
+                        defaults.divider,
+                        { backgroundColor: tones.divider },
+                        styled?.styleDivider,
+                      ],
+                    }}
+                  />
+                ) : null}
+                <NavItem
+                  item={item}
+                  active={active}
+                  showLabel={
+                    labelVisibility === 'always' ||
+                    (labelVisibility === 'selected' && active)
+                  }
+                  indicator={indicator}
+                  iconSize={iconSize}
+                  colors={colors}
+                  slots={{
+                    styleItem: styled?.styleItem,
+                    styleItemActive: styled?.styleItemActive,
+                    styleIcon: styled?.styleIcon,
+                    styleIconActive: styled?.styleIconActive,
+                    styleLabel: styled?.styleLabel,
+                    styleLabelActive: styled?.styleLabelActive,
+                    styleIndicator: styled?.styleIndicator,
+                    styleBadge: styled?.styleBadge,
+                    styleBadgeLabel: styled?.styleBadgeLabel,
+                  }}
+                  onPress={setCurrent}
+                />
+              </Fragment>
             );
           })}
         </StyledView>
