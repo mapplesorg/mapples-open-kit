@@ -4,8 +4,8 @@ import type {
   VariablesDocument,
 } from '@mapples/types';
 // The documents `mapples sync` writes next to theme.ts — resolved by
-// `mapplesResolver` (`@mapples/app/expo`) to <app>/mapples/navigation.ts,
-// mapples/api.ts and mapples/variables.ts, or to an empty module before the
+// `mapplesResolver` (`@mapples/app/expo`) to navigation.ts, api.ts and
+// variables.ts in the app's mapplesDir, or to an empty module before the
 // first sync (the runtime is then inert: no routes, requests or variables).
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -25,7 +25,7 @@ import * as variablesModule from 'mapples::variables';
  */
 export type RouteScreens = string[];
 
-/** The module `mapples sync` writes as `mapples/navigation.ts`. */
+/** The module `mapples sync` writes as `<mapplesDir>/navigation.ts`. */
 export interface CliNavigationModule {
   /** The Creator navigation document. */
   navigation?: NavigationDocument;
@@ -33,7 +33,7 @@ export interface CliNavigationModule {
   routes?: Record<string, RouteScreens>;
 }
 
-/** The module `mapples sync` writes as `mapples/api.ts`. */
+/** The module `mapples sync` writes as `<mapplesDir>/api.ts`. */
 export interface CliApiModule {
   /** The Creator API document (response samples stripped — design-time data). */
   api?: ApiDocument;
@@ -51,7 +51,7 @@ export interface CliApiModule {
   environment?: string;
 }
 
-/** The module `mapples sync` writes as `mapples/variables.ts`. */
+/** The module `mapples sync` writes as `<mapplesDir>/variables.ts`. */
 export interface CliVariablesModule {
   /** The Creator variables document. */
   variables?: VariablesDocument;

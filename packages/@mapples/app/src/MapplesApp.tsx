@@ -7,7 +7,7 @@ import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
 // The files `mapples sync` writes — resolved by `mapplesResolver`
-// (`@mapples/app/expo`) to <app>/mapples/theme.ts and mapples/assetMap.ts,
+// (`@mapples/app/expo`) to theme.ts and assetMap.ts in the app's mapplesDir,
 // or to an empty module before the first sync.
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -43,7 +43,7 @@ export interface MapplesAppProps {
   /**
    * The navigation, API and variables documents the behaviour runtime
    * executes. Defaults to the files `mapples sync` writes
-   * (`mapples/navigation.ts`, `mapples/api.ts`, `mapples/variables.ts`).
+   * (`navigation.ts`, `api.ts`, `variables.ts` in the CLI's mapplesDir).
    */
   project?: MapplesProject;
   /** Persistence for `persist: true` app variables. */
