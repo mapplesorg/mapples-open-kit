@@ -28,13 +28,13 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import useElevation from '../../../hooks/useElevation';
 import useShape from '../../../hooks/useShape';
 import useTones, { TonePalette, Tones } from '../../../hooks/useTones';
 import {
   ButtonVariant,
   ControlSize,
   DISABLED_OPACITY,
-  ELEVATION,
   Tokens,
   Tone,
 } from '../../../tokens';
@@ -203,6 +203,7 @@ const Button: ForwardRefExoticComponent<
     const { styleTypography, styleIcon, ...styledPressableProps } = styled;
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const [pressed, setPressed] = useState(false);
     const [hovered, setHovered] = useState(false);
     const inGroup = groupStyle(useContext(ButtonGroupContext));
@@ -309,10 +310,10 @@ const Button: ForwardRefExoticComponent<
                   : spec.paddingX,
               borderRadius: spec.radius,
               backgroundColor: colors.background,
-              borderWidth: colors.border ? 1 : 0,
+              borderWidth: colors.border ? shape.borderWidth(1) : 0,
               borderColor: colors.border ?? 'transparent',
             },
-            colors.elevated && styler.elevated,
+            colors.elevated && { boxShadow: elevation },
             fullWidth && styler.fullWidth,
             inGroup,
             styledPressableProps.style,
@@ -368,9 +369,6 @@ const styler = Styler.create({
     alignSelf: 'flex-start',
     gap: 8,
     overflow: 'hidden',
-  },
-  elevated: {
-    boxShadow: ELEVATION,
   },
   fullWidth: {
     alignSelf: 'stretch',
