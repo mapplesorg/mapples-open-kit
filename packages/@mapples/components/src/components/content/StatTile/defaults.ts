@@ -8,6 +8,9 @@ export const defaults = Styler.create({
     padding: 16,
     gap: 4,
   },
+  rootPlain: {
+    padding: 0,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -21,10 +24,18 @@ export const defaults = Styler.create({
   unit: {
     marginBottom: 3,
   },
+  valueIcon: {
+    alignSelf: 'center',
+    marginEnd: 2,
+  },
   trend: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
+  },
+  captionInline: {
+    flexShrink: 1,
+    marginStart: 4,
   },
   stateLayer: {
     position: 'absolute',

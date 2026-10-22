@@ -12,3 +12,7 @@ export const RADIO_DIAMETER: Record<RadioGroupSize, number> = {
   md: 20,
   lg: 24,
 };
+
+/** Option surfaces: plain rows or a bordered card per option. */
+export const RADIO_GROUP_VARIANTS = ['list', 'card'] as const;
+export type RadioGroupVariant = (typeof RADIO_GROUP_VARIANTS)[number];

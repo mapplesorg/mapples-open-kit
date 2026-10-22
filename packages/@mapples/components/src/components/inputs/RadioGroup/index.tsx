@@ -1,5 +1,6 @@
 import {
   FC,
+  Fragment,
   forwardRef,
   PropsWithChildren,
   type ComponentRef,
@@ -14,6 +15,7 @@ import {
   Tone,
   TonePalette,
   TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -36,11 +38,16 @@ import {
 } from '../../../internal';
 
 import { defaults } from './defaults';
-import { RADIO_DIAMETER, RadioGroupDirection, RadioGroupSize } from './types';
+import {
+  RADIO_DIAMETER,
+  RadioGroupDirection,
+  RadioGroupSize,
+  RadioGroupVariant,
+} from './types';
 
 /** Props for {@link RadioGroup}. */
 export interface RadioGroupProps extends Omit<ViewProps, 'children'> {
-  /** The choices: `[{label, value, description?, disabled?}]`. */
+  /** The choices: `[{label, value, description?, meta?, disabled?}]`; `meta` is a trailing detail such as a price ('+€2.00'). */
   options?: Option[];
   /** Selected value (controlled). Omit to let the group keep its own state. */
   value?: string;
@@ -52,7 +59,11 @@ export interface RadioGroupProps extends Omit<ViewProps, 'children'> {
   direction?: RadioGroupDirection;
   /** Radio diameter: `sm` 18, `md` 20, `lg` 24. Defaults to `md`. */
   size?: RadioGroupSize;
-  /** Colour role of the selected radio. Defaults to `primary`. */
+  /** Plain rows (`list`) or a bordered card per option (`card`); cards stretch to the width. Defaults to `list`. */
+  variant?: RadioGroupVariant;
+  /** Draws a divider between the options. Needs the `list` variant and the `column` direction. */
+  dividers?: boolean;
+  /** Colour role of the selected radio (and the selected card's border). Defaults to `primary`. */
   tone?: Tone;
   /** Disables interaction and dims the group. */
   disabled?: boolean;
@@ -62,18 +73,24 @@ export interface RadioGroupProps extends Omit<ViewProps, 'children'> {
   styled?: {
     /** The group. */
     style?: StyledProp<ViewStyle>;
-    /** One row (radio + texts). */
+    /** One row (radio + texts); the card in the `card` variant. */
     styleItem?: StyledProp<ViewStyle>;
-    /** The outer circle. */
+    /** The selected row or card (e.g. a 2 pt tone border). */
+    styleItemSelected?: StyledProp<ViewStyle>;
+    /** The outer circle (its `borderRadius` squares it). */
     styleRadio?: StyledProp<ViewStyle>;
     /** The outer circle while selected. */
     styleRadioSelected?: StyledProp<ViewStyle>;
-    /** The inner dot (its `backgroundColor` is the dot colour). */
+    /** The inner dot (its `backgroundColor` is the dot colour; its `borderRadius` squares it). */
     styleDot?: StyledProp<ViewStyle>;
     /** The label text. */
     styleLabel?: StyledProp<TextStyle>;
     /** The description text. */
     styleDescription?: StyledProp<TextStyle>;
+    /** The trailing meta text of an option. */
+    styleMeta?: StyledProp<TextStyle>;
+    /** The divider between options. */
+    styleDivider?: StyledProp<ViewStyle>;
   };
 }
 
@@ -82,8 +99,16 @@ interface RadioItemProps {
   selected: boolean;
   disabled: boolean;
   diameter: number;
+  card: boolean;
+  cardRadius: number;
+  cardOutline: string;
+  /** Outline width of the `card` surface. */
+  cardBorderWidth: number;
+  surface: string;
   palette: TonePalette;
   outline: string;
+  /** Outline width of the radio ring. */
+  ringWidth: number;
   text: string;
   secondary: string;
   styled: RadioGroupProps['styled'];
@@ -95,8 +120,14 @@ const RadioItem: FC<RadioItemProps> = ({
   selected,
   disabled,
   diameter,
+  card,
+  cardRadius,
+  cardOutline,
+  cardBorderWidth,
+  surface,
   palette,
   outline,
+  ringWidth,
   text,
   secondary,
   styled,
@@ -126,7 +157,17 @@ const RadioItem: FC<RadioItemProps> = ({
         styled={{
           style: [
             defaults.item,
+            card && [
+              defaults.card,
+              {
+                borderRadius: cardRadius,
+                borderWidth: cardBorderWidth,
+                borderColor: selected ? palette.ink : cardOutline,
+                backgroundColor: surface,
+              },
+            ],
             styled?.styleItem,
+            selected && styled?.styleItemSelected,
             option.disabled && { opacity: DISABLED_OPACITY },
           ],
         }}
@@ -139,6 +180,7 @@ const RadioItem: FC<RadioItemProps> = ({
                 width: diameter,
                 height: diameter,
                 borderRadius: diameter / 2,
+                borderWidth: ringWidth,
                 borderColor: selected ? palette.ink : outline,
               },
               styled?.styleRadio,
@@ -149,11 +191,10 @@ const RadioItem: FC<RadioItemProps> = ({
           <Animated.View
             pointerEvents="none"
             style={[
+              { width: dot, height: dot, borderRadius: dot / 2 },
+              // After the geometry, so a slot `borderRadius` squares the dot.
               resolved.dot,
               {
-                width: dot,
-                height: dot,
-                borderRadius: dot / 2,
                 backgroundColor: dotColor,
                 opacity: progress,
                 transform: [
@@ -168,7 +209,11 @@ const RadioItem: FC<RadioItemProps> = ({
             ]}
           />
         </StyledView>
-        <StyledView styled={{ style: defaults.labels }}>
+        <StyledView
+          styled={{
+            style: [defaults.labels, !!option.meta && defaults.labelsGrow],
+          }}
+        >
           <Typography
             variant={TYPOGRAPHY_PARTS.body}
             style={[{ color: text }, styled?.styleLabel]}
@@ -184,6 +229,14 @@ const RadioItem: FC<RadioItemProps> = ({
             </Typography>
           ) : null}
         </StyledView>
+        {option.meta ? (
+          <Typography
+            variant={TYPOGRAPHY_PARTS.body}
+            style={[{ color: secondary }, styled?.styleMeta]}
+          >
+            {option.meta}
+          </Typography>
+        ) : null}
       </StyledView>
     </Pressable>
   );
@@ -191,16 +244,18 @@ const RadioItem: FC<RadioItemProps> = ({
 
 /**
  * An exclusive choice among a few visible options, each a radio with a
- * label and optional description. The value is controlled through
- * `value`/`onValueChange`, kept internally when `value` is omitted, or bound
- * to a form field through `fieldName`.
+ * label, an optional description and a trailing meta (a price), as plain
+ * rows (optionally divided) or a bordered card per option. The value is
+ * controlled through `value`/`onValueChange`, kept internally when `value`
+ * is omitted, or bound to a form field through `fieldName`.
  *
  * @example
  * ```tsx
  * <RadioGroup
+ *   variant="card"
  *   options={[
- *     { label: 'Standard', value: 'standard', description: '3–5 days' },
- *     { label: 'Express', value: 'express', description: 'Next day' },
+ *     { label: 'Standard', value: 'standard', description: '3–5 days', meta: 'Free' },
+ *     { label: 'Express', value: 'express', description: 'Next day', meta: '+€9.00' },
  *   ]}
  *   value={shipping}
  *   onValueChange={setShipping}
@@ -220,6 +275,8 @@ const RadioGroup: ForwardRefExoticComponent<
       onValueChange,
       direction = 'column',
       size = 'md',
+      variant = 'list',
+      dividers = false,
       tone = 'primary',
       disabled = false,
       fieldName,
@@ -230,7 +287,17 @@ const RadioGroup: ForwardRefExoticComponent<
     },
     ref,
   ) => {
+    if (dividers && variant === 'card') {
+      throw new Error(
+        'RadioGroup: dividers apply to the list variant, not to cards',
+      );
+    }
+    if (dividers && direction === 'row') {
+      throw new Error('RadioGroup: dividers need the column direction');
+    }
+
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const items = readOptions(options, 'RadioGroup');
     const field = useOptionalFormField<string>(fieldName);
@@ -246,6 +313,10 @@ const RadioGroup: ForwardRefExoticComponent<
 
     const text = tones.resolve(Tokens.color.text);
     const secondary = tones.resolve(Tokens.color.textSecondary);
+    const surface = tones.resolve(Tokens.color.surface);
+    const card = variant === 'card';
+    // Cards and trailing metas lay out across the available width.
+    const stretch = card || items.some((option) => !!option.meta);
 
     return (
       <StyledView
@@ -256,26 +327,45 @@ const RadioGroup: ForwardRefExoticComponent<
           style: [
             defaults.root,
             direction === 'row' && defaults.row,
+            stretch && { alignSelf: 'stretch' },
             styled?.style,
             disabled && { opacity: DISABLED_OPACITY },
           ],
         }}
         {...rest}
       >
-        {items.map((option) => (
-          <RadioItem
-            key={option.value}
-            option={option}
-            selected={option.value === current}
-            disabled={disabled || !!option.disabled}
-            diameter={RADIO_DIAMETER[size]}
-            palette={palette}
-            outline={tones.outlineStrong}
-            text={text}
-            secondary={secondary}
-            styled={styled}
-            onSelect={setCurrent}
-          />
+        {items.map((option, index) => (
+          <Fragment key={option.value}>
+            {dividers && index > 0 ? (
+              <StyledView
+                styled={{
+                  style: [
+                    defaults.divider,
+                    { backgroundColor: tones.divider },
+                    styled?.styleDivider,
+                  ],
+                }}
+              />
+            ) : null}
+            <RadioItem
+              option={option}
+              selected={option.value === current}
+              disabled={disabled || !!option.disabled}
+              diameter={RADIO_DIAMETER[size]}
+              card={card}
+              cardRadius={shape.radius.md}
+              cardOutline={tones.outline}
+              cardBorderWidth={shape.borderWidth(1)}
+              surface={surface}
+              palette={palette}
+              outline={tones.outlineStrong}
+              ringWidth={shape.borderWidth(2)}
+              text={text}
+              secondary={secondary}
+              styled={styled}
+              onSelect={setCurrent}
+            />
+          </Fragment>
         ))}
       </StyledView>
     );

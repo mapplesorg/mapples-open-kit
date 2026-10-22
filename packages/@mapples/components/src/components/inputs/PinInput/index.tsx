@@ -2,6 +2,7 @@ import {
   forwardRef,
   PropsWithChildren,
   useCallback,
+  useEffect,
   useRef,
   type ComponentRef,
   type ForwardRefExoticComponent,
@@ -37,7 +38,12 @@ import {
 } from '../../../internal';
 
 import { defaults } from './defaults';
-import { PIN_INPUT_GEOMETRY, PinInputSize } from './types';
+import {
+  PIN_INPUT_DOT_GEOMETRY,
+  PIN_INPUT_GEOMETRY,
+  PinInputSize,
+  PinInputVariant,
+} from './types';
 
 /** Props for {@link PinInput}. */
 export interface PinInputProps extends Omit<ViewProps, 'children'> {
@@ -61,8 +67,12 @@ export interface PinInputProps extends Omit<ViewProps, 'children'> {
   error?: boolean;
   /** Disables editing and dims the cells. */
   disabled?: boolean;
-  /** Cell edge: `sm` 40, `md` 48, `lg` 56. Defaults to `md`. */
+  /** Cell edge: `sm` 40, `md` 48, `lg` 56 (dots: 12, 14, 16). Defaults to `md`. */
   size?: PinInputSize;
+  /** `boxes`: a bordered cell per character; `dots`: a dot per character that fills in, for passcodes. Defaults to `boxes`. */
+  variant?: PinInputVariant;
+  /** Opens the system keyboard through a hidden text input. `false` drops the input: the code is fully controlled by `value` (an on-screen `NumericKeypad` drives it) and `onComplete` fires when it reaches `length`. Defaults to `true`. */
+  showKeyboard?: boolean;
   /** Colour role of the active cell. Defaults to `primary`. */
   tone?: Tone;
   /** Binds the code to a field of the enclosing `FormView`; its error paints the cells once touched. */
@@ -71,7 +81,7 @@ export interface PinInputProps extends Omit<ViewProps, 'children'> {
   styled?: {
     /** The row of cells. */
     style?: StyledProp<ViewStyle>;
-    /** One cell. */
+    /** One cell (one dot with `variant: 'dots'`). */
     styleCell?: StyledProp<ViewStyle>;
     /** The cell that receives the next character. */
     styleCellActive?: StyledProp<ViewStyle>;
@@ -113,6 +123,8 @@ const PinInput: ForwardRefExoticComponent<
       error = false,
       disabled = false,
       size = 'md',
+      variant = 'boxes',
+      showKeyboard = true,
       tone = 'primary',
       fieldName,
       accessibilityLabel,
@@ -152,9 +164,25 @@ const PinInput: ForwardRefExoticComponent<
     const errorColor = tones.tone('error').main;
     const textColor = tones.resolve(Tokens.color.text);
     const digitColor = useSlotColor(styled?.styleDigit, 'color', textColor);
-    const activeIndex = interaction.focused
-      ? Math.min(code.length, length - 1)
-      : -1;
+    // Without a keyboard the keypad on screen is the focus: the next cell
+    // to fill stays marked.
+    const activeIndex =
+      interaction.focused || (!showKeyboard && !disabled)
+        ? Math.min(code.length, length - 1)
+        : -1;
+    const dots = variant === 'dots';
+    const dotGeometry = PIN_INPUT_DOT_GEOMETRY[size];
+
+    // Keypad-driven codes change through `value`, so completion is noticed
+    // here rather than in a change handler.
+    const previousCode = useRef(code);
+    useEffect(() => {
+      const previous = previousCode.current;
+      previousCode.current = code;
+      if (!showKeyboard && code.length === length && previous.length < length) {
+        onComplete?.(code);
+      }
+    }, [code, length, onComplete, showKeyboard]);
 
     const handleChange = useCallback(
       (next: string) => {
@@ -172,30 +200,43 @@ const PinInput: ForwardRefExoticComponent<
         styled={{
           style: [
             defaults.root,
-            { gap: geometry.gap },
+            dots && defaults.dotsRow,
+            { gap: dots ? dotGeometry.gap : geometry.gap },
             styled?.style,
             disabled && { opacity: DISABLED_OPACITY },
           ],
         }}
+        {...(showKeyboard
+          ? {}
+          : {
+              accessible: true,
+              accessibilityLabel,
+              accessibilityState: { disabled },
+              accessibilityValue: {
+                text: `${code.length} of ${length} entered`,
+              },
+            })}
         {...rest}
       >
-        <TextInput
-          ref={inputRef}
-          accessibilityLabel={accessibilityLabel}
-          accessibilityState={{ disabled }}
-          editable={!disabled}
-          value={code}
-          onChangeText={handleChange}
-          maxLength={length}
-          keyboardType={keyboardType}
-          autoFocus={autoFocus}
-          autoComplete="one-time-code"
-          textContentType="oneTimeCode"
-          caretHidden
-          onFocus={interaction.handlers.onFocus}
-          onBlur={interaction.handlers.onBlur}
-          style={[StyleSheet.absoluteFill, { opacity: 0 }]}
-        />
+        {showKeyboard ? (
+          <TextInput
+            ref={inputRef}
+            accessibilityLabel={accessibilityLabel}
+            accessibilityState={{ disabled }}
+            editable={!disabled}
+            value={code}
+            onChangeText={handleChange}
+            maxLength={length}
+            keyboardType={keyboardType}
+            autoFocus={autoFocus}
+            autoComplete="one-time-code"
+            textContentType="oneTimeCode"
+            caretHidden
+            onFocus={interaction.handlers.onFocus}
+            onBlur={interaction.handlers.onBlur}
+            style={[StyleSheet.absoluteFill, { opacity: 0 }]}
+          />
+        ) : null}
         {Array.from({ length }, (_, index) => {
           const character = code[index];
           const filled = character !== undefined;
@@ -205,6 +246,77 @@ const PinInput: ForwardRefExoticComponent<
             : active
               ? palette.ink
               : tones.outlineStrong;
+          const stateSlots = [
+            styled?.styleCell,
+            filled && styled?.styleCellFilled,
+            active && styled?.styleCellActive,
+            hasError && styled?.styleCellError,
+          ];
+          const cell = dots ? (
+            <StyledView
+              key={showKeyboard ? undefined : index}
+              styled={{
+                style: [
+                  {
+                    width: dotGeometry.dot,
+                    height: dotGeometry.dot,
+                    borderRadius: dotGeometry.dot / 2,
+                    borderWidth:
+                      active && !filled
+                        ? shape.emphasisWidth(2)
+                        : shape.borderWidth(1.5),
+                    borderColor: filled
+                      ? hasError
+                        ? errorColor
+                        : palette.main
+                      : borderColor,
+                    backgroundColor: filled
+                      ? hasError
+                        ? errorColor
+                        : palette.main
+                      : 'transparent',
+                  },
+                  ...stateSlots,
+                ],
+              }}
+            />
+          ) : (
+            <StyledView
+              key={showKeyboard ? undefined : index}
+              styled={{
+                style: [
+                  defaults.cell,
+                  {
+                    width: geometry.cell,
+                    height: geometry.cell,
+                    borderRadius: shape.radius.sm,
+                    borderColor,
+                    borderWidth: active
+                      ? shape.emphasisWidth(2)
+                      : shape.borderWidth(1),
+                  },
+                  ...stateSlots,
+                ],
+              }}
+            >
+              {filled ? (
+                secure ? (
+                  <Glyph name="dot" size={geometry.digit} color={digitColor} />
+                ) : (
+                  <Typography
+                    variant={TYPOGRAPHY_PARTS.title}
+                    style={[
+                      { color: textColor, fontSize: geometry.digit },
+                      styled?.styleDigit,
+                    ]}
+                  >
+                    {character}
+                  </Typography>
+                )
+              ) : null}
+            </StyledView>
+          );
+          if (!showKeyboard) return cell;
           return (
             <Pressable
               key={index}
@@ -212,44 +324,7 @@ const PinInput: ForwardRefExoticComponent<
               disabled={disabled}
               onPress={focus}
             >
-              <StyledView
-                styled={{
-                  style: [
-                    defaults.cell,
-                    {
-                      width: geometry.cell,
-                      height: geometry.cell,
-                      borderRadius: shape.radius.sm,
-                      borderColor,
-                      borderWidth: active ? 2 : 1,
-                    },
-                    styled?.styleCell,
-                    filled && styled?.styleCellFilled,
-                    active && styled?.styleCellActive,
-                    hasError && styled?.styleCellError,
-                  ],
-                }}
-              >
-                {filled ? (
-                  secure ? (
-                    <Glyph
-                      name="dot"
-                      size={geometry.digit}
-                      color={digitColor}
-                    />
-                  ) : (
-                    <Typography
-                      variant={TYPOGRAPHY_PARTS.title}
-                      style={[
-                        { color: textColor, fontSize: geometry.digit },
-                        styled?.styleDigit,
-                      ]}
-                    >
-                      {character}
-                    </Typography>
-                  )
-                ) : null}
-              </StyledView>
+              {cell}
             </Pressable>
           );
         })}

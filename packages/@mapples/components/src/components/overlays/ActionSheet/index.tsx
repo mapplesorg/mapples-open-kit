@@ -159,7 +159,7 @@ const ActionSheet: ForwardRefExoticComponent<
                 {
                   borderRadius: shape.radius.lg,
                   backgroundColor: surface,
-                  borderWidth: tones.isDark ? 1 : 0,
+                  borderWidth: tones.isDark ? shape.borderWidth(1) : 0,
                   borderColor: tones.outline,
                 },
                 styled?.styleSheet,
@@ -256,7 +256,7 @@ const ActionSheet: ForwardRefExoticComponent<
                   {
                     borderRadius: shape.radius.lg,
                     backgroundColor: surface,
-                    borderWidth: tones.isDark ? 1 : 0,
+                    borderWidth: tones.isDark ? shape.borderWidth(1) : 0,
                     borderColor: tones.outline,
                   },
                   styled?.styleCancel,

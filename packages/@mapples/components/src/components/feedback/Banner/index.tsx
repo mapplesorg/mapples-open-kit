@@ -169,7 +169,7 @@ const Banner: ForwardRefExoticComponent<
               paddingEnd: dismissible ? 8 : 16,
               borderRadius: shape.radius.md,
               backgroundColor: background,
-              borderWidth: outlined ? 1 : 0,
+              borderWidth: outlined ? shape.borderWidth(1) : 0,
               borderColor: outlined ? palette.ink : 'transparent',
             },
             styled?.style,

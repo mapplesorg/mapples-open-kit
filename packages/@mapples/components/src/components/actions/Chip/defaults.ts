@@ -8,7 +8,18 @@ export const defaults = Styler.create({
     justifyContent: 'center',
     alignSelf: 'flex-start',
     gap: 6,
-    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  tileRoot: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignSelf: 'flex-start',
+    gap: 6,
+  },
+  tileCircle: {
+    alignItems: 'center',
+    justifyContent: 'center',
     overflow: 'hidden',
   },
   close: {
@@ -23,5 +34,8 @@ export const defaults = Styler.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  struck: {
+    textDecorationLine: 'line-through',
   },
 });

@@ -34,7 +34,12 @@ import {
 } from '../../../internal';
 
 import { defaults } from './defaults';
-import { CHECKBOX_BOX, CheckboxLabelPosition, CheckboxSize } from './types';
+import {
+  CHECKBOX_BOX,
+  CHECKBOX_GLYPH,
+  CheckboxLabelPosition,
+  CheckboxSize,
+} from './types';
 
 /** Props for {@link Checkbox}. */
 export interface CheckboxProps extends Omit<ViewProps, 'children'> {
@@ -50,9 +55,11 @@ export interface CheckboxProps extends Omit<ViewProps, 'children'> {
   label?: string;
   /** Supporting text under the label. */
   description?: string;
+  /** Trailing detail at the end of the row, such as a price ('+€1.50'); the row stretches to the width. */
+  meta?: string;
   /** Which side the label sits on. Defaults to `right`. */
   labelPosition?: CheckboxLabelPosition;
-  /** Box size. Defaults to `md`. */
+  /** Box size: `sm` 16, `md` 20, `lg` 24, `xl` 44 (habit rows; texts centre on the box). Defaults to `md`. */
   size?: CheckboxSize;
   /** Colour role of the checked state. Defaults to `primary`. */
   tone?: Tone;
@@ -74,16 +81,20 @@ export interface CheckboxProps extends Omit<ViewProps, 'children'> {
     styleLabel?: StyledProp<TextStyle>;
     /** The description text. */
     styleDescription?: StyledProp<TextStyle>;
+    /** The trailing meta text. */
+    styleMeta?: StyledProp<TextStyle>;
   };
 }
 
 /**
  * A labelled checkbox for independent yes/no choices (terms, multi-select
- * lists). Supports an indeterminate state for partially selected groups.
+ * lists, extras with a price, habit rows). Supports an indeterminate state
+ * for partially selected groups and a trailing meta such as a price.
  *
  * @example
  * ```tsx
  * <Checkbox label="I agree to the terms" value={agreed} onValueChange={setAgreed} />
+ * <Checkbox label="Extra cheese" meta="+€1.50" value={cheese} onValueChange={setCheese} />
  * ```
  *
  * @public
@@ -99,6 +110,7 @@ const Checkbox: ForwardRefExoticComponent<
       indeterminate = false,
       label,
       description,
+      meta,
       labelPosition = 'right',
       size = 'md',
       tone = 'primary',
@@ -141,9 +153,12 @@ const Checkbox: ForwardRefExoticComponent<
       tones.outlineStrong,
     );
     const glyph = useSlotColor(styled?.styleCheck, 'color', palette.contrast);
+    const xl = size === 'xl';
 
     const labels = label ? (
-      <StyledView styled={{ style: defaults.labels }}>
+      <StyledView
+        styled={{ style: [defaults.labels, !!meta && defaults.labelsGrow] }}
+      >
         <Typography
           variant={TYPOGRAPHY_PARTS.body}
           style={[
@@ -167,12 +182,26 @@ const Checkbox: ForwardRefExoticComponent<
       </StyledView>
     ) : null;
 
+    const metaText = meta ? (
+      <Typography
+        variant={TYPOGRAPHY_PARTS.body}
+        style={[
+          { color: tones.resolve(Tokens.color.textSecondary) },
+          styled?.styleMeta,
+        ]}
+      >
+        {meta}
+      </Typography>
+    ) : null;
+
     return (
       <StyledView
         ref={ref}
         styled={{
           style: [
             defaults.root,
+            xl && { alignItems: 'center' },
+            !!meta && { alignSelf: 'stretch' },
             styled?.style,
             disabled && { opacity: DISABLED_OPACITY },
           ],
@@ -180,6 +209,7 @@ const Checkbox: ForwardRefExoticComponent<
         {...rest}
       >
         {labelPosition === 'left' ? labels : null}
+        {labelPosition === 'left' ? metaText : null}
         <Pressable
           accessibilityRole="checkbox"
           accessibilityLabel={label}
@@ -198,7 +228,8 @@ const Checkbox: ForwardRefExoticComponent<
                 {
                   width: edge,
                   height: edge,
-                  borderRadius: shape.radius.xs,
+                  borderRadius: xl ? shape.radius.sm : shape.radius.xs,
+                  borderWidth: shape.borderWidth(2),
                   borderColor: active ? fill : border,
                   backgroundColor: active ? fill : 'transparent',
                 },
@@ -223,13 +254,14 @@ const Checkbox: ForwardRefExoticComponent<
             >
               <Glyph
                 name={indeterminate ? 'minus' : 'check'}
-                size={edge - 4}
+                size={CHECKBOX_GLYPH[size]}
                 color={glyph}
               />
             </Animated.View>
           </StyledView>
         </Pressable>
         {labelPosition === 'right' ? labels : null}
+        {labelPosition === 'right' ? metaText : null}
       </StyledView>
     );
   },

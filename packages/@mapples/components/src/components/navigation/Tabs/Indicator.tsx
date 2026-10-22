@@ -7,7 +7,7 @@ import { Animated, ViewStyle } from 'react-native';
 import { useTimingValue } from '../../../internal';
 
 import { defaults } from './defaults';
-import { TabLayout, TABS_UNDERLINE_HEIGHT, TabsVariant } from './types';
+import { TabLayout, TabsVariant } from './types';
 
 export interface IndicatorProps {
   /** The active tab's measured position. */
@@ -15,6 +15,10 @@ export interface IndicatorProps {
   variant: TabsVariant;
   /** Row height (the pill fills it). */
   height: number;
+  /** Underline thickness in points. */
+  thickness: number;
+  /** Points kept clear of each side of the tab. */
+  inset: number;
   /** Resolved indicator colour. */
   color: string;
   /** Author slot for the indicator. */
@@ -31,12 +35,18 @@ const Indicator: FC<IndicatorProps> = ({
   layout,
   variant,
   height,
+  thickness,
+  inset,
   color,
   styled,
 }) => {
   const shape = useShape();
-  const translateX = useTimingValue(layout.x);
-  const width = useTimingValue(layout.width, { native: false });
+  // An inset wider than half the tab leaves no indicator rather than a
+  // negative width.
+  const translateX = useTimingValue(layout.x + inset);
+  const width = useTimingValue(Math.max(0, layout.width - inset * 2), {
+    native: false,
+  });
   const resolved = useStyled({ indicator: styled }) as {
     indicator?: ViewStyle;
   };
@@ -47,9 +57,7 @@ const Indicator: FC<IndicatorProps> = ({
       pointerEvents="none"
       style={[
         defaults.indicatorTrack,
-        underline
-          ? { bottom: 0, height: TABS_UNDERLINE_HEIGHT }
-          : { top: 0, height },
+        underline ? { bottom: 0, height: thickness } : { top: 0, height },
         { transform: [{ translateX }] },
       ]}
     >
@@ -58,7 +66,7 @@ const Indicator: FC<IndicatorProps> = ({
           {
             height: '100%',
             backgroundColor: color,
-            borderRadius: underline ? TABS_UNDERLINE_HEIGHT : shape.radius.pill,
+            borderRadius: underline ? thickness : shape.radius.pill,
           },
           resolved.indicator,
           { width },

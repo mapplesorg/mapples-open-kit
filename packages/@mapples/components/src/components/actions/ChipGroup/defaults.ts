@@ -15,4 +15,18 @@ export const defaults = Styler.create({
     flexDirection: 'row',
     gap: 8,
   },
+  grid: {
+    alignSelf: 'stretch',
+    gap: 8,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  gridCell: {
+    flex: 1,
+  },
+  gridSpacer: {
+    flex: 1,
+  },
 });

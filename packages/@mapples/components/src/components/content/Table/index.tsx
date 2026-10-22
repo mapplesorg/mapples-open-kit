@@ -183,7 +183,7 @@ const Table: ForwardRefExoticComponent<
             defaults.root,
             {
               borderRadius: shape.radius.md,
-              borderWidth: 1,
+              borderWidth: shape.borderWidth(1),
               borderColor: tones.outline,
               backgroundColor: tones.resolve(Tokens.color.surface),
             },

@@ -12,6 +12,7 @@ import {
   Tokens,
   Tone,
   TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -29,11 +30,18 @@ import {
   useControllableState,
   useOptionalFormField,
   useSlotColor,
+  useSlotSize,
   useTimingValue,
 } from '../../../internal';
 
 import { defaults } from './defaults';
-import { SWITCH_GEOMETRY, SwitchLabelPosition, SwitchSize } from './types';
+import {
+  SWITCH_GEOMETRY,
+  SWITCH_THUMB_SHADOW,
+  SwitchLabelPosition,
+  SwitchShape,
+  SwitchSize,
+} from './types';
 
 /** Props for {@link Switch}. */
 export interface SwitchProps extends Omit<ViewProps, 'children'> {
@@ -51,6 +59,10 @@ export interface SwitchProps extends Omit<ViewProps, 'children'> {
   labelPosition?: SwitchLabelPosition;
   /** Track size. Defaults to `md`. */
   size?: SwitchSize;
+  /** Full-round track and thumb (`round`) or rounded squares from the project shape (`rounded`). Defaults to `round`. */
+  shape?: SwitchShape;
+  /** Draws the thumb's drop shadow. Defaults to `true`. */
+  thumbShadow?: boolean;
   /** Colour role of the on state. Defaults to `primary`. */
   tone?: Tone;
   /** Disables interaction and dims the control. */
@@ -61,12 +73,14 @@ export interface SwitchProps extends Omit<ViewProps, 'children'> {
   styled?: {
     /** The row holding label and track. */
     style?: StyledProp<ViewStyle>;
-    /** The track (off state). */
+    /** The track (off state); its `borderRadius` wins over `shape`. */
     styleTrack?: StyledProp<ViewStyle>;
     /** The track's on-state layer (its `backgroundColor` is the on colour). */
     styleTrackOn?: StyledProp<ViewStyle>;
-    /** The thumb. */
+    /** The thumb (its `backgroundColor` is the off-state thumb colour; its `borderRadius` wins over `shape`). */
     styleThumb?: StyledProp<ViewStyle>;
+    /** The thumb's on-state layer (its `backgroundColor` is the on-state thumb colour). */
+    styleThumbOn?: StyledProp<ViewStyle>;
     /** The label text. */
     styleLabel?: StyledProp<TextStyle>;
     /** The description text. */
@@ -77,7 +91,8 @@ export interface SwitchProps extends Omit<ViewProps, 'children'> {
 /**
  * A labelled on/off toggle for settings that apply immediately.
  *
- * The track cross-fades to the tone colour and the thumb slides; the state
+ * The track cross-fades to the tone colour and the thumb slides (and
+ * cross-fades to its on colour when `styleThumbOn` sets one); the state
  * is controlled through `value`/`onValueChange`, kept internally when
  * `value` is omitted, or bound to a form field through `fieldName`.
  *
@@ -100,6 +115,8 @@ const Switch: ForwardRefExoticComponent<
       description,
       labelPosition = 'left',
       size = 'md',
+      shape = 'round',
+      thumbShadow = true,
       tone = 'primary',
       disabled = false,
       fieldName,
@@ -111,6 +128,7 @@ const Switch: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const projectShape = useShape();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<boolean>(fieldName);
 
@@ -142,10 +160,32 @@ const Switch: ForwardRefExoticComponent<
       'backgroundColor',
       tones.resolve(Tokens.color.white),
     );
+    const thumbOn = useSlotColor(
+      styled?.styleThumbOn,
+      'backgroundColor',
+      thumb,
+    );
     const resolved = useStyled({
       trackOn: styled?.styleTrackOn,
       thumb: styled?.styleThumb,
-    }) as { trackOn?: ViewStyle; thumb?: ViewStyle };
+      thumbOn: styled?.styleThumbOn,
+    }) as { trackOn?: ViewStyle; thumb?: ViewStyle; thumbOn?: ViewStyle };
+
+    const rounded = shape === 'rounded';
+    const trackRadius = useSlotSize(
+      styled?.styleTrack,
+      'borderRadius',
+      rounded
+        ? Math.min(projectShape.radius.sm, geometry.height / 2)
+        : geometry.height / 2,
+    );
+    const thumbRadius = useSlotSize(
+      styled?.styleThumb,
+      'borderRadius',
+      rounded
+        ? Math.max(0, trackRadius - geometry.padding)
+        : geometry.thumb / 2,
+    );
 
     const travel = geometry.width - geometry.thumb - geometry.padding * 2;
     const translateX = progress.interpolate({
@@ -206,7 +246,7 @@ const Switch: ForwardRefExoticComponent<
                 {
                   width: geometry.width,
                   height: geometry.height,
-                  borderRadius: geometry.height / 2,
+                  borderRadius: trackRadius,
                   backgroundColor: trackOff,
                 },
                 styled?.styleTrack,
@@ -217,17 +257,18 @@ const Switch: ForwardRefExoticComponent<
               pointerEvents="none"
               style={[
                 StyleSheet.absoluteFill,
+                { borderRadius: trackRadius },
                 resolved.trackOn,
-                {
-                  borderRadius: geometry.height / 2,
-                  backgroundColor: trackOn,
-                  opacity: progress,
-                },
+                { backgroundColor: trackOn, opacity: progress },
               ]}
             />
             <Animated.View
               pointerEvents="none"
               style={[
+                { borderRadius: thumbRadius },
+                thumbShadow && { boxShadow: SWITCH_THUMB_SHADOW },
+                // After the corners and shadow, so the slot wins over them;
+                // geometry, colour and motion stay the switch's own.
                 resolved.thumb,
                 {
                   position: 'absolute',
@@ -235,13 +276,23 @@ const Switch: ForwardRefExoticComponent<
                   left: geometry.padding,
                   width: geometry.thumb,
                   height: geometry.thumb,
-                  borderRadius: geometry.thumb / 2,
                   backgroundColor: thumb,
-                  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.25)',
                   transform: [{ translateX }],
                 },
               ]}
-            />
+            >
+              {thumbOn !== thumb ? (
+                <Animated.View
+                  pointerEvents="none"
+                  style={[
+                    StyleSheet.absoluteFill,
+                    { borderRadius: thumbRadius },
+                    resolved.thumbOn,
+                    { backgroundColor: thumbOn, opacity: progress },
+                  ]}
+                />
+              ) : null}
+            </Animated.View>
           </StyledView>
         </Pressable>
         {labelPosition === 'right' ? labels : null}

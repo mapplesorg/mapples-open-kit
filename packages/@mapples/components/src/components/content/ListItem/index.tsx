@@ -393,6 +393,7 @@ const ListItem: ForwardRefExoticComponent<
                     width: LIST_ITEM_RADIO_DIAMETER,
                     height: LIST_ITEM_RADIO_DIAMETER,
                     borderRadius: LIST_ITEM_RADIO_DIAMETER / 2,
+                    borderWidth: shape.borderWidth(2),
                     borderColor: checked ? primary.ink : tones.outlineStrong,
                   },
                   styled?.styleRadio,

@@ -18,6 +18,18 @@ export const defaults = Styler.create({
     bottom: 0,
     left: 0,
   },
+  segments: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  markerFrame: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  marker: {
+    position: 'absolute',
+  },
   label: {
     minWidth: 36,
     textAlign: 'right',

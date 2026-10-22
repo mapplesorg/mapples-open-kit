@@ -7,6 +7,9 @@ export const defaults = Styler.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  withIcon: {
+    flexDirection: 'row',
+  },
   label: {
     fontWeight: '700',
     textAlign: 'center',

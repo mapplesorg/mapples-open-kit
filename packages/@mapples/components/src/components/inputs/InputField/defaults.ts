@@ -6,11 +6,13 @@ export const defaults = Styler.create({
     alignSelf: 'stretch',
     gap: 6,
   },
+  header: {
+    gap: 2,
+  },
   field: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderWidth: 1,
   },
   input: {
     flex: 1,
@@ -24,5 +26,11 @@ export const defaults = Styler.create({
   glyphButton: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  bare: {
+    paddingHorizontal: 0,
+    borderWidth: 0,
+    borderRadius: 0,
+    backgroundColor: 'transparent',
   },
 });

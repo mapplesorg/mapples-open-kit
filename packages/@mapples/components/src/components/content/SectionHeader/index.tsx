@@ -14,6 +14,8 @@ import { SectionHeaderVariant } from './types';
 
 /** Props for {@link SectionHeader}. */
 export interface SectionHeaderProps extends Omit<ViewProps, 'children'> {
+  /** Small eyebrow above the heading ('THURSDAY 22 OCT'). */
+  overline?: string;
   /** The heading. */
   title?: string;
   /** Supporting text under the heading. */
@@ -22,6 +24,8 @@ export interface SectionHeaderProps extends Omit<ViewProps, 'children'> {
   actionLabel?: string;
   /** Fires when the trailing link is pressed. */
   onActionPress?: () => void;
+  /** Non-interactive text at the end ('+€3 077.05', '2 left today'); cannot be combined with `actionLabel`. */
+  trailingText?: string;
   /** Heading style: a subtitle-sized title or a small overline. Defaults to `plain`. */
   variant?: SectionHeaderVariant;
   /** Colour role of the action link. Defaults to `primary`. */
@@ -30,22 +34,28 @@ export interface SectionHeaderProps extends Omit<ViewProps, 'children'> {
   styled?: {
     /** The row. */
     style?: StyledProp<ViewStyle>;
+    /** The overline above the heading. */
+    styleOverline?: StyledProp<TextStyle>;
     /** The heading. */
     styleTitle?: StyledProp<TextStyle>;
     /** The subtitle. */
     styleSubtitle?: StyledProp<TextStyle>;
     /** The action link. */
     styleAction?: StyledProp<TextStyle>;
+    /** The trailing text. */
+    styleTrailingText?: StyledProp<TextStyle>;
   };
 }
 
 /**
- * The heading above a rail, list or grid: a title, optional supporting text
- * and a trailing action link.
+ * The heading above a rail, list or grid: an overline, a title, optional
+ * supporting text and either a trailing action link or a plain trailing text
+ * (a day total, a count).
  *
  * @example
  * ```tsx
  * <SectionHeader title="Popular near you" actionLabel="See all" onActionPress={openAll} />
+ * <SectionHeader overline="THURSDAY 22 OCT" title="Today" trailingText="+€3 077.05" />
  * ```
  *
  * @public
@@ -59,10 +69,12 @@ const SectionHeader: ForwardRefExoticComponent<
 >(
   (
     {
+      overline,
       title,
       subtitle,
       actionLabel,
       onActionPress,
+      trailingText,
       variant = 'plain',
       tone = 'primary',
       styled,
@@ -73,6 +85,13 @@ const SectionHeader: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const secondary = tones.resolve(Tokens.color.textSecondary);
+
+    if (trailingText && actionLabel) {
+      throw new Error(
+        'SectionHeader: set either trailingText or actionLabel, not both',
+      );
+    }
 
     return (
       <StyledView
@@ -92,6 +111,15 @@ const SectionHeader: ForwardRefExoticComponent<
         {...rest}
       >
         <StyledView styled={{ style: { flex: 1, gap: 2 } }}>
+          {overline ? (
+            <Typography
+              variant={TYPOGRAPHY_PARTS.overline}
+              numberOfLines={1}
+              style={[{ color: secondary }, styled?.styleOverline]}
+            >
+              {overline}
+            </Typography>
+          ) : null}
           {title ? (
             <Typography
               variant={
@@ -102,11 +130,10 @@ const SectionHeader: ForwardRefExoticComponent<
               accessibilityRole="header"
               style={[
                 {
-                  color: tones.resolve(
+                  color:
                     variant === 'overline'
-                      ? Tokens.color.textSecondary
-                      : Tokens.color.text,
-                  ),
+                      ? secondary
+                      : tones.resolve(Tokens.color.text),
                 },
                 styled?.styleTitle,
               ]}
@@ -117,10 +144,7 @@ const SectionHeader: ForwardRefExoticComponent<
           {subtitle ? (
             <Typography
               variant={TYPOGRAPHY_PARTS.helper}
-              style={[
-                { color: tones.resolve(Tokens.color.textSecondary) },
-                styled?.styleSubtitle,
-              ]}
+              style={[{ color: secondary }, styled?.styleSubtitle]}
             >
               {subtitle}
             </Typography>
@@ -139,6 +163,15 @@ const SectionHeader: ForwardRefExoticComponent<
               {actionLabel}
             </Typography>
           </Pressable>
+        ) : null}
+        {trailingText ? (
+          <Typography
+            variant={TYPOGRAPHY_PARTS.label}
+            numberOfLines={1}
+            style={[{ color: secondary }, styled?.styleTrailingText]}
+          >
+            {trailingText}
+          </Typography>
         ) : null}
       </StyledView>
     );

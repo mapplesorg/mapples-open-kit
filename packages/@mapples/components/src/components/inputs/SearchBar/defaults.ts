@@ -14,7 +14,6 @@ export const defaults = Styler.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderWidth: 1,
   },
   input: {
     flex: 1,

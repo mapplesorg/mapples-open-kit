@@ -1,7 +1,7 @@
 import { forwardRef, Fragment, PropsWithChildren } from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
-import { ELEVATION, Tokens, Tone, useShape, useTones } from '@mapples/ui';
+import { Tokens, Tone, useElevation, useShape, useTones } from '@mapples/ui';
 import { Platform, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { useControllableState } from '../../../internal';
@@ -29,14 +29,22 @@ export interface BottomNavigationBarProps extends Omit<ViewProps, 'children'> {
   defaultValue?: string;
   /** Fires with the next destination's `value` — the new value is the first argument. */
   onValueChange?: (value: string) => void;
-  /** When labels show. Defaults to `always`. */
+  /**
+   * When labels show. Defaults to `always`. Ignored by `indicator: 'expand'`,
+   * which shows the label inside the active pill only.
+   */
   labelVisibility?: BottomNavigationLabelVisibility;
-  /** Flush bar or floating pill. Defaults to `plain`. */
+  /**
+   * Flush bar or floating pill. Defaults to `plain`. A floating bar with
+   * `indicator: 'expand'` hugs its items and sits centred.
+   */
   variant?: BottomNavigationVariant;
   /**
    * The mark on the active destination: `pill` behind the glyph, `bar` on
-   * the item's top edge, `dot` under the label, or `none` (colour only).
-   * Defaults to `pill`.
+   * the item's top edge, `dot` under the label, `expand` (items sized to
+   * their content; the active one grows into a filled pill with glyph and
+   * label side by side, the others show the glyph only), or `none` (colour
+   * only). Defaults to `pill`.
    */
   indicator?: BottomNavigationIndicator;
   /** Glyph size in pt. Defaults to 24. */
@@ -63,7 +71,7 @@ export interface BottomNavigationBarProps extends Omit<ViewProps, 'children'> {
     styleLabel?: StyledProp<TextStyle>;
     /** The active label. */
     styleLabelActive?: StyledProp<TextStyle>;
-    /** The active mark, whichever `indicator` draws (pill, bar or dot). */
+    /** The active mark, whichever `indicator` draws (pill, bar, dot or the `expand` fill). */
     styleIndicator?: StyledProp<ViewStyle>;
     /** The count badges (`backgroundColor` is the fill). */
     styleBadge?: StyledProp<ViewStyle>;
@@ -75,8 +83,9 @@ export interface BottomNavigationBarProps extends Omit<ViewProps, 'children'> {
 }
 
 /**
- * An in-content tab bar with an animated active mark (pill, top bar or dot),
- * labels and badges; items may be label-only.
+ * An in-content tab bar with an animated active mark (pill, top bar, dot or
+ * an expanding pill that reveals the active label), labels and badges; items
+ * may be label-only.
  * It paints a bar inside the page — it is not a stand-in for a tabs
  * navigator, whose bar the app shell owns. `value` is two-way bindable so
  * sibling panels can follow it.
@@ -122,6 +131,7 @@ const BottomNavigationBar = forwardRef<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const palette = tones.tone(tone);
     const destinations = readBottomNavigationItems(items);
     if (
@@ -140,6 +150,7 @@ const BottomNavigationBar = forwardRef<
     });
 
     const floating = variant === 'floating';
+    const expand = indicator === 'expand';
     const safeInset = safeAreaBottom
       ? Platform.select({ ios: 34, default: 8 })
       : 0;
@@ -149,6 +160,8 @@ const BottomNavigationBar = forwardRef<
       inactive: tones.resolve(Tokens.color.textSecondary),
       indicator: palette.container,
       mark: palette.main,
+      fill: palette.main,
+      onFill: palette.contrast,
       badge: error.main,
       onBadge: error.contrast,
     };
@@ -172,20 +185,23 @@ const BottomNavigationBar = forwardRef<
                   marginBottom: BOTTOM_NAVIGATION_FLOATING_MARGIN + safeInset,
                   paddingHorizontal: 8,
                   borderRadius: shape.radius.pill,
-                  boxShadow: ELEVATION,
-                  borderWidth: tones.isDark ? 1 : 0,
+                  boxShadow: elevation,
+                  borderWidth: tones.isDark ? shape.borderWidth(1) : 0,
                   borderColor: tones.outline,
                 }
               : {
-                  borderTopWidth: 1,
+                  borderTopWidth: shape.borderWidth(1),
                   borderTopColor: tones.divider,
                 },
+            floating && expand && defaults.rootHug,
             styled?.style,
           ],
         }}
         {...rest}
       >
-        <StyledView styled={{ style: defaults.items }}>
+        <StyledView
+          styled={{ style: [defaults.items, expand && defaults.itemsFit] }}
+        >
           {destinations.map((item, index) => {
             const active = item.value === current;
             return (

@@ -14,11 +14,11 @@ import {
 } from '@mapples/style';
 import {
   DISABLED_OPACITY,
-  ELEVATION,
   Icon,
   RADII,
   Tokens,
   TYPOGRAPHY_PARTS,
+  useElevation,
   useShape,
   useTones,
 } from '@mapples/ui';
@@ -104,6 +104,7 @@ const Fab: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const isDisabled = !!disabled;
     const extended = !!label;
     const geometry = FAB_GEOMETRY[size];
@@ -159,10 +160,10 @@ const Fab: ForwardRefExoticComponent<
             {
               borderRadius: radius,
               backgroundColor: background,
-              borderWidth: elevated && tones.isDark ? 1 : 0,
+              borderWidth: elevated && tones.isDark ? shape.borderWidth(1) : 0,
               borderColor: tones.outline,
             },
-            elevated && { boxShadow: ELEVATION },
+            elevated && { boxShadow: elevation },
             styled?.style,
             isDisabled && { opacity: DISABLED_OPACITY },
           ],

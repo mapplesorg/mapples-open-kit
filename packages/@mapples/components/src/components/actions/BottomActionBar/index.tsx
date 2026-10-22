@@ -1,7 +1,7 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
-import { ELEVATION_SHADOW, Tokens, useTones } from '@mapples/ui';
+import { Tokens, useElevation, useShape, useTones } from '@mapples/ui';
 import { View, ViewProps, ViewStyle } from 'react-native';
 
 import { defaults } from './defaults';
@@ -26,9 +26,6 @@ export interface BottomActionBarProps extends ViewProps {
     style?: StyledProp<ViewStyle>;
   };
 }
-
-/** The one elevation level, cast upwards for a bar that sits on the bottom edge. */
-const SHADOW_UP = `${ELEVATION_SHADOW.x}px ${-ELEVATION_SHADOW.y}px ${ELEVATION_SHADOW.radius}px ${ELEVATION_SHADOW.color}`;
 
 /**
  * A surface pinned to the bottom of the screen for the primary actions — a
@@ -70,6 +67,9 @@ const BottomActionBar = forwardRef<
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
+    // The elevation cast upwards for a bar that sits on the bottom edge.
+    const elevation = useElevation('up');
 
     return (
       <StyledView
@@ -86,9 +86,9 @@ const BottomActionBar = forwardRef<
             sticky ? defaults.sticky : { alignSelf: 'stretch' },
             safeArea && { paddingBottom: BOTTOM_ACTION_BAR_SAFE_INSET },
             elevated && {
-              borderTopWidth: 1,
+              borderTopWidth: shape.borderWidth(1),
               borderTopColor: tones.divider,
-              boxShadow: SHADOW_UP,
+              boxShadow: elevation,
             },
             styled?.style,
           ],

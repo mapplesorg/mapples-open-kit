@@ -19,10 +19,18 @@ export const defaults = Styler.create({
   radio: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
   },
   labels: {
     flexShrink: 1,
     gap: 2,
+  },
+  labelsGrow: {
+    flexGrow: 1,
+  },
+  card: {
+    padding: 16,
+  },
+  divider: {
+    height: 1,
   },
 });

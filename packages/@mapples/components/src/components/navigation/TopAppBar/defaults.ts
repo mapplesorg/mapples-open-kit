@@ -27,6 +27,17 @@ export const defaults = Styler.create({
   centred: {
     textAlign: 'center',
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  titleRowCentred: {
+    justifyContent: 'center',
+  },
+  titleShrink: {
+    flexShrink: 1,
+  },
   largeTitles: {
     paddingHorizontal: 12,
     paddingBottom: 12,
@@ -41,6 +52,9 @@ export const defaults = Styler.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  textAction: {
+    paddingHorizontal: 12,
   },
   stateLayer: {
     position: 'absolute',

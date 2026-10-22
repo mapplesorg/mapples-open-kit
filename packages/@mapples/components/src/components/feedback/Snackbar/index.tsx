@@ -10,9 +10,9 @@ import {
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
-  ELEVATION,
   TYPOGRAPHY_PARTS,
   Tokens,
+  useElevation,
   useShape,
   useTones,
 } from '@mapples/ui';
@@ -107,6 +107,7 @@ const Snackbar: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
       defaultValue: defaultVisible,
@@ -154,7 +155,7 @@ const Snackbar: ForwardRefExoticComponent<
               {
                 borderRadius: shape.radius.md,
                 backgroundColor: background,
-                boxShadow: ELEVATION,
+                boxShadow: elevation,
               },
               styled?.styleContainer,
             ],

@@ -24,9 +24,14 @@ import {
 
 /** Props for {@link TabBarItems}. */
 export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
-  /** When labels show. Defaults to `always`. */
+  /** When labels show. Defaults to `always`. Ignored by `indicator: 'expand'` (label inside the active pill only). */
   labelVisibility?: TabBarItemsLabelVisibility;
-  /** The mark on the active tab: pill behind the icon, bar on the top edge, dot under the label, or none. Defaults to `pill`. */
+  /**
+   * The mark on the active tab: pill behind the icon, bar on the top edge,
+   * dot under the label, `expand` (tabs sized to their content; the active
+   * one grows into a filled pill with icon and label side by side, the
+   * others show the icon only), or none. Defaults to `pill`.
+   */
   indicator?: TabBarItemsIndicator;
   /** Glyph size. Defaults to 24. */
   iconSize?: number;
@@ -50,7 +55,7 @@ export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
     styleLabel?: StyledProp<TextStyle>;
     /** The active label. */
     styleLabelActive?: StyledProp<TextStyle>;
-    /** The pill behind the active icon. */
+    /** The active mark (pill, bar, dot or the `expand` fill). */
     styleIndicator?: StyledProp<ViewStyle>;
   };
 }
@@ -103,6 +108,8 @@ const TabBarItems: ForwardRefExoticComponent<
       active: palette.ink,
       inactive: tones.resolve(Tokens.color.textSecondary),
       indicator: palette.container,
+      fill: palette.main,
+      onFill: palette.contrast,
       badge: error.main,
       onBadge: error.contrast,
     };
@@ -115,6 +122,7 @@ const TabBarItems: ForwardRefExoticComponent<
         styled={{
           style: [
             defaults.root,
+            indicator === 'expand' && defaults.rootFit,
             {
               minHeight: TAB_BAR_ITEMS_MIN_HEIGHT + bottomInset,
               paddingBottom: bottomInset,

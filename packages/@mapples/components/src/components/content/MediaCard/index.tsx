@@ -14,11 +14,11 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  ELEVATION,
   Icon,
   IconButton,
   TYPOGRAPHY_PARTS,
   Tokens,
+  useElevation,
   useShape,
   useTones,
 } from '@mapples/ui';
@@ -189,6 +189,7 @@ const MediaCard: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const elevation = useElevation();
     const interactive = !!onPress;
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -235,10 +236,13 @@ const MediaCard: ForwardRefExoticComponent<
           : variant === 'filled'
             ? tones.fill
             : surface,
-        borderWidth: !plain && (variant === 'outlined' || tones.isDark) ? 1 : 0,
+        borderWidth:
+          !plain && (variant === 'outlined' || tones.isDark)
+            ? shape.borderWidth(1)
+            : 0,
         borderColor: tones.outline,
       },
-      variant === 'elevated' && { boxShadow: ELEVATION },
+      variant === 'elevated' && { boxShadow: elevation },
       styled?.style,
     ];
 
