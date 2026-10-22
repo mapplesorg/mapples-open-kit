@@ -24,6 +24,15 @@ export const defaults = Styler.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  trailingWithChevron: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  radio: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+  },
   divider: {
     height: 1,
   },
