@@ -218,6 +218,41 @@ All components support the `@mapples/style` system through the `styled` prop:
 />
 ```
 
+## Project Shape
+
+The themed components (`Button`, `IconButton` and every `@mapples/components`
+widget) read their geometry from the project's sizing document through
+`useShape()` and `useElevation()`. Every key is optional; a project that sets
+none of them renders with the built-in defaults (`DEFAULT_SHAPE`, `ELEVATION`).
+
+| Sizing key     | Range | Effect                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `radius`       | ≥ 0   | Corner radius of controls, chips and small surfaces (`shape.radius.md`; `xs`/`sm` scale with it). `0` squares off pills too.                                                                                                                                                                                                                                                                            |
+| `radiusLarge`  | ≥ 0   | Corner radius of cards, sheets and dialogs (`shape.radius.lg`; `xl` scales with it).                                                                                                                                                                                                                                                                                                                    |
+| `control`      | pt    | Height of an `md` control; `sm`/`lg`/`xl` keep their steps from it.                                                                                                                                                                                                                                                                                                                                     |
+| `borderWidth`  | 0–4   | Outline weight of every surface and control border: outlined cards, fields, chips, checkbox and radio rings, outlined buttons, bar edges, the dark-theme outline of elevated surfaces. Missing, each component keeps its own width (1, 2 or a hairline). Dividers and separators between items keep theirs. Outlines that thicken for focus or the current item draw `max(own width, borderWidth + 1)`. |
+| `shadowOffset` | 0–8   | `0` or missing: the soft `ELEVATION`. Above 0: every elevated surface casts a hard shadow, offset by that many points on both axes with no blur, in the theme's text colour (the neo-brutalist look).                                                                                                                                                                                                   |
+
+```tsx
+import { useElevation, useShape } from '@mapples/ui';
+
+const shape = useShape();
+const elevation = useElevation(); // useElevation('up') for bottom-pinned bars
+
+<View
+  style={{
+    borderRadius: shape.radius.lg,
+    borderWidth: shape.borderWidth(1), // the project's borderWidth, else 1
+    boxShadow: elevation,
+  }}
+/>;
+```
+
+`shape.border.width` is the raw `borderWidth` (`undefined` when unset),
+`shape.emphasisWidth(2)` the width of a focus or current-item outline and
+`shape.shadowOffset` the raw offset. Outside React, `resolveShape` and
+`resolveElevation` compute the same values.
+
 ## System Palette
 
 The package includes a system color palette for consistent theming:

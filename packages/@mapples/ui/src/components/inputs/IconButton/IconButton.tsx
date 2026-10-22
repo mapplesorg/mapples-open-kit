@@ -34,8 +34,11 @@ import { SvgProps, SvgUri } from 'react-native-svg';
 import useShape from '../../../hooks/useShape';
 import useTones from '../../../hooks/useTones';
 import {
-  ControlSize,
   DISABLED_OPACITY,
+  ICON_BUTTON_SHAPES,
+  ICON_BUTTON_SIZES,
+  IconButtonShape,
+  IconButtonSize,
   IconButtonVariant,
   Tone,
 } from '../../../tokens';
@@ -67,8 +70,17 @@ export type IconProps = PropsWithChildren<
   iconName?: string;
   /** Themed appearance: `standard` (no fill), `filled`, `tonal` or `outlined`. */
   variant?: IconButtonVariant;
-  /** Square size: `sm` 36, `md` 44, `lg` 52 points. */
-  size?: ControlSize;
+  /**
+   * Square size: `sm` 36, `md` 44, `lg` 52, `xl` 76 points (`xl` is the
+   * primary play/pause control). Defaults to `md`.
+   */
+  size?: IconButtonSize;
+  /**
+   * Corner shape (themed variants): `auto` is round unless the project is
+   * sharp, `circle` is round whatever the project radius, `rounded` takes the
+   * project's control corner. Defaults to `auto`.
+   */
+  shape?: IconButtonShape;
   /** Colour role. Defaults to `primary`. */
   tone?: Tone;
   /** Toggle state (controlled). Omit for an uncontrolled toggle, or leave both unset for a plain button. */
@@ -126,6 +138,7 @@ const IconButton: ForwardRefExoticComponent<
       iconName,
       variant = 'standard',
       size = 'md',
+      shape: cornerShape = 'auto',
       tone = 'primary',
       selected,
       onSelectedChange,
@@ -253,9 +266,24 @@ const IconButton: ForwardRefExoticComponent<
       );
     }
 
+    if (!ICON_BUTTON_SIZES.includes(size)) {
+      throw new Error(
+        `IconButton: size must be one of ${ICON_BUTTON_SIZES.join(', ')} (got ${String(size)})`,
+      );
+    }
+    if (!ICON_BUTTON_SHAPES.includes(cornerShape)) {
+      throw new Error(
+        `IconButton: shape must be one of ${ICON_BUTTON_SHAPES.join(', ')} (got ${String(cornerShape)})`,
+      );
+    }
     const spec = shape.control[size];
-    // Round, unless the project is sharp (its pill radius is 0).
-    const corner = Math.min(spec.height / 2, shape.radius.pill);
+    // `auto`: round, unless the project is sharp (its pill radius is 0).
+    const corner =
+      cornerShape === 'circle'
+        ? spec.height / 2
+        : cornerShape === 'rounded'
+          ? spec.radius
+          : Math.min(spec.height / 2, shape.radius.pill);
     const palette = tones.tone(tone);
     const text = tones.resolve('theme.text.primary');
     const isDisabled = !!disabled;
@@ -317,7 +345,7 @@ const IconButton: ForwardRefExoticComponent<
               height: spec.height,
               borderRadius: corner,
               backgroundColor: background,
-              borderWidth: border ? 1 : 0,
+              borderWidth: border ? shape.borderWidth(1) : 0,
               borderColor: border ?? 'transparent',
             },
             styledViewProps.style,
