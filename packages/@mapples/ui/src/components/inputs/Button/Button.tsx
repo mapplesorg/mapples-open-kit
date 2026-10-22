@@ -28,10 +28,10 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import useShape from '../../../hooks/useShape';
 import useTones, { TonePalette, Tones } from '../../../hooks/useTones';
 import {
   ButtonVariant,
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
   ELEVATION,
@@ -104,15 +104,15 @@ const variantColors = (
     case 'outlined':
       return {
         background: 'transparent',
-        label: palette.main,
+        label: palette.ink,
         border: tones.outlineStrong,
       };
     case 'text':
-      return { background: 'transparent', label: palette.main };
+      return { background: 'transparent', label: palette.ink };
     case 'elevated':
       return {
         background: tones.resolve(Tokens.color.surface),
-        label: palette.main,
+        label: palette.ink,
         // Shadows vanish on dark surfaces — a hairline keeps the edge.
         border: tones.isDark ? tones.outline : undefined,
         elevated: true,
@@ -202,6 +202,7 @@ const Button: ForwardRefExoticComponent<
   ) => {
     const { styleTypography, styleIcon, ...styledPressableProps } = styled;
     const tones = useTones();
+    const shape = useShape();
     const [pressed, setPressed] = useState(false);
     const [hovered, setHovered] = useState(false);
     const inGroup = groupStyle(useContext(ButtonGroupContext));
@@ -260,7 +261,7 @@ const Button: ForwardRefExoticComponent<
       );
     }
 
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
     const colors = variantColors(variant, tones.tone(tone), tones);
     const isDisabled = !!disabled;
     const inactive = isDisabled || loading;
