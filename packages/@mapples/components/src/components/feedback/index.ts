@@ -13,6 +13,11 @@ export * from './ProgressCircle';
 export * from './ProgressCircle/schematic';
 export * from './ProgressCircle/types';
 
+export { default as ActivityRings } from './ActivityRings';
+export * from './ActivityRings';
+export * from './ActivityRings/schematic';
+export * from './ActivityRings/types';
+
 export { default as Spinner } from './Spinner';
 export * from './Spinner';
 export * from './Spinner/schematic';
