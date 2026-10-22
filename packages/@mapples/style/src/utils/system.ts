@@ -105,7 +105,7 @@ export const normalizeTextStyleWeb = (
 /**
  * Creates a regular expression that matches all theme and sizing token references
  * present in a serialised style string (e.g., `'theme.colors.primary'`, `'"sizing.md"'`,
- * `'"*2"'`, `'"calc(...)"'`).
+ * `'"*2"'`, `'"*0.5"'`, `'"calc(...)"'`).
  *
  * @param theme - An object whose key paths form the set of recognisable tokens.
  *   Typically passed as `{ theme, sizing }` so both namespaces are covered.
@@ -127,7 +127,7 @@ export const getThemeRegexp = <T extends object>(theme: T) => {
     '|',
   );
 
-  return new RegExp(`${pattern}|"\\*\\d+"|"calc\\(.*?\\)"`, 'gi');
+  return new RegExp(`${pattern}|"\\*\\d+(?:\\.\\d+)?"|"calc\\(.*?\\)"`, 'gi');
 };
 
 /**
@@ -159,7 +159,7 @@ export const isColorString = (
 };
 
 /**
- * Type guard to check if a value is a multiplier expression (e.g., '*2', '*3').
+ * Type guard to check if a value is a multiplier expression (e.g., '*2', '*0.5').
  *
  * @param value - The value to check
  * @returns True if the value is a multiplier expression
@@ -167,6 +167,7 @@ export const isColorString = (
  * @example
  * ```tsx
  * isMultiply('*2'); // true
+ * isMultiply('*0.5'); // true
  * isMultiply('2*'); // false
  * isMultiply('calc(2 * 4)'); // false
  * ```
@@ -212,6 +213,7 @@ export const isCalc = <T extends string>(
  * ```tsx
  * parseCalc('calc(*2 - 10)', 20); // Returns: 30 (20*2 - 10)
  * parseCalc('calc(*3 + 5)', 10); // Returns: 35 (10*3 + 5)
+ * parseCalc('calc(*1.5 - 2)', 8); // Returns: 10 (8*1.5 - 2)
  * ```
  */
 export const parseCalc = (value: string, base: number): number => {
@@ -219,17 +221,19 @@ export const parseCalc = (value: string, base: number): number => {
   const expression = value.substring(5, value.length - 1);
 
   // Replace *n with base*n
-  const parsedExpression = expression.replace(/\*(\d+)/g, (_, n) => {
-    return (base * parseInt(n, 10)).toString();
+  const parsedExpression = expression.replace(/\*(\d+(?:\.\d+)?)/g, (_, n) => {
+    return (base * parseFloat(n)).toString();
   });
 
   // Evaluate the expression
   // For now, we only support simple operations like *n - m or *n + m
-  const match = parsedExpression.match(/^(\d+)\s*([-+])\s*(\d+)$/);
+  const match = parsedExpression.match(
+    /^(\d+(?:\.\d+)?)\s*([-+])\s*(\d+(?:\.\d+)?)$/,
+  );
   if (match) {
     const [, leftStr, operator, rightStr] = match;
-    const left = parseInt(leftStr, 10);
-    const right = parseInt(rightStr, 10);
+    const left = parseFloat(leftStr);
+    const right = parseFloat(rightStr);
 
     if (operator === '+') {
       return left + right;
