@@ -17,6 +17,15 @@ export const FONT_FAMILIES = [
   'Playfair Display',
   'Fraunces',
   'IBM Plex Mono',
+  'Inter Tight',
+  'Nunito Sans',
+  'Jost',
+  'Lexend',
+  'Archivo',
+  'Bricolage Grotesque',
+  'Syne',
+  'Instrument Serif',
+  'Cormorant Garamond',
 ] as const;
 
 export type FontFamily = (typeof FONT_FAMILIES)[number];
@@ -108,6 +117,60 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
     weights: ['Regular', 'Medium'],
     character: 'monospace for code, data and labels',
     pairsWith: ['Inter', 'Space Grotesk'],
+  },
+  'Inter Tight': {
+    category: 'sans',
+    weights: FONT_WEIGHTS,
+    character: 'tightly spaced Inter for compact editorial UI',
+    pairsWith: ['Instrument Serif', 'Playfair Display', 'IBM Plex Mono'],
+  },
+  'Nunito Sans': {
+    category: 'sans',
+    weights: FONT_WEIGHTS,
+    character: 'gentle humanist sans, calm wellness apps',
+    pairsWith: ['Fraunces', 'Playfair Display'],
+  },
+  Jost: {
+    category: 'sans',
+    weights: FONT_WEIGHTS,
+    character: 'Futura-like geometric, refined and airy',
+    pairsWith: ['Cormorant Garamond', 'Playfair Display'],
+  },
+  Lexend: {
+    category: 'sans',
+    weights: FONT_WEIGHTS,
+    character: 'wide, highly readable sans, bold and blunt',
+    pairsWith: ['IBM Plex Mono', 'Inter'],
+  },
+  Archivo: {
+    category: 'sans',
+    weights: FONT_WEIGHTS,
+    character: 'sturdy grotesk, monochrome fashion and retail',
+    pairsWith: ['IBM Plex Mono', 'Inter'],
+  },
+  'Bricolage Grotesque': {
+    category: 'sans',
+    weights: FONT_WEIGHTS,
+    character: 'expressive ink-trap grotesk, warm consumer brands',
+    pairsWith: ['DM Sans', 'Inter'],
+  },
+  Syne: {
+    category: 'sans',
+    weights: FONT_WEIGHTS,
+    character: 'eccentric wide display sans, events and culture',
+    pairsWith: ['Inter', 'DM Sans'],
+  },
+  'Instrument Serif': {
+    category: 'serif',
+    weights: ['Regular'],
+    character: 'condensed editorial display serif, headlines only',
+    pairsWith: ['Inter Tight', 'Inter', 'DM Sans'],
+  },
+  'Cormorant Garamond': {
+    category: 'serif',
+    weights: FONT_WEIGHTS,
+    character: 'high-contrast Garamond, luxury and real estate',
+    pairsWith: ['Jost', 'Inter', 'Manrope'],
   },
 };
 

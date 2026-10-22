@@ -1,6 +1,6 @@
 # @mapples/fonts
 
-The font library bundled with every Mapples project: 12 open-licensed (OFL)
+The font library bundled with every Mapples project: 21 open-licensed (OFL)
 Google Fonts families, registered **per weight** (`Inter-SemiBold`) the way
 React Native expects, so the same family name renders identically in the
 Creator canvas (web + native) and in the exported app.
