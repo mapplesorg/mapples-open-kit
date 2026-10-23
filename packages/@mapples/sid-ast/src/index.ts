@@ -25,6 +25,7 @@ export {
   type ScanInfo,
 } from './codemod.js';
 export {
+  isPropBinding,
   negateCondition,
   PROPS_SCOPE,
   propOfCondition,

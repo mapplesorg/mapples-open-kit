@@ -48,6 +48,32 @@ function requireInfo(analysis: Analysis, sid: string): ElementInfo {
   return info;
 }
 
+/**
+ * `edit.dataProps` without the bindings the code makes by passing a prop on
+ * (`title={title}`): those stay attributes, never `$data` entries. A
+ * different binding for the same key cannot reach the file — the code wins.
+ */
+function codeOwnedDataProps(
+  edit: Extract<SidEdit, { kind: 'setProps' }>,
+  info: ElementInfo,
+  current: RenderDomNode,
+  warnings: ExtractWarning[],
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...(edit.dataProps ?? {}) };
+  for (const key of info.propBindings) {
+    if (key in out && !deepEqual(out[key], current.dataProps?.[key])) {
+      warnings.push({
+        kind: 'NON_LITERAL_PROP',
+        sid: edit.sid,
+        prop: key,
+        detail: `\`${key}\` on <${info.tagName}> passes a prop on in code, so the Creator's binding for it was not written to the file`,
+      });
+    }
+    delete out[key];
+  }
+  return out;
+}
+
 function applySetProps(
   source: string,
   analysis: Analysis,
@@ -61,6 +87,7 @@ function applySetProps(
   // `$data` entry; `applyGuard` writes it after the attributes.
   const guarded = info.jsxChild || info.guard !== null;
   const current = analysis.nodes.get(edit.sid)!;
+  const dataProps = codeOwnedDataProps(edit, info, current, warnings);
   const desired: RenderDomNode = {
     sid: edit.sid,
     type: edit.type ?? current.type,
@@ -69,9 +96,7 @@ function applySetProps(
     ...(edit.refProps && Object.keys(edit.refProps).length > 0
       ? { refProps: edit.refProps }
       : {}),
-    ...(edit.dataProps && Object.keys(edit.dataProps).length > 0
-      ? { dataProps: edit.dataProps }
-      : {}),
+    ...(Object.keys(dataProps).length > 0 ? { dataProps } : {}),
     ...(edit.actionProps && Object.keys(edit.actionProps).length > 0
       ? { actionProps: edit.actionProps }
       : {}),
@@ -215,11 +240,19 @@ function applySetProps(
   for (const te of textEdits)
     out = splice(out, te.start, te.end, te.replacement);
 
-  // 2. Text children (only when the node has no $sid children).
+  // 2. Text children (only when the node has no $sid children, and its text
+  //    is not a prop the code passes on).
   const { text } = emittable(desired);
   const currentText =
     typeof current.props.children === 'string' ? current.props.children : null;
-  if (text !== currentText && info.childSids.length === 0) {
+  if (text !== currentText && info.propBindings.includes('children')) {
+    warnings.push({
+      kind: 'NON_LITERAL_PROP',
+      sid: edit.sid,
+      prop: 'children',
+      detail: `the text of <${info.tagName}> is a prop in code, so the Creator's text change was not written to the file`,
+    });
+  } else if (text !== currentText && info.childSids.length === 0) {
     // Re-analyze: offsets shifted after the attribute splice.
     const re = analyze(out);
     const reInfo = requireInfo(re, edit.sid);
