@@ -42,7 +42,7 @@ const Pressable: ForwardRefExoticComponent<
 > = forwardRef<ComponentRef<typeof View>, PropsWithChildren<PressableProps>>(
   ({ children, ...props }, ref) => {
     return (
-      <StyledPressable onPress={console.log} ref={ref} {...props}>
+      <StyledPressable ref={ref} {...props}>
         {children}
       </StyledPressable>
     );
