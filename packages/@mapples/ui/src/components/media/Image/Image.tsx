@@ -39,6 +39,9 @@ const StyledExpoImage = styled(ExpoImage);
  * The Image component extends Expo's Image component with additional styling
  * capabilities through the @mapples/style system. It supports both container
  * and image-specific styling, and can use either the `source` or `dataSource` prop.
+ * `styled.style` sizes the container and the picture fills it; `styleImage`
+ * overrides the picture's own size. A container with a border radius clips
+ * the picture to its corners (set `overflow: 'visible'` to opt out).
  *
  * @example
  * ```tsx
@@ -69,12 +72,24 @@ const Image = forwardRef(
 
     const image = dataSource || source;
 
+    // `styled.style` sizes the wrapper; the picture fills it unless
+    // `styleImage` sizes it, and a rounded wrapper clips its corners.
+    const rounded = Object.keys(Styler.flatten(styledProps.style) ?? {}).some(
+      (key) => /^border\w*Radius$/.test(key),
+    );
+    const wrapperStyle = rounded
+      ? [styler.roundedWrapper, styledProps.style]
+      : styledProps.style;
+
     return (
-      <StyledView ref={ref} styled={styledProps}>
+      <StyledView ref={ref} styled={{ ...styledProps, style: wrapperStyle }}>
         {!!image ? (
           <StyledExpoImage
             source={image}
-            styled={{ style: styleImage, ...(styledImageProps || {}) }}
+            styled={{
+              style: [styler.image, styleImage],
+              ...(styledImageProps || {}),
+            }}
             {...props}
           />
         ) : (
@@ -91,6 +106,13 @@ const Image = forwardRef(
 Image.displayName = 'Image';
 
 const styler = Styler.create({
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  roundedWrapper: {
+    overflow: 'hidden',
+  },
   imagePlaceholder: {
     width: '100%',
     height: '100%',
