@@ -22,7 +22,7 @@
     "directory": "packages/@mapples/api-import"
   },
   "dependencies": {
-    "@mapples/types": "workspace:^",
+    "@mapples/types": "workspace:*",
     "yaml": "^2.6.1"
   },
   "devDependencies": {
