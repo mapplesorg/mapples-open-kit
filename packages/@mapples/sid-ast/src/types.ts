@@ -32,7 +32,17 @@ export type ExtractWarningKind =
   | 'DUPLICATE_SID'
   | 'UNKNOWN_ELEMENT_WITH_SID'
   /** A component file whose shape `ensureInstanceStyled` does not rewrite. */
-  | 'INSTANCE_STYLING';
+  | 'INSTANCE_STYLING'
+  /**
+   * A `$sid` element outside the file's first tree (another `return`, a
+   * helper): the document has one root, so that tree is not read.
+   */
+  | 'MULTIPLE_ROOTS'
+  /**
+   * A style variant or show/hide guard whose test is not on one prop
+   * (`a && b`): the canvas keeps the base style / always shows the element.
+   */
+  | 'UNSUPPORTED_CONDITION';
 
 export interface ExtractWarning {
   kind: ExtractWarningKind;

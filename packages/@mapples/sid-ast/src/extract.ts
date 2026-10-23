@@ -15,9 +15,22 @@ export function extract(
   for (const [key, state] of analysis.states) {
     states[key] = { name: state.name, condition: state.condition };
   }
+  // The document holds one root; every further `$sid` tree is dropped, so
+  // say where it is instead of losing it silently.
+  const extraRoots = analysis.roots.slice(1).map((root) => {
+    const info = analysis.info.get(root.sid);
+    const line = info
+      ? source.slice(0, info.span.start).split('\n').length
+      : undefined;
+    return {
+      kind: 'MULTIPLE_ROOTS' as const,
+      sid: root.sid,
+      detail: `<${info?.tagName ?? root.type}>${line ? ` (line ${line})` : ''} is a second root element — the canvas holds one tree per file and does not read this one or anything inside it. Return a single tree: put the branches under one root and switch with a prop condition (\`{variant === 'brand' ? <A /> : <B />}\`) instead of several returns or helper functions.`,
+    };
+  });
   return {
     dom: analysis.roots[0] ?? null,
-    warnings: analysis.warnings,
+    warnings: [...analysis.warnings, ...extraRoots],
     spans,
     states,
   };
