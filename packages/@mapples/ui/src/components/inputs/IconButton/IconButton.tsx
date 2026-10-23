@@ -26,8 +26,10 @@ import {
   GestureResponderEvent,
   MouseEvent,
   PressableProps,
+  TextStyle,
   View,
   ViewProps,
+  ViewStyle,
 } from 'react-native';
 import { SvgProps, SvgUri } from 'react-native-svg';
 
@@ -57,6 +59,10 @@ export type IconProps = PropsWithChildren<
     styled?: StyledProps<ViewProps> & {
       /** SVG-specific styling */
       styleSvg?: StyledProp<SvgStyle>;
+      /** The count badge (position, size, fill). */
+      styleBadge?: StyledProp<ViewStyle>;
+      /** The badge's number. */
+      styleBadgeLabel?: StyledProp<TextStyle>;
     };
   }
 > & {
@@ -155,7 +161,8 @@ const IconButton: ForwardRefExoticComponent<
     },
     ref,
   ) => {
-    const { styleSvg, ...styledViewProps } = styled || {};
+    const { styleSvg, styleBadge, styleBadgeLabel, ...styledViewProps } =
+      styled || {};
     const tones = useTones();
     const shape = useShape();
     const [pressed, setPressed] = useState(false);
@@ -386,13 +393,14 @@ const IconButton: ForwardRefExoticComponent<
               style: [
                 styler.badge,
                 { backgroundColor: tones.tone('error').main },
+                styleBadge,
               ],
             }}
           >
             <Typography
               variant="Caption"
               color={tones.tone('error').contrast}
-              style={styler.badgeText}
+              style={[styler.badgeText, styleBadgeLabel]}
             >
               {badge}
             </Typography>
