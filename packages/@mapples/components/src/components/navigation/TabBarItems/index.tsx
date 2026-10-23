@@ -39,6 +39,12 @@ export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
   safeAreaBottom?: boolean;
   /** Colour role of the active tab. Defaults to `primary`. */
   tone?: Tone;
+  /**
+   * A count badge per tab, keyed by the tab's label (`{ Bag: 2 }`); a count
+   * of 0, or a value that is not a number, shows no badge. Numeric strings
+   * are read as numbers (the Creator's key/value field holds text).
+   */
+  badgeCounts?: Record<string, number | string>;
   /** Styled slots for every visual part. */
   styled?: {
     /** The row of tabs. */
@@ -57,6 +63,10 @@ export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
     styleLabelActive?: StyledProp<TextStyle>;
     /** The active mark (pill, bar, dot or the `expand` fill; its height and padding size the `expand` pill). */
     styleIndicator?: StyledProp<ViewStyle>;
+    /** The count badge. */
+    styleBadge?: StyledProp<ViewStyle>;
+    /** The badge's number. */
+    styleBadgeLabel?: StyledProp<TextStyle>;
   };
 }
 
@@ -86,6 +96,7 @@ const TabBarItems: ForwardRefExoticComponent<
       iconSize = TAB_BAR_ITEMS_ICON_SIZE,
       safeAreaBottom = true,
       tone = 'primary',
+      badgeCounts,
       styled,
       // The canvas injects a drop area as children; leaf components ignore them.
       children: _children,
@@ -139,6 +150,7 @@ const TabBarItems: ForwardRefExoticComponent<
               label: item.label,
               value: item.routeId,
               renderIcon: item.renderIcon,
+              badgeCount: Number(badgeCounts?.[item.label] ?? 0) || undefined,
             }}
             active={item.active}
             showLabel={
@@ -156,6 +168,8 @@ const TabBarItems: ForwardRefExoticComponent<
               styleLabel: styled?.styleLabel,
               styleLabelActive: styled?.styleLabelActive,
               styleIndicator: styled?.styleIndicator,
+              styleBadge: styled?.styleBadge,
+              styleBadgeLabel: styled?.styleBadgeLabel,
             }}
             onPress={chrome.select}
           />
