@@ -12,6 +12,7 @@ import {
   StyledPressable,
   StyledProp,
   StyledView,
+  Styler,
   Typography,
 } from '@mapples/style';
 import {
@@ -24,6 +25,7 @@ import {
   useTones,
 } from '@mapples/ui';
 import { ImageProps } from 'expo-image';
+import { omit } from 'lodash';
 import {
   ImageStyle,
   PressableProps,
@@ -146,6 +148,41 @@ export interface ListItemProps extends Omit<
   };
 }
 
+const PADDING_KEYS = [
+  'padding',
+  'paddingHorizontal',
+  'paddingVertical',
+  'paddingLeft',
+  'paddingRight',
+  'paddingTop',
+  'paddingBottom',
+  'paddingStart',
+  'paddingEnd',
+] as const;
+
+/**
+ * The row's padding: the author's `style` padding resolved per side the way
+ * React Native ranks it (side > axis > all), each side defaulting to 16
+ * across and 8 down.
+ */
+const rowPadding = (style: ViewStyle | undefined): ViewStyle => ({
+  paddingTop: style?.paddingTop ?? style?.paddingVertical ?? style?.padding ?? 8,
+  paddingBottom:
+    style?.paddingBottom ?? style?.paddingVertical ?? style?.padding ?? 8,
+  paddingStart:
+    style?.paddingStart ??
+    style?.paddingLeft ??
+    style?.paddingHorizontal ??
+    style?.padding ??
+    16,
+  paddingEnd:
+    style?.paddingEnd ??
+    style?.paddingRight ??
+    style?.paddingHorizontal ??
+    style?.padding ??
+    16,
+});
+
 /**
  * One list row: a leading glyph, avatar, photo, checkbox or rank text; a
  * title with supporting text; a trailing chevron, text, glyph, switch,
@@ -253,6 +290,12 @@ const ListItem: ForwardRefExoticComponent<
       } else if (toggles && !onPress) setChecked(!checked);
       onPress?.(event);
     };
+
+    // Padding written on the row's `style` pads the row itself, replacing its
+    // default 16/8 instead of adding to it, and the divider (outside the row)
+    // keeps to `dividerInset`.
+    const authorStyle = Styler.flatten(styled?.style) as ViewStyle | undefined;
+    const rootStyle = omit(authorStyle, PADDING_KEYS);
 
     const photoEdge = size === 'lg' ? 56 : 40;
     const photoRadius =
@@ -468,7 +511,7 @@ const ListItem: ForwardRefExoticComponent<
           style: [
             defaults.root,
             selected && { backgroundColor: tones.tone('primary').container },
-            styled?.style,
+            rootStyle,
             selected && styled?.styleSelected,
             isDisabled && { opacity: DISABLED_OPACITY },
           ],
@@ -493,7 +536,11 @@ const ListItem: ForwardRefExoticComponent<
         ) : null}
         <StyledView
           styled={{
-            style: [defaults.row, { minHeight: LIST_ITEM_HEIGHT[size] }],
+            style: [
+              defaults.row,
+              rowPadding(authorStyle),
+              { minHeight: LIST_ITEM_HEIGHT[size] },
+            ],
           }}
         >
           {leadingKind !== 'none' ? (

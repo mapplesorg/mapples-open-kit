@@ -9,8 +9,6 @@ export const defaults = Styler.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
   },
   leading: {
     alignItems: 'center',
