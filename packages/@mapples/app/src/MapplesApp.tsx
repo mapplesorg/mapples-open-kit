@@ -1,7 +1,6 @@
 import { FC, PropsWithChildren, JSX, useEffect, useMemo } from 'react';
 
 import { Components } from '@mapples/components';
-import { FONT_FILES } from '@mapples/fonts';
 import { AnyObject, RenderProvider } from '@mapples/render';
 import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
@@ -17,7 +16,9 @@ import * as assetsModule from 'mapples::assets';
 import * as themeModule from 'mapples::style';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { splitLibraryFonts } from './libraryFonts';
 import { NavigationMap, NavigationProvider } from './NavigationContext';
+import { registerLazyFonts } from './registerLazyFonts';
 import MapplesRuntime, { MapplesRuntimeProps } from './runtime/MapplesRuntime';
 import { MapplesProject, syncedProject } from './runtime/project';
 import { resolveAssets, toStyleContext } from './utils';
@@ -109,7 +110,19 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
     () => resolveAssets(assets ?? assetsModule),
     [assets],
   );
-  const [loaded] = useFonts({ ...FONT_FILES, ...resolved.fonts });
+  const styleContext = useMemo(
+    () => Styler.init(style ?? toStyleContext(themeModule)),
+    [style],
+  );
+  const libraryFonts = useMemo(
+    () => splitLibraryFonts(styleContext),
+    [styleContext],
+  );
+  const [loaded] = useFonts({ ...libraryFonts.awaited, ...resolved.fonts });
+
+  useEffect(() => {
+    registerLazyFonts(libraryFonts.lazy);
+  }, [libraryFonts]);
 
   useEffect(() => {
     if (loaded && onFontLoaded) {
@@ -131,7 +144,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
     // Gesture-driven library components (Slider, BottomSheet) need the
     // gesture-handler root; the canvas provides its own through DnDRootView.
     <GestureHandlerRootView style={rootStyle}>
-      <StyleProvider style={Styler.init(style ?? toStyleContext(themeModule))}>
+      <StyleProvider style={styleContext}>
         <RenderProvider
           components={{ ...Components, ...UIComponents }}
           assets={resolved.assets}
