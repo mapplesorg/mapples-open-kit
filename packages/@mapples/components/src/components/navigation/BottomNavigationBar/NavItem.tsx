@@ -4,12 +4,13 @@ import {
   StyledPressable,
   StyledProp,
   StyledView,
+  Styler,
   Typography,
   useStyled,
 } from '@mapples/style';
 import { Icon, TYPOGRAPHY_PARTS, useShape } from '@mapples/ui';
 import { omit, pick } from 'lodash';
-import { Animated, TextStyle, ViewStyle } from 'react-native';
+import { Animated, StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { DURATION, useSlotColor, useTimingValue } from '../../../internal';
 
@@ -140,8 +141,14 @@ const NavItem: FC<NavItemProps> = ({
     native: false,
   });
   const resolved = useStyled({ indicator: slots.styleIndicator }) as {
-    indicator?: ViewStyle;
+    indicator?: StyleProp<ViewStyle>;
   };
+  // On the canvas a slot arrives as a nested array (`[base, condition &&
+  // variant]`): flatten before picking keys, or lodash's pick/omit turn the
+  // array's indices into style keys ("0", "1") that react-dom cannot set.
+  const indicatorStyle = Styler.flatten(resolved.indicator) as
+    | ViewStyle
+    | undefined;
   const inactiveGlyph = useSlotColor(slots.styleIcon, 'color', colors.inactive);
   const activeGlyph = useSlotColor(
     slots.styleIconActive,
@@ -162,11 +169,11 @@ const NavItem: FC<NavItemProps> = ({
     : colors.inactive;
   const expandHeight = Math.max(BOTTOM_NAVIGATION_EXPAND.height, iconSize + 16);
   const expandBox = expand
-    ? pick(resolved.indicator, EXPAND_BOX_KEYS)
+    ? pick(indicatorStyle, EXPAND_BOX_KEYS)
     : undefined;
   const fillStyle = expand
-    ? omit(resolved.indicator, EXPAND_BOX_KEYS)
-    : resolved.indicator;
+    ? omit(indicatorStyle, EXPAND_BOX_KEYS)
+    : indicatorStyle;
   // `pill` is a tinted container behind the glyph; `expand` is the tone's
   // full fill behind the glyph and label.
   const indicatorPill =
@@ -196,7 +203,7 @@ const NavItem: FC<NavItemProps> = ({
               borderBottomRightRadius: BOTTOM_NAVIGATION_BAR_INDICATOR.height,
               backgroundColor: markColor,
             },
-            resolved.indicator,
+            indicatorStyle,
             { opacity: progress },
           ]}
         />
@@ -213,7 +220,7 @@ const NavItem: FC<NavItemProps> = ({
             style={[
               defaults.dot,
               { backgroundColor: markColor },
-              resolved.indicator,
+              indicatorStyle,
               { opacity: progress },
             ]}
           />
