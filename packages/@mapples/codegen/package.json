@@ -22,7 +22,7 @@
     "directory": "packages/@mapples/codegen"
   },
   "dependencies": {
-    "@mapples/sid-ast": "workspace:^"
+    "@mapples/sid-ast": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~6.0.3"
