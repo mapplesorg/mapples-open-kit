@@ -3,9 +3,12 @@
 // and the document only mirrors that so the canvas can show it. Before a
 // document is diffed into a file, those parts are taken from the file — a
 // document written before it learned them (or before this sync) must not
-// strip a developer's guards and variants out of the code.
+// strip a developer's guards and variants out of the code. The same holds
+// for a prop the file passes on (`title={title}`): its `props.title` binding
+// is the file's.
 
 import {
+  isPropBinding,
   propOfCondition,
   type RenderDomNode,
   type RenderState,
@@ -25,6 +28,16 @@ const isPropState = (states: States, key: string): boolean => {
   const state = states[key];
   return state !== undefined && propOfCondition(state.condition) !== null;
 };
+
+/** The node's bindings that read a prop as is (`title` → `props.title`). */
+const propBindings = (node: RenderDomNode): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(node.dataProps ?? {}).filter(
+      ([key, binding]) =>
+        key !== '_visible' &&
+        isPropBinding((binding as { key?: unknown } | undefined)?.key),
+    ),
+  );
 
 const propVisible = (node: RenderDomNode): unknown => {
   const visible = node.dataProps?._visible as { key?: unknown } | undefined;
@@ -62,9 +75,9 @@ const withStyled = (
 
 /**
  * `tree` (the document, in file language) with every node the file also has
- * carrying the file's prop conditions: its prop-test `_visible` binding and
- * its `key::state` style variants under prop states. Nodes only the document
- * has keep theirs.
+ * carrying the file's prop conditions: its prop-test `_visible` binding,
+ * the props it passes on (`title={title}`) and its `key::state` style
+ * variants under prop states. Nodes only the document has keep theirs.
  */
 export function adoptPropConditions(
   tree: RenderDomNode,
@@ -85,6 +98,7 @@ export function adoptPropConditions(
     if (propVisible(node) !== undefined) delete dataProps._visible;
     const visible = propVisible(fileNode);
     if (visible !== undefined) dataProps._visible = visible;
+    Object.assign(dataProps, propBindings(fileNode));
     if (Object.keys(dataProps).length > 0) out.dataProps = dataProps;
     else delete out.dataProps;
 
