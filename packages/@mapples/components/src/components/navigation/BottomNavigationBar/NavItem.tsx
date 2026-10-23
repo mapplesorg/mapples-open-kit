@@ -8,6 +8,7 @@ import {
   useStyled,
 } from '@mapples/style';
 import { Icon, TYPOGRAPHY_PARTS, useShape } from '@mapples/ui';
+import { omit, pick } from 'lodash';
 import { Animated, TextStyle, ViewStyle } from 'react-native';
 
 import { DURATION, useSlotColor, useTimingValue } from '../../../internal';
@@ -90,6 +91,26 @@ export interface NavItemProps {
 const BADGE_MAX = 99;
 
 /**
+ * `styleIndicator` keys that size the `expand` pill. Its fill is an absolute
+ * layer inside the pill, so a height or padding there could only be matched
+ * with negative offsets; these go on the pill box instead.
+ */
+const EXPAND_BOX_KEYS = [
+  'height',
+  'minHeight',
+  'maxHeight',
+  'padding',
+  'paddingHorizontal',
+  'paddingVertical',
+  'paddingLeft',
+  'paddingRight',
+  'paddingTop',
+  'paddingBottom',
+  'paddingStart',
+  'paddingEnd',
+] as const;
+
+/**
  * One destination of a `BottomNavigationBar`: the glyph, the label, a count
  * badge, and the active mark (a pill behind the glyph, a bar on the top
  * edge or a dot under the label) that fades in while active. With the
@@ -140,6 +161,12 @@ const NavItem: FC<NavItemProps> = ({
       : colors.active
     : colors.inactive;
   const expandHeight = Math.max(BOTTOM_NAVIGATION_EXPAND.height, iconSize + 16);
+  const expandBox = expand
+    ? pick(resolved.indicator, EXPAND_BOX_KEYS)
+    : undefined;
+  const fillStyle = expand
+    ? omit(resolved.indicator, EXPAND_BOX_KEYS)
+    : resolved.indicator;
   // `pill` is a tinted container behind the glyph; `expand` is the tone's
   // full fill behind the glyph and label.
   const indicatorPill =
@@ -152,7 +179,7 @@ const NavItem: FC<NavItemProps> = ({
             borderRadius: shape.radius.pill,
             backgroundColor: expand ? colors.fill : colors.indicator,
           },
-          resolved.indicator,
+          fillStyle,
           { opacity: expand ? expansion : progress },
         ]}
       />
@@ -264,7 +291,9 @@ const NavItem: FC<NavItemProps> = ({
   );
   const expandPill = (
     <StyledView
-      styled={{ style: [defaults.expandPill, { height: expandHeight }] }}
+      styled={{
+        style: [defaults.expandPill, { height: expandHeight }, expandBox],
+      }}
     >
       {indicatorPill}
       {glyph}
@@ -305,6 +334,7 @@ const NavItem: FC<NavItemProps> = ({
                   ? expandHeight
                   : BOTTOM_NAVIGATION_INDICATOR.height,
               },
+              expandBox,
             ],
           }}
         >

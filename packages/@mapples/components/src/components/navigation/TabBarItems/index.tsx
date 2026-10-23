@@ -55,7 +55,7 @@ export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
     styleLabel?: StyledProp<TextStyle>;
     /** The active label. */
     styleLabelActive?: StyledProp<TextStyle>;
-    /** The active mark (pill, bar, dot or the `expand` fill). */
+    /** The active mark (pill, bar, dot or the `expand` fill; its height and padding size the `expand` pill). */
     styleIndicator?: StyledProp<ViewStyle>;
   };
 }
