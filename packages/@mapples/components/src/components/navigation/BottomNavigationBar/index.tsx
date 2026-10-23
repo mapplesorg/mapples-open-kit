@@ -71,7 +71,7 @@ export interface BottomNavigationBarProps extends Omit<ViewProps, 'children'> {
     styleLabel?: StyledProp<TextStyle>;
     /** The active label. */
     styleLabelActive?: StyledProp<TextStyle>;
-    /** The active mark, whichever `indicator` draws (pill, bar, dot or the `expand` fill). */
+    /** The active mark, whichever `indicator` draws (pill, bar, dot or the `expand` fill; its height and padding size the `expand` pill). */
     styleIndicator?: StyledProp<ViewStyle>;
     /** The count badges (`backgroundColor` is the fill). */
     styleBadge?: StyledProp<ViewStyle>;
