@@ -8,47 +8,41 @@ import {
   toNavigationCommand,
 } from '@mapples/navigation';
 import { useDataState } from '@mapples/state';
-import { useNavigationContainerRef } from 'expo-router';
-import { CommonActions, DrawerActions } from 'expo-router/react-navigation';
+import {
+  type UnknownInputParams,
+  useNavigationContainerRef,
+  useRouter,
+} from 'expo-router';
+import { DrawerActions } from 'expo-router/react-navigation';
 
 import type { RouteScreens } from './project';
 import { useMapplesRuntime } from './RuntimeContext';
 
-/** A (possibly nested) React Navigation target: `navigate(name, params)`. */
-interface ScreenTarget {
-  name: string;
-  params?: object;
-}
-
 /**
- * The nested target for a route's expo-router screen names: React
- * Navigation reaches a screen inside a nested navigator only through its
- * parents, `navigate('(main)', { screen: 'profile', params })`.
+ * The expo-router pathname of a route's screen names: groups stay in it
+ * (`['(main)', 'overview']` → `/(main)/overview`), `index` segments drop out
+ * (`['index']` → `/`), dynamic segments (`transaction/[id]`) are filled from
+ * the params. expo-router 58 reaches a nested screen only by href: a
+ * `screen` param is an ordinary param there, so the nested navigator would
+ * open on its initial route.
  */
-const screenTarget = (
-  screens: RouteScreens,
-  params: object | undefined,
-): ScreenTarget => {
-  let target: ScreenTarget = { name: screens[screens.length - 1], params };
-  for (let i = screens.length - 2; i >= 0; i--) {
-    target = {
-      name: screens[i],
-      params: { screen: target.name, params: target.params },
-    };
-  }
-  return target;
-};
+const pathnameFor = (screens: RouteScreens): string =>
+  `/${screens
+    .flatMap((screen) => screen.split('/'))
+    .filter((segment) => segment !== 'index')
+    .join('/')}`;
 
 /**
  * The exported app's counterpart of `@mapples/navigation`'s
  * `NavigationActionHandler`: resolves the same `mapples:navigate` /
  * `goBack` / drawer actions with the same `toNavigationCommand`, then drives
  * expo-router's navigation container — by the screen names the CLI laid the
- * route files out under instead of the Play runtime's `Navigator:Route`
- * names. A navigate pushes (React Navigation `navigate`); a replace — a guard
- * redirect, a navigate authored with `replace`, or a sign-in entering the
- * area whose guard sent the user away — makes the target the whole history,
- * as Play does and as expo-router's `Stack.Protected` leaves it.
+ * route files out under (as an href) instead of the Play runtime's
+ * `Navigator:Route` names. A navigate pushes (`router.navigate`); a replace —
+ * a guard redirect, a navigate authored with `replace`, or a sign-in entering
+ * the area whose guard sent the user away — makes the target the whole
+ * history, as Play does and as expo-router's `Stack.Protected` leaves it:
+ * the stack is dismissed to its first screen, which the target replaces.
  *
  * Mounted once by `MapplesApp`, inside the action and state providers.
  */
@@ -57,6 +51,7 @@ const RouterActionHandler = () => {
   const { getValue } = useDataState();
   const { navigation: document, routes, focusedRouteRef } = useMapplesRuntime();
   const navigationRef = useNavigationContainerRef();
+  const router = useRouter();
 
   useEffect(() => {
     if (!document) return;
@@ -87,7 +82,12 @@ const RouterActionHandler = () => {
           }
           const params =
             command.kind === 'navigate' ? command.params : undefined;
-          const target = screenTarget(screens, params);
+          // Route params travel in the URL; expo-router itself warns about a
+          // value that cannot be one (an object).
+          const href = {
+            pathname: pathnameFor(screens),
+            params: params as UnknownInputParams | undefined,
+          };
           const focused = focusedRouteRef.current
             ? routeNameForId(document, focusedRouteRef.current)
             : null;
@@ -97,19 +97,10 @@ const RouterActionHandler = () => {
               (!!focused &&
                 entersGuardFromFallback(document, focused, command.routeName)));
           if (replace) {
-            navigationRef.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: target.name, params: target.params }],
-              }),
-            );
+            if (router.canDismiss()) router.dismissAll();
+            router.replace(href);
           } else {
-            navigationRef.dispatch(
-              CommonActions.navigate({
-                name: target.name,
-                params: target.params,
-              }),
-            );
+            router.navigate(href);
           }
           break;
         }
@@ -125,7 +116,15 @@ const RouterActionHandler = () => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [actionStore, document, focusedRouteRef, getValue, navigationRef, routes]);
+  }, [
+    actionStore,
+    document,
+    focusedRouteRef,
+    getValue,
+    navigationRef,
+    router,
+    routes,
+  ]);
 
   return null;
 };
