@@ -247,3 +247,23 @@ export function propStateForCondition(condition: string): PropState | null {
 export function propOfCondition(condition: string): string | null {
   return PROP_PATH.exec(condition.split('::')[0] ?? '')?.[1] ?? null;
 }
+
+/**
+ * The data binding a declared prop passed straight on stands for
+ * (`title={title}`, `title={props.title}`, `{title}` as text → `props.title`),
+ * or null when the expression is anything else. Function props are events,
+ * which the canvas does not bind.
+ */
+export function propBindingOf(
+  expr: ts.Expression,
+  scope: PropScope,
+): string | null {
+  const param = propOf(expr, scope);
+  if (param === null || param.kind === 'function') return null;
+  return `${PROPS_SCOPE}.${param.name}`;
+}
+
+/** Whether a data binding key reads a component prop as is (`props.title`), not a condition. */
+export function isPropBinding(key: unknown): key is string {
+  return typeof key === 'string' && PROP_PATH.test(key);
+}

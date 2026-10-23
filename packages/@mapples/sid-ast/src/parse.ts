@@ -6,6 +6,7 @@ import ts from 'typescript';
 import { evalLiteral, NON_LITERAL, type LiteralResolver } from './literal.js';
 import {
   negateCondition,
+  propBindingOf,
   propStateForCondition,
   propStateOf,
   type PropScope,
@@ -40,6 +41,8 @@ export interface AttrInfo {
   raw: string;
   /** `styles.card` references the value was read through, by path into it. */
   styleRefs?: StyleRef[];
+  /** The prop the attribute passes on (`title={title}` → `props.title`): a `dataProps` entry the code owns. */
+  propBinding?: string;
 }
 
 export interface ElementInfo {
@@ -56,6 +59,11 @@ export interface ElementInfo {
   jsxChild: boolean;
   /** The prop test the element renders under: `{isActive && <X/>}` or a ternary branch. */
   guard: ElementGuard | null;
+  /**
+   * `dataProps` keys the code binds by passing a prop on (`title={title}`,
+   * `{title}` as the text → `children`) — never written into `$data`.
+   */
+  propBindings: string[];
 }
 
 export interface ElementGuard {
@@ -289,6 +297,13 @@ export function analyze(
     let refProps: Record<string, string> | undefined;
     let dataProps: Record<string, unknown> | undefined;
     let actionProps: Record<string, unknown> | undefined;
+    // `title={title}` on a primitive: the canvas reads the instance's prop
+    // through a `props.title` binding, the file keeps passing it in code.
+    const passed: Record<string, { key: string; active: true }> = {};
+    const passedOn = (expr: ts.Expression | undefined): string | null =>
+      isPrimitive && propScope !== null && expr !== undefined
+        ? propBindingOf(expr, propScope)
+        : null;
 
     for (const prop of open.attributes.properties) {
       const attrSpan: Span = { start: prop.getStart(sf), end: prop.getEnd() };
@@ -422,6 +437,22 @@ export function analyze(
       } else value = NON_LITERAL;
 
       if (value === NON_LITERAL) {
+        const binding = passedOn(
+          prop.initializer && ts.isJsxExpression(prop.initializer)
+            ? prop.initializer.expression
+            : undefined,
+        );
+        if (binding !== null) {
+          attrs.push({
+            name,
+            span: attrSpan,
+            literal: false,
+            raw,
+            propBinding: binding,
+          });
+          passed[name] = { key: binding, active: true };
+          continue;
+        }
         attrs.push({ name, span: attrSpan, literal: false, raw });
         warnings.push({
           kind: 'NON_LITERAL_PROP',
@@ -445,6 +476,18 @@ export function analyze(
     // Text children -> props.children (only meaningful when no $sid children land later).
     let text = '';
     if (!selfClosing && ts.isJsxElement(element)) {
+      // `<Text>{title}</Text>`: the text is the prop, when nothing else is.
+      const content = element.children.filter(
+        (child) => !ts.isJsxText(child) || normalizeJsxText(child.text) !== '',
+      );
+      const only = content.length === 1 ? content[0] : undefined;
+      const textBinding =
+        only !== undefined && ts.isJsxExpression(only)
+          ? passedOn(only.expression)
+          : null;
+      if (textBinding !== null) {
+        passed.children = { key: textBinding, active: true };
+      }
       for (const child of element.children) {
         if (ts.isJsxText(child))
           text += normalizeJsxText(child.text)
@@ -454,7 +497,11 @@ export function analyze(
           const v = evalLiteral(child.expression);
           if (typeof v === 'string' || typeof v === 'number')
             text += String(v) + ' ';
-          else if (v === NON_LITERAL && !containsJsx(child)) {
+          else if (
+            v === NON_LITERAL &&
+            !containsJsx(child) &&
+            textBinding === null
+          ) {
             warnings.push({
               kind: 'NON_LITERAL_PROP',
               sid,
@@ -485,6 +532,15 @@ export function analyze(
         : `#${tagName}`;
       props.layout = layout;
       props.fallbackSize = fallbackSize ?? { w: 100, h: 100 };
+    }
+
+    // An explicit `$data` entry wins over a prop passed on under the same
+    // name, as it does when the app renders the element.
+    const propBindings = Object.keys(passed).filter(
+      (key) => dataProps?.[key] === undefined,
+    );
+    if (propBindings.length > 0) {
+      dataProps = { ...passed, ...(dataProps ?? {}) };
     }
 
     const guard = guards.get(element) ?? null;
@@ -536,6 +592,7 @@ export function analyze(
       attrs,
       jsxChild: ts.isJsxElement(element.parent),
       guard,
+      propBindings,
     };
 
     nodes.set(sid, dom);
