@@ -130,8 +130,23 @@ export const getThemeRegexp = <T extends object>(theme: T) => {
   return new RegExp(`${pattern}|"\\*\\d+(?:\\.\\d+)?"|"calc\\(.*?\\)"`, 'gi');
 };
 
+// The `rgb()` / `rgba()` grammar React Native's normalize-colors parses: three
+// channels separated by whitespace and/or commas, plus an optional alpha after
+// a comma (comma-separated form) or a slash (`rgb(16 20 12 / 0.05)`).
+const NUMBER = '[-+]?\\d*\\.?\\d+';
+const RGB_FUNCTION = new RegExp(
+  '^rgba?\\(\\s*(?:' +
+    `${NUMBER}\\s*,?\\s*${NUMBER}\\s*,?\\s*${NUMBER}` +
+    `|${NUMBER}\\s*,\\s*${NUMBER}\\s*,\\s*${NUMBER}\\s*,\\s*${NUMBER}` +
+    `|${NUMBER}\\s*,?\\s*${NUMBER}\\s*,?\\s*${NUMBER}\\s*\\/\\s*${NUMBER}` +
+    ')\\s*\\)$',
+);
+
 /**
  * Type guard to check if a value is a valid color string (RGB, RGBA, or HEX).
+ *
+ * `rgb()` / `rgba()` accept the spacing React Native accepts — `rgba(16,20,12,0.05)`
+ * is a color, not a token path to resolve.
  *
  * @param color - The value to check
  * @returns True if the value is a valid color string
@@ -141,6 +156,8 @@ export const getThemeRegexp = <T extends object>(theme: T) => {
  * isColorString('#FF0000'); // true
  * isColorString('rgb(255, 0, 0)'); // true
  * isColorString('rgba(255, 0, 0, 0.5)'); // true
+ * isColorString('rgba(16,24,40,0.08)'); // true
+ * isColorString('rgb(16 24 40 / 0.08)'); // true
  * isColorString('red'); // false
  * ```
  */
@@ -151,11 +168,7 @@ export const isColorString = (
     return false;
   }
 
-  return (
-    /^rgb\(\d+,\s\d+,\s\d+\)$/.test(color) ||
-    /^rgba\(\d+,\s\d+,\s\d+,\s\d+(\.\d+)?\)$/.test(color) ||
-    /^#[0-9a-fA-F]+$/.test(color)
-  );
+  return RGB_FUNCTION.test(color) || /^#[0-9a-fA-F]+$/.test(color);
 };
 
 /**
