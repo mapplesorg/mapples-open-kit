@@ -25,7 +25,7 @@ import {
 
 import MockIcon from '../Vector/MockIcon';
 
-import { IconFamilies, IconFamilyKey } from './families';
+import { IconFamilies, IconFamily, IconFamilyKey } from './families';
 
 /**
  * Props for the Icon component.
@@ -53,6 +53,24 @@ export type IconProps = PropsWithChildren<
   size?: number;
   /** Glyph color — theme tokens allowed, overrides the `styleSvg` color */
   color?: ColorValue;
+};
+
+/** `family/glyph` pairs already reported, so a list of rows warns once. */
+const reportedMissingGlyphs = new Set<string>();
+
+/**
+ * The vector-icons font draws a missing glyph as "?" without a word, so in
+ * development name the family and the glyph once.
+ */
+const warnMissingGlyph = (family: IconFamily, iconName: string): void => {
+  if (!__DEV__ || iconName in family.glyphMap) return;
+  const key = `${family.key}/${iconName}`;
+  if (reportedMissingGlyphs.has(key)) return;
+  reportedMissingGlyphs.add(key);
+  console.warn(
+    `Icon: "${iconName}" is not a glyph of the icon family "${family.key}" — it renders as "?". ` +
+      'Use a name from that family, or change the family (theme.icons.family).',
+  );
 };
 
 /**
@@ -98,6 +116,7 @@ const Icon: ForwardRefExoticComponent<
           'the project (Project settings → Packages) to render it.',
       );
     }
+    if (family && iconName) warnMissingGlyph(family, iconName);
 
     return (
       <StyledView ref={ref} styled={styledViewProps} {...props}>
