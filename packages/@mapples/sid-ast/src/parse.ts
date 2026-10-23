@@ -197,6 +197,11 @@ export function analyze(
   // `{isActive && <X $sid/>}` and `{isActive ? <A $sid/> : <B $sid/>}`:
   // each guarded element, by its JSX node, with the test it renders under.
   const guards = new Map<ts.Node, ElementGuard>();
+  /**
+   * Guarded elements whose test is not one prop test (`a && b`, a local):
+   * the test as written, so the element's warning can name it.
+   */
+  const unreadGuards = new Map<ts.Node, string>();
   const sidElement = (expr: ts.Expression): ts.Node | null => {
     let e = expr;
     while (ts.isParenthesizedExpression(e)) e = e.expression;
@@ -217,12 +222,19 @@ export function analyze(
       if (element && state) {
         guards.set(element, { span, kind: 'and', condition: state.condition });
         states.set(state.key, state);
+      } else if (element) {
+        unreadGuards.set(element, e.left.getText(sf));
       }
     } else if (ts.isConditionalExpression(e)) {
       const state = propStateOf(e.condition, propScope);
-      if (state === null) return;
       const whenTrue = sidElement(e.whenTrue);
       const whenFalse = sidElement(e.whenFalse);
+      if (state === null) {
+        const test = e.condition.getText(sf);
+        if (whenTrue) unreadGuards.set(whenTrue, test);
+        if (whenFalse) unreadGuards.set(whenFalse, `!(${test})`);
+        return;
+      }
       if (whenTrue) {
         guards.set(whenTrue, {
           span,
@@ -240,6 +252,8 @@ export function analyze(
             condition: negated.condition,
           });
           states.set(negated.key, negated);
+        } else {
+          unreadGuards.set(whenFalse, `!(${e.condition.getText(sf)})`);
         }
       }
     }
@@ -293,6 +307,8 @@ export function analyze(
     const props: Record<string, unknown> = {};
     const layout: Record<string, unknown> = {};
     const attrs: AttrInfo[] = [];
+    /** `styled` variants the canvas cannot hold, as written (see evalStyled). */
+    const droppedVariants: string[] = [];
     let fallbackSize: unknown;
     let refProps: Record<string, string> | undefined;
     let dataProps: Record<string, unknown> | undefined;
@@ -430,9 +446,14 @@ export function analyze(
         ts.isJsxExpression(prop.initializer) &&
         prop.initializer.expression
       ) {
+        droppedVariants.length = 0;
         value =
           name === 'styled'
-            ? evalStyled(prop.initializer.expression, resolveStyleRef)
+            ? evalStyled(
+                prop.initializer.expression,
+                resolveStyleRef,
+                droppedVariants,
+              )
             : evalLiteral(prop.initializer.expression, resolveStyleRef);
       } else value = NON_LITERAL;
 
@@ -460,6 +481,24 @@ export function analyze(
           prop: name,
           detail: `\`${name}\` on <${tagName}> is computed in code; the canvas shows the value it last had in the Creator`,
         });
+        continue;
+      }
+      if (droppedVariants.length > 0) {
+        // The base style and the readable variants reach the canvas; the
+        // attribute stays the code's (non-literal), so a Creator edit can
+        // never reprint it without the variants the canvas could not hold.
+        const line =
+          sf.getLineAndCharacterOfPosition(prop.getStart(sf)).line + 1;
+        for (const dropped of droppedVariants.splice(0)) {
+          warnings.push({
+            kind: 'UNSUPPORTED_CONDITION',
+            sid,
+            prop: name,
+            detail: `\`${dropped}\` in \`${name}\` on <${tagName}> (line ${line}) is not a test on one prop, so the canvas keeps the base style without this variant. Test a single prop instead, e.g. one boolean prop for this case`,
+          });
+        }
+        attrs.push({ name, span: attrSpan, literal: false, raw });
+        (isPrimitive ? props : layout)[name] = value;
         continue;
       }
       attrs.push({
@@ -544,6 +583,17 @@ export function analyze(
     }
 
     const guard = guards.get(element) ?? null;
+    const unreadGuard = unreadGuards.get(element);
+    if (guard === null && unreadGuard !== undefined) {
+      const line =
+        sf.getLineAndCharacterOfPosition(element.getStart(sf)).line + 1;
+      warnings.push({
+        kind: 'UNSUPPORTED_CONDITION',
+        sid,
+        prop: '_visible',
+        detail: `<${tagName}> (line ${line}) renders only when \`${unreadGuard}\` in the code — not a test on one prop, so the canvas always shows it. Test a single prop instead, e.g. one boolean prop for this case`,
+      });
+    }
     if (guard !== null) {
       if (dataProps?._visible !== undefined) {
         warnings.push({
@@ -617,9 +667,10 @@ export function analyze(
   const evalStyled = (
     expr: ts.Expression,
     resolve: LiteralResolver,
+    dropped: string[],
   ): unknown | typeof NON_LITERAL => {
     const literal = evalLiteral(expr, resolve);
-    if (literal !== NON_LITERAL || propScope === null) return literal;
+    if (literal !== NON_LITERAL) return literal;
     let object = expr;
     while (ts.isParenthesizedExpression(object)) object = object.expression;
     if (!ts.isObjectLiteralExpression(object)) return NON_LITERAL;
@@ -638,7 +689,8 @@ export function analyze(
       }
 
       const variant = (test: ts.Expression, style: ts.Expression): boolean => {
-        const state = propStateOf(test, propScope);
+        // A file with no props signature (a screen) has no prop to test.
+        const state = propScope ? propStateOf(test, propScope) : null;
         if (state === null) return false;
         const slot = `${key}::${state.key}`;
         const value = evalLiteral(style, resolve, [slot]);
@@ -647,22 +699,28 @@ export function analyze(
         out[slot] = value;
         return true;
       };
+      // An `&&` entry is a variant. One the canvas cannot hold (a test on
+      // two props, a computed style) is dropped and named, never allowed to
+      // take the base style down with it.
       const conditional = (element: ts.Expression): boolean => {
         let e = element;
         while (ts.isParenthesizedExpression(e)) e = e.expression;
-        return (
-          ts.isBinaryExpression(e) &&
-          e.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken &&
-          variant(e.left, e.right)
-        );
+        if (
+          !ts.isBinaryExpression(e) ||
+          e.operatorToken.kind !== ts.SyntaxKind.AmpersandAmpersandToken
+        )
+          return false;
+        if (!variant(e.left, e.right)) dropped.push(e.getText(sf));
+        return true;
       };
 
       let init = property.initializer;
       while (ts.isParenthesizedExpression(init)) init = init.expression;
       if (ts.isConditionalExpression(init)) {
         const base = evalLiteral(init.whenFalse, resolve, [key]);
-        if (base === NON_LITERAL || !variant(init.condition, init.whenTrue))
-          return NON_LITERAL;
+        if (base === NON_LITERAL) return NON_LITERAL;
+        if (!variant(init.condition, init.whenTrue))
+          dropped.push(init.getText(sf));
         out[key] = base;
       } else if (ts.isArrayLiteralExpression(init)) {
         for (const [i, element] of init.elements.entries()) {
