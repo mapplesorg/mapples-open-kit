@@ -34,10 +34,13 @@ import {
 
 /**
  * `react-native-maps` is an **optional peer dependency** of
- * `@mapples/components` (Project settings → Packages → "Maps"): it is a
- * native module, so apps without a map should not have to install it.
- * Resolved lazily; when it cannot be loaded, rendering a MapView throws with
- * the cause — nothing is drawn in its place.
+ * `@mapples/components` (the "Maps" package: Project settings → Packages in
+ * the Creator, or `mapples sync` in a code-first app): it is a native module,
+ * so apps without a map should not have to install it. Resolved lazily; when
+ * it cannot be loaded, rendering a MapView throws with the cause — nothing is
+ * drawn in its place. The message names both flows, since after a sync the
+ * dependency is already in package.json and only the install and the native
+ * rebuild are missing.
  */
 let Maps: typeof import('react-native-maps') | null = null;
 let mapsLoadError: unknown = null;
@@ -51,9 +54,11 @@ try {
 const requireMaps = (): typeof import('react-native-maps') => {
   if (!Maps) {
     throw new Error(
-      'MapView: react-native-maps could not be loaded — enable the "Maps" ' +
-        'package in Project settings → Packages (or install react-native-maps) ' +
-        `and rebuild the native app. Cause: ${String(mapsLoadError)}`,
+      'MapView: react-native-maps could not be loaded (the "Maps" package). ' +
+        'Creator-first app: enable it in Project settings → Packages. ' +
+        'Code-first app: run `mapples sync` (it adds the package to ' +
+        'package.json), then the install command the sync names. Either way ' +
+        `rebuild the native app afterwards. Cause: ${String(mapsLoadError)}`,
     );
   }
   return Maps;
