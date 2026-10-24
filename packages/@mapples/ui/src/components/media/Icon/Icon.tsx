@@ -112,8 +112,10 @@ const Icon: ForwardRefExoticComponent<
       // configuration error, not a missing glyph: surface it instead of
       // drawing the placeholder.
       throw new Error(
-        `Icon family "${family.key}" is not installed: add ${family.npm} to ` +
-          'the project (Project settings → Packages) to render it.',
+        `Icon family "${family.key}" needs ${family.npm}. ` +
+          'Creator-first app: enable its icon pack in Project settings → ' +
+          'Packages. Code-first app: run `mapples sync` (it adds the pack to ' +
+          'package.json), then the install command the sync names.',
       );
     }
     if (family && iconName) warnMissingGlyph(family, iconName);
