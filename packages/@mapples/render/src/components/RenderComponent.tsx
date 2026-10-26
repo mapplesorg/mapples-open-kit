@@ -6,6 +6,7 @@ import { useRender } from '../hooks';
 import useConditionalStyled from '../hooks/useConditionalStyled';
 import { useElementBindings } from '../hooks/useElementBindings';
 import { RenderComponentType } from '../types';
+import { applyRefProps } from '../utils/applyRefProps';
 
 /**
  * Default implementation of a renderable component.
@@ -77,9 +78,10 @@ const RenderComponent: FC<RenderComponentType> = ({
 
   return (
     <Component
-      {...propsWithConditional}
-      {...visibleDataProps}
-      {...resolvedRefProps}
+      {...applyRefProps(
+        { ...propsWithConditional, ...visibleDataProps },
+        resolvedRefProps,
+      )}
       {...mappedActionProps}
     >
       {map(children, renderChildren)}
