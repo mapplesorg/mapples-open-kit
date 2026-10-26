@@ -25,6 +25,7 @@ import {
 import { PressableProps, TextStyle, View, ViewStyle } from 'react-native';
 
 import {
+  CONTAINER_PRESS_ROLE,
   useInteractionState,
   useSlotColor,
   useSlotSize,
@@ -359,7 +360,7 @@ const TicketCard: ForwardRefExoticComponent<
       return (
         <StyledPressable
           ref={ref}
-          accessibilityRole="button"
+          accessibilityRole={CONTAINER_PRESS_ROLE}
           accessibilityState={{ selected, disabled }}
           onPress={onPress}
           disabled={disabled}

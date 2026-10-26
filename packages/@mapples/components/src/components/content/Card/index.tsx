@@ -10,7 +10,7 @@ import { StyledPressable, StyledProp, StyledView } from '@mapples/style';
 import { Tokens, useElevation, useShape, useTones } from '@mapples/ui';
 import { PressableProps, View, ViewStyle } from 'react-native';
 
-import { useInteractionState } from '../../../internal';
+import { CONTAINER_PRESS_ROLE, useInteractionState } from '../../../internal';
 
 import { CardVariant } from './types';
 
@@ -32,7 +32,9 @@ export interface CardProps extends Omit<PressableProps, 'children' | 'style'> {
 /**
  * A themed surface for grouped content — children are the body. `elevated`
  * floats on a shadow (and a hairline on dark themes), `filled` tints,
- * `outlined` draws a border. Photo-topped tiles use `MediaCard`.
+ * `outlined` draws a border. Photo-topped tiles use `MediaCard`. With
+ * `onPress` it is a button on native; on the web a focusable element instead
+ * of a `<button>`, so buttons among the children do not nest inside one.
  *
  * @example
  * ```tsx
@@ -101,7 +103,7 @@ const Card: ForwardRefExoticComponent<
       return (
         <StyledPressable
           ref={ref}
-          accessibilityRole="button"
+          accessibilityRole={CONTAINER_PRESS_ROLE}
           onPress={onPress}
           disabled={disabled}
           {...interaction.handlers}
