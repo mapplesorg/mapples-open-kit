@@ -97,7 +97,10 @@ export interface MiniPlayerProps extends Omit<
  * usually docked above the tab bar: cover art, title and subtitle, a
  * play/pause button, an optional skip-forward button and a thin progress line
  * on the bottom edge. Pressing the bar opens the full player (`onPress`); the
- * buttons are nested pressables that do not trigger it.
+ * buttons do not trigger it. With `onPress` the bar's press target is a
+ * full-size sibling behind the content, never an ancestor of the buttons
+ * (on web a `<button>` inside a `<button>` is invalid HTML); the
+ * pressable's props go to that target, the `ref` to the bar.
  *
  * A controlled UI component with no audio engine — the app owns playback,
  * passes `playing` and `progress` and handles `onPlayPause` and
@@ -202,6 +205,9 @@ const MiniPlayer: ForwardRefExoticComponent<
       styled?.style,
     ];
 
+    // Presses on the art and text fall through to the press target behind them.
+    const passThrough = interactive ? ('none' as const) : undefined;
+
     const artworkGeometry = {
       width: artworkSize,
       height: artworkSize,
@@ -215,12 +221,14 @@ const MiniPlayer: ForwardRefExoticComponent<
             source={artwork}
             contentFit="cover"
             accessible={false}
+            pointerEvents={passThrough}
             styled={{
               style: [defaults.artwork, artworkGeometry, styled?.styleArtwork],
             }}
           />
         ) : (
           <StyledView
+            pointerEvents={passThrough}
             styled={{
               style: [
                 artworkGeometry,
@@ -230,7 +238,10 @@ const MiniPlayer: ForwardRefExoticComponent<
             }}
           />
         )}
-        <StyledView styled={{ style: defaults.text }}>
+        <StyledView
+          pointerEvents={passThrough}
+          styled={{ style: defaults.text }}
+        >
           {title ? (
             <Typography
               variant={TYPOGRAPHY_PARTS.label}
@@ -250,7 +261,10 @@ const MiniPlayer: ForwardRefExoticComponent<
             </Typography>
           ) : null}
         </StyledView>
-        <StyledView styled={{ style: defaults.actions }}>
+        <StyledView
+          pointerEvents={interactive ? 'box-none' : undefined}
+          styled={{ style: defaults.actions }}
+        >
           <IconButton
             iconName={playIconName}
             variant="standard"
@@ -333,19 +347,19 @@ const MiniPlayer: ForwardRefExoticComponent<
 
     if (interactive) {
       return (
-        <StyledPressable
-          ref={ref}
-          accessibilityRole="button"
-          accessibilityLabel={title}
-          accessibilityHint="Opens the player"
-          onPress={onPress}
-          disabled={disabled}
-          {...interaction.handlers}
-          styled={{ style }}
-          {...rest}
-        >
+        <StyledView ref={ref} styled={{ style }}>
+          <StyledPressable
+            accessibilityRole="button"
+            accessibilityLabel={title}
+            accessibilityHint="Opens the player"
+            onPress={onPress}
+            disabled={disabled}
+            {...interaction.handlers}
+            styled={{ style: defaults.pressSurface }}
+            {...rest}
+          />
           {body}
-        </StyledPressable>
+        </StyledView>
       );
     }
 
