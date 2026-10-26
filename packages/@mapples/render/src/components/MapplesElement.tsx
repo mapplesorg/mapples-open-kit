@@ -4,6 +4,7 @@ import { DataProps } from '@mapples/types';
 
 import { useElementBindings } from '../hooks/useElementBindings';
 import { ActionPropsMap, RefPropsMap } from '../types';
+import { applyRefProps } from '../utils/applyRefProps';
 
 /**
  * Props of {@link MapplesElement}: the element it renders and the Creator
@@ -81,9 +82,7 @@ const MapplesElement = forwardRef<unknown, MapplesElementProps>(
     return (
       <As
         ref={ref}
-        {...props}
-        {...dataProps}
-        {...refProps}
+        {...applyRefProps({ ...props, ...dataProps }, refProps)}
         {...actionHandlers}
       />
     );
