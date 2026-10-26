@@ -26,7 +26,7 @@ export type ImageProps = PropsWithChildren<
     styled?: StyledProps<ViewProps> & {
       /** Style applied to the absolutely-positioned background image */
       styleImage?: StyledProp<ImageStyle>;
-      /** Style applied to the view rendered on top of the background image */
+      /** Style applied to the view rendered on top of the background image; it fills the container (`flexGrow: 1`) */
       styleContent?: StyledProp<ViewStyle>;
     };
     /** URI string that overrides `source` when present */
@@ -74,7 +74,11 @@ const ImageBackgroundView = forwardRef(
           alt={alt}
           styled={{ style: [imageConstantStyles.image, styleImage] }}
         />
-        <StyledView styled={{ style: styleContent }}>{children}</StyledView>
+        <StyledView
+          styled={{ style: [imageConstantStyles.content, styleContent] }}
+        >
+          {children}
+        </StyledView>
       </StyledView>
     );
   },
@@ -89,6 +93,12 @@ const imageConstantStyles = Styler.create({
     bottom: 0,
     width: '100%',
     height: '100%',
+  },
+  // Fills the container, so a `flex: 1` child (a scrim) and the content's
+  // own `justifyContent` reach the photo's bottom edge. `flexGrow`, not
+  // absolute fill: a container sized by its content still measures it.
+  content: {
+    flexGrow: 1,
   },
 });
 
