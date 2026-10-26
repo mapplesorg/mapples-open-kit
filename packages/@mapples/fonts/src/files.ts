@@ -66,6 +66,7 @@ export const FONT_FILES: Record<string, number> = {
   'Lexend-Medium': require('../assets/Lexend/Lexend-Medium.ttf'),
   'Lexend-SemiBold': require('../assets/Lexend/Lexend-SemiBold.ttf'),
   'Lexend-Bold': require('../assets/Lexend/Lexend-Bold.ttf'),
+  'Lexend-ExtraBold': require('../assets/Lexend/Lexend-ExtraBold.ttf'),
   'Archivo-Regular': require('../assets/Archivo/Archivo-Regular.ttf'),
   'Archivo-Medium': require('../assets/Archivo/Archivo-Medium.ttf'),
   'Archivo-SemiBold': require('../assets/Archivo/Archivo-SemiBold.ttf'),
