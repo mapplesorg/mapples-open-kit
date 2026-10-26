@@ -153,7 +153,7 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
   },
   Lexend: {
     category: 'sans',
-    weights: STANDARD_FONT_WEIGHTS,
+    weights: [...STANDARD_FONT_WEIGHTS, 'ExtraBold'],
     character: 'wide, highly readable sans, bold and blunt',
     pairsWith: ['IBM Plex Mono', 'Inter'],
   },
