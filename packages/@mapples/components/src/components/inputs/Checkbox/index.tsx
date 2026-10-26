@@ -117,6 +117,8 @@ const Checkbox: ForwardRefExoticComponent<
       disabled = false,
       fieldName,
       styled,
+      // Names the checkbox itself, not the row around it.
+      accessibilityLabel,
       // The canvas injects a drop area as children; leaf components ignore them.
       children: _children,
       ...rest
@@ -212,11 +214,10 @@ const Checkbox: ForwardRefExoticComponent<
         {labelPosition === 'left' ? metaText : null}
         <Pressable
           accessibilityRole="checkbox"
-          accessibilityLabel={label}
-          accessibilityState={{
-            checked: indeterminate ? 'mixed' : checked,
-            disabled,
-          }}
+          accessibilityLabel={accessibilityLabel ?? label}
+          // aria-* props: react-native-web 0.21 ignores `accessibilityState`; native maps them to the same state.
+          aria-checked={indeterminate ? 'mixed' : checked}
+          aria-disabled={disabled}
           disabled={disabled}
           hitSlop={10}
           onPress={() => setChecked(!checked)}
