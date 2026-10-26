@@ -5,6 +5,7 @@ import ts from 'typescript';
 
 import { evalLiteral, NON_LITERAL, type LiteralResolver } from './literal.js';
 import {
+  handlerBindingOf,
   negateCondition,
   propBindingOf,
   propStateForCondition,
@@ -415,6 +416,27 @@ export function analyze(
         return literal;
       };
       if (isEventProp(name)) {
+        const forwarded =
+          isPrimitive &&
+          propScope !== null &&
+          prop.initializer !== undefined &&
+          ts.isJsxExpression(prop.initializer) &&
+          prop.initializer.expression !== undefined
+            ? handlerBindingOf(prop.initializer.expression, propScope)
+            : null;
+        if (forwarded !== null) {
+          // `onPress={onPress}`: the instance's own handler, like a data
+          // prop passed on — a binding the code owns.
+          attrs.push({
+            name,
+            span: attrSpan,
+            literal: false,
+            raw,
+            propBinding: forwarded,
+          });
+          passed[name] = { key: forwarded, active: true };
+          continue;
+        }
         attrs.push({ name, span: attrSpan, literal: false, raw });
         const handler =
           prop.initializer !== undefined &&

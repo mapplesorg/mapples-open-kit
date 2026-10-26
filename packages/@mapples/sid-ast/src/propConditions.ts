@@ -251,8 +251,8 @@ export function propOfCondition(condition: string): string | null {
 /**
  * The data binding a declared prop passed straight on stands for
  * (`title={title}`, `title={props.title}`, `{title}` as text → `props.title`),
- * or null when the expression is anything else. Function props are events,
- * which the canvas does not bind.
+ * or null when the expression is anything else. Function props are events:
+ * an event prop passes its handler on through {@link handlerBindingOf}.
  */
 export function propBindingOf(
   expr: ts.Expression,
@@ -261,6 +261,20 @@ export function propBindingOf(
   const param = propOf(expr, scope);
   if (param === null || param.kind === 'function') return null;
   return `${PROPS_SCOPE}.${param.name}`;
+}
+
+/**
+ * The binding an event prop passed straight on stands for
+ * (`onPress={onPress}`, `onPress={props.onPress}` → `props.onPress`): the
+ * element runs whatever handler the instance was given, so a played instance
+ * reaches it through the props scope. Null when the handler is any other code.
+ */
+export function handlerBindingOf(
+  expr: ts.Expression,
+  scope: PropScope,
+): string | null {
+  const param = propOf(expr, scope);
+  return param === null ? null : `${PROPS_SCOPE}.${param.name}`;
 }
 
 /** Whether a data binding key reads a component prop as is (`props.title`), not a condition. */
