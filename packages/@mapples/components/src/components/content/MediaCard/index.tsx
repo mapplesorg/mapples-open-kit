@@ -125,7 +125,10 @@ export interface MediaCardProps extends Omit<
  * title (with an optional rating-style accessory), subtitle, a trailing
  * detail, a price with its struck-through original, a tag and a round action
  * (save, like) over the photo. A leaf — grouped free-form content goes in
- * `Card`.
+ * `Card`. With `onPress` the card's press target is a full-size sibling
+ * behind the content, never an ancestor of the overlay button (on web a
+ * `<button>` inside a `<button>` is invalid HTML); the pressable's props go
+ * to that target, the `ref` to the card.
  *
  * @example
  * ```tsx
@@ -230,7 +233,10 @@ const MediaCard: ForwardRefExoticComponent<
       defaults.root,
       {
         flexDirection: horizontal ? ('row' as const) : ('column' as const),
-        borderRadius: shape.radius.lg,
+        // A plain card has no surface to round — the photo rounds itself —
+        // and its text runs to the card's edges, where a rounded clip would
+        // cut the first letters of the last line.
+        borderRadius: plain ? 0 : shape.radius.lg,
         backgroundColor: plain
           ? 'transparent'
           : variant === 'filled'
@@ -246,8 +252,13 @@ const MediaCard: ForwardRefExoticComponent<
       styled?.style,
     ];
 
+    // Presses outside the overlay button fall through to the press target
+    // behind the card's content.
+    const passThrough = interactive ? ('none' as const) : undefined;
+
     const media = (
       <StyledView
+        pointerEvents={interactive ? 'box-none' : undefined}
         styled={{
           style: [
             defaults.media,
@@ -261,10 +272,12 @@ const MediaCard: ForwardRefExoticComponent<
           <StyledImage
             source={source}
             contentFit="cover"
+            pointerEvents={passThrough}
             styled={{ style: [mediaGeometry, styled?.styleImage] }}
           />
         ) : (
           <StyledView
+            pointerEvents={passThrough}
             styled={{
               style: [
                 mediaGeometry,
@@ -331,6 +344,7 @@ const MediaCard: ForwardRefExoticComponent<
 
     const content = (
       <StyledView
+        pointerEvents={passThrough}
         styled={{
           style: [
             defaults.content,
@@ -446,18 +460,18 @@ const MediaCard: ForwardRefExoticComponent<
 
     if (interactive) {
       return (
-        <StyledPressable
-          ref={ref}
-          accessibilityRole="button"
-          accessibilityLabel={title}
-          onPress={onPress}
-          disabled={disabled}
-          {...interaction.handlers}
-          styled={{ style }}
-          {...rest}
-        >
+        <StyledView ref={ref} styled={{ style }}>
+          <StyledPressable
+            accessibilityRole="button"
+            accessibilityLabel={title}
+            onPress={onPress}
+            disabled={disabled}
+            {...interaction.handlers}
+            styled={{ style: defaults.pressSurface }}
+            {...rest}
+          />
           {body}
-        </StyledPressable>
+        </StyledView>
       );
     }
 
