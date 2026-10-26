@@ -42,7 +42,12 @@ export type ExtractWarningKind =
    * A style variant or show/hide guard whose test is not on one prop
    * (`a && b`): the canvas keeps the base style / always shows the element.
    */
-  | 'UNSUPPORTED_CONDITION';
+  | 'UNSUPPORTED_CONDITION'
+  /**
+   * A `ref(…)` asset reference in a prop's literal data instead of `$refs`:
+   * nothing resolves it there (a `$refs` key may be a dotted path into it).
+   */
+  | 'INLINE_ASSET_REF';
 
 export interface ExtractWarning {
   kind: ExtractWarningKind;
