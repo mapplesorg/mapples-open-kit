@@ -1,4 +1,10 @@
-import { ComponentType, useCallback, useMemo } from 'react';
+import {
+  ComponentType,
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react';
 
 import {
   NavigationDocument,
@@ -64,7 +70,26 @@ const chromeComponent = (
   return Chrome;
 };
 
-const MissingScreen: ComponentType = () => null;
+/**
+ * The build context for the screens' components, which read it at render
+ * rather than closing over it — see {@link useScreenComponents}.
+ */
+const NavigatorBuildReactContext = createContext<NavigatorBuildContext | null>(
+  null,
+);
+
+/** Hands the screens of every navigator below it their build context. */
+export const NavigatorBuildProvider = NavigatorBuildReactContext.Provider;
+
+const useNavigatorBuildContext = (): NavigatorBuildContext => {
+  const ctx = useContext(NavigatorBuildReactContext);
+  if (!ctx) {
+    throw new Error(
+      '[@mapples/navigation] a navigator screen rendered outside NavigatorBuildProvider',
+    );
+  }
+  return ctx;
+};
 
 // Blank the header title / tab / drawer label so the internal placeholder route
 // name never leaks into the preview chrome.
@@ -85,48 +110,62 @@ const EmptyNavigatorScreen: ComponentType = () => (
   </View>
 );
 
-/** Resolve the component a screen renders (page lookup → pages map / fallback). */
-const screenComponent = (
-  screen: ScreenModel,
-  ctx: NavigatorBuildContext,
-): ComponentType => {
+/**
+ * The component a screen renders: its nested navigator, or its page (looked
+ * up in the pages map, else the fallback) under the route's params, on-enter
+ * action and guard. It reads the build context at render, so it depends on
+ * the screen alone.
+ */
+const screenComponent = (screen: ScreenModel): ComponentType => {
   if (screen.target.kind === 'navigator') {
     const child = screen.target.child;
-    // A guard on the route entering a nested navigator protects the whole
-    // area under it.
-    const Child: ComponentType = () =>
-      screen.route.guard ? (
+    const Child: ComponentType = () => {
+      const ctx = useNavigatorBuildContext();
+      // A guard on the route entering a nested navigator protects the whole
+      // area under it.
+      return screen.route.guard ? (
         <RouteGuard route={screen.route} document={ctx.document}>
           <NavigatorView model={child} ctx={ctx} />
         </RouteGuard>
       ) : (
         <NavigatorView model={child} ctx={ctx} />
       );
+    };
+    Child.displayName = `NavigatorScreen(${screen.routeName})`;
     return Child;
   }
 
   const { pageUuid } = screen.target;
-  const Page = ctx.pages[pageUuid];
-  if (Page) {
-    // Every page screen gets its route's params, on-enter action and guard.
-    const Routed: ComponentType = () => (
-      <RouteScreen route={screen.route} document={ctx.document}>
-        <Page />
-      </RouteScreen>
-    );
-    Routed.displayName = `RouteScreen(${screen.routeName})`;
-    return Routed;
-  }
-
-  if (ctx.fallback) {
-    const Fallback = ctx.fallback;
-    const FallbackScreen: ComponentType = () => (
-      <Fallback pageUuid={pageUuid} />
-    );
-    return FallbackScreen;
-  }
-  return MissingScreen;
+  const Routed: ComponentType = () => {
+    const ctx = useNavigatorBuildContext();
+    const Page = ctx.pages[pageUuid];
+    if (Page) {
+      return (
+        <RouteScreen route={screen.route} document={ctx.document}>
+          <Page />
+        </RouteScreen>
+      );
+    }
+    if (ctx.fallback) {
+      const Fallback = ctx.fallback;
+      return <Fallback pageUuid={pageUuid} />;
+    }
+    return null;
+  };
+  Routed.displayName = `RouteScreen(${screen.routeName})`;
+  return Routed;
 };
+
+/**
+ * Each screen's component, in `model.screens` order, made once per navigator
+ * model. React Navigation
+ * takes a screen's `component` as its type: a new function on every render
+ * would remount the focused screen whenever the navigator re-renders (a
+ * theme change, a host re-render), losing its state and redrawing whatever
+ * it loads after mount.
+ */
+const useScreenComponents = (model: NavigatorModel): ComponentType[] =>
+  useMemo(() => model.screens.map(screenComponent), [model.screens]);
 
 /**
  * The header visibility and title every navigator type gives a screen — the
@@ -156,6 +195,7 @@ const StackNavigatorView = ({
     () => createNativeStackNavigator(),
     [createNativeStackNavigator],
   );
+  const screens = useScreenComponents(model);
   return (
     <Stack.Navigator
       initialRouteName={model.initialRouteName}
@@ -165,14 +205,14 @@ const StackNavigatorView = ({
       )}
     >
       {model.screens.length ? (
-        model.screens.map((screen) => {
+        model.screens.map((screen, index) => {
           const options = mapStackScreenOptions(screen.route, ctx.resolvers);
           Object.assign(options, sharedScreenOptions(model, screen));
           return (
             <Stack.Screen
               key={screen.routeId}
               name={screen.routeName}
-              component={screenComponent(screen, ctx)}
+              component={screens[index]}
               options={options}
             />
           );
@@ -200,6 +240,7 @@ const TabsNavigatorView = ({
     () => createBottomTabNavigator(),
     [createBottomTabNavigator],
   );
+  const screens = useScreenComponents(model);
   const Chrome = chromeComponent(
     ctx,
     model,
@@ -229,7 +270,7 @@ const TabsNavigatorView = ({
       }}
     >
       {model.screens.length ? (
-        model.screens.map((screen) => {
+        model.screens.map((screen, index) => {
           const options = mapTabItemOptions(
             screen.route,
             ctx.resolvers,
@@ -241,7 +282,7 @@ const TabsNavigatorView = ({
             <Tabs.Screen
               key={screen.routeId}
               name={screen.routeName}
-              component={screenComponent(screen, ctx)}
+              component={screens[index]}
               options={options}
             />
           );
@@ -269,6 +310,7 @@ const DrawerNavigatorView = ({
     () => createDrawerNavigator(),
     [createDrawerNavigator],
   );
+  const screens = useScreenComponents(model);
   const Chrome = chromeComponent(
     ctx,
     model,
@@ -293,7 +335,7 @@ const DrawerNavigatorView = ({
       }}
     >
       {model.screens.length ? (
-        model.screens.map((screen) => {
+        model.screens.map((screen, index) => {
           const options = mapDrawerItemOptions(
             screen.route,
             ctx.resolvers,
@@ -305,7 +347,7 @@ const DrawerNavigatorView = ({
             <Drawer.Screen
               key={screen.routeId}
               name={screen.routeName}
-              component={screenComponent(screen, ctx)}
+              component={screens[index]}
               options={options}
             />
           );

@@ -3,7 +3,7 @@ import { FC, useMemo } from 'react';
 import { useNavigationTheme } from '@mapples/style';
 
 import { NavigationHooksContext } from './backend';
-import { NavigatorView } from './buildNavigator';
+import { NavigatorBuildProvider, NavigatorView } from './buildNavigator';
 import { buildNavigationModel } from './model';
 import NavigationActionHandler from './NavigationActionHandler';
 import type { ParamListBase } from './reactNavigation';
@@ -44,7 +44,9 @@ const MapplesNavigation: FC<MapplesNavigationProps> = ({
   const container = (
     <NavigationContainer ref={navigationRef} theme={theme}>
       <NavigationHooksContext.Provider value={backend}>
-        <NavigatorView model={model} ctx={ctx} />
+        <NavigatorBuildProvider value={ctx}>
+          <NavigatorView model={model} ctx={ctx} />
+        </NavigatorBuildProvider>
       </NavigationHooksContext.Provider>
     </NavigationContainer>
   );
