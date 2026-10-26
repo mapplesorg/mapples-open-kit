@@ -151,6 +151,29 @@ function jsxParts(node: ts.Node): {
   return null;
 }
 
+/** An asset reference as `$refs` holds it: `ref(image:<uuid>:<name>)`. */
+const ASSET_REF_RE = /^ref\([a-z]+:[^:()]+:[^()]*\)$/;
+
+/**
+ * Asset refs written into a prop's literal data (`items={[{ thumbnail:
+ * 'ref(image:…)' }]}`), with their `$refs` path (`items.0.thumbnail`).
+ * Nothing resolves them there: the renderers resolve `$refs` only.
+ */
+function inlineAssetRefs(
+  value: unknown,
+  path: string,
+  out: { path: string; ref: string }[],
+): void {
+  if (typeof value === 'string') {
+    if (ASSET_REF_RE.test(value)) out.push({ path, ref: value });
+  } else if (Array.isArray(value)) {
+    value.forEach((v, i) => inlineAssetRefs(v, `${path}.${i}`, out));
+  } else if (typeof value === 'object' && value !== null) {
+    for (const [k, v] of Object.entries(value))
+      inlineAssetRefs(v, `${path}.${k}`, out);
+  }
+}
+
 function getSidAttr(open: JsxLike): string | null {
   for (const prop of open.attributes.properties) {
     if (
@@ -602,6 +625,19 @@ export function analyze(
     );
     if (propBindings.length > 0) {
       dataProps = { ...passed, ...(dataProps ?? {}) };
+    }
+
+    const inlineRefs: { path: string; ref: string }[] = [];
+    for (const [key, value] of Object.entries(props))
+      inlineAssetRefs(value, key, inlineRefs);
+    for (const { path, ref } of inlineRefs) {
+      if (refProps?.[path] !== undefined) continue;
+      warnings.push({
+        kind: 'INLINE_ASSET_REF',
+        sid,
+        prop: path.split('.')[0],
+        detail: `<${tagName}> ${path} holds ${ref}, which only resolves from $refs — move it to $refs={{ '${path}': '${ref}' }} (a dotted key reaches into the prop's data)`,
+      });
     }
 
     const guard = guards.get(element) ?? null;
