@@ -4,6 +4,7 @@
  */
 
 export * from './animation';
+export * from './containerPressRole';
 export * from './date';
 export * from './glyphs';
 export * from './option';

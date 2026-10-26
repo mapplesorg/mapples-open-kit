@@ -29,6 +29,7 @@ import {
 } from 'react-native';
 
 import {
+  CONTAINER_PRESS_ROLE,
   Glyph,
   useControllableState,
   useInteractionState,
@@ -243,7 +244,8 @@ const Chip: ForwardRefExoticComponent<
     return (
       <StyledPressable
         ref={ref}
-        accessibilityRole="button"
+        // The remove button must not sit inside a `<button>` on the web.
+        accessibilityRole={showClose ? CONTAINER_PRESS_ROLE : 'button'}
         accessibilityState={{
           disabled: isDisabled,
           selected: toggles ? isSelected : undefined,
