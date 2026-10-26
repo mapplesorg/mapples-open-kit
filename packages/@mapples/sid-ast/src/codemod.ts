@@ -631,11 +631,9 @@ export function codemodAdopt(
             }
             renamedTagStarts.add(close.tagName.getStart(sf));
           }
-          edits.push({
-            start: nameSpan.end,
-            end: nameSpan.end,
-            replacement: ` $sid="${sid}"${translated.attrText}`,
-          });
+          edits.push(
+            sidEdit(source, sf, open, ` $sid="${sid}"${translated.attrText}`),
+          );
           if (translated.foldChildren) foldChildren();
           usedUiNames.add(mapped);
           swappedRnNames.add(name);
@@ -650,11 +648,9 @@ export function codemodAdopt(
           // react-native-style props a developer writes from habit
           // (`style={…}`, a Text child) — a `styled` it already has is kept.
           const translated = translateProps(element, open, origin.exportName);
-          edits.push({
-            start: nameSpan.end,
-            end: nameSpan.end,
-            replacement: ` $sid="${sid}"${translated.attrText}`,
-          });
+          edits.push(
+            sidEdit(source, sf, open, ` $sid="${sid}"${translated.attrText}`),
+          );
           if (translated.foldChildren) {
             if (close && ts.isIdentifier(close.tagName)) {
               renamedTagStarts.add(close.tagName.getStart(sf));
@@ -676,11 +672,9 @@ export function codemodAdopt(
           // A Creator component used from code: a linked instance, not an
           // opaque Custom — `style` becomes the instance's `styled`.
           const translated = translateProps(element, open, 'ComponentInstance');
-          edits.push({
-            start: nameSpan.end,
-            end: nameSpan.end,
-            replacement: ` $sid="${sid}"${translated.attrText}`,
-          });
+          edits.push(
+            sidEdit(source, sf, open, ` $sid="${sid}"${translated.attrText}`),
+          );
           adopted.push({
             sid,
             originalName: name,
@@ -693,11 +687,14 @@ export function codemodAdopt(
           const importRef = origin
             ? `${origin.module}#${origin.exportName}`
             : `#${name}`;
-          edits.push({
-            start: nameSpan.end,
-            end: nameSpan.end,
-            replacement: ` $sid="${sid}" $fallback={{ h: ${fallbackSize.h}, w: ${fallbackSize.w} }}`,
-          });
+          edits.push(
+            sidEdit(
+              source,
+              sf,
+              open,
+              ` $sid="${sid}" $fallback={{ h: ${fallbackSize.h}, w: ${fallbackSize.w} }}`,
+            ),
+          );
           adopted.push({
             sid,
             originalName: name,
@@ -906,6 +903,38 @@ function stillReferenced(
 }
 
 // ---- printing ----
+
+/**
+ * The edit that tags an opening element: `attrText` (`$sid="…"` and any
+ * translated props) after its last attribute, never right after the tag
+ * name, so the line an author last edited (`<List`) keeps its text. A tag
+ * whose attributes sit on their own lines gets the new ones on a new line
+ * at the last attribute's indentation.
+ */
+function sidEdit(
+  source: string,
+  sf: ts.SourceFile,
+  open: ts.JsxOpeningElement | ts.JsxSelfClosingElement,
+  attrText: string,
+): Edit {
+  const props = open.attributes.properties;
+  const last = props[props.length - 1];
+  if (!last) {
+    const end = open.tagName.getEnd();
+    return { start: end, end, replacement: attrText };
+  }
+  const end = last.getEnd();
+  const multiline = source
+    .slice(open.tagName.getEnd(), last.getStart(sf))
+    .includes('\n');
+  return {
+    start: end,
+    end,
+    replacement: multiline
+      ? `\n${lineIndent(source, last.getStart(sf))}${attrText.trimStart()}`
+      : attrText,
+  };
+}
 
 /** Indentation of the line `pos` sits on. */
 function lineIndent(source: string, pos: number): string {
