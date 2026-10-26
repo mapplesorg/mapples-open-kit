@@ -236,16 +236,14 @@ const CalendarHeatmap: ForwardRefExoticComponent<
       const style = [
         defaults.cell,
         sizeStyle,
-        {
-          borderRadius: radius,
-          backgroundColor: future ? 'transparent' : cellColor(level),
-        },
+        { borderRadius: radius },
         future && {
           borderWidth: shape.borderWidth(1),
           borderColor: tones.outline,
         },
         styled?.styleCell,
-        future && { backgroundColor: 'transparent' },
+        // After `styleCell`: its `backgroundColor` only sets the empty track, so the level fill stays on top.
+        { backgroundColor: future ? 'transparent' : cellColor(level) },
         isToday && {
           borderWidth: shape.emphasisWidth(2),
           borderColor: palette.ink,
