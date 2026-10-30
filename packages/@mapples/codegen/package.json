@@ -1,6 +1,6 @@
 {
   "name": "@mapples/codegen",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "Pure RenderDom -> TSX file generation for Mapples pages and components: imports, hoisted styles, linked component instances. No I/O, no formatting.",
   "type": "module",
   "main": "./dist/index.js",

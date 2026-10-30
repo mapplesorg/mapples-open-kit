@@ -1,6 +1,6 @@
 {
   "name": "@mapples/textpatch",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "Unified-diff hunks for Mapples Source text (RFC-0001 A13): generate, apply exactly, 3-way merge, text hash. Shared by the Creator and the mapples CLI; mirrored by the server's Python applier.",
   "type": "module",
   "main": "./dist/index.js",
