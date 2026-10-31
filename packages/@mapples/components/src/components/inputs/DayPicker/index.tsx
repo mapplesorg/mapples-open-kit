@@ -253,6 +253,10 @@ const DayPicker: ForwardRefExoticComponent<
                 : TYPOGRAPHY_PARTS.label
             }
             numberOfLines={1}
+            // A label longer than a three-letter weekday ("Today") shrinks to
+            // fit its cell instead of ellipsizing.
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
             style={[
               defaults.text,
               { color: weekdayColor },
