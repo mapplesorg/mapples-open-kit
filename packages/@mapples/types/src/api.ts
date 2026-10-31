@@ -53,6 +53,19 @@ export interface ApiRequestAuth {
   secretRef?: string;
 }
 
+/**
+ * What a request previews with when nothing has really run: the data states an
+ * author or an agent saved for it.
+ */
+export interface ApiRequestStates {
+  /** The response body. Wins over {@link ApiRequest.responseSample}. */
+  success?: unknown;
+  /** The failure: its HTTP status and body. */
+  error?: { status: number; body: unknown };
+  /** What `data` holds while loading, for skeleton content. */
+  loading?: unknown;
+}
+
 export interface ApiRequest {
   id: string;
   /** Unique per document; doubles as the default state key suffix. */
@@ -69,6 +82,12 @@ export interface ApiRequest {
    * string.
    */
   params?: Record<string, ApiValueSource>;
+  /**
+   * Headers read when the request runs — a signed-in user's token from
+   * `api.signIn.data.access_token`. `prefix` goes in front (`Bearer `). A value
+   * that resolves to nothing leaves the header out; wins over {@link headers}.
+   */
+  headerValues?: Record<string, { source: ApiValueSource; prefix?: string }>;
   /** JSON body template; leaf values may be {@link ApiValueSource}s. */
   body?: { kind: 'json'; template: unknown };
   auth?: ApiRequestAuth;
@@ -77,12 +96,19 @@ export interface ApiRequest {
    * execution in the editor preview.
    */
   responseSample?: unknown;
+  /** The request's saved data states; see {@link ApiRequestStates}. */
+  states?: ApiRequestStates;
   /**
    * State path the response lands under (`api.<name>` by default). Bindings
    * read `<stateKey>.data`, `<stateKey>.loading`, `<stateKey>.error`.
    */
   stateKey?: string;
 }
+
+/** The body a request previews with on success. */
+export const apiRequestSuccessState = (
+  request: Pick<ApiRequest, 'states' | 'responseSample'>,
+): unknown => request.states?.success ?? request.responseSample;
 
 export interface ApiDocument {
   version: 1;
