@@ -337,11 +337,13 @@ export function analyze(
     let refProps: Record<string, string> | undefined;
     let dataProps: Record<string, unknown> | undefined;
     let actionProps: Record<string, unknown> | undefined;
-    // `title={title}` on a primitive: the canvas reads the instance's prop
-    // through a `props.title` binding, the file keeps passing it in code.
+    // `title={title}`: the canvas reads the instance's prop through a
+    // `props.title` binding, the file keeps passing it in code. On another
+    // component's tag it is what that nested instance gets, so a default of
+    // the outer component reaches the inner one.
     const passed: Record<string, { key: string; active: true }> = {};
     const passedOn = (expr: ts.Expression | undefined): string | null =>
-      isPrimitive && propScope !== null && expr !== undefined
+      propScope !== null && expr !== undefined
         ? propBindingOf(expr, propScope)
         : null;
 
