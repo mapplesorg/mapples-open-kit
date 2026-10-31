@@ -10,6 +10,8 @@
 import {
   INSTANCE_STYLED_MEMBER,
   INSTANCE_STYLED_TYPE_IMPORTS,
+  isEventProp,
+  passedProps,
   printNode,
   printValue,
   propOfCondition,
@@ -196,12 +198,12 @@ function propTypeOf(condition: string): string {
 }
 
 /**
- * The props the tree tests — its style variants' states and the prop tests
- * elements render under (`{isActive && <X/>}`) — with the type each test
- * implies, in name order. A state no element varies under is not the file's
- * to declare.
+ * The props the tree reads — its style variants' states, the prop tests
+ * elements render under (`{isActive && <X/>}`) and the props it passes on —
+ * with the type each implies, in name order. A state no element varies under
+ * is not the file's to declare.
  */
-function testedProps(
+function fileProps(
   root: RenderDomNode,
   states: Record<string, RenderState>,
 ): [string, string][] {
@@ -234,6 +236,12 @@ function testedProps(
     if (prop !== null && !props.has(prop))
       props.set(prop, propTypeOf(condition));
   }
+  // A prop the tree only passes on (`title={title}`): the document holds its
+  // binding but not its type, so instances may pass whatever the element takes.
+  for (const [attr, prop] of passedProps(root)) {
+    if (props.has(prop)) continue;
+    props.set(prop, isEventProp(attr) ? '(...args: any[]) => void' : 'any');
+  }
   return [...props].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 }
 
@@ -257,7 +265,11 @@ export function emitTree(
   const jsx = isComponent
     ? [
         '    <View styled={styled}>',
-        printNode(root, '      ', { styleRef: styles.refFor, states }),
+        printNode(root, '      ', {
+          styleRef: styles.refFor,
+          states,
+          passProps: true,
+        }),
         '    </View>',
       ].join('\n')
     : printNode(root, '    ', { styleRef: styles.refFor, states });
@@ -266,7 +278,7 @@ export function emitTree(
     [...imports.uiNames, ...imports.customs.keys(), styles.dictName, 'Styler'],
     suffix,
   );
-  const props = testedProps(root, states);
+  const props = fileProps(root, states);
   const propsType = `${componentName}Props`;
   const bindings = [
     ...props.map(([p]) => p),
