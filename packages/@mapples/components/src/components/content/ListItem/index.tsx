@@ -167,7 +167,8 @@ const PADDING_KEYS = [
  * across and 8 down.
  */
 const rowPadding = (style: ViewStyle | undefined): ViewStyle => ({
-  paddingTop: style?.paddingTop ?? style?.paddingVertical ?? style?.padding ?? 8,
+  paddingTop:
+    style?.paddingTop ?? style?.paddingVertical ?? style?.padding ?? 8,
   paddingBottom:
     style?.paddingBottom ?? style?.paddingVertical ?? style?.padding ?? 8,
   paddingStart:
@@ -283,8 +284,7 @@ const ListItem: ForwardRefExoticComponent<
     const interactive = !!onPress || toggles || isRadio;
     // A row holding its own control (a trailing action, a switch, a
     // checkbox) must not be a `<button>` around it on the web.
-    const holdsControl =
-      toggles || trailing === 'icon' || trailing === 'link';
+    const holdsControl = toggles || trailing === 'icon' || trailing === 'link';
     const struck = strikeWhenChecked && checked;
     const chevronAfter = trailingChevron && trailing !== 'chevron';
     const primary = tones.tone('primary');

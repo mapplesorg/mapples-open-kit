@@ -168,9 +168,7 @@ const NavItem: FC<NavItemProps> = ({
       : colors.active
     : colors.inactive;
   const expandHeight = Math.max(BOTTOM_NAVIGATION_EXPAND.height, iconSize + 16);
-  const expandBox = expand
-    ? pick(indicatorStyle, EXPAND_BOX_KEYS)
-    : undefined;
+  const expandBox = expand ? pick(indicatorStyle, EXPAND_BOX_KEYS) : undefined;
   const fillStyle = expand
     ? omit(indicatorStyle, EXPAND_BOX_KEYS)
     : indicatorStyle;
