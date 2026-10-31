@@ -5,7 +5,7 @@ import {
   Typography as StyledTypography,
   TypographyProps as StyledTypographyProps,
 } from '@mapples/style';
-import { isNumber, isString } from 'lodash';
+import { isNil, isNumber, isString } from 'lodash';
 import { TextProps as RNTextProps, Text } from 'react-native';
 
 /**
@@ -53,7 +53,11 @@ const Typography = forwardRef<Text, TextProps>(
         styled={styled}
         {...props}
       >
-        {isString(text) || isNumber(text) ? text.toString() : 'Not a string'}
+        {isNil(text)
+          ? null
+          : isString(text) || isNumber(text)
+            ? text.toString()
+            : 'Not a string'}
       </StyledTypography>
     );
   },
