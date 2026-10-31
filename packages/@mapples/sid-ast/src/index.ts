@@ -4,6 +4,7 @@ export { patch } from './patch.js';
 export {
   printChild,
   printElement,
+  passedProps,
   printNode,
   printTree,
   visibilityGuard,

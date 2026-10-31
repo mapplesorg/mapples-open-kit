@@ -1,7 +1,12 @@
 // RenderDom -> JSX text. Deterministic: $sid first, then props sorted
 // lexicographically; object literal keys sorted; strings single-quoted.
 
-import { propOfCondition, propTestCode } from './propConditions.js';
+import {
+  isPropBinding,
+  propOfCondition,
+  propTestCode,
+  PROPS_SCOPE,
+} from './propConditions.js';
 import {
   SIDECAR_FIELDS,
   type RenderDomNode,
@@ -146,6 +151,12 @@ function printStyled(
 
 export interface PrintOptions {
   /**
+   * Print a `props.*` binding as the attribute it stands for (`title={title}`)
+   * instead of in `$data`: a generated component file takes that prop, so its
+   * instances' values reach the element in the built app too.
+   */
+  passProps?: boolean;
+  /**
    * Print an expression instead of the literal for one key of a node's
    * `styled` — `styles.card` for a style hoisted into a dictionary. Return
    * undefined to print the literal.
@@ -289,14 +300,56 @@ export function printAttrsText(
   options?: PrintOptions,
   guarded = false,
 ): string {
-  const { attrs } = emittable(node, guarded);
+  const { dataProps, passed } = options?.passProps
+    ? splitPassedProps(node)
+    : { dataProps: node.dataProps, passed: [] };
+  const { attrs } = emittable(
+    dataProps === node.dataProps ? node : { ...node, dataProps },
+    guarded,
+  );
   const styledAt = styledExprAt(node, options);
   const parts = attrs.map(([n, v]) =>
     n === 'styled'
       ? printAttr(n, v, styledAt, options?.states)
       : printAttr(n, v),
   );
+  parts.push(...passed.map(([attr, prop]) => `${attr}={${prop}}`));
   return parts.length > 0 ? ' ' + parts.join(' ') : '';
+}
+
+/**
+ * A node's `props.*` bindings as the attributes they stand for (`title` bound
+ * to `props.title` is `title={title}`), and the bindings left for `$data`.
+ */
+function splitPassedProps(node: RenderDomNode): {
+  dataProps: RenderDomNode['dataProps'];
+  passed: [string, string][];
+} {
+  const passed: [string, string][] = [];
+  const dataProps: Record<string, unknown> = {};
+  for (const [attr, binding] of Object.entries(node.dataProps ?? {})) {
+    const key = (binding as { key?: unknown; active?: unknown } | undefined)
+      ?.key;
+    if (
+      attr !== '_visible' &&
+      isPropBinding(key) &&
+      (binding as { active?: unknown }).active === true
+    ) {
+      passed.push([attr, key.slice(`${PROPS_SCOPE}.`.length)]);
+    } else {
+      dataProps[attr] = binding;
+    }
+  }
+  return passed.length === 0
+    ? { dataProps: node.dataProps, passed }
+    : { dataProps, passed };
+}
+
+/** The props a tree passes on through `props.*` bindings, by attribute. */
+export function passedProps(root: RenderDomNode): [string, string][] {
+  const out: [string, string][] = [...splitPassedProps(root).passed];
+  for (const child of root.children) out.push(...passedProps(child));
+  return out;
 }
 
 /**
