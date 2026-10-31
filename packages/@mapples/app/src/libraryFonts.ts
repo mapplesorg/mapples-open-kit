@@ -7,7 +7,8 @@ export const typographyFamilies = (style: StyleContextType): Set<string> => {
   const { typographyConfig } = style;
   const families = new Set<string>([typographyConfig.fontFamily]);
   for (const textStyle of Object.values(typographyConfig.typography)) {
-    if (typeof textStyle.fontFamily === 'string') families.add(textStyle.fontFamily);
+    if (typeof textStyle.fontFamily === 'string')
+      families.add(textStyle.fontFamily);
   }
   return families;
 };
