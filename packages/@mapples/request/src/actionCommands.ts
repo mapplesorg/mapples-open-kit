@@ -16,6 +16,8 @@ import { TransportAuth, TransportRequest } from './transport';
 export interface FollowUpAction {
   type: string;
   data?: unknown;
+  /** Literal payload merged over `data`, as on an element's action. */
+  staticData?: Record<string, unknown>;
 }
 
 /** A fully-resolved request, ready to execute. */

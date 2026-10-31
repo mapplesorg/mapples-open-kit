@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 
 import { useActionStore } from '@mapples/action';
-import { useDataState } from '@mapples/state';
+import { followUpData, useDataState } from '@mapples/state';
 
 import {
+  FollowUpAction,
   isAutoRunnable,
   RequestCommand,
   toRequestCommand,
@@ -34,12 +35,12 @@ const RequestActionHandler = () => {
 
     const { document, mode, transport, onRequestError, setResponse } = runtime;
 
-    const emitFollowUp = (followUp?: { type: string; data?: unknown }) => {
+    const emitFollowUp = (followUp?: FollowUpAction) => {
       if (!followUp?.type) return;
       actionStore.next({
         time: Date.now(),
         type: followUp.type,
-        payload: { data: followUp.data },
+        payload: { data: followUpData(followUp) },
       });
     };
 
