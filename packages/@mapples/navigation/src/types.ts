@@ -1,7 +1,7 @@
 import { ComponentType, ReactNode } from 'react';
-import { ColorValue } from 'react-native';
 
 import { NavigationDocument } from '@mapples/types';
+import { ColorValue } from 'react-native';
 
 import type { NavigationBackend } from './backend';
 import type {

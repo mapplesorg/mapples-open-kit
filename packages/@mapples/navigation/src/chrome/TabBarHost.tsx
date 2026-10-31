@@ -22,6 +22,15 @@ import type { BottomTabBarProps as ExpoRouterTabBarProps } from '../vendor';
 
 import { chromeItemsOf, routeByKey } from './chromeItems';
 
+/**
+ * What expo-router 58's tab bar adds over its older props. The peer range still
+ * takes 56, whose type doesn't have them, so they are read through this.
+ */
+interface ExpoRouterTabSwitch {
+  navigateToTab: (routeKey: string) => void;
+  emitter: ReactNavigationTabBarProps['navigation'];
+}
+
 export type TabBarHostProps = (
   | ExpoRouterTabBarProps
   | ReactNavigationTabBarProps
@@ -65,9 +74,14 @@ const TabBarHost: FC<TabBarHostProps> = ({
   ...tabBar
 }) => {
   const { state, descriptors, insets } = tabBar;
-  const events = 'navigateToTab' in tabBar ? tabBar.emitter : tabBar.navigation;
-  const navigateToTab =
-    'navigateToTab' in tabBar ? tabBar.navigateToTab : undefined;
+  const tabSwitch =
+    'navigateToTab' in tabBar
+      ? (tabBar as unknown as ExpoRouterTabSwitch)
+      : undefined;
+  const events = tabSwitch
+    ? tabSwitch.emitter
+    : (tabBar as unknown as ReactNavigationTabBarProps).navigation;
+  const navigateToTab = tabSwitch?.navigateToTab;
   const navigation = 'navigateToTab' in tabBar ? undefined : tabBar.navigation;
   const { BottomTabBarHeightCallbackContext } = useNavigationHooks();
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
