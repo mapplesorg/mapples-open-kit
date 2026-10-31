@@ -5,6 +5,7 @@ import { VARIABLES_NAMESPACE } from '@mapples/types';
 
 import {
   SetStateCommand,
+  followUpData,
   setStateFollowUp,
   toSetStateCommands,
 } from './actionCommands';
@@ -91,7 +92,7 @@ const StateActionHandler = () => {
         actionStore.next({
           time: Date.now(),
           type: followUp.type,
-          payload: { data: followUp.data },
+          payload: { data: followUpData(followUp) },
         });
       }
     });

@@ -45,7 +45,26 @@ export const StateActionType = {
 export interface SetStateFollowUp {
   type: string;
   data?: unknown;
+  /** Literal payload merged over `data`, as on an element's action. */
+  staticData?: Record<string, unknown>;
 }
+
+/**
+ * The `payload.data` a follow-up action goes out with. Follow-ups can be
+ * written like the element action they chain from (`staticData`) or in the
+ * short form (`data`), so both reach the handler.
+ */
+export const followUpData = (
+  followUp: Pick<SetStateFollowUp, 'data' | 'staticData'>,
+): unknown =>
+  followUp.staticData
+    ? {
+        ...(isPlainObject(followUp.data)
+          ? (followUp.data as Record<string, unknown>)
+          : {}),
+        ...followUp.staticData,
+      }
+    : followUp.data;
 
 /** The follow-up a `mapples:setState` action carries, if any. */
 export const setStateFollowUp = (action: Action): SetStateFollowUp | null => {
