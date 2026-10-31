@@ -5,6 +5,7 @@ import {
   ApiRequest,
   ApiValueSource,
   apiRequestStateKey,
+  apiRequestSuccessState,
   HttpMethod,
 } from '@mapples/types';
 import { isPlainObject } from 'lodash';
@@ -208,6 +209,14 @@ export const toRequestCommand = (
     ? resolveTemplate(request.body.template, action, context)
     : undefined;
 
+  for (const [name, { source, prefix }] of Object.entries(
+    request.headerValues ?? {},
+  )) {
+    const value = resolveSource(source, action, context);
+    if (value === undefined || value === null) delete headers[name];
+    else headers[name] = `${prefix ?? ''}${String(value)}`;
+  }
+
   if (body !== undefined && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
@@ -228,7 +237,7 @@ export const toRequestCommand = (
     headers,
     body,
     auth,
-    responseSample: request.responseSample,
+    responseSample: apiRequestSuccessState(request),
     onSuccess: data.onSuccess,
     onError: data.onError,
   };

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { useActionStore } from '@mapples/action';
 import { followUpData, useDataState } from '@mapples/state';
+import { apiRequestSuccessState } from '@mapples/types';
 
 import {
   FollowUpAction,
@@ -33,7 +34,33 @@ const RequestActionHandler = () => {
   useEffect(() => {
     if (!runtime?.document) return;
 
-    const { document, mode, transport, onRequestError, setResponse } = runtime;
+    const {
+      document,
+      mode,
+      transport,
+      onRequestError,
+      sampleOnFailure,
+      stateOverride,
+      setResponse,
+    } = runtime;
+
+    /** The sample a failed call keeps showing, when the host asked for that. */
+    const sampleFor = (command: RequestCommand): unknown => {
+      if (!sampleOnFailure) return undefined;
+      const request = document.requests[command.requestId];
+      return request ? apiRequestSuccessState(request) : undefined;
+    };
+    const failed = (command: RequestCommand, message: string): boolean => {
+      const sample = sampleFor(command);
+      if (sample === undefined) return false;
+      setResponse(command.stateKey, {
+        loading: false,
+        data: sample,
+        status: 200,
+        liveError: message,
+      });
+      return true;
+    };
 
     const emitFollowUp = (followUp?: FollowUpAction) => {
       if (!followUp?.type) return;
@@ -62,6 +89,10 @@ const RequestActionHandler = () => {
       try {
         const response = await transport(toTransportRequest(command));
 
+        if (!response.ok && failed(command, `HTTP ${response.status}`)) {
+          emitFollowUp(command.onError);
+          return;
+        }
         setResponse(command.stateKey, {
           loading: false,
           data: response.data,
@@ -75,17 +106,23 @@ const RequestActionHandler = () => {
         // is a failed request. It is reported as one: no sample data is
         // substituted for the real response, and only the configured error
         // follow-up runs — never `onSuccess`, which would advance the flow as
-        // if the request had worked.
-        setResponse(command.stateKey, {
-          loading: false,
-          data: null,
-          error: error instanceof Error ? error.message : 'Request failed',
-        });
+        // if the request had worked. An editor preview asked to keep the
+        // sample on screen gets that, with the failure beside it.
+        const message =
+          error instanceof Error ? error.message : 'Request failed';
+        if (!failed(command, message)) {
+          setResponse(command.stateKey, {
+            loading: false,
+            data: null,
+            error: message,
+          });
+        }
         emitFollowUp(command.onError);
       }
     };
 
     const subscription = actionStore.subscribe((action) => {
+      if (stateOverride) return;
       let command: RequestCommand | null;
       try {
         command = toRequestCommand(action, document, {

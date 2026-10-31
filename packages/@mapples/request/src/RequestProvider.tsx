@@ -13,7 +13,9 @@ import {
   Action,
   API_NAMESPACE,
   ApiDocument,
+  ApiRequest,
   apiRequestStateKey,
+  apiRequestSuccessState,
 } from '@mapples/types';
 import { set } from 'lodash';
 
@@ -25,9 +27,14 @@ export interface ResponseState {
   data?: unknown;
   error?: string;
   status?: number;
+  /** Why the live call failed, when `data` is the sample shown instead. */
+  liveError?: string;
 }
 
 export type RequestExecutionMode = 'sample' | 'fetch';
+
+/** A saved data state every request previews with, in place of its responses. */
+export type RequestStateOverride = 'loading' | 'error';
 
 export interface RequestRuntimeContextType {
   document: ApiDocument | null;
@@ -36,6 +43,10 @@ export interface RequestRuntimeContextType {
   onRequestError?: (error: Error, action: Action) => void;
   /** See {@link RequestProviderProps.autoRun}. */
   autoRun: boolean;
+  /** See {@link RequestProviderProps.sampleOnFailure}. */
+  sampleOnFailure: boolean;
+  /** See {@link RequestProviderProps.stateOverride}. */
+  stateOverride: RequestStateOverride | null;
   setResponse: (stateKey: string, state: ResponseState) => void;
 }
 
@@ -76,7 +87,40 @@ export interface RequestProviderProps {
    * `isAutoRunnable`) — the editor's "Live data" switch.
    */
   autoRun?: boolean;
+  /**
+   * In `fetch` mode, a failed call keeps showing the request's sample, with the
+   * failure in `liveError`, so an editor preview doesn't lose the design to a
+   * missing secret. Off in a shipped app, where a failure is a failure.
+   */
+  sampleOnFailure?: boolean;
+  /**
+   * Publish this saved state for every request instead of its responses, and
+   * ignore `mapples:request` actions meanwhile: an editor preview of a screen's
+   * loading or error branch.
+   */
+  stateOverride?: RequestStateOverride | null;
 }
+
+/** The response a request's saved state stands for. */
+const overriddenResponse = (
+  request: ApiRequest,
+  override: RequestStateOverride,
+): ResponseState => {
+  if (override === 'loading') {
+    return { loading: true, data: request.states?.loading };
+  }
+  const saved = request.states?.error;
+  const body = saved?.body as { message?: unknown } | undefined;
+  return {
+    loading: false,
+    data: null,
+    status: saved?.status ?? 500,
+    error:
+      typeof body?.message === 'string'
+        ? body.message
+        : `HTTP ${saved?.status ?? 500}`,
+  };
+};
 
 const STATE_KEY_PREFIX = `${API_NAMESPACE}.`;
 
@@ -97,6 +141,8 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
   onRequestError,
   previewSamples = false,
   autoRun = false,
+  sampleOnFailure = false,
+  stateOverride = null,
 }) => {
   const [responses, setResponses] = useState<Record<string, ResponseState>>({});
   // Responses belong to the mode that produced them: leaving `fetch` must not
@@ -120,12 +166,22 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
     const samples: Record<string, ResponseState> = {};
     if (previewSamples && document) {
       for (const request of Object.values(document.requests)) {
-        if (request.responseSample === undefined) continue;
+        const success = apiRequestSuccessState(request);
+        if (success === undefined) continue;
         samples[apiRequestStateKey(request)] = {
           loading: false,
-          data: request.responseSample,
+          data: success,
           status: 200,
         };
+      }
+    }
+    const overrides: Record<string, ResponseState> = {};
+    if (stateOverride && document) {
+      for (const request of Object.values(document.requests)) {
+        overrides[apiRequestStateKey(request)] = overriddenResponse(
+          request,
+          stateOverride,
+        );
       }
     }
 
@@ -133,6 +189,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
     for (const [stateKey, response] of Object.entries({
       ...samples,
       ...responses,
+      ...overrides,
     })) {
       if (!stateKey.startsWith(STATE_KEY_PREFIX)) {
         throw new Error(
@@ -142,7 +199,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       set(result, stateKey.slice(STATE_KEY_PREFIX.length), response);
     }
     return result;
-  }, [document, previewSamples, responses]);
+  }, [document, previewSamples, responses, stateOverride]);
 
   const resolvedTransport = useMemo(
     () => transport ?? createFetchTransport(secrets),
@@ -156,9 +213,20 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       transport: resolvedTransport,
       onRequestError,
       autoRun,
+      sampleOnFailure,
+      stateOverride,
       setResponse,
     }),
-    [document, mode, resolvedTransport, onRequestError, autoRun, setResponse],
+    [
+      document,
+      mode,
+      resolvedTransport,
+      onRequestError,
+      autoRun,
+      sampleOnFailure,
+      stateOverride,
+      setResponse,
+    ],
   );
 
   return (

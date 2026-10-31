@@ -9,6 +9,7 @@ export { default as RequestProvider } from './RequestProvider';
 export { useRequestRuntime } from './RequestProvider';
 export type {
   RequestExecutionMode,
+  RequestStateOverride,
   RequestProviderProps,
   RequestRuntimeContextType,
   ResponseState,
