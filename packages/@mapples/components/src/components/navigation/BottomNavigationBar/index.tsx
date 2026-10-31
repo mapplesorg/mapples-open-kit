@@ -4,7 +4,7 @@ import { StyledProp, StyledView } from '@mapples/style';
 import { Tokens, Tone, useElevation, useShape, useTones } from '@mapples/ui';
 import { Platform, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
-import { useControllableState } from '../../../internal';
+import { useBottomSafeInset, useControllableState } from '../../../internal';
 
 import { defaults } from './defaults';
 import NavItem from './NavItem';
@@ -51,7 +51,7 @@ export interface BottomNavigationBarProps extends Omit<ViewProps, 'children'> {
   iconSize?: number;
   /** Draws hairline separators between destinations. Defaults to `false`. */
   dividers?: boolean;
-  /** Pads the bottom for the home indicator (34 pt on iOS, 8 elsewhere). Defaults to `true`. */
+  /** Pads the bottom to clear the device's inset: at least 34 pt on iOS, 8 plus the inset elsewhere. Defaults to `true`. */
   safeAreaBottom?: boolean;
   /** Colour role of the active destination. Defaults to `primary`. */
   tone?: Tone;
@@ -151,9 +151,10 @@ const BottomNavigationBar = forwardRef<
 
     const floating = variant === 'floating';
     const expand = indicator === 'expand';
-    const safeInset = safeAreaBottom
-      ? Platform.select({ ios: 34, default: 8 })
-      : 0;
+    const deviceInset = useBottomSafeInset(
+      Platform.select({ ios: 34, default: 8 }),
+    );
+    const safeInset = safeAreaBottom ? deviceInset : 0;
     const error = tones.tone('error');
     const colors = {
       active: palette.ink,

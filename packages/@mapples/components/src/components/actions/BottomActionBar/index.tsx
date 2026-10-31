@@ -4,6 +4,8 @@ import { StyledProp, StyledView } from '@mapples/style';
 import { Tokens, useElevation, useShape, useTones } from '@mapples/ui';
 import { View, ViewProps, ViewStyle } from 'react-native';
 
+import { useBottomSafeInset } from '../../../internal';
+
 import { defaults } from './defaults';
 import {
   BOTTOM_ACTION_BAR_SAFE_INSET,
@@ -16,7 +18,7 @@ export interface BottomActionBarProps extends ViewProps {
   sticky?: boolean;
   /** Main axis of the actions. Defaults to `row`. */
   direction?: BottomActionBarDirection;
-  /** Pads the bottom for the home indicator (34 on iOS, 16 elsewhere). Defaults to `true`. */
+  /** Pads the bottom to clear the device's inset: at least 34 on iOS, 16 plus the inset elsewhere. Defaults to `true`. */
   safeArea?: boolean;
   /** Draws a top hairline and a shadow above the bar. Defaults to `true`. */
   elevated?: boolean;
@@ -70,6 +72,7 @@ const BottomActionBar = forwardRef<
     const shape = useShape();
     // The elevation cast upwards for a bar that sits on the bottom edge.
     const elevation = useElevation('up');
+    const safeInset = useBottomSafeInset(BOTTOM_ACTION_BAR_SAFE_INSET);
 
     return (
       <StyledView
@@ -84,7 +87,7 @@ const BottomActionBar = forwardRef<
               backgroundColor: tones.resolve(Tokens.color.surface),
             },
             sticky ? defaults.sticky : { alignSelf: 'stretch' },
-            safeArea && { paddingBottom: BOTTOM_ACTION_BAR_SAFE_INSET },
+            safeArea && { paddingBottom: safeInset },
             elevated && {
               borderTopWidth: shape.borderWidth(1),
               borderTopColor: tones.divider,

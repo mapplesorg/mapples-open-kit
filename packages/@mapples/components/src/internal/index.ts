@@ -19,6 +19,7 @@ export { default as useOptionalFormField } from './useOptionalFormField';
 export * from './useOptionalFormField';
 export { default as useOverlayPresence } from './useOverlayPresence';
 export * from './useOverlayPresence';
+export * from './useBottomSafeInset';
 export * from './useSlotValue';
 export { default as useTimingValue } from './useTimingValue';
 export * from './useTimingValue';
