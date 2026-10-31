@@ -3,7 +3,6 @@
  * from manifest.ts — keep the two in sync (the build checks every path).
  */
 
-/* eslint-disable @typescript-eslint/no-require-imports */
 export const FONT_FILES: Record<string, number> = {
   'Inter-Regular': require('../assets/Inter/Inter-Regular.ttf'),
   'Inter-Medium': require('../assets/Inter/Inter-Medium.ttf'),
