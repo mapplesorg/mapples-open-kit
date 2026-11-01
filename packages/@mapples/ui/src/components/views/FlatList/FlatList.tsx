@@ -20,8 +20,10 @@ import type { ListRenderItem, View as RNView, ViewStyle } from 'react-native';
  */
 export type FlatListProps<T extends object> = Omit<
   StyledFlatListProps<T>,
-  'styled'
+  'styled' | 'data'
 > & {
+  /** The items; optional, so a `$data` binding can supply them alone. */
+  data?: StyledFlatListProps<T>['data'];
   styled?: {
     /** Style applied to the outer container view that wraps the list */
     style?: StyledProp<ViewStyle>;
