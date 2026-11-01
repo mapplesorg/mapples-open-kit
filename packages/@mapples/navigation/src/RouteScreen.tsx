@@ -13,6 +13,7 @@ import {
   RouteParamsProvider,
   useActiveRoute,
   useDataState,
+  useVariablesState,
 } from '@mapples/state';
 import { NavigationDocument, RouteNode } from '@mapples/types';
 
@@ -26,12 +27,25 @@ interface RouteScreenProps {
 }
 
 /**
+ * Whether the variables a guard may read are loaded. Until the persisted
+ * ones have arrived a guard on a session would refuse a signed-in user, so
+ * a guarded screen renders nothing and redirects nowhere meanwhile; the
+ * destination (a deep link, a web reload) is then kept.
+ */
+const useVariablesHydrated = (): boolean => {
+  const variables = useVariablesState();
+  return variables?.hydrated ?? true;
+};
+
+/**
  * A route's access guard: whether it holds, and — while the route is focused
  * and refused, on arrival or when the guard flips (a sign-out on a guarded
  * screen) — the redirect to its fallback. The redirect REPLACES the history
  * (`replace: true`) the way expo-router's `Stack.Protected` drops protected
  * screens: a guarded area the user may not see must not stay reachable
- * through back buttons on the fallback.
+ * through back buttons on the fallback. It is marked as a guard's, so the
+ * handler lets an authored navigate emitted by the same write (a sign-up
+ * that sets the session and moves on) win over it.
  */
 const useRouteGuard = (
   route: RouteNode,
@@ -41,6 +55,7 @@ const useRouteGuard = (
   const { useIsFocused } = useNavigationHooks();
   const focused = useIsFocused();
   const { getConditionResult } = useDataState();
+  const hydrated = useVariablesHydrated();
 
   const allowed =
     route.guard === undefined ||
@@ -49,7 +64,7 @@ const useRouteGuard = (
 
   const fallback = route.guardFallbackRouteId;
   useEffect(() => {
-    if (allowed || !focused) return;
+    if (!hydrated || allowed || !focused) return;
     const target = fallback ? routeNameForId(document, fallback) : null;
     if (!target) {
       // The validator rejects a guard without a fallback; a document that
@@ -61,9 +76,9 @@ const useRouteGuard = (
     actionStore.next({
       time: Date.now(),
       type: NavigationActionType.Navigate,
-      payload: { data: { routeName: target, replace: true } },
+      payload: { data: { routeName: target, replace: true, guard: true } },
     });
-  }, [actionStore, allowed, document, fallback, focused, route.name]);
+  }, [actionStore, allowed, document, fallback, focused, hydrated, route.name]);
 
   return allowed;
 };
@@ -80,7 +95,8 @@ export const RouteGuard: FC<PropsWithChildren<RouteScreenProps>> = ({
   children,
 }) => {
   const allowed = useRouteGuard(route, document);
-  return allowed ? <>{children}</> : null;
+  const hydrated = useVariablesHydrated();
+  return hydrated && allowed ? <>{children}</> : null;
 };
 
 /**
@@ -104,6 +120,7 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
   const actionStore = useActionStore();
   const activeRoute = useActiveRoute();
   const allowed = useRouteGuard(route, document);
+  const hydrated = useVariablesHydrated();
 
   const { onEnter } = route;
   const setActiveParams = activeRoute?.setParams;
@@ -127,7 +144,12 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
   // `allowed`) re-runs the effect but finds the entry already handled.
   const emittedEntry = useRef(0);
   useEffect(() => {
-    if (entry === 0 || entry === emittedEntry.current || !paramsPublished) {
+    if (
+      !hydrated ||
+      entry === 0 ||
+      entry === emittedEntry.current ||
+      !paramsPublished
+    ) {
       return;
     }
     emittedEntry.current = entry;
@@ -140,9 +162,17 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
         data: { ...routeParams, ...onEnter.staticData },
       },
     });
-  }, [actionStore, allowed, entry, onEnter, paramsPublished, routeParams]);
+  }, [
+    actionStore,
+    allowed,
+    entry,
+    hydrated,
+    onEnter,
+    paramsPublished,
+    routeParams,
+  ]);
 
-  if (!allowed) return null;
+  if (!hydrated || !allowed) return null;
 
   return (
     <RouteParamsProvider value={routeParams}>{children}</RouteParamsProvider>

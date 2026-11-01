@@ -83,6 +83,13 @@ export type NavigationCommand =
        * redirect, or an authored navigate that must not leave a way back.
        */
       replace?: boolean;
+      /**
+       * A route guard sending the user to its fallback, not an authored
+       * navigate. A handler drops it while a navigation it dispatched has
+       * not landed yet: the authored one wins over the guard of the screen
+       * being left.
+       */
+      guard?: boolean;
     }
   | { kind: 'goBack' }
   | { kind: 'openDrawer' }

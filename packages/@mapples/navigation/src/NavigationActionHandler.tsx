@@ -44,6 +44,18 @@ const NavigationActionHandler = ({
     latest.current = { document, getValue, actions };
   }, [document, getValue, actions]);
 
+  // A navigation dispatched here that has not landed yet. A guard redirect
+  // arriving meanwhile is dropped: the write that refused the guard of the
+  // screen being left also emitted the authored navigate, and that one wins.
+  const pending = useRef(false);
+  useEffect(
+    () =>
+      navigationRef.addListener('state', () => {
+        pending.current = false;
+      }),
+    [navigationRef],
+  );
+
   useEffect(() => {
     const subscription = actionStore.subscribe((action) => {
       const { document, getValue, actions } = latest.current;
@@ -57,6 +69,7 @@ const NavigationActionHandler = ({
 
       switch (command.kind) {
         case 'navigate': {
+          if (command.guard && pending.current) break;
           // Descend into nested navigators: a flat `navigate(name)` can't reach
           // a screen registered inside a nested navigator.
           const target = buildScreenNavigateTarget(
@@ -66,6 +79,7 @@ const NavigationActionHandler = ({
           );
           if (!target) break;
           const current = navigationRef.getCurrentRoute()?.name;
+          if (current !== command.routeName) pending.current = true;
           const replace =
             command.replace === true ||
             (!!current &&

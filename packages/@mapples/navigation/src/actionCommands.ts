@@ -17,6 +17,8 @@ interface NavigatePayload {
   params?: Record<string, unknown>;
   /** Reset the history to the target rather than push it (guard redirects). */
   replace?: boolean;
+  /** Emitted by a route guard (see `NavigationCommand.guard`). */
+  guard?: boolean;
 }
 
 /** What resolving a navigate action's params may need. */
@@ -75,6 +77,7 @@ export const toNavigationCommand = (
         routeName,
         params: resolveParams(data.params, action, context),
         replace: data.replace === true ? true : undefined,
+        guard: data.guard === true ? true : undefined,
       };
     }
     case NavigationActionType.GoBack:
