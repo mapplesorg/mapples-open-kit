@@ -19,6 +19,10 @@ export type SetStateOp =
   | 'decrement'
   | 'toggle'
   | 'append'
+  /** Takes every element equal to the value out of an array variable. */
+  | 'remove'
+  /** Adds the value to an array variable, or takes it out when it is already in. */
+  | 'toggleItem'
   | 'clear';
 
 /** One authored write, carried in `actionProps.<trigger>.staticData`. */
@@ -27,7 +31,7 @@ export interface SetStateOperation {
   target: string;
   /** Defaults to `'set'`. */
   op?: SetStateOp;
-  /** Required for `set`/`append`; optional amount for `increment`/`decrement`. */
+  /** Required for `set`/`append`/`remove`/`toggleItem`; optional amount for `increment`/`decrement`. */
   source?: StateValueSource;
 }
 
@@ -140,4 +144,51 @@ export const toSetStateCommands = (
   }
 
   return commands.length ? commands : null;
+};
+
+export const ConditionActionType = {
+  /**
+   * Choose a follow-up by a condition on the state. `payload.data:
+   * { condition, then?, else? }` — `condition` is a `@mapples/inlang`
+   * condition (`api.signIn.status::eq::401`, `vars.picks::isNotEmpty::`),
+   * `then` and `else` follow-ups like a request's `onSuccess`. The chosen
+   * one goes out with the triggering action's event, so an `event` source
+   * in it still reads the same arguments.
+   */
+  If: 'mapples:if',
+} as const;
+
+/** A resolved `mapples:if`: the condition and its branches. */
+export interface ConditionCommand {
+  condition: string;
+  then?: SetStateFollowUp;
+  else?: SetStateFollowUp;
+}
+
+const asFollowUp = (value: unknown): SetStateFollowUp | undefined =>
+  isPlainObject(value) && typeof (value as { type?: unknown }).type === 'string'
+    ? (value as SetStateFollowUp)
+    : undefined;
+
+/**
+ * Resolve a `mapples:if` action into a {@link ConditionCommand}. Returns
+ * `null` for any other action type; a `mapples:if` without a condition
+ * throws — a branch that silently never runs is a wiring defect nobody can
+ * see.
+ */
+export const toConditionCommand = (action: Action): ConditionCommand | null => {
+  if (action.type !== ConditionActionType.If) return null;
+  const data = (action.payload?.data ?? {}) as {
+    condition?: unknown;
+    then?: unknown;
+    else?: unknown;
+  };
+  if (typeof data.condition !== 'string' || data.condition === '') {
+    throw new Error(`A "${ConditionActionType.If}" action has no condition`);
+  }
+  return {
+    condition: data.condition,
+    then: asFollowUp(data.then),
+    else: asFollowUp(data.else),
+  };
 };

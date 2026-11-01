@@ -11,11 +11,19 @@ export interface WritableStateContextType {
   /** Current variable values keyed by name (bound as `vars.<name>`). */
   value: Record<string, unknown>;
   /**
+   * Whether the persisted app variables have been loaded from the host
+   * storage. `false` only between mount and the moment every stored value
+   * has arrived (or failed to); a guard that reads a persisted session must
+   * wait for it, or a signed-in user reads as signed out for that moment.
+   */
+  hydrated: boolean;
+  /**
    * Path-based write. `path` is `vars.`-prefixed (matching binding syntax);
    * root writes are coerced to the variable's declared type, nested writes
-   * into object/array variables are set raw. Unknown variables warn + no-op.
+   * into object/array variables are set raw. Unknown variables warn + no-op,
+   * and return `false`; a queued write returns `true`.
    */
-  setValue: (path: string, value: unknown) => void;
+  setValue: (path: string, value: unknown) => boolean;
   /** Reset named variables (or all currently mounted) to initial values. */
   reset: (names?: string[]) => void;
   /**
