@@ -62,12 +62,19 @@ const RequestActionHandler = () => {
       return true;
     };
 
-    const emitFollowUp = (followUp?: FollowUpAction) => {
+    // The response goes along as the follow-up's event: it is emitted in the
+    // same tick as `setResponse`, so a `state` source reading `api.<name>`
+    // still sees the previous render, while `{ kind: 'event', path }` reads
+    // the body that just arrived.
+    const emitFollowUp = (followUp?: FollowUpAction, response?: unknown) => {
       if (!followUp?.type) return;
       actionStore.next({
         time: Date.now(),
         type: followUp.type,
-        payload: { data: followUpData(followUp) },
+        payload: {
+          data: followUpData(followUp),
+          originalEventData: [response],
+        },
       });
     };
 
@@ -81,7 +88,7 @@ const RequestActionHandler = () => {
             data: command.responseSample ?? null,
             status: 200,
           });
-          emitFollowUp(command.onSuccess);
+          emitFollowUp(command.onSuccess, command.responseSample ?? null);
         }, SAMPLE_DELAY_MS);
         return;
       }
@@ -100,7 +107,10 @@ const RequestActionHandler = () => {
           error: response.ok ? undefined : `HTTP ${response.status}`,
         });
 
-        emitFollowUp(response.ok ? command.onSuccess : command.onError);
+        emitFollowUp(
+          response.ok ? command.onSuccess : command.onError,
+          response.data,
+        );
       } catch (error) {
         // A rejected transport (network, CORS, parse, an unconfigured secret)
         // is a failed request. It is reported as one: no sample data is

@@ -84,8 +84,9 @@ export interface ApiRequest {
   params?: Record<string, ApiValueSource>;
   /**
    * Headers read when the request runs — a signed-in user's token from
-   * `api.signIn.data.access_token`. `prefix` goes in front (`Bearer `). A value
-   * that resolves to nothing leaves the header out; wins over {@link headers}.
+   * `vars.sessionToken`. `prefix` goes in front (`Bearer `). A value that
+   * resolves to nothing or to `''` leaves the header out; wins over
+   * {@link headers}.
    */
   headerValues?: Record<string, { source: ApiValueSource; prefix?: string }>;
   /** JSON body template; leaf values may be {@link ApiValueSource}s. */

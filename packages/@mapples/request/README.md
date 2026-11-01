@@ -87,6 +87,22 @@ const transport: RequestTransport = async (request) => {
 
 `auth` reaches the transport unresolved (it carries the secret's name), so a forwarding transport never holds the secret's value.
 
+## Follow-ups read the response
+
+`onSuccess` and `onError` go out with the response body as their event, so `{ kind: 'event', path }` reads it. They are emitted before the next render, so a `state` source on `api.<name>` still sees the previous response. A sign-in keeps its token this way:
+
+```ts
+onSuccess: {
+  type: 'mapples:setState',
+  data: {
+    operations: [
+      { target: 'vars.sessionToken', source: { kind: 'event', path: 'access_token' } },
+    ],
+    onDone: { type: 'mapples:navigate', data: { routeName: 'Home', replace: true } },
+  },
+},
+```
+
 ## Errors
 
 Nothing fails silently:

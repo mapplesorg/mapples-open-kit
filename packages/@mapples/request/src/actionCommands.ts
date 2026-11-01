@@ -213,8 +213,11 @@ export const toRequestCommand = (
     request.headerValues ?? {},
   )) {
     const value = resolveSource(source, action, context);
-    if (value === undefined || value === null) delete headers[name];
-    else headers[name] = `${prefix ?? ''}${String(value)}`;
+    if (value === undefined || value === null || value === '') {
+      delete headers[name];
+    } else {
+      headers[name] = `${prefix ?? ''}${String(value)}`;
+    }
   }
 
   if (body !== undefined && !headers['Content-Type']) {
