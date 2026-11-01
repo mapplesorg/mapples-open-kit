@@ -41,6 +41,7 @@ const RequestActionHandler = () => {
       onRequestError,
       sampleOnFailure,
       stateOverride,
+      requestOverrides,
       setResponse,
     } = runtime;
 
@@ -148,7 +149,7 @@ const RequestActionHandler = () => {
         onRequestError(error as Error, action);
         return;
       }
-      if (!command) return;
+      if (!command || requestOverrides?.[command.requestId]) return;
       void execute(command);
     });
 

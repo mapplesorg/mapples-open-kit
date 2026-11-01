@@ -36,6 +36,9 @@ export type RequestExecutionMode = 'sample' | 'fetch';
 /** A saved data state every request previews with, in place of its responses. */
 export type RequestStateOverride = 'loading' | 'error';
 
+/** The saved data state one request previews with, whatever the others show. */
+export type RequestStateChoice = RequestStateOverride | 'success';
+
 export interface RequestRuntimeContextType {
   document: ApiDocument | null;
   mode: RequestExecutionMode;
@@ -47,6 +50,8 @@ export interface RequestRuntimeContextType {
   sampleOnFailure: boolean;
   /** See {@link RequestProviderProps.stateOverride}. */
   stateOverride: RequestStateOverride | null;
+  /** See {@link RequestProviderProps.requestOverrides}. */
+  requestOverrides: Record<string, RequestStateChoice> | null;
   setResponse: (stateKey: string, state: ResponseState) => void;
 }
 
@@ -99,15 +104,28 @@ export interface RequestProviderProps {
    * loading or error branch.
    */
   stateOverride?: RequestStateOverride | null;
+  /**
+   * The saved state single requests show, by request id, over
+   * {@link stateOverride} and their responses: a mixed preview. Their
+   * `mapples:request` actions are ignored meanwhile.
+   */
+  requestOverrides?: Record<string, RequestStateChoice> | null;
 }
 
 /** The response a request's saved state stands for. */
 const overriddenResponse = (
   request: ApiRequest,
-  override: RequestStateOverride,
+  override: RequestStateChoice,
 ): ResponseState => {
   if (override === 'loading') {
     return { loading: true, data: request.states?.loading };
+  }
+  if (override === 'success') {
+    return {
+      loading: false,
+      data: apiRequestSuccessState(request),
+      status: 200,
+    };
   }
   const saved = request.states?.error;
   const body = saved?.body as { message?: unknown } | undefined;
@@ -143,6 +161,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
   autoRun = false,
   sampleOnFailure = false,
   stateOverride = null,
+  requestOverrides = null,
 }) => {
   const [responses, setResponses] = useState<Record<string, ResponseState>>({});
   // Responses belong to the mode that produced them: leaving `fetch` must not
@@ -176,11 +195,13 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       }
     }
     const overrides: Record<string, ResponseState> = {};
-    if (stateOverride && document) {
+    if (document) {
       for (const request of Object.values(document.requests)) {
+        const override = requestOverrides?.[request.id] ?? stateOverride;
+        if (!override) continue;
         overrides[apiRequestStateKey(request)] = overriddenResponse(
           request,
-          stateOverride,
+          override,
         );
       }
     }
@@ -199,7 +220,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       set(result, stateKey.slice(STATE_KEY_PREFIX.length), response);
     }
     return result;
-  }, [document, previewSamples, responses, stateOverride]);
+  }, [document, previewSamples, requestOverrides, responses, stateOverride]);
 
   const resolvedTransport = useMemo(
     () => transport ?? createFetchTransport(secrets),
@@ -215,6 +236,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       autoRun,
       sampleOnFailure,
       stateOverride,
+      requestOverrides,
       setResponse,
     }),
     [
@@ -225,6 +247,7 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       autoRun,
       sampleOnFailure,
       stateOverride,
+      requestOverrides,
       setResponse,
     ],
   );
