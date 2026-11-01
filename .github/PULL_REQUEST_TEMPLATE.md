@@ -38,15 +38,7 @@ Brief description of the changes in this PR.
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
-- [ ] I have added a changeset for my changes (if applicable)
-
-## Changeset
-
-If this PR includes changes that should be released, please add a changeset:
-
-```bash
-yarn changeset
-```
+- [ ] This PR does not touch `packages/@mapples/*` by hand (those changes come from `mapples-kit` through sync PRs)
 
 ## Screenshots (if applicable)
 

@@ -40,19 +40,11 @@ yarn type-check
 
 ## Development
 
-### Adding a Changeset
+### Where changes happen
 
-When you make changes to any package, you need to add a changeset to describe what changed:
-
-```bash
-yarn changeset
-```
-
-This will prompt you to:
-
-1. Select which packages changed
-2. Choose the type of change (patch, minor, major)
-3. Write a description of the changes
+This repository is a **read-only mirror**. The packages are developed and published from
+[`mapplesorg/mapples-kit`](https://github.com/mapplesorg/mapples-kit); every commit here arrives
+through a `sync/kit-*` pull request after a stable release. See [RELEASE.md](RELEASE.md).
 
 ### Building
 
@@ -74,35 +66,17 @@ yarn test
 yarn turbo run test --filter=@mapples/ui
 ```
 
-## Release Process
+## Releases
 
-This project uses [Changesets](https://github.com/changesets/changesets) for version management and releases.
-
-### Automatic Releases
-
-1. Create a changeset for your changes: `yarn changeset`
-2. Commit and push your changes
-3. The CI will automatically create a PR with version bumps
-4. Once the PR is merged, packages will be automatically published to npm
-
-### Manual Release
-
-```bash
-# Version packages (updates package.json versions)
-yarn version-packages
-
-# Publish to npm
-yarn release
-```
+There is no release flow in this repository. Versions, changelogs and npm publishing come from
+`mapples-kit`; the sync PR brings the bumped `package.json` and `CHANGELOG.md` files along with
+the code. Details in [RELEASE.md](RELEASE.md).
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add a changeset: `yarn changeset`
-5. Run tests and linting: `yarn test && yarn lint`
-6. Submit a pull request
+Code changes are made in `mapplesorg/mapples-kit` and flow here through sync PRs. Pull requests
+against this repository are limited to the mirror itself (CI, tests, docs); anything under
+`packages/@mapples/*` will be overwritten by the next sync.
 
 ## License
 
