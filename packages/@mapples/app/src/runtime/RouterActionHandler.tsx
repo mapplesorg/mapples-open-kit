@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 
 import { useActionStore } from '@mapples/action';
 import {
@@ -53,9 +53,33 @@ const RouterActionHandler = () => {
   const navigationRef = useNavigationContainerRef();
   const router = useRouter();
 
+  // The subscription outlives state changes: `getValue` changes with every
+  // variable write, and resubscribing on it opened a gap — React runs every
+  // effect cleanup of a commit before any effect body, so an action a screen
+  // emitted from its own effect in that commit (a guard redirecting because
+  // the write just refused it) hit the bus while nothing was subscribed. The
+  // latest values are read through a ref, updated before any passive effect.
+  const latest = useRef({ document, routes, getValue, router });
+  useLayoutEffect(() => {
+    latest.current = { document, routes, getValue, router };
+  }, [document, routes, getValue, router]);
+
+  // A navigation dispatched here that has not landed yet. A guard redirect
+  // arriving meanwhile is dropped: the write that refused the guard of the
+  // screen being left also emitted the authored navigate, and that one wins.
+  const pending = useRef(false);
+  useEffect(
+    () =>
+      navigationRef.addListener('state', () => {
+        pending.current = false;
+      }),
+    [navigationRef],
+  );
+
   useEffect(() => {
-    if (!document) return;
     const subscription = actionStore.subscribe((action) => {
+      const { document, routes, getValue, router } = latest.current;
+      if (!document) return;
       const command = toNavigationCommand(action, document, {
         // `null`, not `getValue`'s display default: an unresolved param must
         // not reach the screen as the literal string "N/A".
@@ -71,6 +95,9 @@ const RouterActionHandler = () => {
       switch (command.kind) {
         case 'navigate':
         case 'switchTab': {
+          if (command.kind === 'navigate' && command.guard && pending.current) {
+            break;
+          }
           const route = resolveRoute(document, command.routeName);
           const screens = route ? routes[route.id] : undefined;
           if (!route || !screens) {
@@ -96,6 +123,7 @@ const RouterActionHandler = () => {
             (command.replace === true ||
               (!!focused &&
                 entersGuardFromFallback(document, focused, command.routeName)));
+          if (focusedRouteRef.current !== route.id) pending.current = true;
           if (replace) {
             if (router.canDismiss()) router.dismissAll();
             router.replace(href);
@@ -116,15 +144,7 @@ const RouterActionHandler = () => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [
-    actionStore,
-    document,
-    focusedRouteRef,
-    getValue,
-    navigationRef,
-    router,
-    routes,
-  ]);
+  }, [actionStore, focusedRouteRef, navigationRef]);
 
   return null;
 };

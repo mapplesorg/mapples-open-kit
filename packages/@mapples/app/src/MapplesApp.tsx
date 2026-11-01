@@ -2,7 +2,12 @@ import { FC, PropsWithChildren, JSX, useEffect, useMemo } from 'react';
 
 import { Components } from '@mapples/components';
 import { AnyObject, RenderProvider } from '@mapples/render';
-import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
+import {
+  StyleContextType,
+  StyleProvider,
+  Styler,
+  ThemeVariantProvider,
+} from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
 // The files `mapples sync` writes — resolved by `mapplesResolver`
@@ -51,6 +56,8 @@ export interface MapplesAppProps {
   variablesStorage?: MapplesRuntimeProps['variablesStorage'];
   /** Performs API requests (default: direct `fetch` with the synced secrets). */
   transport?: MapplesRuntimeProps['transport'];
+  /** A state path (`vars.theme`) whose `light` / `dark` / `auto` value switches the theme at runtime. */
+  themeVariable?: MapplesRuntimeProps['themeVariable'];
 }
 
 /**
@@ -104,6 +111,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   project,
   variablesStorage,
   transport,
+  themeVariable,
 }) => {
   const runtimeProject = useMemo(() => project ?? syncedProject(), [project]);
   const resolved = useMemo(
@@ -144,22 +152,25 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
     // Gesture-driven library components (Slider, BottomSheet) need the
     // gesture-handler root; the canvas provides its own through DnDRootView.
     <GestureHandlerRootView style={rootStyle}>
-      <StyleProvider style={styleContext}>
-        <RenderProvider
-          components={{ ...Components, ...UIComponents }}
-          assets={resolved.assets}
-        >
-          <NavigationProvider navigation={navigation}>
-            <MapplesRuntime
-              project={runtimeProject}
-              variablesStorage={variablesStorage}
-              transport={transport}
-            >
-              {children}
-            </MapplesRuntime>
-          </NavigationProvider>
-        </RenderProvider>
-      </StyleProvider>
+      <ThemeVariantProvider>
+        <StyleProvider style={styleContext}>
+          <RenderProvider
+            components={{ ...Components, ...UIComponents }}
+            assets={resolved.assets}
+          >
+            <NavigationProvider navigation={navigation}>
+              <MapplesRuntime
+                project={runtimeProject}
+                variablesStorage={variablesStorage}
+                transport={transport}
+                themeVariable={themeVariable}
+              >
+                {children}
+              </MapplesRuntime>
+            </NavigationProvider>
+          </RenderProvider>
+        </StyleProvider>
+      </ThemeVariantProvider>
     </GestureHandlerRootView>
   );
 };

@@ -9,6 +9,7 @@ import {
 } from '@mapples/request';
 import {
   ActiveRouteProvider,
+  ConditionActionHandler,
   StateActionHandler,
   VariablesProvider,
   VariablesStorage,
@@ -21,6 +22,7 @@ import {
   MapplesRuntimeContext,
   MapplesRuntimeContextType,
 } from './RuntimeContext';
+import ThemeVariableBinding from './ThemeVariableBinding';
 
 export interface MapplesRuntimeProps {
   project: MapplesProject;
@@ -32,6 +34,12 @@ export interface MapplesRuntimeProps {
    * through a backend that holds the secrets instead.
    */
   transport?: RequestTransport;
+  /**
+   * A state path the theme follows (`vars.theme`): `light`, `dark` or `auto`
+   * there switches the theme at runtime, on every platform. Declare the
+   * variable with `persist` to keep the choice across launches.
+   */
+  themeVariable?: string;
 }
 
 /**
@@ -61,17 +69,6 @@ const withEnvironment = (
   return { ...api, activeEnvironmentId: match.id };
 };
 
-/** Only the secrets that are set — an unset one must fail the request that needs it. */
-const presentSecrets = (
-  secrets: Record<string, string | undefined> | undefined,
-): Record<string, string> => {
-  const present: Record<string, string> = {};
-  for (const [name, value] of Object.entries(secrets ?? {})) {
-    if (value !== undefined && value !== '') present[name] = value;
-  }
-  return present;
-};
-
 /**
  * The behaviour runtime of an exported app — what Creator's Play mounts
  * around a prototype: the action bus, the project variables (`vars.*`) with
@@ -83,6 +80,7 @@ const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
   project,
   variablesStorage,
   transport,
+  themeVariable,
   children,
 }) => {
   const focusedRouteRef = useRef<string | null>(null);
@@ -98,8 +96,9 @@ const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
     () => withEnvironment(project.api, project.environment),
     [project.api, project.environment],
   );
+  // The default transport refuses a request whose secret is unset or empty.
   const requestTransport = useMemo(
-    () => transport ?? createFetchTransport(presentSecrets(project.secrets)),
+    () => transport ?? createFetchTransport(project.secrets),
     [transport, project.secrets],
   );
 
@@ -132,7 +131,11 @@ const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
             <ActiveRouteProvider>
               <StateActionHandler />
               <RequestActionHandler />
+              <ConditionActionHandler />
               <RouterActionHandler />
+              {themeVariable ? (
+                <ThemeVariableBinding path={themeVariable} />
+              ) : null}
               {children}
             </ActiveRouteProvider>
           </RequestProvider>
