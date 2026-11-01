@@ -6,6 +6,8 @@ import { useElementBindings } from '../hooks/useElementBindings';
 import { ActionPropsMap, RefPropsMap } from '../types';
 import { applyRefProps } from '../utils/applyRefProps';
 
+import ElementErrorBoundary from './ElementErrorBoundary';
+
 /**
  * Props of {@link MapplesElement}: the element it renders and the Creator
  * sidecars of a synced file, as the `$data` / `$actions` / `$refs` JSX
@@ -45,6 +47,10 @@ const elementName = (As: ElementType): string =>
  * canvas never runs the code one — and says so once, so a duplicate
  * `onPress` (an old habit of writing `router.push` next to a navigate
  * action) is visible rather than silently doubled.
+ *
+ * A render error of the element stays its own: it is reported and the
+ * element left out, so one bound chart handed a value it refuses does not
+ * end the app.
  */
 const MapplesElement = forwardRef<unknown, MapplesElementProps>(
   (elementProps, ref) => {
@@ -80,11 +86,15 @@ const MapplesElement = forwardRef<unknown, MapplesElementProps>(
     if (hidden) return null;
 
     return (
-      <As
-        ref={ref}
-        {...applyRefProps({ ...props, ...dataProps }, refProps)}
-        {...actionHandlers}
-      />
+      <ElementErrorBoundary
+        label={`<${elementName(As)}${sid ? ` $sid="${String(sid)}"` : ''}>`}
+      >
+        <As
+          ref={ref}
+          {...applyRefProps({ ...props, ...dataProps }, refProps)}
+          {...actionHandlers}
+        />
+      </ElementErrorBoundary>
     );
   },
 );
