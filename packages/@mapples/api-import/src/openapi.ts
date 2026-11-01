@@ -350,8 +350,12 @@ export const importOpenApi = (
         params: Object.keys(params).length > 0 ? params : undefined,
         body: template === undefined ? undefined : { kind: 'json', template },
         auth,
+        // A success that declares no body (a 204) samples as `null`: the
+        // request has its state, and bindings read nothing from it.
         responseSample: isObject(response)
-          ? sampleFromContent(response.content, resolve)
+          ? isObject(response.content)
+            ? sampleFromContent(response.content, resolve)
+            : null
           : undefined,
       });
     }
