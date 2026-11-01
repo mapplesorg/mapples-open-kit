@@ -34,6 +34,26 @@ export interface NavigationDocument {
   rootNavigatorId: string;
   /** Flat map of every navigator in the document, keyed by {@link NavigatorNode.id}. */
   navigators: Record<string, NavigatorNode>;
+  /** Editor-only canvas preferences. Ignored by the runtime. */
+  canvas?: NavigationCanvasSettings;
+}
+
+/**
+ * Editor-only preferences about how the navigation is *drawn on the canvas*.
+ * The runtime never reads this, the same way it never reads
+ * {@link NavigatorNode.canvas} — it lives here so the choice travels with the
+ * project rather than with one editor.
+ *
+ * @interface NavigationCanvasSettings
+ */
+export interface NavigationCanvasSettings {
+  /**
+   * Draw each screen's navigator chrome (headers, and the tab bar of a tabs
+   * navigator it belongs to) on its canvas frame, inset from the design area
+   * exactly as the running app insets it. Unset means on: a frame that hides
+   * the chrome is claiming space the screen will not actually have.
+   */
+  chrome?: boolean;
 }
 
 /**
@@ -56,6 +76,22 @@ export interface NavigatorCanvasRect {
 }
 
 /**
+ * Editor-only cell of a navigator's section on the Creator storyboard grid:
+ * the column and row it occupies in its parent's grid (the canvas itself for
+ * a top-level section). The runtime ignores it entirely — it exists so the
+ * canvas can persist where the section sits, the way pages persist their
+ * frame placement in `_canvasProps`.
+ *
+ * @interface StoryboardCell
+ */
+export interface StoryboardCell {
+  /** Column in the parent's grid. Any integer — the grid has no edge. */
+  col: number;
+  /** Row in the parent's grid. */
+  row: number;
+}
+
+/**
  * A single navigator (stack, tabs, or drawer) and its ordered child routes.
  *
  * @interface NavigatorNode
@@ -73,7 +109,14 @@ export interface NavigatorNode {
   routes: RouteNode[];
   /** Presentation/styling options scoped to this navigator. */
   options?: NavigatorOptions;
-  /** Editor-only canvas placement. Ignored by the runtime. */
+  /** Editor-only storyboard cell. Ignored by the runtime. */
+  cell?: StoryboardCell;
+  /**
+   * Editor-only canvas placement from before the storyboard grid. Ignored by
+   * the runtime and by the Creator, kept so older documents still parse.
+   *
+   * @deprecated Sections sit in a {@link cell} now.
+   */
   canvas?: NavigatorCanvasRect;
 }
 
@@ -95,11 +138,105 @@ export interface RouteNode {
   presentation?: 'card' | 'modal' | 'transparentModal';
   /** Per-screen option overrides (header, tab/drawer label & icon). */
   options?: ScreenOptions;
-  /** Reserved for deep linking. No v1 UI. */
+  /**
+   * The route's path segment under its navigator — the exported app's
+   * expo-router file segment (`profile`, `(auth)` for a group, `send-money`),
+   * which the CLI reads and writes on sync. A `:token` (or `[token]`) segment
+   * is a param — `product/:id` — that every navigate action to the route must
+   * supply (see {@link routePathParams}) and the screen reads as
+   * `route.<token>`. Absent: derived from the route name, no params.
+   */
   path?: string;
-  /** Reserved for a state condition guard. No v1 UI. */
+  /**
+   * Access guard: a condition in the grammar element visibility uses
+   * (`dataProp::condition::value`, e.g. `vars.session.token::isNotEmpty::`)
+   * that must hold for the screen to show. When it fails the navigator sends
+   * the user to {@link guardFallbackRouteId} instead. Meant for "signed in"
+   * style checks — a screen waiting for its data binds `api.<name>.loading`,
+   * a guard on the response would bounce the user before the request settles.
+   *
+   * On a route that enters a nested navigator the guard protects that whole
+   * area — every screen under it (expo-router's `Stack.Protected` around the
+   * group). The fallback must then lie outside the guarded area.
+   */
   guard?: string;
+  /**
+   * Id of the route shown when {@link guard} fails. Required with a guard;
+   * never the guarded route itself nor, for a navigator route, a route
+   * inside the navigator it guards.
+   */
+  guardFallbackRouteId?: string;
+  /**
+   * An action emitted each time the screen gains focus, with the route's
+   * params as its event value and merged into its data — typically a
+   * `mapples:request` so the screen loads what it shows
+   * (`/product/:id` → `GET /products/{id}` with `{id}` bound to `route.id`).
+   */
+  onEnter?: RouteEnterAction;
 }
+
+/**
+ * The action a route emits on focus. The same shape an element's action prop
+ * carries: the type, plus the literal payload the runtime merges into
+ * `Action.payload.data` (a request's `requestId` and follow-ups).
+ *
+ * @interface RouteEnterAction
+ */
+export interface RouteEnterAction {
+  type: string;
+  staticData?: Record<string, unknown>;
+}
+
+/**
+ * Root of every route-param binding (`route.id`). Params live in their own
+ * `@mapples/state` context, like `vars.*` and `api.*`, so a nested data-state
+ * provider never shadows them.
+ */
+export const ROUTE_NAMESPACE = 'route';
+
+/**
+ * Root of the bindings a designed tab bar's per-tab template reads
+ * (`tab.label`, `tab.active`, `tab.index`). Each repeated tab provides its
+ * own scope through a `@mapples/state` context kept apart from the data
+ * state, like `route.*`, so a component's `props.*` stay readable inside it.
+ */
+export const TAB_NAMESPACE = 'tab';
+
+/**
+ * Param segments of a {@link RouteNode.path}: `:token` as authored in the
+ * Creator, or `[token]` as an expo-router file the CLI adopted.
+ */
+const ROUTE_PATH_TOKEN_PATTERN =
+  /(?:^|\/):([A-Za-z_][A-Za-z0-9_]*)(?=\/|$)|(?:^|\/)\[([A-Za-z_][A-Za-z0-9_]*)\](?=\/|$)/g;
+
+/**
+ * The param names a route path declares, in order of first appearance —
+ * `shop/:category/:id` → `['category', 'id']`. Empty without a path.
+ */
+export const routePathParams = (path?: string): string[] => {
+  const names: string[] = [];
+  for (const match of (path ?? '').matchAll(ROUTE_PATH_TOKEN_PATTERN)) {
+    const name = match[1] ?? match[2];
+    if (!names.includes(name)) names.push(name);
+  }
+  return names;
+};
+
+/** One path segment: a literal, an expo-router `(group)`, or a param. */
+const ROUTE_SEGMENT =
+  '(?:[A-Za-z0-9._-]+|\\([A-Za-z0-9._-]+\\)|:[A-Za-z_][A-Za-z0-9_]*|\\[[A-Za-z_][A-Za-z0-9_]*\\])';
+
+const ROUTE_PATH_PATTERN = new RegExp(
+  `^\\/?${ROUTE_SEGMENT}(?:\\/${ROUTE_SEGMENT})*\\/?$`,
+);
+
+/**
+ * Whether a route path is well-formed: one or more segments, each a literal
+ * (`[A-Za-z0-9._-]+`), a `(group)`, or a `:name` / `[name]` param. A leading
+ * or trailing slash is tolerated (the CLI strips them).
+ */
+export const isValidRoutePath = (path: string): boolean =>
+  ROUTE_PATH_PATTERN.test(path);
 
 /**
  * Navigator-level presentation options. Only the field matching the
@@ -108,7 +245,11 @@ export interface RouteNode {
  * @interface NavigatorOptions
  */
 export interface NavigatorOptions {
-  /** Header options — applies to `stack` navigators. */
+  /**
+   * Header options. Every navigator type draws a header, so these apply to
+   * all three — turning `visible` off is how a nested navigator stops
+   * stacking a second header under its parent's.
+   */
   header?: HeaderOptions;
   /** Tab bar options — applies to `tabs` navigators. */
   tabBar?: TabBarOptions;
@@ -125,7 +266,12 @@ export interface NavigatorOptions {
  * @interface HeaderOptions
  */
 export interface HeaderOptions {
-  /** Whether the header is shown. */
+  /**
+   * Whether the header is shown. Unset means shown — that is the navigator
+   * default, and `resolveNavigatorHeader` in `@mapples/navigation` makes it
+   * explicit so editors can present a plain on/off rather than a tri-state
+   * that reads "off" while the header is up.
+   */
   visible?: boolean;
   /** Header title text. */
   title?: string;
@@ -149,6 +295,29 @@ export interface HeaderOptions {
 export interface TabBarOptions {
   /** Whether the tab bar is shown. */
   visible?: boolean;
+  /**
+   * A saved component that renders the bar instead of the stock one. The
+   * design owns the look: `backgroundColor`, the tints and the label fields
+   * are inert while this is set; `visible` still applies. The runtime mounts
+   * the component as React Navigation's `tabBar` and hands it the routes
+   * through the navigator-chrome context (`TabBarItems` reads them).
+   * Mutually exclusive with {@link native}.
+   */
+  componentUuid?: string;
+  /**
+   * Render the exported app's bar with expo-router's `NativeTabs` (the
+   * platform tab bar: liquid glass on iOS 26, Material on Android). Only the
+   * exported app can honour it — the Creator's Play mode keeps the JavaScript
+   * bar, and the canvas draws a platform-styled placeholder. Mutually
+   * exclusive with {@link componentUuid}.
+   */
+  native?: boolean;
+  /**
+   * The designed bar ({@link componentUuid}) lies over the screens instead of
+   * below them: screens keep their full height and scroll underneath. Inert
+   * on the stock and the native bar.
+   */
+  floating?: boolean;
   /** Tab bar background colour. */
   backgroundColor?: string;
   /** Tint for the active tab. */
@@ -167,6 +336,14 @@ export interface TabBarOptions {
  * @interface DrawerOptions
  */
 export interface DrawerOptions {
+  /**
+   * A saved component that renders the drawer's content instead of the stock
+   * item list. `position`, `drawerType`, `width` and `backgroundColor` still
+   * shape the drawer itself; the tints are inert. The runtime mounts the
+   * component as React Navigation's `drawerContent` and hands it the routes
+   * through the navigator-chrome context (`DrawerItems` reads them).
+   */
+  componentUuid?: string;
   /** Which edge the drawer opens from. */
   position?: 'left' | 'right';
   /** How the drawer animates relative to the screen. */
@@ -185,17 +362,90 @@ export interface DrawerOptions {
  * Per-screen option overrides. Extends {@link HeaderOptions} (each field
  * optional) and adds tab/drawer item presentation for the screen.
  *
- * Icon fields accept a reference of the form `ref(icon:<uuid>:<name>)`.
+ * Icon fields accept an uploaded icon asset, `ref(icon:<uuid>:<name>)`, or a
+ * built-in font glyph, `ref(glyph:<family>:<name>)` (see {@link buildGlyphRef}).
  *
  * @interface ScreenOptions
  */
 export interface ScreenOptions extends Partial<HeaderOptions> {
-  /** Tab bar icon — `ref(icon:<uuid>:<name>)`. */
+  /** Tab bar icon — `ref(icon:<uuid>:<name>)` or `ref(glyph:<family>:<name>)`. */
   tabIcon?: string;
   /** Tab bar label override. */
   tabLabel?: string;
-  /** Drawer icon — `ref(icon:<uuid>:<name>)`. */
+  /** Drawer icon — `ref(icon:<uuid>:<name>)` or `ref(glyph:<family>:<name>)`. */
   drawerIcon?: string;
   /** Drawer label override. */
   drawerLabel?: string;
 }
+
+/**
+ * A built-in font glyph used as a tab / drawer icon: the icon family's key as
+ * `@mapples/ui` persists it (`ionicons`, `material-icons`, …) and the glyph's
+ * name in that family — the same pair an `Icon` element renders
+ * (`iconStyle` + `iconName`).
+ *
+ * @interface GlyphRef
+ */
+export interface GlyphRef {
+  family: string;
+  name: string;
+}
+
+const GLYPH_REF_PATTERN = /^ref\(glyph:([^:()]+):([^()]+)\)$/;
+
+/**
+ * The `ref(glyph:<family>:<name>)` string a {@link ScreenOptions} icon field
+ * stores for a built-in glyph. The family is pinned in the ref (rather than
+ * following the project's icon family) so the exported app can import the
+ * one font it names.
+ */
+export const buildGlyphRef = (family: string, name: string): string =>
+  `ref(glyph:${family}:${name})`;
+
+/** The family and glyph of a `ref(glyph:…)` string, or `null` if it isn't one. */
+export const parseGlyphRef = (value?: string): GlyphRef | null => {
+  if (!value) return null;
+  const match = GLYPH_REF_PATTERN.exec(value);
+  return match ? { family: match[1], name: match[2] } : null;
+};
+
+/**
+ * Whether a route's screen shows its navigator's header. The route's own
+ * `visible` wins. Otherwise a route that enters a nested navigator shows
+ * none — the nested navigator draws the header of the screen inside it, and
+ * drawing the parent's too stacks two bars (`Auth` over `Sign in`) — and a
+ * page route follows its navigator (shown unless the navigator turns it off).
+ *
+ * The one rule the canvas frame chrome and the exported app's generated
+ * layouts (the `mapples` CLI mirrors it) both apply.
+ */
+export const routeHeaderVisible = (
+  navigator: NavigatorNode,
+  route: RouteNode,
+): boolean =>
+  route.options?.visible ??
+  (route.target.kind === 'navigator'
+    ? false
+    : (navigator.options?.header?.visible ?? true));
+
+/**
+ * The title a route's screen shows in its header: the route's own, else the
+ * navigator's, else the route name.
+ */
+export const routeTitle = (
+  navigator: NavigatorNode,
+  route: RouteNode,
+): string =>
+  route.options?.title ?? navigator.options?.header?.title ?? route.name;
+
+/**
+ * The label a route's tab or drawer item shows: the route's `tabLabel` /
+ * `drawerLabel`, else the route name — never the header title, which a
+ * navigator-wide title would otherwise put on every item.
+ */
+export const routeItemLabel = (
+  kind: 'tabs' | 'drawer',
+  route: RouteNode,
+): string =>
+  (kind === 'tabs' ? route.options?.tabLabel : route.options?.drawerLabel) ??
+  route.name;

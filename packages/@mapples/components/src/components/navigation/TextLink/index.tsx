@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledPressable, StyledProp, Typography } from '@mapples/style';
 import {
@@ -56,7 +62,9 @@ export interface TextLinkProps extends Omit<
  *
  * @public
  */
-const TextLink = forwardRef<View, PropsWithChildren<TextLinkProps>>(
+const TextLink: ForwardRefExoticComponent<
+  PropsWithChildren<TextLinkProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TextLinkProps>>(
   (
     {
       label,
@@ -86,7 +94,7 @@ const TextLink = forwardRef<View, PropsWithChildren<TextLinkProps>>(
     const labelColor = useSlotColor(
       styled?.styleLabel,
       'color',
-      tones.tone(tone).main,
+      tones.tone(tone).ink,
     );
     const glyphColor = useSlotColor(styled?.styleIcon, 'color', labelColor);
 

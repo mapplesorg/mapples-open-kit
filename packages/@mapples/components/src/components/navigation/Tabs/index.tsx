@@ -1,7 +1,15 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledScrollView, StyledView } from '@mapples/style';
-import { Tokens, Tone, useTones } from '@mapples/ui';
+import { Tokens, Tone, useShape, useTones } from '@mapples/ui';
 import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { useControllableState, useSlotColor } from '../../../internal';
@@ -10,10 +18,13 @@ import { defaults } from './defaults';
 import Indicator from './Indicator';
 import Tab from './Tab';
 import {
+  readIndicatorGeometry,
   readTabItems,
   TabItem,
   TabLayout,
   TABS_GEOMETRY,
+  TABS_OVERLINE_EXTRA_HEIGHT,
+  TABS_UNDERLINE_HEIGHT,
   TabsSize,
   TabsVariant,
 } from './types';
@@ -38,6 +49,13 @@ export interface TabsProps extends Omit<ViewProps, 'children'> {
   size?: TabsSize;
   /** Colour role of the active tab. Defaults to `primary`. */
   tone?: Tone;
+  /** Thickness of the underline indicator in points. Defaults to `2`. */
+  indicatorThickness?: number;
+  /**
+   * Points the indicator stays clear of each side of the active tab — a
+   * narrower, rounded underline or pill. Defaults to `0` (the tab's width).
+   */
+  indicatorInset?: number;
   /** Styled slots for every visual part. */
   styled?: {
     /** The bar. */
@@ -50,6 +68,8 @@ export interface TabsProps extends Omit<ViewProps, 'children'> {
     styleLabel?: StyledProp<TextStyle>;
     /** The active label. */
     styleLabelActive?: StyledProp<TextStyle>;
+    /** The small line above a label (`TabItem.overline`). */
+    styleOverline?: StyledProp<TextStyle>;
     /** The sliding indicator. */
     styleIndicator?: StyledProp<ViewStyle>;
     /** The glyphs (`color`). */
@@ -78,7 +98,9 @@ export interface TabsProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
+const Tabs: ForwardRefExoticComponent<
+  PropsWithChildren<TabsProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TabsProps>>(
   (
     {
       items,
@@ -90,6 +112,8 @@ const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
       fullWidth = true,
       size = 'md',
       tone = 'primary',
+      indicatorThickness,
+      indicatorInset,
       styled,
       // The canvas injects a drop area as children; leaf components ignore them.
       children: _children,
@@ -98,8 +122,14 @@ const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const tabs = readTabItems(items);
+    // `null` is an unset inspector field, like `undefined`.
+    const indicatorGeometry = readIndicatorGeometry(
+      indicatorThickness ?? TABS_UNDERLINE_HEIGHT,
+      indicatorInset ?? 0,
+    );
     const [current, setCurrent] = useControllableState<string>({
       value,
       defaultValue: defaultValue ?? tabs[0]?.value ?? '',
@@ -120,14 +150,18 @@ const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
     const underline = variant === 'underline';
     const grow = fullWidth && !scrollable;
     const geometry = TABS_GEOMETRY[size];
+    // One height for every tab, so a two-line tab never jags the row.
+    const tabHeight = tabs.some((tab) => tab.overline)
+      ? geometry.height + TABS_OVERLINE_EXTRA_HEIGHT
+      : geometry.height;
     const indicatorColor = useSlotColor(
       styled?.styleIndicator,
       'backgroundColor',
-      underline ? palette.main : palette.container,
+      underline ? palette.ink : palette.container,
     );
     const error = tones.tone('error');
     const colors = {
-      active: palette.main,
+      active: palette.ink,
       inactive: tones.resolve(Tokens.color.textSecondary),
       badge: error.main,
       onBadge: error.contrast,
@@ -140,7 +174,9 @@ const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
       <Indicator
         layout={activeLayout}
         variant={variant}
-        height={geometry.height}
+        height={tabHeight}
+        thickness={indicatorGeometry.thickness}
+        inset={indicatorGeometry.inset}
         color={indicatorColor}
         styled={styled?.styleIndicator}
       />
@@ -153,6 +189,7 @@ const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
         active={item.value === current}
         variant={variant}
         size={size}
+        height={tabHeight}
         grow={grow}
         colors={colors}
         slots={{
@@ -160,6 +197,7 @@ const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
           styleTabActive: styled?.styleTabActive,
           styleLabel: styled?.styleLabel,
           styleLabelActive: styled?.styleLabelActive,
+          styleOverline: styled?.styleOverline,
           styleIcon: styled?.styleIcon,
           styleBadge: styled?.styleBadge,
         }}
@@ -184,7 +222,7 @@ const Tabs = forwardRef<View, PropsWithChildren<TabsProps>>(
           style: [
             defaults.root,
             underline && {
-              borderBottomWidth: 1,
+              borderBottomWidth: shape.borderWidth(1),
               borderBottomColor: tones.divider,
             },
             styled?.style,

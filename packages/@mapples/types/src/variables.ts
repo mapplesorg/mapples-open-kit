@@ -31,6 +31,22 @@ export const VARIABLE_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 /** The namespace prefix variables resolve under in bindings/conditions. */
 export const VARIABLES_NAMESPACE = 'vars';
 
+/**
+ * The `mapples:setState` ops that make sense for each variable type. The
+ * state handler coerces anything else (a toggled string becomes `false`, an
+ * incremented one `NaN`), so authoring surfaces only offer these.
+ */
+export const VARIABLE_OPS_BY_TYPE: Record<
+  VariableValueType,
+  ReadonlySet<string>
+> = {
+  string: new Set(['set', 'clear']),
+  number: new Set(['set', 'increment', 'decrement', 'clear']),
+  boolean: new Set(['set', 'toggle', 'clear']),
+  object: new Set(['set', 'clear']),
+  array: new Set(['set', 'append', 'remove', 'toggleItem', 'clear']),
+};
+
 export interface VariableDefinition {
   /** Stable uuid — survives renames. */
   id: string;

@@ -1,14 +1,15 @@
-import { FC, PropsWithChildren, JSX } from 'react';
+import { FC, PropsWithChildren, JSX, useEffect, useMemo } from 'react';
 
 import { Components } from '@mapples/components';
-import { FONT_FILES } from '@mapples/fonts';
 import { AnyObject, RenderProvider } from '@mapples/render';
 import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { splitLibraryFonts } from './libraryFonts';
 import { NavigationMap, NavigationProvider } from './NavigationContext';
+import { registerLazyFonts } from './registerLazyFonts';
 import { remapFonts } from './utils';
 
 const rootStyle = { flex: 1 } as const;
@@ -80,7 +81,16 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   showFontLoadingIndicator,
   FontLoadingIndicator,
 }) => {
-  const [loaded] = useFonts({ ...FONT_FILES, ...remapFonts(assets) });
+  const styleContext = useMemo(() => Styler.init(style), [style]);
+  const libraryFonts = useMemo(
+    () => splitLibraryFonts(styleContext),
+    [styleContext],
+  );
+  const [loaded] = useFonts({ ...libraryFonts.awaited, ...remapFonts(assets) });
+
+  useEffect(() => {
+    registerLazyFonts(libraryFonts.lazy);
+  }, [libraryFonts]);
 
   if (!loaded && showFontLoadingIndicator) {
     return FontLoadingIndicator || null;
@@ -90,7 +100,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
     // Gesture-driven library components (Slider, BottomSheet) need the
     // gesture-handler root; the canvas provides its own through DnDRootView.
     <GestureHandlerRootView style={rootStyle}>
-      <StyleProvider style={Styler.init(style)}>
+      <StyleProvider style={styleContext}>
         <RenderProvider
           components={{ ...Components, ...UIComponents }}
           assets={assets}

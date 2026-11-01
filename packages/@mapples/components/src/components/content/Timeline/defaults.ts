@@ -38,4 +38,16 @@ export const defaults = Styler.create({
   time: {
     textAlign: 'right',
   },
+  legTexts: {
+    flex: 1,
+    alignItems: 'flex-start',
+    paddingBottom: 16,
+  },
+  leg: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
 });

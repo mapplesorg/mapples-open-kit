@@ -45,3 +45,24 @@ export const mapHeaderOptions = (
 
   return patch;
 };
+
+/**
+ * Navigator-level header options with the navigator default made explicit.
+ *
+ * A navigator draws a header unless told otherwise, so an unset `visible` and
+ * `visible: true` mean the same thing at runtime — but they do not look the
+ * same to an editor, which has to render the tri-state as something. Resolving
+ * it here lets editors show a plain on/off that matches what the app does.
+ *
+ * ONLY for navigator-level options. A route's `visible` must stay tri-state:
+ * unset means "inherit the navigator", and defaulting it to `true` would make
+ * every route override a navigator that turned its header off.
+ */
+export const resolveNavigatorHeader = (
+  header: HeaderOptions | undefined,
+): HeaderOptions => ({ ...header, visible: navigatorHeaderVisible(header) });
+
+/** Whether a navigator with these options draws a header. */
+export const navigatorHeaderVisible = (
+  header: HeaderOptions | undefined,
+): boolean => header?.visible ?? true;

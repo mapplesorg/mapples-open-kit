@@ -1,10 +1,17 @@
 import { ComponentType, ReactNode } from 'react';
 
 import { NavigationDocument } from '@mapples/types';
+import { ColorValue } from 'react-native';
+
+import type { NavigationBackend } from './backend';
+import type {
+  NavigationContainerRefWithCurrent,
+  ParamListBase,
+} from './reactNavigation';
 
 /** Renders an icon for a tab/drawer item, given the runtime colour/size. */
 export type IconRenderer = (props: {
-  color?: string;
+  color?: ColorValue;
   size?: number;
 }) => ReactNode;
 
@@ -15,7 +22,7 @@ export type IconRenderer = (props: {
 export interface RefResolvers {
   /** Resolve a colour value or `ref(theme:…)` to a concrete colour. */
   resolveColor: (value?: string) => string | undefined;
-  /** Resolve `ref(icon:…)` to an icon renderer. */
+  /** Resolve `ref(icon:…)` / `ref(glyph:…)` to an icon renderer. */
   resolveIcon: (value?: string) => IconRenderer | undefined;
 }
 
@@ -67,30 +74,27 @@ export interface DrawerItemOptionsPatch {
 
 /** A resolved navigation intent, applied to the navigation container ref. */
 export type NavigationCommand =
-  | { kind: 'navigate'; routeName: string; params?: Record<string, unknown> }
+  | {
+      kind: 'navigate';
+      routeName: string;
+      params?: Record<string, unknown>;
+      /**
+       * Replace the history with the target instead of pushing it — a guard
+       * redirect, or an authored navigate that must not leave a way back.
+       */
+      replace?: boolean;
+      /**
+       * A route guard sending the user to its fallback, not an authored
+       * navigate. A handler drops it while a navigation it dispatched has
+       * not landed yet: the authored one wins over the guard of the screen
+       * being left.
+       */
+      guard?: boolean;
+    }
   | { kind: 'goBack' }
   | { kind: 'openDrawer' }
   | { kind: 'closeDrawer' }
   | { kind: 'switchTab'; routeName: string };
-
-/**
- * Structural subset of React Navigation's container ref the runtime uses.
- * Typed here (rather than importing `@react-navigation/native`) so this module
- * stays free of the React Navigation dependency. A real
- * `NavigationContainerRef` satisfies it.
- */
-export interface MapplesNavigationRef {
-  isReady: () => boolean;
-  canGoBack: () => boolean;
-  goBack: () => void;
-  navigate: (name: string, params?: object) => void;
-  dispatch: (action: unknown) => void;
-  getCurrentRoute: () => { name: string } | undefined;
-  addListener: (
-    type: string,
-    callback: (...args: unknown[]) => void,
-  ) => () => void;
-}
 
 /** Props for {@link MapplesNavigation}. */
 export interface MapplesNavigationProps {
@@ -100,14 +104,29 @@ export interface MapplesNavigationProps {
   /** Rendered when a route references a missing page. */
   fallback?: ComponentType<{ pageUuid: string }>;
   /**
-   * Render inside `NavigationIndependentTree` instead of a `NavigationContainer`
-   * — required when the host app already owns a container (expo-router / Creator).
+   * componentUuid → the saved component a navigator names as its custom
+   * chrome (`options.tabBar.componentUuid` / `options.drawer.componentUuid`).
+   * Mounted as React Navigation's `tabBar` / `drawerContent` through
+   * `TabBarHost` / `DrawerContentHost`. A navigator that names a uuid missing
+   * here is a host error and throws.
+   */
+  chrome?: Record<string, ComponentType>;
+  /**
+   * The React Navigation to build the tree with — container, navigators,
+   * actions and hooks of one copy. Inside an expo-router 58 app that is
+   * `@react-navigation/*` itself: expo-router no longer vendors a container
+   * that can stand apart from its root.
+   */
+  backend: NavigationBackend;
+  /**
+   * Wrap the container in the backend's `NavigationIndependentTree` — required
+   * when the host app already owns a container of the same React Navigation.
    */
   independent?: boolean;
   /**
    * Externally-created container ref. Supply one to observe/drive navigation
    * from the host (e.g. the Creator preview's selection sync). When omitted, an
-   * internal ref is created.
+   * internal ref is created. It belongs to the backend's React Navigation.
    */
-  navigationRef?: MapplesNavigationRef;
+  navigationRef?: NavigationContainerRefWithCurrent<ParamListBase>;
 }

@@ -106,6 +106,42 @@ export const buildNavigationModel = (
  * document) that targets a given page. Used to resolve `pageUuid` navigation
  * targets to a screen name.
  */
+/**
+ * The qualified screen name of a route id, or `null` when no navigator holds
+ * it. What a guard's fallback resolves to before it is navigated to.
+ */
+export const routeNameForId = (
+  document: NavigationDocument,
+  routeId: string,
+): string | null => {
+  for (const navigator of Object.values(document.navigators)) {
+    const route = navigator.routes.find(
+      (candidate) => candidate.id === routeId,
+    );
+    if (route) return qualifyRouteName(navigator.name, route.name);
+  }
+  return null;
+};
+
+/**
+ * The route a navigation target names — an exact `<navigator>:<route>` match,
+ * or the first route with a bare legacy name. What an editor reads to learn
+ * the params (`route.path`) a target expects.
+ */
+export const resolveRoute = (
+  document: NavigationDocument,
+  target: string,
+): RouteNode | null => {
+  let bareMatch: RouteNode | null = null;
+  for (const navigator of Object.values(document.navigators)) {
+    for (const route of navigator.routes) {
+      if (qualifyRouteName(navigator.name, route.name) === target) return route;
+      if (route.name === target && bareMatch === null) bareMatch = route;
+    }
+  }
+  return bareMatch;
+};
+
 export const findRouteNameForPage = (
   document: NavigationDocument,
   pageUuid: string,
@@ -257,4 +293,92 @@ export const buildScreenNavigateTarget = (
     };
   }
   return target;
+};
+
+/**
+ * The routes from the root navigator down to a qualified screen name — the
+ * route entering each nested navigator, then the screen's own route — or
+ * `null` when the name resolves to no route.
+ */
+export const findRoutePath = (
+  document: NavigationDocument,
+  screenName: string,
+): RouteNode[] | null => {
+  const visit = (
+    navigatorId: string,
+    seen: Set<string>,
+  ): RouteNode[] | null => {
+    const navigator = document.navigators[navigatorId];
+    if (!navigator || seen.has(navigatorId)) return null;
+    const next = new Set(seen).add(navigatorId);
+    for (const route of navigator.routes) {
+      if (qualifyRouteName(navigator.name, route.name) === screenName) {
+        return [route];
+      }
+      if (route.target.kind === 'navigator') {
+        const sub = visit(route.target.navigatorId, next);
+        if (sub) return [route, ...sub];
+      }
+    }
+    return null;
+  };
+  return visit(document.rootNavigatorId, new Set());
+};
+
+/**
+ * The routes a navigate to `route` lands on beneath it: when it enters a
+ * nested navigator, that navigator's initial route, and on down while those
+ * enter navigators in turn. Empty for a page route.
+ */
+const initialRouteChain = (
+  document: NavigationDocument,
+  route: RouteNode,
+): RouteNode[] => {
+  const chain: RouteNode[] = [];
+  const seen = new Set<string>();
+  let current = route;
+  while (current.target.kind === 'navigator') {
+    const navigatorId = current.target.navigatorId;
+    if (seen.has(navigatorId)) break;
+    seen.add(navigatorId);
+    const navigator = document.navigators[navigatorId];
+    if (!navigator) break;
+    const initial =
+      navigator.routes.find((r) => r.id === navigator.initialRouteId) ??
+      navigator.routes[0];
+    if (!initial) break;
+    chain.push(initial);
+    current = initial;
+  }
+  return chain;
+};
+
+/**
+ * Whether navigating from the focused screen to a target crosses INTO a
+ * guarded area from that guard's own fallback — the sign-in screen sending
+ * the user on once the guard holds. Like expo-router's `Stack.Protected`,
+ * that transition replaces the history: the fallback must not stay behind
+ * the protected area as a back destination.
+ */
+export const entersGuardFromFallback = (
+  document: NavigationDocument,
+  fromScreenName: string,
+  toScreenName: string,
+): boolean => {
+  const from = findRoutePath(document, fromScreenName);
+  const target = findRoutePath(document, toScreenName);
+  if (!from || !target) return false;
+  // A target entering a nested navigator lands on that navigator's initial
+  // screen (and on down), so the guards on that chain are crossed too.
+  const to = [
+    ...target,
+    ...initialRouteChain(document, target[target.length - 1]),
+  ];
+  const fromIds = new Set(from.map((route) => route.id));
+  return to.some(
+    (route) =>
+      !!route.guard &&
+      !!route.guardFallbackRouteId &&
+      fromIds.has(route.guardFallbackRouteId),
+  );
 };

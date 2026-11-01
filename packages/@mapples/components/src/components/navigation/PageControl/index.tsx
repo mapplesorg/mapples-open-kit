@@ -1,12 +1,18 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   DISABLED_OPACITY,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -73,7 +79,9 @@ const clamp = (value: number, min: number, max: number) =>
  *
  * @public
  */
-const PageControl = forwardRef<View, PropsWithChildren<PageControlProps>>(
+const PageControl: ForwardRefExoticComponent<
+  PropsWithChildren<PageControlProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<PageControlProps>>(
   (
     {
       count = 3,
@@ -92,6 +100,7 @@ const PageControl = forwardRef<View, PropsWithChildren<PageControlProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const geometry = PAGE_CONTROL_GEOMETRY[size];
     const [current, setCurrent] = useControllableState<number>({
       value,
@@ -171,7 +180,7 @@ const PageControl = forwardRef<View, PropsWithChildren<PageControlProps>>(
                             ? geometry.bar
                             : geometry.dot,
                         height: geometry.dot,
-                        borderRadius: RADII.pill,
+                        borderRadius: shape.radius.pill,
                         backgroundColor: active ? activeColor : inactiveColor,
                       },
                       styled?.styleDot,

@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -7,12 +14,11 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  CONTROL_SIZES,
   DISABLED_OPACITY,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -31,7 +37,7 @@ import {
 } from '../../../internal';
 
 import { defaults } from './defaults';
-import { NumberStepperSize } from './types';
+import { NumberStepperLayout, NumberStepperSize } from './types';
 
 /** Props for {@link NumberStepper}. */
 export interface NumberStepperProps extends Omit<ViewProps, 'children'> {
@@ -47,8 +53,10 @@ export interface NumberStepperProps extends Omit<ViewProps, 'children'> {
   max?: number;
   /** Increment per press. Defaults to `1`. */
   step?: number;
-  /** Pill height. Defaults to `md`. */
+  /** Control height. Defaults to `md`. */
   size?: NumberStepperSize;
+  /** One shared pill track (`pill`) or two separate round buttons with the value between (`split`). Defaults to `pill`. */
+  layout?: NumberStepperLayout;
   /** Text at the start of the pill. */
   label?: string;
   /** Accessibility label of the minus button. Defaults to `Decrease`. */
@@ -63,10 +71,14 @@ export interface NumberStepperProps extends Omit<ViewProps, 'children'> {
   fieldName?: string;
   /** Styled slots for every visual part. */
   styled?: {
-    /** The pill. */
+    /** The pill (the row in the `split` layout). */
     style?: StyledProp<ViewStyle>;
     /** The minus/plus buttons. */
     styleButton?: StyledProp<ViewStyle>;
+    /** The minus button, over `styleButton` (e.g. outlined); its `color` paints the minus glyph. */
+    styleDecrement?: StyledProp<ViewStyle & { color?: string }>;
+    /** The plus button, over `styleButton` (e.g. filled); its `color` paints the plus glyph. */
+    styleIncrement?: StyledProp<ViewStyle & { color?: string }>;
     /** A button at its bound. */
     styleButtonDisabled?: StyledProp<ViewStyle>;
     /** The value text. */
@@ -85,19 +97,27 @@ const decimalsOf = (step: number) => {
 };
 
 /**
- * A quantity control: a pill with a minus button, the value and a plus
- * button, stepping between `min` and `max`. The value is controlled through
+ * A quantity control: a minus button, the value and a plus button, on one
+ * pill track or as two separate buttons (`split`), stepping between `min`
+ * and `max`. The value is controlled through
  * `value`/`onValueChange`, kept internally when `value` is omitted, or bound
  * to a form field through `fieldName`.
  *
  * @example
  * ```tsx
  * <NumberStepper label="Qty" min={1} max={10} value={qty} onValueChange={setQty} />
+ * <NumberStepper layout="split" min={0} value={servings} onValueChange={setServings} />
  * ```
  *
  * @public
  */
-const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
+const NumberStepper: ForwardRefExoticComponent<
+  PropsWithChildren<NumberStepperProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<
+  ComponentRef<typeof View>,
+  PropsWithChildren<NumberStepperProps>
+>(
   (
     {
       value,
@@ -107,6 +127,7 @@ const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
       max,
       step = 1,
       size = 'md',
+      layout = 'pill',
       label,
       decrementLabel = 'Decrease',
       incrementLabel = 'Increase',
@@ -130,6 +151,8 @@ const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
     }
 
     const tones = useTones();
+
+    const shape = useShape();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<number>(fieldName);
     const initial = defaultValue ?? min ?? 0;
@@ -158,9 +181,20 @@ const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
 
     const atMin = min !== undefined && current <= min;
     const atMax = max !== undefined && current >= max;
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
     const textColor = tones.resolve(Tokens.color.text);
-    const glyphColor = useSlotColor(styled?.styleIcon, 'color', palette.main);
+    const glyphColor = useSlotColor(styled?.styleIcon, 'color', palette.ink);
+    const decrementGlyphColor = useSlotColor(
+      styled?.styleDecrement,
+      'color',
+      glyphColor,
+    );
+    const incrementGlyphColor = useSlotColor(
+      styled?.styleIncrement,
+      'color',
+      glyphColor,
+    );
+    const split = layout === 'split';
     const valueText = current.toFixed(decimals);
 
     const button = (direction: 1 | -1) => {
@@ -178,9 +212,11 @@ const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
               {
                 width: spec.height,
                 height: spec.height,
-                borderRadius: RADII.pill,
+                borderRadius: shape.radius.pill,
               },
+              split && { backgroundColor: tones.fill },
               styled?.styleButton,
+              direction === 1 ? styled?.styleIncrement : styled?.styleDecrement,
               bounded && [
                 { opacity: DISABLED_OPACITY },
                 styled?.styleButtonDisabled,
@@ -191,7 +227,7 @@ const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
           <Glyph
             name={direction === 1 ? 'plus' : 'minus'}
             size={spec.iconSize}
-            color={glyphColor}
+            color={direction === 1 ? incrementGlyphColor : decrementGlyphColor}
           />
         </StyledPressable>
       );
@@ -209,11 +245,13 @@ const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
         styled={{
           style: [
             defaults.root,
-            {
-              height: spec.height,
-              borderRadius: RADII.pill,
-              backgroundColor: tones.fill,
-            },
+            split
+              ? [defaults.split, { height: spec.height }]
+              : {
+                  height: spec.height,
+                  borderRadius: shape.radius.pill,
+                  backgroundColor: tones.fill,
+                },
             styled?.style,
             disabled && { opacity: DISABLED_OPACITY },
           ],
@@ -223,7 +261,11 @@ const NumberStepper = forwardRef<View, PropsWithChildren<NumberStepperProps>>(
         {label ? (
           <Typography
             variant={TYPOGRAPHY_PARTS.label}
-            style={[defaults.label, { color: textColor }, styled?.styleLabel]}
+            style={[
+              split ? defaults.labelSplit : defaults.label,
+              { color: textColor },
+              styled?.styleLabel,
+            ]}
           >
             {label}
           </Typography>

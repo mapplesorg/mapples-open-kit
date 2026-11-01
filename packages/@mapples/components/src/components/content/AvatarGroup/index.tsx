@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -6,7 +12,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { RADII, Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, Tokens, useShape, useTones } from '@mapples/ui';
 import {
   PressableProps,
   TextStyle,
@@ -65,7 +71,9 @@ export interface AvatarGroupProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const AvatarGroup = forwardRef<View, PropsWithChildren<AvatarGroupProps>>(
+const AvatarGroup: ForwardRefExoticComponent<
+  PropsWithChildren<AvatarGroupProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<AvatarGroupProps>>(
   (
     {
       items,
@@ -81,6 +89,7 @@ const AvatarGroup = forwardRef<View, PropsWithChildren<AvatarGroupProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const members = readAvatarGroupItems(items, 'AvatarGroup');
     const shown = members.slice(0, Math.max(0, max));
     const hidden = members.length - shown.length;
@@ -102,7 +111,7 @@ const AvatarGroup = forwardRef<View, PropsWithChildren<AvatarGroupProps>>(
       {
         borderWidth: AVATAR_GROUP_RING,
         borderColor: surface,
-        borderRadius: RADII.pill,
+        borderRadius: shape.radius.pill,
         marginStart: index > 0 ? -overlap : 0,
       },
       styled?.styleAvatar,

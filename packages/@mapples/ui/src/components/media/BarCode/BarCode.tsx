@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, ReactElement, useMemo } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  ReactElement,
+  useMemo,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -146,7 +154,9 @@ const renderBarcodeBars = (
  *
  * @public
  */
-const BarCode = forwardRef<View, BarCodeProps>(
+const BarCode: ForwardRefExoticComponent<
+  BarCodeProps & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, BarCodeProps>(
   (
     {
       styled,

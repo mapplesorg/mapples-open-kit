@@ -3,3 +3,5 @@ export * from './context';
 export * from './components';
 export * from './hooks';
 export * from './utils/migrateLegacyIconNodes';
+export * from './utils/applyStateVariants';
+export * from './utils/applyRefProps';

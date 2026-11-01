@@ -1,0 +1,183 @@
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
+
+import { useOptionalNavigatorChrome } from '@mapples/render';
+import { StyledProp, StyledView } from '@mapples/style';
+import { Tokens, Tone, useTones } from '@mapples/ui';
+import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
+
+import { ChromeNotice } from '../../../internal';
+import NavItem from '../BottomNavigationBar/NavItem';
+
+import { defaults } from './defaults';
+import {
+  TAB_BAR_ITEMS_ICON_SIZE,
+  TAB_BAR_ITEMS_MIN_HEIGHT,
+  TabBarItemsIndicator,
+  TabBarItemsLabelVisibility,
+} from './types';
+
+/** Props for {@link TabBarItems}. */
+export interface TabBarItemsProps extends Omit<ViewProps, 'children'> {
+  /** When labels show. Defaults to `always`. Ignored by `indicator: 'expand'` (label inside the active pill only). */
+  labelVisibility?: TabBarItemsLabelVisibility;
+  /**
+   * The mark on the active tab: pill behind the icon, bar on the top edge,
+   * dot under the label, `expand` (tabs sized to their content; the active
+   * one grows into a filled pill with icon and label side by side, the
+   * others show the icon only), or none. Defaults to `pill`.
+   */
+  indicator?: TabBarItemsIndicator;
+  /** Glyph size. Defaults to 24. */
+  iconSize?: number;
+  /** Pads the bottom by the safe-area inset the navigator reports. Defaults to `true`. */
+  safeAreaBottom?: boolean;
+  /** Colour role of the active tab. Defaults to `primary`. */
+  tone?: Tone;
+  /**
+   * A count badge per tab, keyed by the tab's label (`{ Bag: 2 }`); a count
+   * of 0, or a value that is not a number, shows no badge. Numeric strings
+   * are read as numbers (the Creator's key/value field holds text).
+   */
+  badgeCounts?: Record<string, number | string>;
+  /** Styled slots for every visual part. */
+  styled?: {
+    /** The row of tabs. */
+    style?: StyledProp<ViewStyle>;
+    /** Each tab. */
+    styleItem?: StyledProp<ViewStyle>;
+    /** The active tab. */
+    styleItemActive?: StyledProp<ViewStyle>;
+    /** Inactive icons (`color`). */
+    styleIcon?: StyledProp<ViewStyle & { color?: string }>;
+    /** The active icon (`color`). */
+    styleIconActive?: StyledProp<ViewStyle & { color?: string }>;
+    /** Inactive labels. */
+    styleLabel?: StyledProp<TextStyle>;
+    /** The active label. */
+    styleLabelActive?: StyledProp<TextStyle>;
+    /** The active mark (pill, bar, dot or the `expand` fill; its height and padding size the `expand` pill). */
+    styleIndicator?: StyledProp<ViewStyle>;
+    /** The count badge. */
+    styleBadge?: StyledProp<ViewStyle>;
+    /** The badge's number. */
+    styleBadgeLabel?: StyledProp<TextStyle>;
+  };
+}
+
+/**
+ * The tabs of the navigator whose custom tab bar this element sits in: one
+ * item per route, pressing one switches to it. It only knows its routes
+ * through the navigator-chrome context a host provides — inside a saved
+ * component chosen as a tabs navigator's design, at runtime and on the
+ * canvas alike. Anywhere else it shows a notice saying so.
+ *
+ * @example
+ * ```tsx
+ * <View style={{ flexDirection: 'row', backgroundColor: '#fff' }}>
+ *   <TabBarItems labelVisibility="selected" indicator="pill" />
+ * </View>
+ * ```
+ *
+ * @public
+ */
+const TabBarItems: ForwardRefExoticComponent<
+  PropsWithChildren<TabBarItemsProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TabBarItemsProps>>(
+  (
+    {
+      labelVisibility = 'always',
+      indicator = 'pill',
+      iconSize = TAB_BAR_ITEMS_ICON_SIZE,
+      safeAreaBottom = true,
+      tone = 'primary',
+      badgeCounts,
+      styled,
+      // The canvas injects a drop area as children; leaf components ignore them.
+      children: _children,
+      ...rest
+    },
+    ref,
+  ) => {
+    const chrome = useOptionalNavigatorChrome();
+    const tones = useTones();
+    const palette = tones.tone(tone);
+
+    if (!chrome || chrome.kind !== 'tabs') {
+      return (
+        <ChromeNotice message="Tab bar items — shows this navigator's tabs once the component is chosen as a tabs navigator's tab bar design." />
+      );
+    }
+
+    const error = tones.tone('error');
+    const colors = {
+      active: palette.ink,
+      inactive: tones.resolve(Tokens.color.textSecondary),
+      indicator: palette.container,
+      fill: palette.main,
+      onFill: palette.contrast,
+      badge: error.main,
+      onBadge: error.contrast,
+    };
+    const bottomInset = safeAreaBottom ? chrome.insets.bottom : 0;
+
+    return (
+      <StyledView
+        ref={ref}
+        accessibilityRole="tablist"
+        styled={{
+          style: [
+            defaults.root,
+            indicator === 'expand' && defaults.rootFit,
+            {
+              minHeight: TAB_BAR_ITEMS_MIN_HEIGHT + bottomInset,
+              paddingBottom: bottomInset,
+            },
+            styled?.style,
+          ],
+        }}
+        {...rest}
+      >
+        {chrome.items.map((item) => (
+          <NavItem
+            key={item.routeId}
+            item={{
+              label: item.label,
+              value: item.routeId,
+              renderIcon: item.renderIcon,
+              badgeCount: Number(badgeCounts?.[item.label] ?? 0) || undefined,
+            }}
+            active={item.active}
+            showLabel={
+              labelVisibility === 'always' ||
+              (labelVisibility === 'selected' && item.active)
+            }
+            indicator={indicator}
+            iconSize={iconSize}
+            colors={colors}
+            slots={{
+              styleItem: styled?.styleItem,
+              styleItemActive: styled?.styleItemActive,
+              styleIcon: styled?.styleIcon,
+              styleIconActive: styled?.styleIconActive,
+              styleLabel: styled?.styleLabel,
+              styleLabelActive: styled?.styleLabelActive,
+              styleIndicator: styled?.styleIndicator,
+              styleBadge: styled?.styleBadge,
+              styleBadgeLabel: styled?.styleBadgeLabel,
+            }}
+            onPress={chrome.select}
+          />
+        ))}
+      </StyledView>
+    );
+  },
+);
+TabBarItems.displayName = 'TabBarItems';
+
+export default TabBarItems;

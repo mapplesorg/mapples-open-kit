@@ -10,7 +10,6 @@ export const defaults = Styler.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderWidth: 1,
   },
   value: {
     flex: 1,

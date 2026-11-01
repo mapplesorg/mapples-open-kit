@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -7,11 +13,11 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  ELEVATION,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useElevation,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { PressableProps, TextStyle, View, ViewStyle } from 'react-native';
@@ -19,7 +25,18 @@ import { PressableProps, TextStyle, View, ViewStyle } from 'react-native';
 import { Glyph, useInteractionState, useSlotColor } from '../../../internal';
 
 import { defaults } from './defaults';
-import { StatTileAlign, StatTileTrend, StatTileVariant } from './types';
+import TrendArrow from './TrendArrow';
+import {
+  STAT_TILE_HEADER_ICON,
+  STAT_TILE_TREND_ICON,
+  STAT_TILE_VALUE_ICON,
+  StatTileAlign,
+  StatTileIconPlacement,
+  StatTileTrend,
+  StatTileTrendIcon,
+  StatTileTrendPlacement,
+  StatTileVariant,
+} from './types';
 
 /** Props for {@link StatTile}. */
 export interface StatTileProps extends Omit<
@@ -32,15 +49,21 @@ export interface StatTileProps extends Omit<
   value?: string;
   /** Unit shown beside the value ('km', '%'). */
   unit?: string;
-  /** Supporting text under the value ('vs last month'). */
+  /** Supporting text under the value, or after the trend with `trendPlacement: 'inline'` ('vs last month'). */
   caption?: string;
   /** Direction of the change; colours `trendValue`. Defaults to `none`. */
   trend?: StatTileTrend;
   /** The change itself ('+12%'). */
   trendValue?: string;
-  /** Glyph in the header (project icon family). */
+  /** Caption on its own line (`row`) or on the trend's line after it (`inline`). Defaults to `row`. */
+  trendPlacement?: StatTileTrendPlacement;
+  /** Trend glyph: a chevron or a diagonal arrow (up-right/down-right). Defaults to `chevron`. */
+  trendIcon?: StatTileTrendIcon;
+  /** Glyph from the project icon family. */
   iconName?: string;
-  /** Surface treatment. Defaults to `elevated`. */
+  /** Glyph position: end of the label row (`header`) or right before the value (`value`). Defaults to `header`. */
+  iconPlacement?: StatTileIconPlacement;
+  /** Surface treatment; `plain` drops the surface, border, shadow and padding. Defaults to `elevated`. */
   variant?: StatTileVariant;
   /** Text alignment. Defaults to `left`. */
   align?: StatTileAlign;
@@ -58,23 +81,36 @@ export interface StatTileProps extends Omit<
     styleCaption?: StyledProp<TextStyle>;
     /** The trend text. */
     styleTrend?: StyledProp<TextStyle>;
-    /** The header glyph (`color`). */
+    /** The glyph, in the header or before the value (`color`). */
     styleIcon?: StyledProp<ViewStyle & { color?: string }>;
   };
 }
 
 /**
- * A KPI tile: a label, a large value with its unit, the change coloured by
- * `trend` and a caption. Tiles sit in a row or grid on dashboards.
+ * A KPI tile: a label, a large value with its unit (and optionally a glyph
+ * before it), the change coloured by `trend` and a caption, on its own line
+ * or inline after the change. Tiles sit in a row or grid on dashboards; the
+ * `plain` variant lays stats out bare, as in a spec strip.
  *
  * @example
  * ```tsx
  * <StatTile label="Steps" value="8,420" unit="today" trend="up" trendValue="+12%" iconName="footsteps-outline" />
+ * <StatTile
+ *   value="€24 310"
+ *   trend="up"
+ *   trendIcon="arrow"
+ *   trendValue="+€1 204 (+5.2%)"
+ *   trendPlacement="inline"
+ *   caption="vs September"
+ *   variant="plain"
+ * />
  * ```
  *
  * @public
  */
-const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
+const StatTile: ForwardRefExoticComponent<
+  PropsWithChildren<StatTileProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<StatTileProps>>(
   (
     {
       label,
@@ -83,7 +119,10 @@ const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
       caption,
       trend = 'none',
       trendValue,
+      trendPlacement = 'row',
+      trendIcon = 'chevron',
       iconName,
+      iconPlacement = 'header',
       variant = 'elevated',
       align = 'left',
       onPress,
@@ -100,6 +139,8 @@ const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
+    const elevation = useElevation();
     const interactive = !!onPress;
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -116,27 +157,52 @@ const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
         : trend === 'down'
           ? tones.tone('error').main
           : secondary;
-    const showTrend = !!trendValue || trend === 'up' || trend === 'down';
+    const directional = trend === 'up' || trend === 'down';
+    const showTrend = !!trendValue || directional;
+    const captionInline = trendPlacement === 'inline' && showTrend;
+    const plain = variant === 'plain';
+    const headerIcon = iconPlacement === 'header' ? iconName : undefined;
+    const valueIcon = iconPlacement === 'value' ? iconName : undefined;
 
     const style = [
       defaults.root,
       {
         alignItems: centered ? ('center' as const) : ('stretch' as const),
-        borderRadius: RADII.lg,
-        backgroundColor:
-          variant === 'filled'
+        borderRadius: shape.radius.lg,
+        backgroundColor: plain
+          ? 'transparent'
+          : variant === 'filled'
             ? tones.fill
             : tones.resolve(Tokens.color.surface),
-        borderWidth: variant === 'outlined' || tones.isDark ? 1 : 0,
+        borderWidth:
+          !plain && (variant === 'outlined' || tones.isDark)
+            ? shape.borderWidth(1)
+            : 0,
         borderColor: tones.outline,
       },
-      variant === 'elevated' && { boxShadow: ELEVATION },
+      plain && defaults.rootPlain,
+      variant === 'elevated' && { boxShadow: elevation },
       styled?.style,
     ];
 
+    const captionText = caption ? (
+      <Typography
+        variant={TYPOGRAPHY_PARTS.helper}
+        numberOfLines={captionInline ? 1 : 2}
+        style={[
+          { color: secondary },
+          captionInline && defaults.captionInline,
+          centered && !captionInline && { textAlign: 'center' },
+          styled?.styleCaption,
+        ]}
+      >
+        {caption}
+      </Typography>
+    ) : null;
+
     const body = (
       <>
-        {label || iconName ? (
+        {label || headerIcon ? (
           <StyledView
             styled={{
               style: [
@@ -158,12 +224,16 @@ const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
                 {label}
               </Typography>
             ) : null}
-            {iconName ? (
-              <Icon iconName={iconName} size={20} color={glyphColor} />
+            {headerIcon ? (
+              <Icon
+                iconName={headerIcon}
+                size={STAT_TILE_HEADER_ICON}
+                color={glyphColor}
+              />
             ) : null}
           </StyledView>
         ) : null}
-        {value || unit ? (
+        {value || unit || valueIcon ? (
           <StyledView
             styled={{
               style: [
@@ -172,6 +242,14 @@ const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
               ],
             }}
           >
+            {valueIcon ? (
+              <Icon
+                iconName={valueIcon}
+                size={STAT_TILE_VALUE_ICON}
+                color={glyphColor}
+                styled={{ style: defaults.valueIcon }}
+              />
+            ) : null}
             {value ? (
               <Typography
                 variant={TYPOGRAPHY_PARTS.headline}
@@ -198,10 +276,16 @@ const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
               style: [defaults.trend, centered && { justifyContent: 'center' }],
             }}
           >
-            {trend === 'up' || trend === 'down' ? (
+            {directional && trendIcon === 'arrow' ? (
+              <TrendArrow
+                direction={trend}
+                size={STAT_TILE_TREND_ICON}
+                color={trendColor}
+              />
+            ) : directional ? (
               <Glyph
                 name={trend === 'up' ? 'chevronUp' : 'chevronDown'}
-                size={16}
+                size={STAT_TILE_TREND_ICON}
                 color={trendColor}
               />
             ) : null}
@@ -214,21 +298,10 @@ const StatTile = forwardRef<View, PropsWithChildren<StatTileProps>>(
                 {trendValue}
               </Typography>
             ) : null}
+            {captionInline ? captionText : null}
           </StyledView>
         ) : null}
-        {caption ? (
-          <Typography
-            variant={TYPOGRAPHY_PARTS.helper}
-            numberOfLines={2}
-            style={[
-              { color: secondary },
-              centered && { textAlign: 'center' },
-              styled?.styleCaption,
-            ]}
-          >
-            {caption}
-          </Typography>
-        ) : null}
+        {captionInline ? null : captionText}
         {interactive && (interaction.pressed || interaction.hovered) ? (
           <StyledView
             pointerEvents="none"

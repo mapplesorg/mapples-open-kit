@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -72,7 +78,13 @@ export interface MessageBubbleProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const MessageBubble = forwardRef<View, PropsWithChildren<MessageBubbleProps>>(
+const MessageBubble: ForwardRefExoticComponent<
+  PropsWithChildren<MessageBubbleProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<
+  ComponentRef<typeof View>,
+  PropsWithChildren<MessageBubbleProps>
+>(
   (
     {
       text,

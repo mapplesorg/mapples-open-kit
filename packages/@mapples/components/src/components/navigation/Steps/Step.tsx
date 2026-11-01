@@ -6,7 +6,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { TYPOGRAPHY_PARTS } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, useShape } from '@mapples/ui';
 import { TextStyle, ViewStyle } from 'react-native';
 
 import { Glyph } from '../../../internal';
@@ -25,6 +25,10 @@ import {
 export interface StepColors {
   /** The tone's main colour (done fills, current outline and label). */
   main: string;
+  /** The tone as text on the page surface (current label of `segments`). */
+  ink: string;
+  /** Muted fill of upcoming `segments` bars. */
+  track: string;
   /** Text/glyph colour on a `main` fill. */
   contrast: string;
   /** Upcoming outlines and pending connectors. */
@@ -62,13 +66,16 @@ export interface StepProps {
   variant: StepsVariant;
   colors: StepColors;
   slots: StepSlots;
+  /** Renders the label and description. */
+  showLabels: boolean;
   onPress?: (index: number) => void;
 }
 
 /**
  * One step of a `Steps` indicator: the indicator with its connectors, the
  * label and the description, laid out as a centred column (horizontal) or a
- * rail-and-text row (vertical).
+ * rail-and-text row (vertical). The `segments` variant draws a bar instead of
+ * an indicator and connectors, with start-aligned texts under (or beside) it.
  */
 const Step: FC<StepProps> = ({
   item,
@@ -82,12 +89,103 @@ const Step: FC<StepProps> = ({
   variant,
   colors,
   slots,
+  showLabels,
   onPress,
 }) => {
+  const shape = useShape();
   const geometry = STEPS_GEOMETRY[variant];
+  // The numbered and icon rings are control outlines and follow the project's
+  // outline weight; the 10 pt dot keeps its own ring (a heavier one fills it).
+  const ringWidth =
+    variant === 'dot' ? geometry.border : shape.borderWidth(geometry.border);
   const done = status === 'done';
   const current = status === 'current';
   const horizontal = orientation === 'horizontal';
+  const Root = onPress ? StyledPressable : StyledView;
+  const rootProps = {
+    accessibilityRole: onPress ? ('button' as const) : undefined,
+    accessibilityLabel: item.label,
+    accessibilityState: { selected: current },
+    onPress: onPress ? () => onPress(index) : undefined,
+  };
+
+  if (variant === 'segments') {
+    const bar = (
+      <StyledView
+        pointerEvents="none"
+        styled={{
+          style: [
+            horizontal
+              ? defaults.segmentBarHorizontal
+              : defaults.segmentBarVertical,
+            horizontal
+              ? { height: geometry.indicator }
+              : { width: geometry.indicator },
+            {
+              borderRadius: geometry.indicator / 2,
+              backgroundColor: done || current ? colors.main : colors.track,
+            },
+            slots.styleIndicator,
+            current && slots.styleIndicatorActive,
+            done && slots.styleIndicatorDone,
+          ],
+        }}
+      />
+    );
+    const segmentTexts = showLabels ? (
+      <StyledView
+        styled={{
+          style: horizontal
+            ? defaults.segmentTextsHorizontal
+            : defaults.segmentTextsVertical,
+        }}
+      >
+        <Typography
+          variant={TYPOGRAPHY_PARTS.label}
+          numberOfLines={horizontal ? 1 : undefined}
+          style={[
+            {
+              color: current
+                ? colors.ink
+                : done
+                  ? colors.text
+                  : colors.textSecondary,
+            },
+            slots.styleLabel,
+            current && slots.styleLabelActive,
+          ]}
+        >
+          {item.label}
+        </Typography>
+        {item.description ? (
+          <Typography
+            variant={TYPOGRAPHY_PARTS.helper}
+            numberOfLines={horizontal ? 2 : undefined}
+            style={[{ color: colors.textSecondary }, slots.styleDescription]}
+          >
+            {item.description}
+          </Typography>
+        ) : null}
+      </StyledView>
+    ) : null;
+
+    return (
+      <Root
+        {...rootProps}
+        styled={{
+          style: [
+            horizontal
+              ? defaults.segmentStepHorizontal
+              : defaults.segmentStepVertical,
+            slots.styleStep,
+          ],
+        }}
+      >
+        {bar}
+        {segmentTexts}
+      </Root>
+    );
+  }
 
   const indicatorBackground = done
     ? colors.main
@@ -140,7 +238,7 @@ const Step: FC<StepProps> = ({
             width: geometry.indicator,
             height: geometry.indicator,
             borderRadius: geometry.indicator / 2,
-            borderWidth: geometry.border,
+            borderWidth: ringWidth,
             borderColor: indicatorBorder,
             backgroundColor: indicatorBackground,
           },
@@ -163,7 +261,7 @@ const Step: FC<StepProps> = ({
     </StyledView>
   );
 
-  const texts = (
+  const texts = showLabels ? (
     <StyledView
       styled={{
         style: [
@@ -198,16 +296,11 @@ const Step: FC<StepProps> = ({
         </Typography>
       ) : null}
     </StyledView>
-  );
-
-  const Root = onPress ? StyledPressable : StyledView;
+  ) : null;
 
   return (
     <Root
-      accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityLabel={item.label}
-      accessibilityState={{ selected: current }}
-      onPress={onPress ? () => onPress(index) : undefined}
+      {...rootProps}
       styled={{
         style: [
           horizontal ? defaults.stepHorizontal : defaults.stepVertical,

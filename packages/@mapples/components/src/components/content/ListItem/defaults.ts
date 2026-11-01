@@ -9,8 +9,6 @@ export const defaults = Styler.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
   },
   leading: {
     alignItems: 'center',
@@ -21,6 +19,14 @@ export const defaults = Styler.create({
     gap: 2,
   },
   trailing: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  trailingWithChevron: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  radio: {
     alignItems: 'center',
     justifyContent: 'center',
   },

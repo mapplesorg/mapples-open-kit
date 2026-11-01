@@ -1,24 +1,32 @@
-import { FC, PropsWithChildren, JSX, useEffect } from 'react';
+import { FC, PropsWithChildren, JSX, useEffect, useMemo } from 'react';
 
 import { Components } from '@mapples/components';
-import { FONT_FILES } from '@mapples/fonts';
 import { AnyObject, RenderProvider } from '@mapples/render';
-import { StyleContextType, StyleProvider, Styler } from '@mapples/style';
+import {
+  StyleContextType,
+  StyleProvider,
+  Styler,
+  ThemeVariantProvider,
+} from '@mapples/style';
 import { UIComponents } from '@mapples/ui';
 import { useFonts } from 'expo-font';
+// The files `mapples sync` writes — resolved by `mapplesResolver`
+// (`@mapples/app/expo`) to theme.ts and assetMap.ts in the app's mapplesDir,
+// or to an empty module before the first sync.
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import assetsConfig from 'mapples::assets';
+import * as assetsModule from 'mapples::assets';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import navigationConfig from 'mapples::navigation';
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import styleConfig from 'mapples::style';
+import * as themeModule from 'mapples::style';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { splitLibraryFonts } from './libraryFonts';
 import { NavigationMap, NavigationProvider } from './NavigationContext';
-import { remapFonts } from './utils';
+import { registerLazyFonts } from './registerLazyFonts';
+import MapplesRuntime, { MapplesRuntimeProps } from './runtime/MapplesRuntime';
+import { MapplesProject, syncedProject } from './runtime/project';
+import { resolveAssets, toStyleContext } from './utils';
 
 const rootStyle = { flex: 1 } as const;
 
@@ -32,12 +40,24 @@ export interface MapplesAppProps {
   style?: StyleContextType;
   /** Optional custom assets configuration to override the default Mapples assets */
   assets?: AnyObject;
-  /** Optional navigation map (Mapples action `routeName` → expo-router href) for navigation actions */
+  /** Optional navigation map (Mapples action `routeName` → expo-router href); the CLI's generated expo-router layouts need none */
   navigation?: NavigationMap;
   /** Custom loading indicator component to display while fonts are loading */
   FontLoadingIndicator?: JSX.Element;
   /** Font loaded callback **/
   onFontLoaded?: () => void;
+  /**
+   * The navigation, API and variables documents the behaviour runtime
+   * executes. Defaults to the files `mapples sync` writes
+   * (`navigation.ts`, `api.ts`, `variables.ts` in the CLI's mapplesDir).
+   */
+  project?: MapplesProject;
+  /** Persistence for `persist: true` app variables. */
+  variablesStorage?: MapplesRuntimeProps['variablesStorage'];
+  /** Performs API requests (default: direct `fetch` with the synced secrets). */
+  transport?: MapplesRuntimeProps['transport'];
+  /** A state path (`vars.theme`) whose `light` / `dark` / `auto` value switches the theme at runtime. */
+  themeVariable?: MapplesRuntimeProps['themeVariable'];
 }
 
 /**
@@ -88,11 +108,29 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   navigation,
   FontLoadingIndicator,
   onFontLoaded,
+  project,
+  variablesStorage,
+  transport,
+  themeVariable,
 }) => {
-  const [loaded] = useFonts({
-    ...FONT_FILES,
-    ...remapFonts(assets || assetsConfig),
-  });
+  const runtimeProject = useMemo(() => project ?? syncedProject(), [project]);
+  const resolved = useMemo(
+    () => resolveAssets(assets ?? assetsModule),
+    [assets],
+  );
+  const styleContext = useMemo(
+    () => Styler.init(style ?? toStyleContext(themeModule)),
+    [style],
+  );
+  const libraryFonts = useMemo(
+    () => splitLibraryFonts(styleContext),
+    [styleContext],
+  );
+  const [loaded] = useFonts({ ...libraryFonts.awaited, ...resolved.fonts });
+
+  useEffect(() => {
+    registerLazyFonts(libraryFonts.lazy);
+  }, [libraryFonts]);
 
   useEffect(() => {
     if (loaded && onFontLoaded) {
@@ -114,16 +152,25 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
     // Gesture-driven library components (Slider, BottomSheet) need the
     // gesture-handler root; the canvas provides its own through DnDRootView.
     <GestureHandlerRootView style={rootStyle}>
-      <StyleProvider style={Styler.init(style || styleConfig)}>
-        <RenderProvider
-          components={{ ...Components, ...UIComponents }}
-          assets={assets || assetsConfig}
-        >
-          <NavigationProvider navigation={navigation || navigationConfig}>
-            {children}
-          </NavigationProvider>
-        </RenderProvider>
-      </StyleProvider>
+      <ThemeVariantProvider>
+        <StyleProvider style={styleContext}>
+          <RenderProvider
+            components={{ ...Components, ...UIComponents }}
+            assets={resolved.assets}
+          >
+            <NavigationProvider navigation={navigation}>
+              <MapplesRuntime
+                project={runtimeProject}
+                variablesStorage={variablesStorage}
+                transport={transport}
+                themeVariable={themeVariable}
+              >
+                {children}
+              </MapplesRuntime>
+            </NavigationProvider>
+          </RenderProvider>
+        </StyleProvider>
+      </ThemeVariantProvider>
     </GestureHandlerRootView>
   );
 };

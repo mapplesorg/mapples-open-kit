@@ -6,7 +6,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { Icon, RADII, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { Icon, TYPOGRAPHY_PARTS, useShape, useTones } from '@mapples/ui';
 import { LayoutChangeEvent, TextStyle, ViewStyle } from 'react-native';
 
 import { useInteractionState, useSlotColor } from '../../../internal';
@@ -38,6 +38,7 @@ export interface TabSlots {
   styleTabActive?: StyledProp<ViewStyle>;
   styleLabel?: StyledProp<TextStyle>;
   styleLabelActive?: StyledProp<TextStyle>;
+  styleOverline?: StyledProp<TextStyle>;
   styleIcon?: StyledProp<ViewStyle & { color?: string }>;
   styleBadge?: StyledProp<ViewStyle>;
 }
@@ -47,6 +48,8 @@ export interface TabProps {
   active: boolean;
   variant: TabsVariant;
   size: TabsSize;
+  /** Tab height — taller than the size's when any tab has an overline. */
+  height: number;
   /** Stretches the tab to share the row equally. */
   grow: boolean;
   colors: TabColors;
@@ -66,6 +69,7 @@ const Tab: FC<TabProps> = ({
   active,
   variant,
   size,
+  height,
   grow,
   colors,
   slots,
@@ -73,6 +77,7 @@ const Tab: FC<TabProps> = ({
   onLayout,
 }) => {
   const tones = useTones();
+  const shape = useShape();
   const geometry = TABS_GEOMETRY[size];
   const interaction = useInteractionState();
   const labelColor = useSlotColor(
@@ -88,6 +93,20 @@ const Tab: FC<TabProps> = ({
         : String(item.badgeCount)
       : null;
 
+  const label = (
+    <Typography
+      variant={TYPOGRAPHY_PARTS.label}
+      numberOfLines={1}
+      style={[
+        { color: labelColor },
+        slots.styleLabel,
+        active && slots.styleLabelActive,
+      ]}
+    >
+      {item.label}
+    </Typography>
+  );
+
   const handleLayout = (event: LayoutChangeEvent) => {
     const { x, width } = event.nativeEvent.layout;
     onLayout(item.value, { x, width });
@@ -96,7 +115,9 @@ const Tab: FC<TabProps> = ({
   return (
     <StyledPressable
       accessibilityRole="tab"
-      accessibilityLabel={item.label}
+      accessibilityLabel={
+        item.overline ? `${item.overline} ${item.label}` : item.label
+      }
       accessibilityState={{ selected: active }}
       onPress={() => onPress(item.value)}
       onLayout={handleLayout}
@@ -105,9 +126,9 @@ const Tab: FC<TabProps> = ({
         style: [
           defaults.tab,
           {
-            height: geometry.height,
+            height,
             paddingHorizontal: geometry.paddingX,
-            borderRadius: variant === 'pill' ? RADII.pill : 0,
+            borderRadius: variant === 'pill' ? shape.radius.pill : 0,
           },
           grow && { flex: 1 },
           slots.styleTab,
@@ -138,17 +159,20 @@ const Tab: FC<TabProps> = ({
           color={glyphColor}
         />
       ) : null}
-      <Typography
-        variant={TYPOGRAPHY_PARTS.label}
-        numberOfLines={1}
-        style={[
-          { color: labelColor },
-          slots.styleLabel,
-          active && slots.styleLabelActive,
-        ]}
-      >
-        {item.label}
-      </Typography>
+      {item.overline ? (
+        <StyledView styled={{ style: defaults.labelStack }}>
+          <Typography
+            variant={TYPOGRAPHY_PARTS.overline}
+            numberOfLines={1}
+            style={[{ color: labelColor }, slots.styleOverline]}
+          >
+            {item.overline}
+          </Typography>
+          {label}
+        </StyledView>
+      ) : (
+        label
+      )}
       {badge !== null ? (
         <StyledView
           pointerEvents="none"

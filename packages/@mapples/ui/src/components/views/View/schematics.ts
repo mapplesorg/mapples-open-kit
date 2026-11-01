@@ -1,5 +1,6 @@
 import { RegisteredComponent } from '@mapples/types';
 
+import Container from './Container';
 import View from './View';
 
 /**
@@ -15,12 +16,12 @@ export const ViewSchematic: RegisteredComponent = {
 /**
  * Schematic configuration for the Container component.
  *
- * An alias of `ViewSchematic` registered under the `'Container'` type for use
- * as a generic layout container in the visual editor.
+ * Registered under the `'Container'` type for use as a generic layout
+ * container in the visual editor.
  *
  * @public
  */
 export const ContainerSchematic: RegisteredComponent = {
-  ...ViewSchematic,
   type: 'Container',
+  Component: Container,
 };

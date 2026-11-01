@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -8,15 +16,14 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
-  ELEVATION,
   Icon,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useElevation,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -127,7 +134,9 @@ export interface SelectFieldProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const SelectField = forwardRef<View, PropsWithChildren<SelectFieldProps>>(
+const SelectField: ForwardRefExoticComponent<
+  PropsWithChildren<SelectFieldProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SelectFieldProps>>(
   (
     {
       label,
@@ -153,6 +162,8 @@ const SelectField = forwardRef<View, PropsWithChildren<SelectFieldProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
+    const elevation = useElevation();
     const palette = tones.tone(tone);
     const items = readOptions(options, 'SelectField');
     const field = useOptionalFormField<string>(fieldName);
@@ -189,14 +200,14 @@ const SelectField = forwardRef<View, PropsWithChildren<SelectFieldProps>>(
     const selected = items.find((option) => option.value === current);
     const error = errorText || field.error;
     const hasError = !!error;
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
     const textColor = tones.resolve(Tokens.color.text);
     const secondary = tones.resolve(Tokens.color.textSecondary);
     const errorColor = tones.tone('error').main;
     const borderColor = hasError
       ? errorColor
       : open
-        ? palette.main
+        ? palette.ink
         : variant === 'outlined'
           ? tones.outlineStrong
           : 'transparent';
@@ -251,7 +262,7 @@ const SelectField = forwardRef<View, PropsWithChildren<SelectFieldProps>>(
               {option.label}
             </Typography>
             {isSelected ? (
-              <Glyph name="check" size={spec.iconSize} color={palette.main} />
+              <Glyph name="check" size={spec.iconSize} color={palette.ink} />
             ) : null}
           </StyledView>
         </Pressable>
@@ -292,6 +303,7 @@ const SelectField = forwardRef<View, PropsWithChildren<SelectFieldProps>>(
                 minHeight: spec.height,
                 paddingHorizontal: spec.paddingX - 4,
                 borderRadius: spec.radius,
+                borderWidth: shape.borderWidth(1),
                 borderColor,
                 backgroundColor:
                   variant === 'filled' ? tones.fill : 'transparent',
@@ -343,11 +355,11 @@ const SelectField = forwardRef<View, PropsWithChildren<SelectFieldProps>>(
               style: [
                 defaults.menu,
                 {
-                  borderRadius: RADII.md,
-                  borderWidth: 1,
+                  borderRadius: shape.radius.md,
+                  borderWidth: shape.borderWidth(1),
                   borderColor: tones.outline,
                   backgroundColor: tones.resolve(Tokens.color.surface),
-                  boxShadow: ELEVATION,
+                  boxShadow: elevation,
                 },
                 styled?.styleMenu,
               ],

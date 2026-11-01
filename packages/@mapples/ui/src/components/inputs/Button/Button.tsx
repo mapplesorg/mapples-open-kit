@@ -4,6 +4,9 @@ import {
   useCallback,
   useContext,
   useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
 } from 'react';
 
 import {
@@ -25,13 +28,13 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import useElevation from '../../../hooks/useElevation';
+import useShape from '../../../hooks/useShape';
 import useTones, { TonePalette, Tones } from '../../../hooks/useTones';
 import {
   ButtonVariant,
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
-  ELEVATION,
   Tokens,
   Tone,
 } from '../../../tokens';
@@ -101,15 +104,15 @@ const variantColors = (
     case 'outlined':
       return {
         background: 'transparent',
-        label: palette.main,
+        label: palette.ink,
         border: tones.outlineStrong,
       };
     case 'text':
-      return { background: 'transparent', label: palette.main };
+      return { background: 'transparent', label: palette.ink };
     case 'elevated':
       return {
         background: tones.resolve(Tokens.color.surface),
-        label: palette.main,
+        label: palette.ink,
         // Shadows vanish on dark surfaces — a hairline keeps the edge.
         border: tones.isDark ? tones.outline : undefined,
         elevated: true,
@@ -172,7 +175,9 @@ const groupStyle = (
  *
  * @public
  */
-const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
+const Button: ForwardRefExoticComponent<
+  PropsWithChildren<ButtonProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ButtonProps>>(
   (
     {
       label,
@@ -197,6 +202,8 @@ const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
   ) => {
     const { styleTypography, styleIcon, ...styledPressableProps } = styled;
     const tones = useTones();
+    const shape = useShape();
+    const elevation = useElevation();
     const [pressed, setPressed] = useState(false);
     const [hovered, setHovered] = useState(false);
     const inGroup = groupStyle(useContext(ButtonGroupContext));
@@ -255,7 +262,7 @@ const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
       );
     }
 
-    const spec = CONTROL_SIZES[size];
+    const spec = shape.control[size];
     const colors = variantColors(variant, tones.tone(tone), tones);
     const isDisabled = !!disabled;
     const inactive = isDisabled || loading;
@@ -303,10 +310,10 @@ const Button = forwardRef<View, PropsWithChildren<ButtonProps>>(
                   : spec.paddingX,
               borderRadius: spec.radius,
               backgroundColor: colors.background,
-              borderWidth: colors.border ? 1 : 0,
+              borderWidth: colors.border ? shape.borderWidth(1) : 0,
               borderColor: colors.border ?? 'transparent',
             },
-            colors.elevated && styler.elevated,
+            colors.elevated && { boxShadow: elevation },
             fullWidth && styler.fullWidth,
             inGroup,
             styledPressableProps.style,
@@ -362,9 +369,6 @@ const styler = Styler.create({
     alignSelf: 'flex-start',
     gap: 8,
     overflow: 'hidden',
-  },
-  elevated: {
-    boxShadow: ELEVATION,
   },
   fullWidth: {
     alignSelf: 'stretch',

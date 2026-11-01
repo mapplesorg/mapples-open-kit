@@ -1,11 +1,19 @@
-import { forwardRef, PropsWithChildren, useCallback, useEffect } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
-  ELEVATION,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useElevation,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -73,7 +81,9 @@ export interface SnackbarProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Snackbar = forwardRef<View, PropsWithChildren<SnackbarProps>>(
+const Snackbar: ForwardRefExoticComponent<
+  PropsWithChildren<SnackbarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SnackbarProps>>(
   (
     {
       message,
@@ -96,6 +106,8 @@ const Snackbar = forwardRef<View, PropsWithChildren<SnackbarProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
+    const elevation = useElevation();
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
       defaultValue: defaultVisible,
@@ -141,9 +153,9 @@ const Snackbar = forwardRef<View, PropsWithChildren<SnackbarProps>>(
             style: [
               defaults.container,
               {
-                borderRadius: RADII.md,
+                borderRadius: shape.radius.md,
                 backgroundColor: background,
-                boxShadow: ELEVATION,
+                boxShadow: elevation,
               },
               styled?.styleContainer,
             ],

@@ -18,3 +18,11 @@ export const NavigationActionType = {
 
 export type NavigationActionTypeValue =
   (typeof NavigationActionType)[keyof typeof NavigationActionType];
+
+/**
+ * React Navigation requires every navigator to have at least one screen. A
+ * navigator with no routes is a valid intermediate state in the editor (you
+ * create it, then add screens), so it registers a single placeholder route
+ * under this name rather than crashing. Chrome hosts skip it.
+ */
+export const EMPTY_ROUTE_NAME = '__mapples_empty__';

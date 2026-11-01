@@ -12,6 +12,30 @@ export const defaults = Styler.create({
   vertical: {
     flexDirection: 'column',
   },
+  segmentStepHorizontal: {
+    flex: 1,
+    gap: 6,
+  },
+  segmentStepVertical: {
+    flexDirection: 'row',
+    alignSelf: 'stretch',
+    gap: 12,
+  },
+  segmentBarHorizontal: {
+    alignSelf: 'stretch',
+  },
+  segmentBarVertical: {
+    alignSelf: 'stretch',
+    minHeight: 16,
+  },
+  segmentTextsHorizontal: {
+    gap: 2,
+  },
+  segmentTextsVertical: {
+    flex: 1,
+    gap: 2,
+    paddingVertical: 2,
+  },
   stepHorizontal: {
     flex: 1,
     alignItems: 'center',

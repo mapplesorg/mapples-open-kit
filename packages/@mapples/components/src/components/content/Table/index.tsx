@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -6,7 +13,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { RADII, Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
+import { TYPOGRAPHY_PARTS, Tokens, useShape, useTones } from '@mapples/ui';
 import { get } from 'lodash';
 import {
   LayoutChangeEvent,
@@ -84,7 +91,9 @@ export interface TableProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Table = forwardRef<View, PropsWithChildren<TableProps>>(
+const Table: ForwardRefExoticComponent<
+  PropsWithChildren<TableProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<TableProps>>(
   (
     {
       columns,
@@ -104,6 +113,7 @@ const Table = forwardRef<View, PropsWithChildren<TableProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const [containerWidth, setContainerWidth] = useState(0);
     const cols = readTableColumns(columns, 'Table');
     const rows = readTableData(data, 'Table');
@@ -172,8 +182,8 @@ const Table = forwardRef<View, PropsWithChildren<TableProps>>(
           style: [
             defaults.root,
             {
-              borderRadius: RADII.md,
-              borderWidth: 1,
+              borderRadius: shape.radius.md,
+              borderWidth: shape.borderWidth(1),
               borderColor: tones.outline,
               backgroundColor: tones.resolve(Tokens.color.surface),
             },

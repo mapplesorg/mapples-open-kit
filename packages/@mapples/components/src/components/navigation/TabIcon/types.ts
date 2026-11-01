@@ -1,0 +1,2 @@
+/** Default glyph size. */
+export const TAB_ICON_SIZE = 24;

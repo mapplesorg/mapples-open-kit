@@ -1,40 +1,45 @@
 /**
- * Single chokepoint for React Navigation, consumed through expo-router's
- * vendored copy.
+ * Single chokepoint for expo-router's vendored copy of React Navigation.
  *
  * Expo SDK 56 blocks external `@react-navigation/*` packages inside expo-router
- * apps, so this package must import React Navigation from expo-router instead.
- * See https://docs.expo.dev/router/migrate/sdk-55-to-56/.
+ * routes, so what an exported app's routes run (`RouteScreen`, `TabBarHost`,
+ * `DrawerContentHost`) reads expo-router's copy. See
+ * https://docs.expo.dev/router/migrate/sdk-55-to-56/.
  *
- * Two import surfaces are used:
+ * The hooks and chrome prop types are **not** surfaced by the public
+ * `expo-router/react-navigation` entry, so they are imported from the internal
+ * `expo-router/build/react-navigation/<navigator>/index` subpaths. This file is
+ * the only place in the package allowed to touch those internal paths — a
+ * minor expo-router release can move them, so `vendor.test.ts` imports this
+ * module to fail fast if a path disappears, and the `expo-router` peer range is
+ * pinned to the verified majors. The explicit `/index` matters: from SDK 58
+ * expo-router has an `exports` map whose `./build/*` pattern appends `.js`, so
+ * a bare directory path no longer resolves.
  *
- * 1. The container/core symbols come from the **public** `expo-router/
- *    react-navigation` entry (it is `module.exports = require('./build/
- *    react-navigation')`, so it is a stable alias of the build index that
- *    re-exports `native → core → routers`).
- * 2. The per-navigator factories and their option types are **not** surfaced by
- *    that entry, so they are imported from the internal
- *    `expo-router/build/react-navigation/*` subpaths. This file is the only
- *    place in the package allowed to touch those internal paths — a minor
- *    expo-router release can move them, so `vendor.test.ts` imports this module
- *    to fail fast if a path disappears, and the `expo-router` peer range is
- *    pinned to the verified majors.
- *
- * All other modules in this package import React Navigation from `./vendor`.
+ * A `MapplesNavigation` tree does not use this copy: it is built with the
+ * host's React Navigation (`./backend`, types in `./reactNavigation`).
  */
-export {
-  NavigationContainer,
-  NavigationIndependentTree,
-  createNavigationContainerRef,
-  DrawerActions,
-} from 'expo-router/react-navigation';
+import { BottomTabBarHeightCallbackContext } from 'expo-router/build/react-navigation/bottom-tabs/index';
+// Screen-scoped hooks for the route wrapper. The vendored copies carry
+// `@deprecated` tags pointing at `expo-router`'s root export; that root pulls
+// the whole router in, which is exactly what this file exists to avoid.
+import {
+  useFocusEffect,
+  useIsFocused,
+  useRoute,
+} from 'expo-router/build/react-navigation/core/index';
 
-export {
-  createBottomTabNavigator,
-  type BottomTabNavigationOptions,
-} from 'expo-router/build/react-navigation/bottom-tabs';
-export {
-  createDrawerNavigator,
-  type DrawerNavigationOptions,
-} from 'expo-router/build/react-navigation/drawer';
-export { createNativeStackNavigator } from 'expo-router/build/react-navigation/native-stack';
+import type { NavigationHooks } from './backend';
+
+/** What expo-router's `Tabs` hands a custom `tabBar` (SDK 58: no `navigation`). */
+export type { BottomTabBarProps } from 'expo-router/build/react-navigation/bottom-tabs/index';
+/** What expo-router's `Drawer` hands a custom `drawerContent`. */
+export type { DrawerContentComponentProps } from 'expo-router/build/react-navigation/drawer/index';
+
+/** The hooks of an exported expo-router app's routes. */
+export const expoRouterNavigationHooks: NavigationHooks = {
+  useFocusEffect,
+  useIsFocused,
+  useRoute,
+  BottomTabBarHeightCallbackContext,
+};

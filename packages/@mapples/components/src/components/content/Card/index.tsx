@@ -1,10 +1,16 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledPressable, StyledProp, StyledView } from '@mapples/style';
-import { ELEVATION, RADII, Tokens, useTones } from '@mapples/ui';
+import { Tokens, useElevation, useShape, useTones } from '@mapples/ui';
 import { PressableProps, View, ViewStyle } from 'react-native';
 
-import { useInteractionState } from '../../../internal';
+import { CONTAINER_PRESS_ROLE, useInteractionState } from '../../../internal';
 
 import { CardVariant } from './types';
 
@@ -26,7 +32,9 @@ export interface CardProps extends Omit<PressableProps, 'children' | 'style'> {
 /**
  * A themed surface for grouped content — children are the body. `elevated`
  * floats on a shadow (and a hairline on dark themes), `filled` tints,
- * `outlined` draws a border. Photo-topped tiles use `MediaCard`.
+ * `outlined` draws a border. Photo-topped tiles use `MediaCard`. With
+ * `onPress` it is a button on native; on the web a focusable element instead
+ * of a `<button>`, so buttons among the children do not nest inside one.
  *
  * @example
  * ```tsx
@@ -38,7 +46,9 @@ export interface CardProps extends Omit<PressableProps, 'children' | 'style'> {
  *
  * @public
  */
-const Card = forwardRef<View, PropsWithChildren<CardProps>>(
+const Card: ForwardRefExoticComponent<
+  PropsWithChildren<CardProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<CardProps>>(
   (
     {
       variant = 'elevated',
@@ -57,6 +67,8 @@ const Card = forwardRef<View, PropsWithChildren<CardProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
+    const elevation = useElevation();
     const interactive = pressable || !!onPress;
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -67,15 +79,16 @@ const Card = forwardRef<View, PropsWithChildren<CardProps>>(
     const style = [
       {
         alignSelf: 'stretch' as const,
-        borderRadius: RADII.lg,
+        borderRadius: shape.radius.lg,
         padding,
         gap: 12,
         overflow: 'hidden' as const,
         backgroundColor: variant === 'filled' ? tones.fill : surface,
-        borderWidth: variant === 'outlined' || tones.isDark ? 1 : 0,
+        borderWidth:
+          variant === 'outlined' || tones.isDark ? shape.borderWidth(1) : 0,
         borderColor: tones.outline,
       },
-      variant === 'elevated' && { boxShadow: ELEVATION },
+      variant === 'elevated' && { boxShadow: elevation },
       styled?.style,
       interactive &&
         (interaction.pressed || interaction.hovered) && {
@@ -90,7 +103,7 @@ const Card = forwardRef<View, PropsWithChildren<CardProps>>(
       return (
         <StyledPressable
           ref={ref}
-          accessibilityRole="button"
+          accessibilityRole={CONTAINER_PRESS_ROLE}
           onPress={onPress}
           disabled={disabled}
           {...interaction.handlers}

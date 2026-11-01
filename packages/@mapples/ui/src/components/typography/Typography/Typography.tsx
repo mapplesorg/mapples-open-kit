@@ -3,8 +3,9 @@ import { forwardRef, PropsWithChildren } from 'react';
 import {
   WithStyledProps,
   Typography as StyledTypography,
+  TypographyProps as StyledTypographyProps,
 } from '@mapples/style';
-import { isNumber, isString } from 'lodash';
+import { isNil, isNumber, isString } from 'lodash';
 import { TextProps as RNTextProps, Text } from 'react-native';
 
 /**
@@ -16,6 +17,10 @@ export type TextProps = PropsWithChildren<
   WithStyledProps<RNTextProps> & {
     /** The text content to display */
     text?: string;
+    /** The typography variant to apply (e.g. `Headline`, `Body`, `Caption`) */
+    variant?: StyledTypographyProps['variant'];
+    /** Colour that overrides the variant's colour, or `false` to apply none */
+    color?: StyledTypographyProps['color'];
   }
 >;
 
@@ -48,7 +53,11 @@ const Typography = forwardRef<Text, TextProps>(
         styled={styled}
         {...props}
       >
-        {isString(text) || isNumber(text) ? text.toString() : 'Not a string'}
+        {isNil(text)
+          ? null
+          : isString(text) || isNumber(text)
+            ? text.toString()
+            : 'Not a string'}
       </StyledTypography>
     );
   },

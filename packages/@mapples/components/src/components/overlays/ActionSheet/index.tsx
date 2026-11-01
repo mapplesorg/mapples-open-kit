@@ -1,12 +1,19 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   DISABLED_OPACITY,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -89,7 +96,9 @@ export interface ActionSheetProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const ActionSheet = forwardRef<View, PropsWithChildren<ActionSheetProps>>(
+const ActionSheet: ForwardRefExoticComponent<
+  PropsWithChildren<ActionSheetProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ActionSheetProps>>(
   (
     {
       visible,
@@ -111,6 +120,7 @@ const ActionSheet = forwardRef<View, PropsWithChildren<ActionSheetProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const items = readOptions(options, 'ActionSheet');
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
@@ -147,9 +157,9 @@ const ActionSheet = forwardRef<View, PropsWithChildren<ActionSheetProps>>(
               style: [
                 defaults.group,
                 {
-                  borderRadius: RADII.lg,
+                  borderRadius: shape.radius.lg,
                   backgroundColor: surface,
-                  borderWidth: tones.isDark ? 1 : 0,
+                  borderWidth: tones.isDark ? shape.borderWidth(1) : 0,
                   borderColor: tones.outline,
                 },
                 styled?.styleSheet,
@@ -244,9 +254,9 @@ const ActionSheet = forwardRef<View, PropsWithChildren<ActionSheetProps>>(
                 style: [
                   defaults.cancel,
                   {
-                    borderRadius: RADII.lg,
+                    borderRadius: shape.radius.lg,
                     backgroundColor: surface,
-                    borderWidth: tones.isDark ? 1 : 0,
+                    borderWidth: tones.isDark ? shape.borderWidth(1) : 0,
                     borderColor: tones.outline,
                   },
                   styled?.styleCancel,

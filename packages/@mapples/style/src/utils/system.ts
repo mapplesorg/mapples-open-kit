@@ -7,9 +7,11 @@ import {
   isUndefined,
   compact,
 } from 'lodash';
-import { ColorValue, StyleProp, StyleSheet, TextStyle } from 'react-native';
+import { ColorValue, StyleProp, TextStyle } from 'react-native';
 
 import { CalcValue, HEX, MultiplyValue, RGB, RGBA, ThemeMap } from '../types';
+
+import { flattenStyleProp } from './style';
 
 /**
  * Recursively extracts all key paths from a nested object.
@@ -85,8 +87,11 @@ export const normalizeTextStyleWeb = (
     return;
   }
 
-  const { lineHeight, letterSpacing, ...otherTextStyle } =
-    StyleSheet.flatten(textStyle);
+  const flattened = flattenStyleProp(textStyle);
+  if (!flattened) {
+    return;
+  }
+  const { lineHeight, letterSpacing, ...otherTextStyle } = flattened;
 
   const normalizedStyle = {
     ...otherTextStyle,
@@ -100,7 +105,7 @@ export const normalizeTextStyleWeb = (
 /**
  * Creates a regular expression that matches all theme and sizing token references
  * present in a serialised style string (e.g., `'theme.colors.primary'`, `'"sizing.md"'`,
- * `'"*2"'`, `'"calc(...)"'`).
+ * `'"*2"'`, `'"*0.5"'`, `'"calc(...)"'`).
  *
  * @param theme - An object whose key paths form the set of recognisable tokens.
  *   Typically passed as `{ theme, sizing }` so both namespaces are covered.
@@ -122,11 +127,26 @@ export const getThemeRegexp = <T extends object>(theme: T) => {
     '|',
   );
 
-  return new RegExp(`${pattern}|"\\*\\d+"|"calc\\(.*?\\)"`, 'gi');
+  return new RegExp(`${pattern}|"\\*\\d+(?:\\.\\d+)?"|"calc\\(.*?\\)"`, 'gi');
 };
+
+// The `rgb()` / `rgba()` grammar React Native's normalize-colors parses: three
+// channels separated by whitespace and/or commas, plus an optional alpha after
+// a comma (comma-separated form) or a slash (`rgb(16 20 12 / 0.05)`).
+const NUMBER = '[-+]?\\d*\\.?\\d+';
+const RGB_FUNCTION = new RegExp(
+  '^rgba?\\(\\s*(?:' +
+    `${NUMBER}\\s*,?\\s*${NUMBER}\\s*,?\\s*${NUMBER}` +
+    `|${NUMBER}\\s*,\\s*${NUMBER}\\s*,\\s*${NUMBER}\\s*,\\s*${NUMBER}` +
+    `|${NUMBER}\\s*,?\\s*${NUMBER}\\s*,?\\s*${NUMBER}\\s*\\/\\s*${NUMBER}` +
+    ')\\s*\\)$',
+);
 
 /**
  * Type guard to check if a value is a valid color string (RGB, RGBA, or HEX).
+ *
+ * `rgb()` / `rgba()` accept the spacing React Native accepts — `rgba(16,20,12,0.05)`
+ * is a color, not a token path to resolve.
  *
  * @param color - The value to check
  * @returns True if the value is a valid color string
@@ -136,6 +156,8 @@ export const getThemeRegexp = <T extends object>(theme: T) => {
  * isColorString('#FF0000'); // true
  * isColorString('rgb(255, 0, 0)'); // true
  * isColorString('rgba(255, 0, 0, 0.5)'); // true
+ * isColorString('rgba(16,24,40,0.08)'); // true
+ * isColorString('rgb(16 24 40 / 0.08)'); // true
  * isColorString('red'); // false
  * ```
  */
@@ -146,15 +168,11 @@ export const isColorString = (
     return false;
   }
 
-  return (
-    /^rgb\(\d+,\s\d+,\s\d+\)$/.test(color) ||
-    /^rgba\(\d+,\s\d+,\s\d+,\s\d+(\.\d+)?\)$/.test(color) ||
-    /^#[0-9a-fA-F]+$/.test(color)
-  );
+  return RGB_FUNCTION.test(color) || /^#[0-9a-fA-F]+$/.test(color);
 };
 
 /**
- * Type guard to check if a value is a multiplier expression (e.g., '*2', '*3').
+ * Type guard to check if a value is a multiplier expression (e.g., '*2', '*0.5').
  *
  * @param value - The value to check
  * @returns True if the value is a multiplier expression
@@ -162,6 +180,7 @@ export const isColorString = (
  * @example
  * ```tsx
  * isMultiply('*2'); // true
+ * isMultiply('*0.5'); // true
  * isMultiply('2*'); // false
  * isMultiply('calc(2 * 4)'); // false
  * ```
@@ -207,6 +226,7 @@ export const isCalc = <T extends string>(
  * ```tsx
  * parseCalc('calc(*2 - 10)', 20); // Returns: 30 (20*2 - 10)
  * parseCalc('calc(*3 + 5)', 10); // Returns: 35 (10*3 + 5)
+ * parseCalc('calc(*1.5 - 2)', 8); // Returns: 10 (8*1.5 - 2)
  * ```
  */
 export const parseCalc = (value: string, base: number): number => {
@@ -214,17 +234,19 @@ export const parseCalc = (value: string, base: number): number => {
   const expression = value.substring(5, value.length - 1);
 
   // Replace *n with base*n
-  const parsedExpression = expression.replace(/\*(\d+)/g, (_, n) => {
-    return (base * parseInt(n, 10)).toString();
+  const parsedExpression = expression.replace(/\*(\d+(?:\.\d+)?)/g, (_, n) => {
+    return (base * parseFloat(n)).toString();
   });
 
   // Evaluate the expression
   // For now, we only support simple operations like *n - m or *n + m
-  const match = parsedExpression.match(/^(\d+)\s*([-+])\s*(\d+)$/);
+  const match = parsedExpression.match(
+    /^(\d+(?:\.\d+)?)\s*([-+])\s*(\d+(?:\.\d+)?)$/,
+  );
   if (match) {
     const [, leftStr, operator, rightStr] = match;
-    const left = parseInt(leftStr, 10);
-    const right = parseInt(rightStr, 10);
+    const left = parseFloat(leftStr);
+    const right = parseFloat(rightStr);
 
     if (operator === '+') {
       return left + right;

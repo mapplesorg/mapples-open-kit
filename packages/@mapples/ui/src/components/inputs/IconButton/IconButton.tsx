@@ -4,6 +4,9 @@ import {
   PropsWithChildren,
   useCallback,
   useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
 } from 'react';
 
 import {
@@ -23,16 +26,21 @@ import {
   GestureResponderEvent,
   MouseEvent,
   PressableProps,
+  TextStyle,
   View,
   ViewProps,
+  ViewStyle,
 } from 'react-native';
 import { SvgProps, SvgUri } from 'react-native-svg';
 
+import useShape from '../../../hooks/useShape';
 import useTones from '../../../hooks/useTones';
 import {
-  CONTROL_SIZES,
-  ControlSize,
   DISABLED_OPACITY,
+  ICON_BUTTON_SHAPES,
+  ICON_BUTTON_SIZES,
+  IconButtonShape,
+  IconButtonSize,
   IconButtonVariant,
   Tone,
 } from '../../../tokens';
@@ -51,6 +59,10 @@ export type IconProps = PropsWithChildren<
     styled?: StyledProps<ViewProps> & {
       /** SVG-specific styling */
       styleSvg?: StyledProp<SvgStyle>;
+      /** The count badge (position, size, fill). */
+      styleBadge?: StyledProp<ViewStyle>;
+      /** The badge's number. */
+      styleBadgeLabel?: StyledProp<TextStyle>;
     };
   }
 > & {
@@ -64,8 +76,17 @@ export type IconProps = PropsWithChildren<
   iconName?: string;
   /** Themed appearance: `standard` (no fill), `filled`, `tonal` or `outlined`. */
   variant?: IconButtonVariant;
-  /** Square size: `sm` 36, `md` 44, `lg` 52 points. */
-  size?: ControlSize;
+  /**
+   * Square size: `sm` 36, `md` 44, `lg` 52, `xl` 76 points (`xl` is the
+   * primary play/pause control). Defaults to `md`.
+   */
+  size?: IconButtonSize;
+  /**
+   * Corner shape (themed variants): `auto` is round unless the project is
+   * sharp, `circle` is round whatever the project radius, `rounded` takes the
+   * project's control corner. Defaults to `auto`.
+   */
+  shape?: IconButtonShape;
   /** Colour role. Defaults to `primary`. */
   tone?: Tone;
   /** Toggle state (controlled). Omit for an uncontrolled toggle, or leave both unset for a plain button. */
@@ -113,7 +134,9 @@ const BADGE_MAX = 99;
  *
  * @public
  */
-const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
+const IconButton: ForwardRefExoticComponent<
+  PropsWithChildren<IconProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<IconProps>>(
   (
     {
       styled,
@@ -121,6 +144,7 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
       iconName,
       variant = 'standard',
       size = 'md',
+      shape: cornerShape = 'auto',
       tone = 'primary',
       selected,
       onSelectedChange,
@@ -137,8 +161,10 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
     },
     ref,
   ) => {
-    const { styleSvg, ...styledViewProps } = styled || {};
+    const { styleSvg, styleBadge, styleBadgeLabel, ...styledViewProps } =
+      styled || {};
     const tones = useTones();
+    const shape = useShape();
     const [pressed, setPressed] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [internalSelected, setInternalSelected] = useState(false);
@@ -247,7 +273,24 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
       );
     }
 
-    const spec = CONTROL_SIZES[size];
+    if (!ICON_BUTTON_SIZES.includes(size)) {
+      throw new Error(
+        `IconButton: size must be one of ${ICON_BUTTON_SIZES.join(', ')} (got ${String(size)})`,
+      );
+    }
+    if (!ICON_BUTTON_SHAPES.includes(cornerShape)) {
+      throw new Error(
+        `IconButton: shape must be one of ${ICON_BUTTON_SHAPES.join(', ')} (got ${String(cornerShape)})`,
+      );
+    }
+    const spec = shape.control[size];
+    // `auto`: round, unless the project is sharp (its pill radius is 0).
+    const corner =
+      cornerShape === 'circle'
+        ? spec.height / 2
+        : cornerShape === 'rounded'
+          ? spec.radius
+          : Math.min(spec.height / 2, shape.radius.pill);
     const palette = tones.tone(tone);
     const text = tones.resolve('theme.text.primary');
     const isDisabled = !!disabled;
@@ -262,16 +305,16 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
         break;
       case 'tonal':
         background = palette.container;
-        glyph = isSelected ? palette.main : palette.onContainer;
+        glyph = isSelected ? palette.ink : palette.onContainer;
         break;
       case 'outlined':
         border = tones.outlineStrong;
         background = isSelected ? palette.container : 'transparent';
-        glyph = isSelected ? palette.main : text;
+        glyph = isSelected ? palette.ink : text;
         break;
       default:
         background = isSelected ? palette.container : 'transparent';
-        glyph = isSelected ? palette.main : text;
+        glyph = isSelected ? palette.ink : text;
     }
     const authoredGlyph = ejectStyle?.color;
     const glyphColor =
@@ -307,9 +350,9 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
             {
               width: spec.height,
               height: spec.height,
-              borderRadius: spec.height / 2,
+              borderRadius: corner,
               backgroundColor: background,
-              borderWidth: border ? 1 : 0,
+              borderWidth: border ? shape.borderWidth(1) : 0,
               borderColor: border ?? 'transparent',
             },
             styledViewProps.style,
@@ -329,7 +372,7 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
                     glyphColor,
                     pressed ? 'pressed' : 'hover',
                   ),
-                  borderRadius: spec.height / 2,
+                  borderRadius: corner,
                 },
               ],
             }}
@@ -350,13 +393,14 @@ const IconButton = forwardRef<View, PropsWithChildren<IconProps>>(
               style: [
                 styler.badge,
                 { backgroundColor: tones.tone('error').main },
+                styleBadge,
               ],
             }}
           >
             <Typography
               variant="Caption"
               color={tones.tone('error').contrast}
-              style={styler.badgeText}
+              style={[styler.badgeText, styleBadgeLabel]}
             >
               {badge}
             </Typography>

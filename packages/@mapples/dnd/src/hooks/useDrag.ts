@@ -1,4 +1,11 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentRef,
+} from 'react';
 
 import { LayoutRectangle, View } from 'react-native';
 import { filter } from 'rxjs';
@@ -19,7 +26,7 @@ import useDnD from './useDnD';
  * @public
  */
 const useDrag = <DragData extends object, DropData extends object = DragData>(
-  ref: RefObject<View | null>,
+  ref: RefObject<ComponentRef<typeof View> | null>,
   item: DragItem<DragData>,
 ) => {
   const { monitor } = useDnD<DragData, DropData>();
@@ -73,11 +80,24 @@ const useDrag = <DragData extends object, DropData extends object = DragData>(
   const updateLayout = useCallback(() => {
     ref.current?.measureInWindow?.((x, y, width, height) => {
       layoutRef.current = { x, y, width, height };
-    });
 
-    if (!idRef.current || !layoutRef.current) return;
-    monitor.updateDragElementLayout(idRef.current, layoutRef.current);
+      if (!idRef.current) return;
+      monitor.updateDragElementLayout(idRef.current, layoutRef.current);
+    });
   }, [monitor, ref]);
+
+  // The rect is in window coordinates, so it goes stale when a scrolling
+  // container (the component palette) moves the element; a forced layout
+  // update re-reads it, or the press hits whichever source used to be there.
+  useEffect(() => {
+    const subscription = monitor.events
+      .pipe(filter((e) => e.type === DnDEventType.LayoutForceUpdate))
+      .subscribe(() => {
+        updateLayout();
+      });
+
+    return () => subscription.unsubscribe();
+  }, [monitor.events, updateLayout]);
 
   useEffect(() => {
     const events = monitor.events

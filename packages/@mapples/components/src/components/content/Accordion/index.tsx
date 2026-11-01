@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -9,9 +16,9 @@ import {
 import {
   DISABLED_OPACITY,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -83,7 +90,9 @@ export interface AccordionProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Accordion = forwardRef<View, PropsWithChildren<AccordionProps>>(
+const Accordion: ForwardRefExoticComponent<
+  PropsWithChildren<AccordionProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<AccordionProps>>(
   (
     {
       title,
@@ -101,6 +110,7 @@ const Accordion = forwardRef<View, PropsWithChildren<AccordionProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const [isExpanded, setExpanded] = useControllableState<boolean>({
       value: expanded,
       defaultValue: defaultExpanded,
@@ -143,8 +153,11 @@ const Accordion = forwardRef<View, PropsWithChildren<AccordionProps>>(
           style: [
             defaults.root,
             variant !== 'plain' && {
-              borderRadius: RADII.md,
-              borderWidth: variant === 'outlined' || tones.isDark ? 1 : 0,
+              borderRadius: shape.radius.md,
+              borderWidth:
+                variant === 'outlined' || tones.isDark
+                  ? shape.borderWidth(1)
+                  : 0,
               borderColor: tones.outline,
               backgroundColor:
                 variant === 'filled'

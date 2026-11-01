@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useRef } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -7,12 +15,11 @@ import {
   Typography,
 } from '@mapples/style';
 import {
-  CONTROL_SIZES,
   ControlSize,
   DISABLED_OPACITY,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import {
@@ -107,7 +114,9 @@ export interface SearchBarProps extends Omit<
  *
  * @public
  */
-const SearchBar = forwardRef<View, PropsWithChildren<SearchBarProps>>(
+const SearchBar: ForwardRefExoticComponent<
+  PropsWithChildren<SearchBarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SearchBarProps>>(
   (
     {
       value,
@@ -133,7 +142,8 @@ const SearchBar = forwardRef<View, PropsWithChildren<SearchBarProps>>(
     ref,
   ) => {
     const tones = useTones();
-    const inputRef = useRef<TextInput>(null);
+    const shape = useShape();
+    const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
     const [text, setText] = useControllableState<string>({
       value,
       defaultValue,
@@ -141,8 +151,8 @@ const SearchBar = forwardRef<View, PropsWithChildren<SearchBarProps>>(
     });
     const interaction = useInteractionState({ onFocus, onBlur }, disabled);
 
-    const spec = CONTROL_SIZES[size];
-    const focusColor = tones.tone('primary').main;
+    const spec = shape.control[size];
+    const focusColor = tones.tone('primary').ink;
     const textColor = tones.resolve(Tokens.color.text);
     const borderColor = interaction.focused
       ? focusColor
@@ -189,7 +199,9 @@ const SearchBar = forwardRef<View, PropsWithChildren<SearchBarProps>>(
               {
                 minHeight: spec.height,
                 paddingHorizontal: spec.paddingX - 4,
-                borderRadius: variant === 'filled' ? RADII.pill : spec.radius,
+                borderRadius:
+                  variant === 'filled' ? shape.radius.pill : spec.radius,
+                borderWidth: shape.borderWidth(1),
                 borderColor,
                 backgroundColor:
                   variant === 'filled' ? tones.fill : 'transparent',

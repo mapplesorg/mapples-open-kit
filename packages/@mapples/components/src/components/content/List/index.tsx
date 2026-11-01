@@ -1,11 +1,18 @@
-import { forwardRef, PropsWithChildren, useMemo } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useMemo,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
-  ELEVATION,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useElevation,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -46,7 +53,9 @@ export interface ListProps extends ViewProps {
  *
  * @public
  */
-const List = forwardRef<View, PropsWithChildren<ListProps>>(
+const List: ForwardRefExoticComponent<
+  PropsWithChildren<ListProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ListProps>>(
   (
     {
       variant = 'plain',
@@ -60,6 +69,8 @@ const List = forwardRef<View, PropsWithChildren<ListProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
+    const elevation = useElevation();
     const context = useMemo<ListContextValue>(
       () => ({ dividers, dividerInset }),
       [dividerInset, dividers],
@@ -97,13 +108,17 @@ const List = forwardRef<View, PropsWithChildren<ListProps>>(
             styled={{
               style: [
                 variant !== 'plain' && {
-                  borderRadius: variant === 'card' ? RADII.lg : RADII.md,
+                  borderRadius:
+                    variant === 'card' ? shape.radius.lg : shape.radius.md,
                   backgroundColor: tones.resolve(Tokens.color.surface),
                   overflow: 'hidden',
-                  borderWidth: variant === 'card' || tones.isDark ? 1 : 0,
+                  borderWidth:
+                    variant === 'card' || tones.isDark
+                      ? shape.borderWidth(1)
+                      : 0,
                   borderColor: tones.outline,
                 },
-                variant === 'card' && { boxShadow: ELEVATION },
+                variant === 'card' && { boxShadow: elevation },
               ],
             }}
           >

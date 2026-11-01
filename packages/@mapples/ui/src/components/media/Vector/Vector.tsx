@@ -1,4 +1,11 @@
-import { ComponentType, forwardRef, PropsWithChildren } from 'react';
+import {
+  ComponentType,
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   styled as makeStyled,
@@ -58,7 +65,9 @@ const StyledSvgUri = makeStyled(SvgUri);
  *
  * @public
  */
-const Vector = forwardRef<View, PropsWithChildren<VectorProps>>(
+const Vector: ForwardRefExoticComponent<
+  PropsWithChildren<VectorProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<VectorProps>>(
   ({ styled, uri, ...props }, ref) => {
     const { styleSvg, ...styledViewProps } = styled || {};
 

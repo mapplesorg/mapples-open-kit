@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledPressable,
@@ -9,9 +16,9 @@ import {
 import {
   Button,
   Icon,
-  RADII,
-  Tokens,
   TYPOGRAPHY_PARTS,
+  Tokens,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -88,7 +95,9 @@ export interface BannerProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Banner = forwardRef<View, PropsWithChildren<BannerProps>>(
+const Banner: ForwardRefExoticComponent<
+  PropsWithChildren<BannerProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<BannerProps>>(
   (
     {
       title,
@@ -113,6 +122,7 @@ const Banner = forwardRef<View, PropsWithChildren<BannerProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
     const palette = tones.tone(tone);
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
@@ -133,7 +143,7 @@ const Banner = forwardRef<View, PropsWithChildren<BannerProps>>(
     const secondary = filled
       ? palette.contrast
       : tones.resolve(Tokens.color.textSecondary);
-    const accent = filled ? palette.contrast : palette.main;
+    const accent = filled ? palette.contrast : palette.ink;
     const glyphColor = useSlotColor(styled?.styleIcon, 'color', accent);
     // On a solid fill the text buttons take the contrast colour (their tone
     // colour would vanish into the background).
@@ -157,10 +167,10 @@ const Banner = forwardRef<View, PropsWithChildren<BannerProps>>(
             {
               paddingStart: 16,
               paddingEnd: dismissible ? 8 : 16,
-              borderRadius: RADII.md,
+              borderRadius: shape.radius.md,
               backgroundColor: background,
-              borderWidth: outlined ? 1 : 0,
-              borderColor: outlined ? palette.main : 'transparent',
+              borderWidth: outlined ? shape.borderWidth(1) : 0,
+              borderColor: outlined ? palette.ink : 'transparent',
             },
             styled?.style,
           ],

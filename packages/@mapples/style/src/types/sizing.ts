@@ -69,10 +69,27 @@ export type StyledSizingKeys =
   | 'borderRightWidth';
 
 /**
+ * A shadow as the Creator writes it: offsets, blur radius and a colour (theme
+ * tokens allowed). The styler turns it into a CSS `box-shadow` string before
+ * it reaches React Native (see `processExoticKeys`).
+ */
+export interface StyledBoxShadow {
+  x?: number;
+  y?: number;
+  radius?: number;
+  color?: string;
+}
+
+/**
  * Style props type that allows sizing values for dimension-related properties.
- * Replaces standard dimension properties with enhanced sizing support.
+ * Replaces standard dimension properties with enhanced sizing support, and
+ * lets `boxShadow` (where the style has one) be a {@link StyledBoxShadow}
+ * object as well as React Native's own string / list.
  */
 export type SizableStyleProps<T> = Partial<
   Record<StyledSizingKeys, DimensionValue | string>
 > &
-  Omit<T, StyledSizingKeys>;
+  Omit<T, StyledSizingKeys | 'boxShadow'> &
+  ('boxShadow' extends keyof T
+    ? { boxShadow?: T['boxShadow'] | StyledBoxShadow }
+    : unknown);

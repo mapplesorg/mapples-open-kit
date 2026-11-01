@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledPressable, WithStyledProps } from '@mapples/style';
 import { PressableProps as RNPressableProps, View } from 'react-native';
@@ -31,10 +37,12 @@ export type PressableProps = WithStyledProps<RNPressableProps>;
  *
  * @public
  */
-const Pressable = forwardRef<View, PropsWithChildren<PressableProps>>(
+const Pressable: ForwardRefExoticComponent<
+  PropsWithChildren<PressableProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<PressableProps>>(
   ({ children, ...props }, ref) => {
     return (
-      <StyledPressable onPress={console.log} ref={ref} {...props}>
+      <StyledPressable ref={ref} {...props}>
         {children}
       </StyledPressable>
     );

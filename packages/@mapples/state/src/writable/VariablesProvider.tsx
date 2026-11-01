@@ -12,7 +12,11 @@ import { VARIABLES_NAMESPACE, VariableDefinition } from '@mapples/types';
 import { cloneDeep, get, set } from 'lodash';
 
 import { WritableStateContextProvider } from './context';
-import { VariablesProviderProps, WritableStateContextType } from './types';
+import {
+  VariablesProviderProps,
+  VariablesStorage,
+  WritableStateContextType,
+} from './types';
 
 const NS_PREFIX = `${VARIABLES_NAMESPACE}.`;
 
@@ -96,21 +100,48 @@ const VariablesProvider: FC<PropsWithChildren<VariablesProviderProps>> = ({
     return result;
   }, [mounted, overrides]);
 
+  /** The app variables a host storage holds between launches. */
+  const persisted = useMemo(
+    () =>
+      Object.values(variables ?? {}).filter(
+        (variable) => variable.persist && variable.scope.kind === 'app',
+      ),
+    [variables],
+  );
+  /**
+   * The storage/document pair whose persisted values have all arrived. The
+   * store reads as hydrated for the pair it is mounted with — immediately
+   * when there is nothing to load — so a guard evaluated before the stored
+   * session is in would not see a signed-in user as signed out.
+   */
+  const [loaded, setLoaded] = useState<{
+    storage: VariablesStorage;
+    persisted: VariableDefinition[];
+  } | null>(null);
+  const hydrated =
+    !storage ||
+    persisted.length === 0 ||
+    (loaded?.storage === storage && loaded.persisted === persisted);
+
   // Load persisted app-variable values once per storage/document pair.
   useEffect(() => {
-    if (!storage || !variables) return;
+    if (!storage || persisted.length === 0) return;
     let cancelled = false;
-    for (const variable of Object.values(variables)) {
-      if (!variable.persist || variable.scope.kind !== 'app') continue;
-      void storage.get(variable.name).then((stored) => {
+    const loads = persisted.map((variable) =>
+      storage.get(variable.name).then((stored) => {
         if (cancelled || stored === undefined) return;
         setOverrides((current) => ({ ...current, [variable.name]: stored }));
-      });
-    }
+      }),
+    );
+    // A storage that fails still lets the app start, on the declared initial
+    // values; its rejection is not swallowed, it surfaces as unhandled.
+    void Promise.all(loads).finally(() => {
+      if (!cancelled) setLoaded({ storage, persisted });
+    });
     return () => {
       cancelled = true;
     };
-  }, [storage, variables]);
+  }, [storage, persisted]);
 
   const setValue = useCallback<WritableStateContextType['setValue']>(
     (path, nextValue) => {
@@ -124,7 +155,7 @@ const VariablesProvider: FC<PropsWithChildren<VariablesProviderProps>> = ({
         console.warn(
           `[mapples-state] setValue ignored: no mounted variable "${name}"`,
         );
-        return;
+        return false;
       }
 
       let resolved: unknown;
@@ -143,6 +174,7 @@ const VariablesProvider: FC<PropsWithChildren<VariablesProviderProps>> = ({
       if (variable.persist && variable.scope.kind === 'app' && storage) {
         void storage.set(name, resolved);
       }
+      return true;
     },
     // Reading `mounted`/`value` straight from render is free here: the
     // context object is rebuilt whenever `value` changes anyway, so pinning
@@ -187,8 +219,15 @@ const VariablesProvider: FC<PropsWithChildren<VariablesProviderProps>> = ({
   );
 
   const context = useMemo<WritableStateContextType>(
-    () => ({ value, setValue, reset, registerScope, unregisterScope }),
-    [value, setValue, reset, registerScope, unregisterScope],
+    () => ({
+      value,
+      hydrated,
+      setValue,
+      reset,
+      registerScope,
+      unregisterScope,
+    }),
+    [value, hydrated, setValue, reset, registerScope, unregisterScope],
   );
 
   return (

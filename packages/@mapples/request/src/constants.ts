@@ -10,6 +10,13 @@ export const RequestActionType = {
    * after the request settles (e.g. a `mapples:navigate`).
    */
   Execute: 'mapples:request',
+  /**
+   * Forget responses: every `api.*` state, or `payload.data.requestIds`
+   * only. What a sign-out runs so the next user never sees the previous
+   * user's data; the runtime runs it itself when a session refresh is
+   * refused.
+   */
+  ClearResponses: 'mapples:clearResponses',
 } as const;
 
 export type RequestActionTypeValue =

@@ -1,32 +1,34 @@
 import { useContext, useMemo } from 'react';
 
 import { useDataState } from '@mapples/state';
-import { keys, reduce } from 'lodash';
 
 import RenderStateContext from '../context/RenderStateContext';
 import { AnyObject } from '../types';
+import { applyStateVariants } from '../utils/applyStateVariants';
 
 /**
- * Hook that processes component props to apply conditional styling based on state conditions.
+ * Hook that applies a node's state variants to its `styled` prop.
  *
- * This hook evaluates conditions defined in the `styled` prop and applies conditional styles
- * based on the current render state. Style keys can include condition suffixes (e.g., "backgroundColor::conditionName")
- * that are evaluated against the render state.
+ * A `styled` key can carry a condition suffix (`style::pressed`); the variant
+ * applies over its base while the render state's condition of that name holds.
+ * A slot with active variants becomes `[base, ...variants]`; every other slot
+ * reaches the component exactly as written (see `applyStateVariants`).
  *
  * @param props - Component props that may contain a `styled` object with conditional styles
- * @returns Props with processed conditional styles applied
+ * @returns Props with the active variants applied
  *
  * @example
  * ```tsx
  * const props = {
  *   styled: {
- *     backgroundColor: '#fff',
- *     'backgroundColor::isActive': '#000',
+ *     style: { backgroundColor: '#fff' },
+ *     'style::isActive': { backgroundColor: '#000' },
  *   }
  * };
  *
  * const processedProps = useConditionalStyled(props);
- * // If isActive condition is true, backgroundColor will be '#000', otherwise '#fff'
+ * // isActive holds:  styled.style = [{ backgroundColor: '#fff' }, { backgroundColor: '#000' }]
+ * // otherwise:       styled.style = { backgroundColor: '#fff' }
  * ```
  *
  * @internal
@@ -40,29 +42,12 @@ const useConditionalStyled = (props: AnyObject) => {
 
     if (!styled) return props;
 
-    const activeKeys = reduce(
-      keys(styled),
-      (acc, next) => {
-        const [styleKey, styleCondition] = next.split('::');
-
-        let conditionActive = false;
-
-        const condition = state?.[styleCondition];
-        if (condition) {
-          conditionActive = getConditionResult(condition?.condition);
-        }
-
-        return {
-          ...acc,
-          [styleKey]: [styled[styleKey], conditionActive && styled[next]],
-        };
-      },
-      {},
-    );
-
     return {
       ...props,
-      styled: activeKeys,
+      styled: applyStateVariants(styled, (name) => {
+        const condition = state?.[name];
+        return condition ? getConditionResult(condition.condition) : false;
+      }),
     };
   }, [props, state, getConditionResult]);
 

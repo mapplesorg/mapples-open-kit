@@ -1,4 +1,11 @@
-import { forwardRef, PropsWithChildren, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography, useStyled } from '@mapples/style';
 import { Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
@@ -22,9 +29,13 @@ import {
 import { defaults } from './defaults';
 import {
   PROGRESS_BAR_INDETERMINATE_WIDTH,
+  PROGRESS_BAR_MARKER_OVERHANG,
+  PROGRESS_BAR_MARKER_WIDTH,
+  PROGRESS_BAR_SEGMENT_GAP,
   PROGRESS_BAR_TRACK,
   ProgressBarSize,
   progressFraction,
+  readSegmentCount,
 } from './types';
 
 /** Props for {@link ProgressBar}. */
@@ -37,8 +48,19 @@ export interface ProgressBarProps extends Omit<ViewProps, 'children'> {
   indeterminate?: boolean;
   /** Colour role of the fill. Defaults to `primary`. */
   tone?: Tone;
-  /** Track thickness: `sm` 4, `md` 8, `lg` 12. Defaults to `md`. */
+  /** Track thickness: `xs` 2 (a hairline), `sm` 4, `md` 8, `lg` 12. Defaults to `md`. */
   size?: ProgressBarSize;
+  /**
+   * Splits the track into this many equal bars with a small gap, filled up
+   * to `value / max` ("Exercise 2 of 6": `value={2} max={6} segments={6}`).
+   * Must be a positive whole number. Ignored while `indeterminate`.
+   */
+  segments?: number;
+  /**
+   * Draws a thin vertical tick at this value (0 to `max`), e.g. "today" on a
+   * budget bar.
+   */
+  markerValue?: number;
   /** Shows the percentage after the track. */
   showLabel?: boolean;
   /** Custom text in place of the percentage ('3 of 5'); shown even without `showLabel`. */
@@ -49,10 +71,12 @@ export interface ProgressBarProps extends Omit<ViewProps, 'children'> {
   styled?: {
     /** The row holding track and label. */
     style?: StyledProp<ViewStyle>;
-    /** The track (its `backgroundColor` is the track colour). */
+    /** The track — each bar when segmented (its `backgroundColor` is the track colour). */
     styleTrack?: StyledProp<ViewStyle>;
     /** The fill (its `backgroundColor` is the fill colour). */
     styleFill?: StyledProp<ViewStyle>;
+    /** The `markerValue` tick (its `backgroundColor` is the tick colour). */
+    styleMarker?: StyledProp<ViewStyle>;
     /** The label text. */
     styleLabel?: StyledProp<TextStyle>;
   };
@@ -61,18 +85,23 @@ export interface ProgressBarProps extends Omit<ViewProps, 'children'> {
 /**
  * A linear progress indicator: a track with a tone-coloured fill that eases
  * to `value / max`, or an `indeterminate` sweep while the duration is
- * unknown. Stretches across its parent; an optional percentage or custom
- * label sits after the track.
+ * unknown. The track can split into equal `segments` and carry a
+ * `markerValue` tick. Stretches across its parent; an optional percentage or
+ * custom label sits after the track.
  *
  * @example
  * ```tsx
  * <ProgressBar value={uploaded} max={total} showLabel />
  * <ProgressBar indeterminate size="sm" />
+ * <ProgressBar value={2} max={6} segments={6} label="2 of 6" />
+ * <ProgressBar value={spent} max={budget} markerValue={dayOfMonth / 30 * budget} />
  * ```
  *
  * @public
  */
-const ProgressBar = forwardRef<View, PropsWithChildren<ProgressBarProps>>(
+const ProgressBar: ForwardRefExoticComponent<
+  PropsWithChildren<ProgressBarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ProgressBarProps>>(
   (
     {
       value = 0,
@@ -83,6 +112,8 @@ const ProgressBar = forwardRef<View, PropsWithChildren<ProgressBarProps>>(
       showLabel = false,
       label,
       rounded = true,
+      segments,
+      markerValue,
       styled,
       // The canvas injects a drop area as children; leaf components ignore them.
       children: _children,
@@ -93,6 +124,14 @@ const ProgressBar = forwardRef<View, PropsWithChildren<ProgressBarProps>>(
     const fraction = indeterminate
       ? 0
       : progressFraction(value, max, 'ProgressBar');
+    const segmentCount =
+      segments === undefined || indeterminate
+        ? undefined
+        : readSegmentCount(segments, 'ProgressBar');
+    const markerFraction =
+      markerValue === undefined
+        ? undefined
+        : progressFraction(markerValue, max, 'ProgressBar');
 
     const tones = useTones();
     const palette = tones.tone(tone);
@@ -137,6 +176,136 @@ const ProgressBar = forwardRef<View, PropsWithChildren<ProgressBarProps>>(
     const onLayout = (event: LayoutChangeEvent) =>
       setTrackWidth(event.nativeEvent.layout.width);
 
+    const continuousTrack = (
+      <StyledView
+        onLayout={onLayout}
+        styled={{
+          style: [
+            defaults.track,
+            {
+              height: thickness,
+              borderRadius: radius,
+              backgroundColor: trackColor,
+            },
+            styled?.styleTrack,
+          ],
+        }}
+      >
+        {indeterminate ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              defaults.fill,
+              {
+                width: `${PROGRESS_BAR_INDETERMINATE_WIDTH * 100}%`,
+                borderRadius: radius,
+                backgroundColor: fillColor,
+              },
+              resolved.fill,
+              {
+                // With reduced motion the sweep rests at the start instead of vanishing.
+                transform: [{ translateX: reduceMotion ? 0 : translateX }],
+              },
+            ]}
+          />
+        ) : (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              defaults.fill,
+              {
+                width: '100%',
+                borderRadius: radius,
+                backgroundColor: fillColor,
+                transformOrigin: isRTL ? 'right' : 'left',
+              },
+              resolved.fill,
+              { transform: [{ scaleX }] },
+            ]}
+          />
+        )}
+      </StyledView>
+    );
+
+    const bar =
+      segmentCount === undefined ? (
+        continuousTrack
+      ) : (
+        <StyledView
+          styled={{
+            style: [defaults.segments, { gap: PROGRESS_BAR_SEGMENT_GAP }],
+          }}
+        >
+          {Array.from({ length: segmentCount }, (_, index) => (
+            <StyledView
+              key={index}
+              styled={{
+                style: [
+                  defaults.track,
+                  {
+                    height: thickness,
+                    borderRadius: radius,
+                    backgroundColor: trackColor,
+                  },
+                  styled?.styleTrack,
+                ],
+              }}
+            >
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  defaults.fill,
+                  {
+                    width: '100%',
+                    borderRadius: radius,
+                    backgroundColor: fillColor,
+                    transformOrigin: isRTL ? 'right' : 'left',
+                  },
+                  resolved.fill,
+                  {
+                    transform: [
+                      {
+                        // Each bar fills its own slice of the overall fraction.
+                        scaleX: scaleX.interpolate({
+                          inputRange: [
+                            index / segmentCount,
+                            (index + 1) / segmentCount,
+                          ],
+                          outputRange: [0, 1],
+                          extrapolate: 'clamp',
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+            </StyledView>
+          ))}
+        </StyledView>
+      );
+
+    const marker =
+      markerFraction === undefined ? null : (
+        <StyledView
+          pointerEvents="none"
+          styled={{
+            style: [
+              defaults.marker,
+              {
+                start: `${markerFraction * 100}%`,
+                top: -PROGRESS_BAR_MARKER_OVERHANG,
+                bottom: -PROGRESS_BAR_MARKER_OVERHANG,
+                width: PROGRESS_BAR_MARKER_WIDTH,
+                marginStart: -PROGRESS_BAR_MARKER_WIDTH / 2,
+                borderRadius: PROGRESS_BAR_MARKER_WIDTH / 2,
+                backgroundColor: tones.resolve(Tokens.color.text),
+              },
+              styled?.styleMarker,
+            ],
+          }}
+        />
+      );
+
     return (
       <StyledView
         ref={ref}
@@ -150,54 +319,14 @@ const ProgressBar = forwardRef<View, PropsWithChildren<ProgressBarProps>>(
         styled={{ style: [defaults.root, styled?.style] }}
         {...rest}
       >
-        <StyledView
-          onLayout={onLayout}
-          styled={{
-            style: [
-              defaults.track,
-              {
-                height: thickness,
-                borderRadius: radius,
-                backgroundColor: trackColor,
-              },
-              styled?.styleTrack,
-            ],
-          }}
-        >
-          {indeterminate ? (
-            <Animated.View
-              pointerEvents="none"
-              style={[
-                defaults.fill,
-                {
-                  width: `${PROGRESS_BAR_INDETERMINATE_WIDTH * 100}%`,
-                  borderRadius: radius,
-                  backgroundColor: fillColor,
-                },
-                resolved.fill,
-                {
-                  // With reduced motion the sweep rests at the start instead of vanishing.
-                  transform: [{ translateX: reduceMotion ? 0 : translateX }],
-                },
-              ]}
-            />
-          ) : (
-            <Animated.View
-              pointerEvents="none"
-              style={[
-                defaults.fill,
-                {
-                  width: '100%',
-                  borderRadius: radius,
-                  backgroundColor: fillColor,
-                  transformOrigin: isRTL ? 'right' : 'left',
-                },
-                resolved.fill,
-                { transform: [{ scaleX }] },
-              ]}
-            />
-          )}
-        </StyledView>
+        {marker ? (
+          <StyledView styled={{ style: defaults.markerFrame }}>
+            {bar}
+            {marker}
+          </StyledView>
+        ) : (
+          bar
+        )}
         {text ? (
           <Typography
             variant={TYPOGRAPHY_PARTS.helper}

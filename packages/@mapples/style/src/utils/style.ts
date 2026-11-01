@@ -103,7 +103,7 @@ const normalizeZIndex = (value: unknown): number | undefined => {
 export const flatten = <T extends object>(
   style?: StyleProp<SizableStyleProps<T>>,
 ) => {
-  const flattened = StyleSheet.flatten(style);
+  const flattened = flattenStyleProp(style);
   if (
     flattened &&
     typeof flattened === 'object' &&
@@ -120,6 +120,16 @@ export const flatten = <T extends object>(
   }
   return flattened;
 };
+
+/**
+ * React Native's `StyleSheet.flatten`, typed for any style object. RN 0.88
+ * types it for resolved RN styles only, but it merges whatever objects the
+ * array holds — and the styles flattened here still carry sizing tokens
+ * (`'md'`, multipliers) that resolve later.
+ */
+export const flattenStyleProp = StyleSheet.flatten as <S>(
+  style: StyleProp<S>,
+) => S | undefined;
 
 /**
  * Styler utility object providing style creation and management functions.

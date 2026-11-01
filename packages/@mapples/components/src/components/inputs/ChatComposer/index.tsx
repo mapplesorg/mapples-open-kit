@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -6,7 +14,13 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { DISABLED_OPACITY, Icon, RADII, Tokens, useTones } from '@mapples/ui';
+import {
+  DISABLED_OPACITY,
+  Icon,
+  Tokens,
+  useShape,
+  useTones,
+} from '@mapples/ui';
 import {
   LayoutChangeEvent,
   Pressable,
@@ -78,7 +92,10 @@ export interface ChatComposerProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const ChatComposer = forwardRef<View, PropsWithChildren<ChatComposerProps>>(
+const ChatComposer: ForwardRefExoticComponent<
+  PropsWithChildren<ChatComposerProps> &
+    RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<ChatComposerProps>>(
   (
     {
       value,
@@ -107,6 +124,8 @@ const ChatComposer = forwardRef<View, PropsWithChildren<ChatComposerProps>>(
     }
 
     const tones = useTones();
+
+    const shape = useShape();
     const palette = tones.tone('primary');
     const [text, setText] = useControllableState<string>({
       value,
@@ -182,7 +201,7 @@ const ChatComposer = forwardRef<View, PropsWithChildren<ChatComposerProps>>(
               {
                 minHeight: button,
                 paddingVertical: paddingY,
-                borderRadius: RADII.pill,
+                borderRadius: shape.radius.pill,
                 backgroundColor: tones.fill,
               },
             ],

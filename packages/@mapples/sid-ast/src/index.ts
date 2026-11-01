@@ -1,0 +1,51 @@
+export * from './types.js';
+export { extract } from './extract.js';
+export { patch } from './patch.js';
+export {
+  printChild,
+  printElement,
+  passedProps,
+  printNode,
+  printTree,
+  visibilityGuard,
+  printValue,
+  printAttr,
+  type ExprAt,
+  type PrintOptions,
+} from './print.js';
+export { isEventProp, normalizeJsxText } from './parse.js';
+export { deepEqual } from './equal.js';
+export { moveNamedImports, upsertImports, type ImportNeed } from './imports.js';
+export { extractExportedObjects, type ExportedObjects } from './exports.js';
+export {
+  codemodAdopt,
+  scanComponents,
+  type AdoptedElement,
+  type CodemodOptions,
+  type CodemodResult,
+  type ScanInfo,
+} from './codemod.js';
+export {
+  isPropBinding,
+  negateCondition,
+  PROPS_SCOPE,
+  propOfCondition,
+  propStateForCondition,
+  propTestCode,
+  type PropState,
+} from './propConditions.js';
+export {
+  extractPropsSignature,
+  type PropsBindings,
+  type PropsParam,
+  type PropsParamKind,
+  type PropsSignature,
+} from './signature.js';
+export { findSyntaxErrors, type SyntaxProblem } from './syntax.js';
+export {
+  ensureInstanceStyled,
+  INSTANCE_STYLED_MEMBER,
+  INSTANCE_STYLED_TYPE_IMPORTS,
+  isInstanceWrapper,
+  type InstanceStyledResult,
+} from './instanceStyled.js';

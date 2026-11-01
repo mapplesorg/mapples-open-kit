@@ -42,6 +42,8 @@ export interface ImageCarouselItemProps {
  *
  * Depending on `mode`, text is either overlaid on top of the image (`'textOver'`,
  * the default) or displayed in a separate view beneath it (`'textUnder'`).
+ * Only the text the item has is rendered: a photo-only slide has no text
+ * container at all.
  *
  * @param props - The component props.
  * @param props.image - Image source for the slide.
@@ -77,6 +79,21 @@ const CarouselItem: FC<ImageCarouselItemProps> = ({
   styleSubtitle,
   imageProps,
 }) => {
+  const hasTitle = title !== undefined && title !== null && title !== '';
+  const hasSubtitle =
+    subtitle !== undefined && subtitle !== null && subtitle !== '';
+  const text =
+    hasTitle || hasSubtitle ? (
+      <StyledView styled={{ style: styleTextContainer }}>
+        {hasTitle ? (
+          <Typography styled={{ style: styleTitle }}>{title}</Typography>
+        ) : null}
+        {hasSubtitle ? (
+          <Typography styled={{ style: styleSubtitle }}>{subtitle}</Typography>
+        ) : null}
+      </StyledView>
+    ) : null;
+
   if (mode === 'textUnder') {
     return (
       <StyledView styled={{ style: styleItemContainer }}>
@@ -85,10 +102,7 @@ const CarouselItem: FC<ImageCarouselItemProps> = ({
           source={image}
           styled={{ style: styleImage }}
         />
-        <StyledView styled={{ style: styleTextContainer }}>
-          <Typography styled={{ style: styleTitle }}>{title}</Typography>
-          <Typography styled={{ style: styleSubtitle }}>{subtitle}</Typography>
-        </StyledView>
+        {text}
       </StyledView>
     );
   }
@@ -99,10 +113,7 @@ const CarouselItem: FC<ImageCarouselItemProps> = ({
       source={image}
       styled={{ style: styleItemContainer, imageStyle: styleImage }}
     >
-      <StyledView styled={{ style: styleTextContainer }}>
-        <Typography styled={{ style: styleTitle }}>{title}</Typography>
-        <Typography styled={{ style: styleSubtitle }}>{subtitle}</Typography>
-      </StyledView>
+      {text}
     </StyledImageBackground>
   );
 };

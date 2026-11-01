@@ -12,9 +12,11 @@ export const defaults = Styler.create({
     flexShrink: 1,
     gap: 2,
   },
+  labelsGrow: {
+    flexGrow: 1,
+  },
   box: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
   },
 });

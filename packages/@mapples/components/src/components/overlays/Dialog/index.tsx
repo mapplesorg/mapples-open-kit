@@ -1,14 +1,21 @@
-import { forwardRef, PropsWithChildren, useCallback } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
   Button,
-  ELEVATION,
   Icon,
-  RADII,
+  TYPOGRAPHY_PARTS,
   Tokens,
   Tone,
-  TYPOGRAPHY_PARTS,
+  useElevation,
+  useShape,
   useTones,
 } from '@mapples/ui';
 import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
@@ -94,7 +101,9 @@ export interface DialogProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Dialog = forwardRef<View, PropsWithChildren<DialogProps>>(
+const Dialog: ForwardRefExoticComponent<
+  PropsWithChildren<DialogProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<DialogProps>>(
   (
     {
       visible,
@@ -120,6 +129,8 @@ const Dialog = forwardRef<View, PropsWithChildren<DialogProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const shape = useShape();
+    const elevation = useElevation();
     const [isVisible, setVisible] = useControllableState<boolean>({
       value: visible,
       defaultValue: defaultVisible,
@@ -153,10 +164,10 @@ const Dialog = forwardRef<View, PropsWithChildren<DialogProps>>(
               defaults.card,
               {
                 maxWidth,
-                borderRadius: RADII.xl,
+                borderRadius: shape.radius.xl,
                 backgroundColor: tones.resolve(Tokens.color.surface),
-                boxShadow: ELEVATION,
-                borderWidth: tones.isDark ? 1 : 0,
+                boxShadow: elevation,
+                borderWidth: tones.isDark ? shape.borderWidth(1) : 0,
                 borderColor: tones.outline,
               },
               styled?.styleDialog,
@@ -180,7 +191,7 @@ const Dialog = forwardRef<View, PropsWithChildren<DialogProps>>(
             </Pressable>
           ) : null}
           {iconName ? (
-            <Icon iconName={iconName} size={28} color={tones.tone(tone).main} />
+            <Icon iconName={iconName} size={28} color={tones.tone(tone).ink} />
           ) : null}
           {title || message ? (
             <StyledView styled={{ style: defaults.header }}>

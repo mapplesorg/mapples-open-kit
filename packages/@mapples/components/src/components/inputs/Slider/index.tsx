@@ -1,4 +1,12 @@
-import { forwardRef, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useState,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import {
@@ -94,7 +102,9 @@ const decimalsOf = (step: number) => {
  *
  * @public
  */
-const Slider = forwardRef<View, PropsWithChildren<SliderProps>>(
+const Slider: ForwardRefExoticComponent<
+  PropsWithChildren<SliderProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SliderProps>>(
   (
     {
       value,

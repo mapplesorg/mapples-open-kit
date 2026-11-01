@@ -393,3 +393,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 MIT © [Mapples](https://mapples.org)
+
+## Namespaces that scope providers never shadow
+
+Three key prefixes resolve through contexts of their own rather than the nearest `StateProvider`, so a frame's data state or a list row never hides them:
+
+- `vars.*` — the writable variables store (`VariablesProvider`).
+- `api.*` — API response state (`ApiStateContextProvider`, mounted by `@mapples/request`).
+- `route.*` — the params the enclosing screen was navigated to with (`RouteParamsProvider`, mounted per screen by `@mapples/navigation`). Handlers mounted above the navigator read the focused screen's params instead, through `ActiveRouteProvider`, which every screen updates on focus — a request bound to `route.id` resolves from the root.
+
+`resolveValueSource` resolves one authored value source (`static` / `state` / `event` / `data`) against the action that triggered it; the request and navigation runtimes share it.

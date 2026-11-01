@@ -1,13 +1,20 @@
 import { useCallback, useMemo } from 'react';
 
-import { useTheme, withAlpha } from '@mapples/style';
+import { contrastRatio, useTheme, withAlpha } from '@mapples/style';
 
 import { STATE_LAYER_OPACITY, Tokens, Tone } from '../tokens';
 
 /** The resolved colours of one tone (see {@link Tone}). */
 export interface TonePalette {
-  /** The tone's main colour — fills and emphasised text. */
+  /** The tone's main colour — fills, tracks and indicators. */
   main: string;
+  /**
+   * The tone as text, glyphs and lines on the page surface: `main` when it
+   * reads at {@link INK_CONTRAST}:1 against the card surface, else whichever
+   * of the tone's `dark`/`light` shades reads better. A fill-only brand
+   * colour (a lime, a pale yellow) stays legible this way.
+   */
+  ink: string;
   /** Text/glyph colour on a `main` fill. */
   contrast: string;
   /** A soft tinted surface of the tone. */
@@ -59,6 +66,20 @@ export interface Tones {
  *
  * @public
  */
+/** Minimum contrast of a tone's `ink` against the card surface (WCAG AA text). */
+export const INK_CONTRAST = 4.5;
+
+/** The first shade that reaches {@link INK_CONTRAST} on `surface`, else the strongest. */
+const pickInk = (surface: string, shades: string[]): string => {
+  const readable = shades.find(
+    (shade) => contrastRatio(shade, surface) >= INK_CONTRAST,
+  );
+  if (readable) return readable;
+  return shades.reduce((best, shade) =>
+    contrastRatio(shade, surface) > contrastRatio(best, surface) ? shade : best,
+  );
+};
+
 const useTones = (): Tones => {
   const { getColor, themeConfig, colorScheme } = useTheme();
 
@@ -78,24 +99,40 @@ const useTones = (): Tones => {
   const tone = useCallback(
     (key: Tone): TonePalette => {
       const text = getColor(Tokens.color.text);
+      const surface = getColor(Tokens.color.surface);
       switch (key) {
-        case 'primary':
+        case 'primary': {
+          const main = getColor(Tokens.color.primary);
           return {
-            main: getColor(Tokens.color.primary),
+            main,
+            ink: pickInk(surface, [
+              main,
+              getColor(Tokens.color.primaryDark),
+              getColor(Tokens.color.primaryLight),
+            ]),
             contrast: getColor(Tokens.color.onPrimary),
             container: getColor(Tokens.color.primaryContainer),
             onContainer: text,
           };
-        case 'accent':
+        }
+        case 'accent': {
+          const main = getColor(Tokens.color.accent);
           return {
-            main: getColor(Tokens.color.accent),
+            main,
+            ink: pickInk(surface, [
+              main,
+              getColor(Tokens.color.accentDark),
+              getColor(Tokens.color.accentLight),
+            ]),
             contrast: getColor(Tokens.color.onAccent),
             container: getColor(Tokens.color.accentContainer),
             onContainer: text,
           };
+        }
         case 'neutral':
           return {
             main: text,
+            ink: text,
             contrast: getColor(Tokens.color.background),
             container: withAlpha(text, 0.08),
             onContainer: text,
@@ -104,6 +141,7 @@ const useTones = (): Tones => {
           const main = getColor(Tokens.color[key]);
           return {
             main,
+            ink: main,
             contrast: getColor(Tokens.color.white),
             container: withAlpha(main, 0.14),
             onContainer: text,

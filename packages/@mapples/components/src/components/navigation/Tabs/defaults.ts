@@ -27,6 +27,9 @@ export const defaults = Styler.create({
     gap: 8,
     overflow: 'hidden',
   },
+  labelStack: {
+    alignItems: 'center',
+  },
   stateLayer: {
     position: 'absolute',
     top: 0,

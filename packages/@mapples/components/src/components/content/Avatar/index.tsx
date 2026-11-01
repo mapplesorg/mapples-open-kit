@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledImage,
@@ -7,7 +13,7 @@ import {
   StyledView,
   Typography,
 } from '@mapples/style';
-import { Icon, RADII, Tokens, Tone, useTones } from '@mapples/ui';
+import { Icon, Tokens, Tone, useShape, useTones } from '@mapples/ui';
 import { ImageProps } from 'expo-image';
 import {
   ImageStyle,
@@ -75,7 +81,9 @@ const BADGE_MAX = 99;
  *
  * @public
  */
-const Avatar = forwardRef<View, PropsWithChildren<AvatarProps>>(
+const Avatar: ForwardRefExoticComponent<
+  PropsWithChildren<AvatarProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<AvatarProps>>(
   (
     {
       source,
@@ -95,10 +103,15 @@ const Avatar = forwardRef<View, PropsWithChildren<AvatarProps>>(
     ref,
   ) => {
     const tones = useTones();
+    const themeShape = useShape();
     const palette = tones.tone(tone);
     const edge = AVATAR_EDGE[size];
     const radius =
-      shape === 'circle' ? edge / 2 : shape === 'rounded' ? RADII.sm : 0;
+      shape === 'circle'
+        ? edge / 2
+        : shape === 'rounded'
+          ? themeShape.radius.sm
+          : 0;
     const initials = name ? initialsOf(name) : '';
     const statusColor = {
       none: 'transparent',
@@ -150,7 +163,7 @@ const Avatar = forwardRef<View, PropsWithChildren<AvatarProps>>(
             variant="Label"
             style={[
               {
-                color: palette.main,
+                color: palette.ink,
                 fontSize: Math.round(edge * 0.4),
                 lineHeight: Math.round(edge * 0.5),
               },
@@ -163,7 +176,7 @@ const Avatar = forwardRef<View, PropsWithChildren<AvatarProps>>(
           <Icon
             iconName={iconName ?? 'person'}
             size={Math.round(edge * 0.55)}
-            color={palette.main}
+            color={palette.ink}
           />
         )}
         {status !== 'none' ? (

@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -12,9 +18,12 @@ import { SvgProps } from 'react-native-svg';
 
 /**
  * `react-native-qrcode-svg` is an **optional peer dependency** of `@mapples/ui`
- * (Project settings → Packages → "QR code"): it's resolved lazily so apps that
- * never render a QR code don't have to install it. When absent, rendering a
- * QR code with a value throws — nothing is drawn in its place.
+ * (the "QR code" package: Project settings → Packages in the Creator, or
+ * `mapples sync` in a code-first app): it's resolved lazily so apps that never
+ * render a QR code don't have to install it. When absent, rendering a QR code
+ * with a value throws — nothing is drawn in its place. The message names both
+ * flows: after a sync the dependency is already in package.json and only the
+ * install is missing, so sending that user to the Creator would be wrong.
  */
 let QRCodeSvg: typeof QRCodeSvgType | null = null;
 try {
@@ -79,7 +88,9 @@ export type QRCodeProps = PropsWithChildren<
  *
  * @public
  */
-const QRCode = forwardRef<View, QRCodeProps>(
+const QRCode: ForwardRefExoticComponent<
+  QRCodeProps & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, QRCodeProps>(
   (
     {
       styled,
@@ -99,8 +110,10 @@ const QRCode = forwardRef<View, QRCodeProps>(
 
     if (value && !QRCodeSvg) {
       throw new Error(
-        'QRCode needs react-native-qrcode-svg: enable the "QR code" package ' +
-          'in Project settings → Packages.',
+        'QRCode needs react-native-qrcode-svg (the "QR code" package). ' +
+          'Creator-first app: enable it in Project settings → Packages. ' +
+          'Code-first app: run `mapples sync` (it adds the package to ' +
+          'package.json), then the install command the sync names.',
       );
     }
 

@@ -1,7 +1,13 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import { StyledProp, StyledView, useStyled } from '@mapples/style';
-import { RADII, useTones } from '@mapples/ui';
+import { useShape, useTones } from '@mapples/ui';
 import {
   Animated,
   DimensionValue,
@@ -60,7 +66,9 @@ export interface SkeletonProps extends Omit<ViewProps, 'children'> {
  *
  * @public
  */
-const Skeleton = forwardRef<View, PropsWithChildren<SkeletonProps>>(
+const Skeleton: ForwardRefExoticComponent<
+  PropsWithChildren<SkeletonProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<SkeletonProps>>(
   (
     {
       variant = 'rect',
@@ -101,10 +109,13 @@ const Skeleton = forwardRef<View, PropsWithChildren<SkeletonProps>>(
         : isText
           ? SKELETON_HEIGHT.text
           : SKELETON_HEIGHT.rect);
-    const cornerRadius = radius ?? (isCircle ? circleEdge / 2 : RADII.sm);
+    const shape = useShape();
+    const cornerRadius =
+      radius ?? (isCircle ? circleEdge / 2 : shape.radius.sm);
     const count = isText ? lines : 1;
 
     const tones = useTones();
+
     const color = useSlotColor(
       styled?.styleLine,
       'backgroundColor',

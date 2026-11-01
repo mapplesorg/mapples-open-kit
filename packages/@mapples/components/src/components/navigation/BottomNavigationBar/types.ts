@@ -12,17 +12,33 @@ export const BOTTOM_NAVIGATION_VARIANTS = ['plain', 'floating'] as const;
 export type BottomNavigationVariant =
   (typeof BOTTOM_NAVIGATION_VARIANTS)[number];
 
+/**
+ * The mark on the active destination: a pill behind the glyph, a short bar
+ * on the item's top edge, a dot under the label, an expanding pill (the
+ * active item grows into a filled pill with glyph and label side by side;
+ * items are sized to their content), or none (colour only).
+ */
+export const BOTTOM_NAVIGATION_INDICATORS = [
+  'pill',
+  'bar',
+  'dot',
+  'expand',
+  'none',
+] as const;
+export type BottomNavigationIndicator =
+  (typeof BOTTOM_NAVIGATION_INDICATORS)[number];
+
 /** One destination of the bar. */
 export interface BottomNavigationItem {
-  /** Visible text under the glyph. */
+  /** Visible text under the glyph (or in its place when there is no glyph). */
   label: string;
   /** The value the bar reports. */
   value: string;
-  /** Glyph from the project icon family. */
-  iconName: string;
+  /** Glyph from the project icon family. Omit for a label-only item. */
+  iconName?: string;
   /** Glyph while active (the filled twin); defaults to `iconName`. */
   activeIconName?: string;
-  /** Count pinned to the glyph; hidden at 0. */
+  /** Count pinned to the glyph (next to the label on a label-only item); hidden at 0. */
   badgeCount?: number;
 }
 
@@ -41,22 +57,57 @@ export const BOTTOM_NAVIGATION_FLOATING_MARGIN = 16;
 /** The active pill behind the glyph. */
 export const BOTTOM_NAVIGATION_INDICATOR = { width: 64, height: 32 } as const;
 
-/** Glyph size. */
+/** The `bar` indicator on the active item's top edge. */
+export const BOTTOM_NAVIGATION_BAR_INDICATOR = {
+  width: 32,
+  height: 3,
+} as const;
+
+/** Geometry of the `expand` indicator's pill. */
+export const BOTTOM_NAVIGATION_EXPAND = {
+  /** Smallest pill height; grows with `iconSize` (glyph + 16). */
+  height: 40,
+  /** Inner padding left and right of the pill. */
+  paddingHorizontal: 12,
+  /** Space between the glyph and the label. */
+  gap: 8,
+  /** Widest the label gets before it is truncated. */
+  labelMaxWidth: 120,
+  /** Space between items. */
+  itemGap: 4,
+} as const;
+
+/** Diameter of the `dot` indicator under the active label. */
+export const BOTTOM_NAVIGATION_DOT_SIZE = 4;
+
+/** Default glyph size. */
 export const BOTTOM_NAVIGATION_ICON_SIZE = 24;
+
+const isOptional = (value: unknown, type: 'string' | 'number'): boolean =>
+  value === undefined || typeof value === type;
 
 /** `true` when `value` is a well-formed destination. */
 export const isBottomNavigationItem = (
   value: unknown,
-): value is BottomNavigationItem =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as BottomNavigationItem).label === 'string' &&
-  typeof (value as BottomNavigationItem).value === 'string' &&
-  typeof (value as BottomNavigationItem).iconName === 'string' &&
-  ((value as BottomNavigationItem).activeIconName === undefined ||
-    typeof (value as BottomNavigationItem).activeIconName === 'string') &&
-  ((value as BottomNavigationItem).badgeCount === undefined ||
-    typeof (value as BottomNavigationItem).badgeCount === 'number');
+): value is BottomNavigationItem => {
+  if (typeof value !== 'object' || value === null) return false;
+  const item = value as Record<string, unknown>;
+  const hasIcon = typeof item.iconName === 'string' && item.iconName !== '';
+  return (
+    typeof item.label === 'string' &&
+    typeof item.value === 'string' &&
+    isOptional(item.iconName, 'string') &&
+    isOptional(item.activeIconName, 'string') &&
+    isOptional(item.badgeCount, 'number') &&
+    // A filled twin needs the glyph it replaces.
+    (item.activeIconName === undefined || hasIcon) &&
+    // Something has to show: a glyph, a label, or both.
+    (hasIcon || item.label !== '')
+  );
+};
+
+const ITEM_SHAPE =
+  '{label: string, value: string, iconName?: string, activeIconName?: string, badgeCount?: number} with a non-empty label or iconName (activeIconName only next to iconName)';
 
 /**
  * The destinations a bar renders. A malformed entry or a count outside 3–5
@@ -68,7 +119,7 @@ export const readBottomNavigationItems = (
 ): BottomNavigationItem[] => {
   if (!Array.isArray(items)) {
     throw new Error(
-      'BottomNavigationBar: items must be an array of {label, value, iconName, activeIconName?, badgeCount?}',
+      `BottomNavigationBar: items must be an array of ${ITEM_SHAPE}`,
     );
   }
   if (
@@ -82,7 +133,7 @@ export const readBottomNavigationItems = (
   items.forEach((item, index) => {
     if (!isBottomNavigationItem(item)) {
       throw new Error(
-        `BottomNavigationBar: items[${index}] must be {label: string, value: string, iconName: string, activeIconName?: string, badgeCount?: number}`,
+        `BottomNavigationBar: items[${index}] must be ${ITEM_SHAPE}`,
       );
     }
   });

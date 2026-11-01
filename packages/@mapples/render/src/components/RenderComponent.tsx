@@ -1,14 +1,12 @@
-import { FC, memo, useMemo } from 'react';
+import { FC, memo } from 'react';
 
-import { useActionStore } from '@mapples/action';
-import { isThis, parseThis } from '@mapples/inlang';
-import { useDataProps, useDataState } from '@mapples/state';
-import { isPlainObject, map, mapValues } from 'lodash';
+import { map } from 'lodash';
 
 import { useRender } from '../hooks';
 import useConditionalStyled from '../hooks/useConditionalStyled';
-import useRefProps from '../hooks/useRefProps';
+import { useElementBindings } from '../hooks/useElementBindings';
 import { RenderComponentType } from '../types';
+import { applyRefProps } from '../utils/applyRefProps';
 
 /**
  * Default implementation of a renderable component.
@@ -54,62 +52,13 @@ const RenderComponent: FC<RenderComponentType> = ({
   childComponents,
 }) => {
   const { components } = useRender();
-  const propsWithData = useDataProps(dataProps);
-  const resolvedRefProps = useRefProps(refProps);
-
-  // Reserved binding: `dataProps._visible` conditionally shows the element.
-  // Only an ACTIVE binding participates (inactive/absent → always visible);
-  // a resolved falsy value (incl. the string 'false') hides the subtree.
-  const { _visible: visibleValue, ...visibleDataProps } = propsWithData as {
-    _visible?: unknown;
-  } & Record<string, unknown>;
-  const hidden =
-    '_visible' in propsWithData &&
-    (visibleValue == null ||
-      visibleValue === false ||
-      visibleValue === 'false' ||
-      visibleValue === 0 ||
-      visibleValue === '');
+  const {
+    hidden,
+    dataProps: visibleDataProps,
+    refProps: resolvedRefProps,
+    actionHandlers: mappedActionProps,
+  } = useElementBindings(dataProps, actionProps, refProps);
   const propsWithConditional = useConditionalStyled(props);
-  const { getValue } = useDataState();
-  const actionStore = useActionStore();
-
-  // Turn each `actionProps` entry into a handler that emits onto the action
-  // store. `dataProp` resolves from state (or an event arg for `"this"`);
-  // `staticData` is a literal payload merged in last so author-time config —
-  // e.g. a navigation target — survives regardless of state.
-  const mappedActionProps = useMemo(
-    () =>
-      mapValues(actionProps, (actionProp) => {
-        return (...originalEventData: unknown[]) => {
-          const dataProp = actionProp?.dataProp || '';
-          let resolved: unknown;
-          if (isThis(dataProp)) {
-            const [, indexStr] = parseThis(dataProp);
-            const index = indexStr ? parseInt(indexStr) : 0;
-            resolved = originalEventData[!isNaN(index) ? index : 0];
-          } else if (dataProp) {
-            resolved = getValue({ key: dataProp, active: true });
-          }
-
-          const data = actionProp?.staticData
-            ? {
-                ...(isPlainObject(resolved)
-                  ? (resolved as Record<string, unknown>)
-                  : {}),
-                ...actionProp.staticData,
-              }
-            : resolved;
-
-          actionStore.next({
-            time: Date.now(),
-            type: actionProp?.type,
-            payload: { originalEventData, data },
-          });
-        };
-      }),
-    [actionProps, actionStore, getValue],
-  );
 
   const Component = components[type as keyof typeof components].Component;
 
@@ -129,9 +78,10 @@ const RenderComponent: FC<RenderComponentType> = ({
 
   return (
     <Component
-      {...propsWithConditional}
-      {...visibleDataProps}
-      {...resolvedRefProps}
+      {...applyRefProps(
+        { ...propsWithConditional, ...visibleDataProps },
+        resolvedRefProps,
+      )}
       {...mappedActionProps}
     >
       {map(children, renderChildren)}

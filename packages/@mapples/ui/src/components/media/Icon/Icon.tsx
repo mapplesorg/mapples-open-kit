@@ -1,4 +1,10 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  type ComponentRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from 'react';
 
 import {
   StyledProp,
@@ -19,7 +25,7 @@ import {
 
 import MockIcon from '../Vector/MockIcon';
 
-import { IconFamilies, IconFamilyKey } from './families';
+import { IconFamilies, IconFamily, IconFamilyKey } from './families';
 
 /**
  * Props for the Icon component.
@@ -49,6 +55,24 @@ export type IconProps = PropsWithChildren<
   color?: ColorValue;
 };
 
+/** `family/glyph` pairs already reported, so a list of rows warns once. */
+const reportedMissingGlyphs = new Set<string>();
+
+/**
+ * The vector-icons font draws a missing glyph as "?" without a word, so in
+ * development name the family and the glyph once.
+ */
+const warnMissingGlyph = (family: IconFamily, iconName: string): void => {
+  if (!__DEV__ || iconName in family.glyphMap) return;
+  const key = `${family.key}/${iconName}`;
+  if (reportedMissingGlyphs.has(key)) return;
+  reportedMissingGlyphs.add(key);
+  console.warn(
+    `Icon: "${iconName}" is not a glyph of the icon family "${family.key}" — it renders as "?". ` +
+      'Use a name from that family, or change the family (theme.icons.family).',
+  );
+};
+
 /**
  * Renders a font glyph from one of the bundled `@react-native-vector-icons`
  * families. The family comes from the project style config
@@ -71,7 +95,9 @@ export type IconProps = PropsWithChildren<
  *
  * @public
  */
-const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
+const Icon: ForwardRefExoticComponent<
+  PropsWithChildren<IconProps> & RefAttributes<ComponentRef<typeof View>>
+> = forwardRef<ComponentRef<typeof View>, PropsWithChildren<IconProps>>(
   ({ styled, iconStyle, iconName, size, color, ...props }, ref) => {
     const { themeConfig } = useStyle();
     const { styleSvg, ...styledViewProps } = styled || {};
@@ -86,10 +112,13 @@ const Icon = forwardRef<View, PropsWithChildren<IconProps>>(
       // configuration error, not a missing glyph: surface it instead of
       // drawing the placeholder.
       throw new Error(
-        `Icon family "${family.key}" is not installed: add ${family.npm} to ` +
-          'the project (Project settings → Packages) to render it.',
+        `Icon family "${family.key}" needs ${family.npm}. ` +
+          'Creator-first app: enable its icon pack in Project settings → ' +
+          'Packages. Code-first app: run `mapples sync` (it adds the pack to ' +
+          'package.json), then the install command the sync names.',
       );
     }
+    if (family && iconName) warnMissingGlyph(family, iconName);
 
     return (
       <StyledView ref={ref} styled={styledViewProps} {...props}>

@@ -44,7 +44,9 @@ export type StyledProp<T> = StyleProp<SizableStyleProps<T>>;
  * Converts standard style props to styled props with theme and sizing support.
  */
 export type StyledProps<T extends object> = {
-  [P in keyof T]: T[P] extends StyleProp<infer I> ? StyledProp<I> : T[P];
+  [P in keyof T]: T[P] extends StyleProp<infer I>
+    ? StyledProp<NonNullable<I>>
+    : T[P];
 };
 
 /**

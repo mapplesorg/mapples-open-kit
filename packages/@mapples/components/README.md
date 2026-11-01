@@ -16,6 +16,12 @@ Peers: `react`, `react-native`, `react-native-svg`, `expo-image`,
 `react-native-gesture-handler` (drag input for `Slider` and `BottomSheet`;
 wrap the app in `GestureHandlerRootView` — `MapplesApp` does).
 
+Optional peer: `react-native-maps` (`npx expo install react-native-maps`) for
+`MapView` on iOS and Android — a native module, so rebuild the dev client;
+Android also needs a Google Maps API key (the `react-native-maps` config
+plugin's `androidGoogleMapsApiKey`). Without it a native `MapView` throws;
+the web build draws a static map and never imports it.
+
 ## Usage
 
 ```tsx
@@ -41,22 +47,25 @@ import { InputField, Switch, Card } from '@mapples/components';
 
 ## Inventory
 
-| Area | Components |
-| --- | --- |
-| Actions | `Fab`, `Chip`, `ChipGroup`, `SegmentedControl`, `ButtonGroup`, `BottomActionBar` (plus the themed `Button` / `IconButton` of `@mapples/ui`) |
-| Inputs | `InputField`, `SearchBar`, `PinInput`, `SelectField`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `NumberStepper`, `Rating`, `ChatComposer` |
-| Content | `Card`, `MediaCard`, `ListItem`, `List`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `MessageBubble`, `ImageCarousel` |
-| Navigation | `TopAppBar`, `BottomNavigationBar`, `Tabs`, `Breadcrumbs`, `PageControl`, `Steps`, `TextLink` |
-| Feedback | `Badge`, `ProgressBar`, `ProgressCircle`, `Spinner`, `Skeleton`, `Banner`, `Snackbar`, `EmptyState` |
-| Overlays | `Dialog`, `BottomSheet`, `ActionSheet` |
+| Area       | Components                                                                                                                                                                                                                                                                                                                                |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Actions    | `Fab`, `Chip`, `ChipGroup`, `SegmentedControl`, `ButtonGroup`, `BottomActionBar` (plus the themed `Button` / `IconButton` of `@mapples/ui`)                                                                                                                                                                                               |
+| Inputs     | `InputField`, `SearchBar`, `PinInput`, `SelectField`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `RangeSlider`, `NumberStepper`, `Rating`, `DayPicker`, `Calendar`, `TimePicker`, `ChatComposer`, `NumericKeypad`, `ChoiceGrid`                                                                                                        |
+| Content    | `Card`, `MediaCard`, `TicketCard`, `ListItem`, `List`, `ReorderableList`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `BarChart`, `LineChart`, `CalendarHeatmap`, `DateTile`, `MessageBubble`, `ImageCarousel`, `MasonryGrid`, `PlaybackControls`, `WaveformSeekBar`, `MiniPlayer`, `MapView` |
+| Navigation | `TopAppBar`, `BottomNavigationBar`, `Tabs`, `Breadcrumbs`, `PageControl`, `Steps`, `TextLink`                                                                                                                                                                                                                                             |
+| Feedback   | `Badge`, `ProgressBar`, `ProgressCircle`, `CountdownTimer`, `ActivityRings`, `BreathingGuide`, `Spinner`, `Skeleton`, `Banner`, `Snackbar`, `EmptyState`                                                                                                                                                                                  |
+| Overlays   | `Dialog`, `BottomSheet`, `ActionSheet`                                                                                                                                                                                                                                                                                                    |
 
 ## Conventions
 
 - **Theme first.** Colours come from the project theme through the palette
   contract (`primary`, `accent`, `background`, `text`, `system`); neutral
   surfaces (outlines, fills, dividers, scrims) derive from the text colour at
-  an alpha so they read on light and dark themes alike. Sizes and radii come
-  from `CONTROL_SIZES` and `RADII` in `@mapples/ui`.
+  an alpha so they read on light and dark themes alike. Sizes, radii,
+  outline widths and the elevation come from the project shape in
+  `@mapples/ui` (`useShape()`, `useElevation()` — the sizing keys `radius`,
+  `radiusLarge`, `control`, `borderWidth`, `shadowOffset`; see the
+  `@mapples/ui` README).
 - **Defaults live in the component.** `styled` slots (`style`, `styleLabel`,
   `styleTrack`, …) merge over the runtime defaults; delete an override and
   the default is back.
@@ -68,7 +77,7 @@ import { InputField, Switch, Card } from '@mapples/components';
   configuration. Omit the value prop and the component keeps its own state;
   pass `fieldName` inside a `FormView` and the value binds to the form.
 - **Lists are literal.** Selectable lists take `options: [{label, value,
-  iconName?, disabled?, destructive?}]`; display lists take `items` with a
+iconName?, disabled?, destructive?}]`; display lists take `items` with a
   fixed shape per component; only `Table` and `ImageCarousel` remap external
   data through `keyMap`.
 - **Icons.** `…IconName` props render a glyph from the project's icon family

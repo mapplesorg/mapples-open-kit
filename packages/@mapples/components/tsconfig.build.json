@@ -12,6 +12,9 @@
       "path": "../form/tsconfig.build.json"
     },
     {
+      "path": "../render/tsconfig.build.json"
+    },
+    {
       "path": "../style/tsconfig.build.json"
     },
     {

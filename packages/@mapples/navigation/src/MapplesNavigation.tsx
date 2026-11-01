@@ -1,40 +1,53 @@
 import { FC, useMemo } from 'react';
 
-import { NavigatorView } from './buildNavigator';
+import { useNavigationTheme } from '@mapples/style';
+
+import { NavigationHooksContext } from './backend';
+import { NavigatorBuildProvider, NavigatorView } from './buildNavigator';
 import { buildNavigationModel } from './model';
 import NavigationActionHandler from './NavigationActionHandler';
-import { MapplesNavigationProps, MapplesNavigationRef } from './types';
+import type { ParamListBase } from './reactNavigation';
+import { MapplesNavigationProps } from './types';
 import useRefResolvers from './useRefResolvers';
-import {
-  createNavigationContainerRef,
-  NavigationContainer,
-  NavigationIndependentTree,
-} from './vendor';
 
 /**
- * Renders a {@link NavigationDocument} with React Navigation and wires the
- * `@mapples/action` store to navigation. Pass `independent` when the host app
- * already owns a navigation container (expo-router / the Creator preview).
+ * Renders a {@link NavigationDocument} with the host's React Navigation
+ * (`backend`) and wires the `@mapples/action` store to navigation. Pass
+ * `independent` when the host app already owns a navigation container
+ * (expo-router / the Creator preview).
  */
 const MapplesNavigation: FC<MapplesNavigationProps> = ({
   document,
   pages,
   fallback,
+  chrome,
+  backend,
   independent,
   navigationRef: externalRef,
 }) => {
   const resolvers = useRefResolvers();
+  // The backend's container does not read expo-router's theme context: hand it
+  // the theme the surrounding NavigationThemeProvider resolved.
+  const theme = useNavigationTheme();
   const model = useMemo(() => buildNavigationModel(document), [document]);
-  const internalRef = useMemo(() => createNavigationContainerRef(), []);
+  const internalRef = useMemo(
+    () => backend.createNavigationContainerRef<ParamListBase>(),
+    [backend],
+  );
   const navigationRef = externalRef ?? internalRef;
 
   if (!model) return null;
 
-  const ctx = { pages, fallback, resolvers };
+  const ctx = { document, pages, fallback, chrome, resolvers, backend };
+  const { NavigationContainer, NavigationIndependentTree } = backend;
 
   const container = (
-    <NavigationContainer ref={navigationRef as typeof internalRef}>
-      <NavigatorView model={model} ctx={ctx} />
+    <NavigationContainer ref={navigationRef} theme={theme}>
+      <NavigationHooksContext.Provider value={backend}>
+        <NavigatorBuildProvider value={ctx}>
+          <NavigatorView model={model} ctx={ctx} />
+        </NavigatorBuildProvider>
+      </NavigationHooksContext.Provider>
     </NavigationContainer>
   );
 
@@ -48,8 +61,9 @@ const MapplesNavigation: FC<MapplesNavigationProps> = ({
     <>
       {tree}
       <NavigationActionHandler
-        navigationRef={navigationRef as MapplesNavigationRef}
+        navigationRef={navigationRef}
         document={document}
+        actions={backend}
       />
     </>
   );

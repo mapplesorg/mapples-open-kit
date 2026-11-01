@@ -1,4 +1,8 @@
-import { NavigationDocument, NavigatorNode } from './navigation';
+import {
+  isValidRoutePath,
+  NavigationDocument,
+  NavigatorNode,
+} from './navigation';
 
 /**
  * Codes for the invariants enforced by {@link validateNavigationDocument}.
@@ -9,6 +13,9 @@ import { NavigationDocument, NavigatorNode } from './navigation';
  * - `INITIAL_ROUTE_INVALID` — `initialRouteId` is not one of the navigator's routes.
  * - `DUPLICATE_ROUTE_NAME` — two routes share a name within one navigator.
  * - `PRESENTATION_NOT_STACK` — a `presentation` is set on a non-stack navigator's route.
+ * - `ROUTE_PATH_INVALID` — a route `path` has a malformed segment.
+ * - `GUARD_FALLBACK_INVALID` — a guarded route names no fallback, itself, an absent route,
+ *   or (on a navigator route) a route inside the area it guards.
  */
 export type NavigationValidationCode =
   | 'ROOT_MISSING'
@@ -16,7 +23,9 @@ export type NavigationValidationCode =
   | 'NAVIGATOR_CYCLE'
   | 'INITIAL_ROUTE_INVALID'
   | 'DUPLICATE_ROUTE_NAME'
-  | 'PRESENTATION_NOT_STACK';
+  | 'PRESENTATION_NOT_STACK'
+  | 'ROUTE_PATH_INVALID'
+  | 'GUARD_FALLBACK_INVALID';
 
 /**
  * A single validation failure produced by {@link validateNavigationDocument}.
@@ -56,7 +65,10 @@ export interface NavigationValidationResult {
  *   most one parent);
  * - each navigator's `initialRouteId`, when set, names one of its routes;
  * - route names are unique within their parent navigator;
- * - `presentation` is only set on routes whose parent navigator is a `stack`.
+ * - `presentation` is only set on routes whose parent navigator is a `stack`;
+ * - a route `path`, when set, is made of literal, `(group)` or `:param` segments;
+ * - a guarded route names a fallback route that exists, is not itself and,
+ *   for a navigator route, lies outside the navigator it guards.
  *
  * The check is exhaustive: all violations are collected rather than failing on
  * the first.
@@ -127,6 +139,43 @@ function validateNavigator(
       });
     }
 
+    // A path is the exported app's deep link and the source of the params
+    // the screen reads: a malformed one would generate a broken route file.
+    if (route.path !== undefined && !isValidRoutePath(route.path)) {
+      errors.push({
+        code: 'ROUTE_PATH_INVALID',
+        message: `Route "${route.name}" has an invalid path "${route.path}" — expected segments like "product/:id"`,
+        navigatorId: navigator.id,
+        routeId: route.id,
+      });
+    }
+
+    // A guard with nowhere to go, or one that sends the user back to the
+    // guarded screen — or into the area a navigator route guards — loops
+    // the navigator.
+    if (route.guard !== undefined) {
+      const fallback = route.guardFallbackRouteId;
+      const exists =
+        !!fallback &&
+        Object.values(navigators).some((candidate) =>
+          (candidate.routes ?? []).some((other) => other.id === fallback),
+        );
+      const inside =
+        !!fallback &&
+        route.target.kind === 'navigator' &&
+        navigatorRouteIds(route.target.navigatorId, navigators).has(fallback);
+      if (!fallback || fallback === route.id || !exists || inside) {
+        errors.push({
+          code: 'GUARD_FALLBACK_INVALID',
+          message: inside
+            ? `Guarded route "${route.name}" sends the user to a route inside the area it guards`
+            : `Guarded route "${route.name}" needs a fallback route other than itself`,
+          navigatorId: navigator.id,
+          routeId: route.id,
+        });
+      }
+    }
+
     // navigator targets must resolve, and contribute to the parent count.
     if (route.target.kind === 'navigator') {
       const targetId = route.target.navigatorId;
@@ -154,6 +203,31 @@ function validateNavigator(
       navigatorId: navigator.id,
     });
   }
+}
+
+/**
+ * Every route id under a navigator, nested navigators' routes included — the
+ * area a guard on the route entering it protects. Cycle-safe (cycles are
+ * reported separately).
+ */
+export function navigatorRouteIds(
+  navigatorId: string,
+  navigators: Record<string, NavigatorNode>,
+): Set<string> {
+  const ids = new Set<string>();
+  const visit = (id: string, seen: Set<string>): void => {
+    const navigator = navigators[id];
+    if (!navigator || seen.has(id)) return;
+    seen.add(id);
+    for (const route of navigator.routes ?? []) {
+      ids.add(route.id);
+      if (route.target.kind === 'navigator') {
+        visit(route.target.navigatorId, seen);
+      }
+    }
+  };
+  visit(navigatorId, new Set());
+  return ids;
 }
 
 /** Flag any navigator targeted by more than one route (not a tree). */

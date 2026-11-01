@@ -2,9 +2,14 @@ import { RegisteredComponents } from '@mapples/types';
 
 import { BottomNavigationBarSchematic } from './BottomNavigationBar/schematic';
 import { BreadcrumbsSchematic } from './Breadcrumbs/schematic';
+import { DrawerItemsSchematic } from './DrawerItems/schematic';
 import { PageControlSchematic } from './PageControl/schematic';
 import { StepsSchematic } from './Steps/schematic';
+import { TabBarItemsSchematic } from './TabBarItems/schematic';
+import { TabIconSchematic } from './TabIcon/schematic';
+import { TabLabelSchematic } from './TabLabel/schematic';
 import { TabsSchematic } from './Tabs/schematic';
+import { TabTemplateSchematic } from './TabTemplate/schematic';
 import { TextLinkSchematic } from './TextLink/schematic';
 import { TopAppBarSchematic } from './TopAppBar/schematic';
 
@@ -12,6 +17,11 @@ import { TopAppBarSchematic } from './TopAppBar/schematic';
 export const NavigationSchematics: RegisteredComponents = {
   [TopAppBarSchematic.type]: TopAppBarSchematic,
   [BottomNavigationBarSchematic.type]: BottomNavigationBarSchematic,
+  [TabBarItemsSchematic.type]: TabBarItemsSchematic,
+  [TabTemplateSchematic.type]: TabTemplateSchematic,
+  [TabIconSchematic.type]: TabIconSchematic,
+  [TabLabelSchematic.type]: TabLabelSchematic,
+  [DrawerItemsSchematic.type]: DrawerItemsSchematic,
   [TabsSchematic.type]: TabsSchematic,
   [BreadcrumbsSchematic.type]: BreadcrumbsSchematic,
   [PageControlSchematic.type]: PageControlSchematic,
