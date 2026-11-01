@@ -1,6 +1,6 @@
 {
   "name": "@mapples/fonts",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The bundled font library every Mapples project can use: 21 open-licensed families, registered per weight.",
   "type": "module",
   "main": "dist/index.js",

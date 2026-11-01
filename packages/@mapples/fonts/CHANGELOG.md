@@ -1,5 +1,11 @@
 # @mapples/fonts
 
+## 2.0.1
+
+### Patch Changes
+
+- e221581: The tab bar host compiles against every expo-router its peer range allows, and the @mapples packages pass mapples-open-kit's lint and format checks.
+
 ## 2.0.0
 
 ### Major Changes

@@ -1,5 +1,12 @@
 # @mapples/sid-ast
 
+## 2.0.1
+
+### Patch Changes
+
+- fdd8822: A generated component file declares the props its document binds and passes them on (title={title}), instead of printing a $data binding the built app can't resolve.
+- ec66663: An instance that leaves a prop out renders the default its file declares: props passed on to a nested component are bindings, an unset binding keeps the master's default, and Typography renders nothing for an unset text instead of 'Not a string'.
+
 ## 2.0.0
 
 ### Major Changes

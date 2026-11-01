@@ -1,5 +1,14 @@
 # @mapples/codegen
 
+## 2.0.1
+
+### Patch Changes
+
+- fdd8822: A generated component file declares the props its document binds and passes them on (title={title}), instead of printing a $data binding the built app can't resolve.
+- Updated dependencies [fdd8822]
+- Updated dependencies [ec66663]
+  - @mapples/sid-ast@2.0.1
+
 ## 2.0.0
 
 ### Major Changes

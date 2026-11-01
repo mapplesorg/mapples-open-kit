@@ -1,5 +1,12 @@
 # @mapples/ui
 
+## 2.0.1
+
+### Patch Changes
+
+- ec66663: An instance that leaves a prop out renders the default its file declares: props passed on to a nested component are bindings, an unset binding keeps the master's default, and Typography renders nothing for an unset text instead of 'Not a string'.
+- 559db71: Sessions and data in a signed-in app: `mapples:clearResponses` forgets every `api.*` response on sign-out; `ApiDocument.session` declares the refresh request, so a 401 renews the session once and retries, and a refused refresh empties it; a request that runs again keeps its previous response while loading; a request chained after `mapples:setState` reads the written values; guards wait for persisted variables to load and an authored navigate wins over the guard of the screen being left; `mapples:if` chooses a follow-up by a condition, and array variables take `remove` and `toggleItem`; a bound `BarChart` draws empty until its request answers and tolerates null fields, and an element that fails to render is reported and left out instead of ending the app; the theme follows a variable (`MapplesApp themeVariable`) on every platform; re-importing a request keeps its state headers and data states, `--environment` adds a second environment with relative paths, and a bodiless response samples as `null`; `FlatList` data is optional and `createFetchTransport` takes the generated secrets as they are.
+
 ## 2.0.0
 
 ### Major Changes

@@ -1,5 +1,14 @@
 # @mapples/components
 
+## 2.0.1
+
+### Patch Changes
+
+- 6709764: BottomActionBar and BottomNavigationBar clear the device's real bottom inset, so an Android navigation bar no longer covers them. Adds react-native-safe-area-context as a peer dependency, which @mapples/style already requires.
+- 4faa4d9: DayPicker shrinks a label longer than a weekday to fit its cell on native.
+- e221581: The tab bar host compiles against every expo-router its peer range allows, and the @mapples packages pass mapples-open-kit's lint and format checks.
+- 559db71: Sessions and data in a signed-in app: `mapples:clearResponses` forgets every `api.*` response on sign-out; `ApiDocument.session` declares the refresh request, so a 401 renews the session once and retries, and a refused refresh empties it; a request that runs again keeps its previous response while loading; a request chained after `mapples:setState` reads the written values; guards wait for persisted variables to load and an authored navigate wins over the guard of the screen being left; `mapples:if` chooses a follow-up by a condition, and array variables take `remove` and `toggleItem`; a bound `BarChart` draws empty until its request answers and tolerates null fields, and an element that fails to render is reported and left out instead of ending the app; the theme follows a variable (`MapplesApp themeVariable`) on every platform; re-importing a request keeps its state headers and data states, `--environment` adds a second environment with relative paths, and a bodiless response samples as `null`; `FlatList` data is optional and `createFetchTransport` takes the generated secrets as they are.
+
 ## 2.0.0
 
 ### Major Changes

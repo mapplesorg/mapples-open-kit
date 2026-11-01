@@ -1,5 +1,14 @@
 # @mapples/types
 
+## 2.0.1
+
+### Patch Changes
+
+- cb10390: The canvas previews one saved data state at a time (Loading, Success, Error or All), can hide components it can't draw, calls the API only in Develop with Live data on, and keeps the sample when a live call fails. Adds ApiRequest.states and RequestProvider's sampleOnFailure and stateOverride.
+- 559db71: Sessions and data in a signed-in app: `mapples:clearResponses` forgets every `api.*` response on sign-out; `ApiDocument.session` declares the refresh request, so a 401 renews the session once and retries, and a refused refresh empties it; a request that runs again keeps its previous response while loading; a request chained after `mapples:setState` reads the written values; guards wait for persisted variables to load and an authored navigate wins over the guard of the screen being left; `mapples:if` chooses a follow-up by a condition, and array variables take `remove` and `toggleItem`; a bound `BarChart` draws empty until its request answers and tolerates null fields, and an element that fails to render is reported and left out instead of ending the app; the theme follows a variable (`MapplesApp themeVariable`) on every platform; re-importing a request keeps its state headers and data states, `--environment` adds a second environment with relative paths, and a bodiless response samples as `null`; `FlatList` data is optional and `createFetchTransport` takes the generated secrets as they are.
+- 456c88f: A request's follow-up action can read the response through an event source, and a header read from state is left out when its value is empty.
+- 7aa4590: ApiRequest.headerValues sends headers read when the request runs, such as a signed-in user's token.
+
 ## 2.0.0
 
 ### Major Changes
