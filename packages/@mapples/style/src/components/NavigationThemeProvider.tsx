@@ -56,14 +56,12 @@ export interface NavigationThemeProviderProps {
 const NavigationThemeProvider: FC<
   PropsWithChildren<NavigationThemeProviderProps>
 > = ({ children, themeColors }) => {
-  const { colorScheme, themeConfig, getColor } = useTheme();
+  const { scheme, getColor } = useTheme();
 
-  const nativeTheme = useMemo(() => {
-    if (themeConfig.variant === 'auto') {
-      return colorScheme === 'dark' ? DarkTheme : DefaultTheme;
-    }
-    return DefaultTheme;
-  }, [colorScheme, themeConfig.variant]);
+  const nativeTheme = useMemo(
+    () => (scheme === 'dark' ? DarkTheme : DefaultTheme),
+    [scheme],
+  );
 
   const theme = useMemo<NavigationTheme>(
     () => ({

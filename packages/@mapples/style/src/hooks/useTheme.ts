@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { get, map } from 'lodash';
 import { useColorScheme } from 'react-native';
 
+import { useThemeVariant } from '../context/ThemeVariantContext';
 import { StyleContextType } from '../types';
 import { isColorString } from '../utils';
 
@@ -17,6 +18,8 @@ import useStyle from './useStyle';
  * @returns theme - The current active theme object (light or dark)
  * @returns themeConfig - The complete theme configuration
  * @returns colorScheme - The current device color scheme ('light' | 'dark' | null)
+ * @returns variant - The variant in effect: a runtime choice (`ThemeVariantProvider`) over `themeConfig.variant`
+ * @returns scheme - The scheme the variant resolves to ('light' | 'dark'), following the device for `auto`
  * @returns getColor - Function to resolve color values from theme paths
  * @returns getColors - Function to resolve multiple color values at once
  *
@@ -58,14 +61,11 @@ const useTheme = (customStyleConfig?: StyleContextType) => {
   const { themeConfig } = useStyle(customStyleConfig);
 
   const colorScheme = useColorScheme();
+  const variant = useThemeVariant()?.variant ?? themeConfig.variant;
+  const scheme: 'light' | 'dark' =
+    variant === 'auto' ? (colorScheme === 'dark' ? 'dark' : 'light') : variant;
 
-  const theme = useMemo(() => {
-    if (themeConfig.variant === 'auto') {
-      return colorScheme === 'dark' ? themeConfig.dark : themeConfig.light;
-    }
-
-    return themeConfig[themeConfig.variant];
-  }, [colorScheme, themeConfig]);
+  const theme = useMemo(() => themeConfig[scheme], [scheme, themeConfig]);
 
   const getColor = useCallback(
     (color: string) => {
@@ -95,6 +95,8 @@ const useTheme = (customStyleConfig?: StyleContextType) => {
     theme,
     themeConfig,
     colorScheme,
+    variant,
+    scheme,
     getColor,
     getColors,
   };

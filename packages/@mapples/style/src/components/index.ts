@@ -16,3 +16,7 @@ export {
   type NavigationTheme,
   type NavigationThemeProviderProps,
 } from './NavigationThemeProvider';
+export {
+  default as ThemeVariantProvider,
+  type ThemeVariantProviderProps,
+} from './ThemeVariantProvider';
