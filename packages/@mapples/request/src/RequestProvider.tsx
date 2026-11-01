@@ -53,6 +53,14 @@ export interface RequestRuntimeContextType {
   /** See {@link RequestProviderProps.requestOverrides}. */
   requestOverrides: Record<string, RequestStateChoice> | null;
   setResponse: (stateKey: string, state: ResponseState) => void;
+  /**
+   * Marks a request as running again. Its previous `data`, `status` and
+   * `error` stay published until the answer arrives, so a screen bound to it
+   * keeps showing what it had instead of blanking for the round trip.
+   */
+  startRequest: (stateKey: string) => void;
+  /** Forgets the named responses, or every one. */
+  clearResponses: (stateKeys?: string[]) => void;
 }
 
 const RequestRuntimeContext = createContext<RequestRuntimeContextType | null>(
@@ -178,6 +186,28 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
     },
     [],
   );
+  const startRequest = useCallback((stateKey: string) => {
+    setResponses((prev) => {
+      const previous = prev[stateKey];
+      return {
+        ...prev,
+        [stateKey]: {
+          loading: true,
+          data: previous?.data,
+          status: previous?.status,
+          error: previous?.error,
+        },
+      };
+    });
+  }, []);
+  const clearResponses = useCallback((stateKeys?: string[]) => {
+    setResponses((prev) => {
+      if (!stateKeys) return {};
+      const next = { ...prev };
+      for (const stateKey of stateKeys) delete next[stateKey];
+      return next;
+    });
+  }, []);
 
   // State keys are dot paths under the namespace (`api.login`) — expand the
   // remainder into the nested object shape bindings resolve against.
@@ -238,6 +268,8 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       stateOverride,
       requestOverrides,
       setResponse,
+      startRequest,
+      clearResponses,
     }),
     [
       document,
@@ -249,6 +281,8 @@ const RequestProvider: FC<PropsWithChildren<RequestProviderProps>> = ({
       stateOverride,
       requestOverrides,
       setResponse,
+      startRequest,
+      clearResponses,
     ],
   );
 

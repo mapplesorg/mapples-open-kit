@@ -103,6 +103,37 @@ onSuccess: {
 },
 ```
 
+## A request that runs again keeps its response
+
+Starting a request sets `api.<name>.loading` and keeps its previous `data`, `status` and `error` until the answer arrives, so a screen bound to it shows what it had instead of blanking for the round trip.
+
+## Forgetting responses
+
+`{ type: 'mapples:clearResponses' }` forgets every response (`payload.data.requestIds` names some). A sign-out chains it after emptying the session variables, so the next user on the device never sees the previous user's data:
+
+```ts
+{
+  type: 'mapples:setState',
+  data: {
+    operations: [{ target: 'vars.sessionToken', source: { kind: 'static', value: '' } }],
+    onDone: { type: 'mapples:clearResponses' },
+  },
+}
+```
+
+## Renewing a session
+
+An `ApiDocument.session` names the request that renews a session and the variables its response writes:
+
+```ts
+session: {
+  refreshRequestId: '<refreshSession id>',
+  writes: { 'vars.sessionToken': 'access_token', 'vars.refreshToken': 'refresh_token' },
+}
+```
+
+When a request answers 401 while one of those variables is set, the runtime runs the refresh request once (every 401 arriving meanwhile waits for the same one), writes its response through `mapples:setState` and retries the request with the new values. A refused refresh (a non-2xx answer) sets the written variables (or `clears`) to `''` and forgets every response, so a guard on the session sends the user to sign in; a refresh that could not be performed (network) leaves the session alone and the request fails with its 401.
+
 ## Errors
 
 Nothing fails silently:

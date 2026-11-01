@@ -43,17 +43,18 @@ export type RequestTransport = (
 
 /**
  * The default transport: a direct `fetch`, with `auth` resolved against the
- * host-supplied `secrets`. A request whose secret is not configured throws
- * rather than going out unauthenticated.
+ * host-supplied `secrets`. A request whose secret is not configured — unset,
+ * `undefined` (an environment variable the build did not have) or empty —
+ * throws rather than going out unauthenticated.
  */
 export const createFetchTransport =
-  (secrets?: Record<string, string>): RequestTransport =>
+  (secrets?: Record<string, string | undefined>): RequestTransport =>
   async (request) => {
     const headers = { ...request.headers };
 
     if (request.auth) {
       const secret = secrets?.[request.auth.secretRef];
-      if (secret === undefined) {
+      if (secret === undefined || secret === '') {
         throw new Error(`Secret "${request.auth.secretRef}" is not configured`);
       }
       if (request.auth.kind === 'bearer') {
