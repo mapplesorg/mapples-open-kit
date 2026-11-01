@@ -17,42 +17,54 @@ export const BAR_CHART_VALUE_SPACE = 20;
 export const BAR_CHART_LINE = 1;
 
 /**
- * The bars a chart renders. A malformed entry is a data error — it is
- * reported, never silently skipped, so an author sees which bar is wrong.
+ * The bars a chart renders. No data — absent, or an empty array, as a bound
+ * request leaves it until it answers — draws an empty plot. A malformed
+ * entry is a data error — it is reported, never silently skipped, so an
+ * author sees which bar is wrong. An optional field a backend sends as
+ * `null` counts as absent.
  */
 export const readBarChartData = (
   data: unknown,
   component: string,
 ): BarChartDatum[] => {
-  if (!Array.isArray(data) || data.length === 0) {
+  if (data === undefined || data === null) return [];
+  if (!Array.isArray(data)) {
     throw new Error(
-      `${component}: data must be a non-empty array of {label?, value, highlight?, valueLabel?}`,
+      `${component}: data must be an array of {label?, value, highlight?, valueLabel?}`,
     );
   }
-  data.forEach((datum, index) => {
+  return data.map((datum, index) => {
     if (typeof datum !== 'object' || datum === null) {
       throw new Error(
         `${component}: data[${index}] must be {label?: string, value: number, highlight?: boolean, valueLabel?: string}`,
       );
     }
-    const { label, value, highlight, valueLabel } = datum as BarChartDatum;
+    const { label, value, highlight, valueLabel } = datum as Record<
+      keyof BarChartDatum,
+      unknown
+    >;
     if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
       throw new Error(
         `${component}: data[${index}].value (${String(value)}) must be a finite number of at least 0`,
       );
     }
     for (const [key, text] of Object.entries({ label, valueLabel })) {
-      if (text !== undefined && typeof text !== 'string') {
+      if (text != null && typeof text !== 'string') {
         throw new Error(`${component}: data[${index}].${key} must be a string`);
       }
     }
-    if (highlight !== undefined && typeof highlight !== 'boolean') {
+    if (highlight != null && typeof highlight !== 'boolean') {
       throw new Error(
         `${component}: data[${index}].highlight must be a boolean`,
       );
     }
+    return {
+      value,
+      ...(label != null ? { label: label as string } : {}),
+      ...(highlight != null ? { highlight: highlight as boolean } : {}),
+      ...(valueLabel != null ? { valueLabel: valueLabel as string } : {}),
+    };
   });
-  return data as BarChartDatum[];
 };
 
 /**
@@ -64,7 +76,7 @@ export const barChartScale = (
   max: number | undefined,
   component: string,
 ): number => {
-  const largest = Math.max(...data.map((datum) => datum.value));
+  const largest = data.reduce((top, datum) => Math.max(top, datum.value), 0);
   if (max === undefined) return largest;
   if (!Number.isFinite(max) || max <= 0) {
     throw new Error(`${component}: max (${max}) must be a positive number`);
@@ -94,6 +106,7 @@ export const barValueText = (datum: BarChartDatum): string =>
 
 /** The generated screen-reader summary: "Bar chart, 7 bars, highest Sat 48". */
 export const barChartSummary = (data: BarChartDatum[]): string => {
+  if (data.length === 0) return 'Bar chart, no bars';
   let top = 0;
   data.forEach((datum, index) => {
     if (datum.value > data[top].value) top = index;

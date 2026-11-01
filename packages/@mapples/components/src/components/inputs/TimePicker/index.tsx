@@ -136,8 +136,10 @@ const TimePicker: ForwardRefExoticComponent<
     const step = readMinuteStep(minuteStep, component);
     const window = readTimeWindow(minTime, maxTime, step, component);
 
+    // An empty bound value (a variable not set yet, a field a backend left
+    // blank) is no value: the picker shows its default until one is picked.
     const [current, setCurrent] = useControllableState<string>({
-      value,
+      value: value === '' ? undefined : value,
       defaultValue: defaultValue ?? formatTime(window.low),
       onChange: onValueChange,
     });

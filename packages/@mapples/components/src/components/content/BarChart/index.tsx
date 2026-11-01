@@ -36,7 +36,7 @@ import {
 
 /** Props for {@link BarChart}. */
 export interface BarChartProps extends Omit<ViewProps, 'children'> {
-  /** The bars, left to right: `[{ label?, value, highlight?, valueLabel? }]`; values finite and ≥ 0. Required: missing or empty data throws. */
+  /** The bars, left to right: `[{ label?, value, highlight?, valueLabel? }]`; values finite and ≥ 0. Absent or empty draws an empty plot (a bound request that has not answered). */
   data?: BarChartDatum[];
   /** The value of a full-height bar. Defaults to the largest value; every value must fit under it. */
   max?: number;
