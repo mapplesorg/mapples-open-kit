@@ -111,12 +111,37 @@ export const apiRequestSuccessState = (
   request: Pick<ApiRequest, 'states' | 'responseSample'>,
 ): unknown => request.states?.success ?? request.responseSample;
 
+/**
+ * How the app renews a signed-in session. When a request answers 401 while
+ * a session is held, the runtime runs the refresh request once, writes the
+ * variables from its response and retries the request; when the refresh is
+ * refused, the session variables are emptied so the guards take over.
+ */
+export interface ApiSession {
+  /** The request that renews the session (its id). It is never refreshed itself. */
+  refreshRequestId: string;
+  /**
+   * Variables written from the refresh response: the variable's path → the
+   * path of the value in the body (`{ 'vars.sessionToken': 'access_token' }`).
+   * While every one of them is empty there is no session to renew, so a 401
+   * is reported as it is.
+   */
+  writes: Record<string, string>;
+  /**
+   * Variables set to `''` when the refresh is refused, so a guard on the
+   * session sends the user to sign in. Defaults to the written ones.
+   */
+  clears?: string[];
+}
+
 export interface ApiDocument {
   version: 1;
   /** The environment used by the editor preview. */
   activeEnvironmentId?: string;
   environments: Record<string, ApiEnvironment>;
   requests: Record<string, ApiRequest>;
+  /** How the app renews a signed-in session; absent → a 401 is a failed request. */
+  session?: ApiSession;
 }
 
 /**

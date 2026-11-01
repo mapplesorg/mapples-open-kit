@@ -44,7 +44,7 @@ export const VARIABLE_OPS_BY_TYPE: Record<
   number: new Set(['set', 'increment', 'decrement', 'clear']),
   boolean: new Set(['set', 'toggle', 'clear']),
   object: new Set(['set', 'clear']),
-  array: new Set(['set', 'append', 'clear']),
+  array: new Set(['set', 'append', 'remove', 'toggleItem', 'clear']),
 };
 
 export interface VariableDefinition {

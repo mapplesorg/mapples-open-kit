@@ -12,6 +12,8 @@ import { API_NAMESPACE, ApiDocument, apiRequestStateKey } from './api';
  * - `STATE_KEY_COLLISION` — two requests resolve to the same state key.
  * - `STATE_KEY_NAMESPACE` — a state key sits outside the `api.` namespace.
  * - `SECRET_REF_EMPTY` — auth requires a secret but `secretRef` is empty.
+ * - `SESSION_REQUEST_MISSING` — `session.refreshRequestId` names no request.
+ * - `SESSION_WRITES_EMPTY` — `session.writes` names no variable.
  */
 export type ApiValidationCode =
   | 'REQUEST_NAME_INVALID'
@@ -22,7 +24,9 @@ export type ApiValidationCode =
   | 'BODY_ON_GET'
   | 'STATE_KEY_COLLISION'
   | 'STATE_KEY_NAMESPACE'
-  | 'SECRET_REF_EMPTY';
+  | 'SECRET_REF_EMPTY'
+  | 'SESSION_REQUEST_MISSING'
+  | 'SESSION_WRITES_EMPTY';
 
 export interface ApiValidationError {
   code: ApiValidationCode;
@@ -151,6 +155,23 @@ export const validateApiDocument = (
         code: 'SECRET_REF_EMPTY',
         message: `Request "${request.name}" auth requires a secretRef`,
         requestId: request.id,
+      });
+    }
+  }
+
+  const session = document.session;
+  if (session) {
+    if (!document.requests[session.refreshRequestId]) {
+      errors.push({
+        code: 'SESSION_REQUEST_MISSING',
+        message: `session.refreshRequestId "${session.refreshRequestId}" does not resolve to a request`,
+      });
+    }
+    if (Object.keys(session.writes ?? {}).length === 0) {
+      errors.push({
+        code: 'SESSION_WRITES_EMPTY',
+        message:
+          'session.writes names no variable to write from the refresh response',
       });
     }
   }
