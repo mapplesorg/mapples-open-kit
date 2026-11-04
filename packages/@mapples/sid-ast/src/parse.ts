@@ -96,9 +96,28 @@ export const DEFAULT_PRIMITIVE_MODULES = [
 
 export { evalLiteral, NON_LITERAL } from './literal.js';
 
+function isBlank(char: string | undefined): boolean {
+  return char === ' ' || char === '\t';
+}
+
 /** JSX text normalization (React semantics, simplified): whitespace runs containing a newline collapse; ends trimmed. */
 export function normalizeJsxText(raw: string): string {
-  return raw.replace(/[ \t]*\r?\n[ \t]*/g, ' ').trim();
+  // Same result as `raw.replace(/[ \t]*\r?\n[ \t]*/g, ' ').trim()`, without
+  // the regex's quadratic rescans of long space/tab runs.
+  const lines = raw.split('\n');
+  return lines
+    .map((line, i) => {
+      let start = 0;
+      let end = line.length;
+      if (i < lines.length - 1) {
+        if (line[end - 1] === '\r') end--;
+        while (end > 0 && isBlank(line[end - 1])) end--;
+      }
+      if (i > 0) while (start < end && isBlank(line[start])) start++;
+      return line.slice(start, end);
+    })
+    .join(' ')
+    .trim();
 }
 
 /**

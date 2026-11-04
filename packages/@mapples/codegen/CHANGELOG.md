@@ -1,5 +1,12 @@
 # @mapples/codegen
 
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies [9cec45c]
+  - @mapples/sid-ast@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes
