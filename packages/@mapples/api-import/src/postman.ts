@@ -31,7 +31,18 @@ const CREDENTIAL_NAME =
   /(token|secret|password|passwd|api[-_]?key|apikey|auth|bearer|session|cookie|private)/i;
 
 /** A `{{name}}` that is the whole value. */
-const WHOLE_VARIABLE = /^\{\{\s*([^}]+?)\s*\}\}$/;
+const WHOLE_VARIABLE = /^\{\{([^}]+)\}\}$/;
+
+/**
+ * The name inside a whole-value `{{ name }}`, trimmed; a name of only
+ * whitespace keeps its last character. Trimming in code keeps the regex
+ * linear (`\s*[^}]+?\s*` backtracks polynomially).
+ */
+const wholeVariableName = (value: string): string | undefined => {
+  const inner = value.match(WHOLE_VARIABLE)?.[1];
+  if (inner === undefined) return undefined;
+  return inner.trim() || inner.slice(-1);
+};
 
 /** `apiToken` / `api-token` → `API_TOKEN`, the shape secret names take. */
 const secretName = (name: string): string =>
@@ -39,11 +50,19 @@ const secretName = (name: string): string =>
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .toUpperCase();
 
-/** Whether the text is a Postman collection export. */
-export const looksLikePostman = (text: string): boolean =>
-  /^\s*\{[\s\S]*"info"[\s\S]*"schema"\s*:\s*"[^"]*getpostman\.com\/json\/collection/.test(
-    text,
-  );
+const POSTMAN_SCHEMA = /"schema"\s*:\s*"[^"]*getpostman\.com\/json\/collection/;
+
+/**
+ * Whether the text is a Postman collection export: an object with `"info"`
+ * and, after it, a Postman collection `"schema"`. Found with `indexOf` rather
+ * than `[\s\S]*` so the check stays linear.
+ */
+export const looksLikePostman = (text: string): boolean => {
+  const open = /^\s*\{/.exec(text);
+  if (!open) return false;
+  const info = text.indexOf('"info"', open[0].length);
+  return info !== -1 && POSTMAN_SCHEMA.test(text.slice(info + '"info"'.length));
+};
 
 interface FlatItem {
   name: string;
@@ -98,7 +117,7 @@ const authFrom = (
       : undefined;
   };
   const secretFor = (value: string | undefined, fallback: string): string => {
-    const variable = value?.match(WHOLE_VARIABLE)?.[1];
+    const variable = value === undefined ? undefined : wholeVariableName(value);
     return secretName(variable ?? fallback);
   };
   if (auth.type === 'bearer') {
@@ -128,10 +147,15 @@ const authFrom = (
  * environment's base URL); otherwise the scheme + host are.
  */
 const splitUrl = (url: string): { origin: string; path: string } => {
-  const variable = url.match(/^(\{\{\s*[^}]+?\s*\}\})(.*)$/);
+  const variable = url.match(/^(\{\{[^}]+\}\})(.*)$/);
   if (variable) return { origin: variable[1], path: variable[2] || '/' };
-  const absolute = url.match(/^(https?:\/\/[^/?#]+)(.*)$/i);
-  if (absolute) return { origin: absolute[1], path: absolute[2] || '/' };
+  // The host is the longest run before `/`, `?` or `#`; the rest must be one
+  // line. Checked in two steps: `[^/?#]+(.*)$` backtracks polynomially.
+  const origin = url.match(/^https?:\/\/[^/?#]+/i)?.[0];
+  const path = origin === undefined ? '' : url.slice(origin.length);
+  if (origin !== undefined && /^.*$/.test(path)) {
+    return { origin, path: path || '/' };
+  }
   throw new Error(
     `"${url}" is neither absolute nor starts with a {{variable}}`,
   );

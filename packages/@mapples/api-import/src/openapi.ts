@@ -192,6 +192,31 @@ const parameterValue = (parameter: Json, resolve: Resolve): string => {
   return example === undefined || example === null ? '' : String(example);
 };
 
+/**
+ * Replaces each `{name}` (a non-empty run up to the next `}`) with
+ * `replace(name)`, left to right like `/\{([^}]+)\}/g`, in linear time.
+ */
+const replaceBraced = (
+  input: string,
+  replace: (name: string) => string,
+): string => {
+  let out = '';
+  let from = 0;
+  for (
+    let open = input.indexOf('{');
+    open !== -1;
+    open = input.indexOf('{', open + 1)
+  ) {
+    const close = input.indexOf('}', open + 1);
+    if (close === -1) break;
+    if (close === open + 1) continue;
+    out += input.slice(from, open) + replace(input.slice(open + 1, close));
+    from = close + 1;
+    open = close;
+  }
+  return out + input.slice(from);
+};
+
 const serverUrl = (
   document: Json,
   resolve: Resolve,
@@ -214,15 +239,13 @@ const serverUrl = (
     }
     url = new URL(url, sourceUrl).toString();
   }
-  return url
-    .replace(/\{([^}]+)\}/g, (_match, name: string) => {
-      const variable = resolve(variables[name]);
-      if (!isObject(variable) || variable.default === undefined) {
-        throw new Error(`Server variable "${name}" has no default`);
-      }
-      return String(variable.default);
-    })
-    .replace(/\/$/, '');
+  return replaceBraced(url, (name) => {
+    const variable = resolve(variables[name]);
+    if (!isObject(variable) || variable.default === undefined) {
+      throw new Error(`Server variable "${name}" has no default`);
+    }
+    return String(variable.default);
+  }).replace(/\/$/, '');
 };
 
 /**
