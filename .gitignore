@@ -106,3 +106,9 @@ Thumbs.db
 
 # Changeset
 .changeset/pre.json
+
+# Expo
+.expo/
+
+# Yarn
+.yarn/install-state.gz

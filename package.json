@@ -1,10 +1,17 @@
 {
   "name": "mapples-open-kit",
   "version": "0.0.0",
-  "description": "Mapples kit",
-  "repository": "https://github.com/mapplesorg/mapples-kit.git",
-  "author": "Oleksandr Soloviov <oleksolv@gmail.com>",
-  "license": "UNLICENSED",
+  "description": "Source mirror of the open-source @mapples/* React Native packages behind Mapples",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mapplesorg/mapples-open-kit.git"
+  },
+  "homepage": "https://mapples.org",
+  "author": {
+    "name": "Oleksandr Soloviov",
+    "url": "https://mapples.org/people/olek_soloviov"
+  },
+  "license": "MIT",
   "private": true,
   "workspaces": [
     "packages/@mapples/*"
