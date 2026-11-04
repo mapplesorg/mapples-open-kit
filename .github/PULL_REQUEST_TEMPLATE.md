@@ -14,16 +14,7 @@ Brief description of the changes in this PR.
 
 ## Packages Changed
 
-- [ ] @mapples/action
-- [ ] @mapples/dnd
-- [ ] @mapples/form
-- [ ] @mapples/render
-- [ ] @mapples/state
-- [ ] @mapples/style
-- [ ] @mapples/types
-- [ ] @mapples/ui
-- [ ] @mapples/components
-- [ ] @mapples/inlang
+List the `@mapples/*` packages this PR touches, or "none" for CI, tests and docs.
 
 ## Testing
 
@@ -38,7 +29,7 @@ Brief description of the changes in this PR.
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
-- [ ] This PR does not touch `packages/@mapples/*` by hand (those changes come from `mapples-kit` through sync PRs)
+- [ ] I have read [CONTRIBUTING.md](https://github.com/mapplesorg/mapples-open-kit/blob/main/CONTRIBUTING.md): changes under `packages/@mapples/*` are ported to the source repository by a maintainer, not merged here
 
 ## Screenshots (if applicable)
 
