@@ -81,6 +81,33 @@ const resolveTemplate = (
 };
 
 /**
+ * Replaces each `{{name}}` (a non-empty run up to the next `}`, then `}}`)
+ * with `replace(name)`, left to right like `/\{\{([^}]+)\}\}/g`, in linear
+ * time: the next `}` is found once and reused while scanning.
+ */
+const replaceDoubleBraced = (
+  input: string,
+  replace: (name: string) => string,
+): string => {
+  let out = '';
+  let from = 0;
+  let close = -1;
+  for (
+    let open = input.indexOf('{{');
+    open !== -1;
+    open = input.indexOf('{{', open + 1)
+  ) {
+    if (close < open + 2) close = input.indexOf('}', open + 2);
+    if (close === -1) break;
+    if (close === open + 2 || input[close + 1] !== '}') continue;
+    out += input.slice(from, open) + replace(input.slice(open + 2, close));
+    from = close + 2;
+    open = close + 1;
+  }
+  return out + input.slice(from);
+};
+
+/**
  * Interpolates `{{variable}}` templates from environment variables. A
  * variable the environment doesn't define throws: left in place it would go
  * out as a literal `{{name}}` in the url or a header.
@@ -89,7 +116,7 @@ const interpolate = (
   input: string,
   variables: Record<string, string> | undefined,
 ): string =>
-  input.replace(/\{\{([^}]+)\}\}/g, (_match, name: string) => {
+  replaceDoubleBraced(input, (name) => {
     const value = variables?.[name.trim()];
     if (value === undefined) {
       throw new Error(`Environment variable "${name.trim()}" is not defined`);
