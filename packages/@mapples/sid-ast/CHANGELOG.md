@@ -1,5 +1,11 @@
 # @mapples/sid-ast
 
+## 2.0.2
+
+### Patch Changes
+
+- 9cec45c: `normalizeJsxText` runs in linear time: long runs of spaces or tabs no longer make the whitespace regex rescan them (CodeQL `js/polynomial-redos`). Results are unchanged.
+
 ## 2.0.1
 
 ### Patch Changes

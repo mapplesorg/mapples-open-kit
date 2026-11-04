@@ -1,5 +1,11 @@
 # @mapples/request
 
+## 2.0.2
+
+### Patch Changes
+
+- b6459f9: `{{variable}}` interpolation in request paths, query values and headers runs in linear time: a value with many `{{` and no closing `}}` no longer makes the regex rescan the rest of the string from each brace (CodeQL `js/polynomial-redos`). Results are unchanged.
+
 ## 2.0.1
 
 ### Patch Changes

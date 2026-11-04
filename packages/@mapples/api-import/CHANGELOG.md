@@ -1,5 +1,12 @@
 # @mapples/api-import
 
+## 2.0.2
+
+### Patch Changes
+
+- db8e88f: Postman and OpenAPI import run in linear time on crafted input: detecting a Postman export, reading a whole-value `{{variable}}`, splitting a request URL into origin and path, and filling `{name}` server variables no longer use regexes that backtrack polynomially (CodeQL `js/polynomial-redos`). Results are unchanged.
+  - @mapples/types@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes
