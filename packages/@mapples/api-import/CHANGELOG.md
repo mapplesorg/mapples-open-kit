@@ -1,5 +1,11 @@
 # @mapples/api-import
 
+## 2.0.3
+
+### Patch Changes
+
+- @mapples/types@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes
