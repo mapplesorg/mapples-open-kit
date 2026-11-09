@@ -1,6 +1,6 @@
 {
   "name": "@mapples/api-import",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Turns cURL commands, OpenAPI 3 / Swagger 2 documents and Postman collections into Mapples API requests, and merges them into a project API document. Pure: no I/O.",
   "type": "module",
   "main": "./dist/index.js",
