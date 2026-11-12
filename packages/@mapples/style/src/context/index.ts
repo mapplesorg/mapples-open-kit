@@ -6,3 +6,6 @@ export * from './ResponsiveContext';
 
 export { default as ThemeVariantContext } from './ThemeVariantContext';
 export * from './ThemeVariantContext';
+
+export { default as HingeContext } from './HingeContext';
+export * from './HingeContext';
