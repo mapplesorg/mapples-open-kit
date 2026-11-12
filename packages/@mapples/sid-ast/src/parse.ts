@@ -83,10 +83,47 @@ export interface Analysis {
   /** Render states the file's prop tests declare (`isActive && styles.x`), by state key. */
   states: Map<string, PropState>;
   imports: Map<string, ImportedName>; // local identifier -> origin
+  /**
+   * Why each root after the first is not inside the first tree, by its sid —
+   * the document holds one root, so the extraction warning names the cause.
+   */
+  rootCauses: Map<string, RootCause>;
   /** Where a style dictionary entry's object literal sits, or null when there is none. */
   styleEntrySpan(dict: string, key: string): Span | null;
   /** How many places in the file read `dict.key`. */
   styleRefCount(dict: string, key: string): number;
+}
+
+/**
+ * Why a `$sid` tree is not under the file's first one:
+ * - `return`: it is in another `return` of the same component;
+ * - `helper`: it is JSX in another function or a variable;
+ * - `fragment`: it is a sibling of the first root inside a fragment;
+ * - `conditional`: the two are the branches of a conditional at the root;
+ * - `parent`: its parent element is one the canvas cannot read (`parentTag`).
+ */
+export type RootCause =
+  | { kind: 'return' | 'helper' | 'fragment' | 'conditional' }
+  | { kind: 'parent'; parentTag: string; parentLine: number };
+
+/**
+ * The import a tag resolves through: `View` itself, or `Animated` for
+ * `Animated.View` (the member path rides on the export name:
+ * `react-native-reanimated#default.View`).
+ */
+export function tagOrigin(
+  tagName: string,
+  imports: Map<string, ImportedName>,
+): ImportedName | undefined {
+  const dot = tagName.indexOf('.');
+  if (dot === -1) return imports.get(tagName);
+  const head = imports.get(tagName.slice(0, dot));
+  return head
+    ? {
+        module: head.module,
+        exportName: `${head.exportName}${tagName.slice(dot)}`,
+      }
+    : undefined;
 }
 
 export const DEFAULT_PRIMITIVE_MODULES = [
@@ -236,6 +273,8 @@ export function analyze(
   const nodes = new Map<string, RenderDomNode>();
   const info = new Map<string, ElementInfo>();
   const roots: RenderDomNode[] = [];
+  /** Each root's JSX node, for {@link rootCauseOf}. */
+  const rootElements = new Map<string, ts.Node>();
 
   // `{isActive && <X $sid/>}` and `{isActive ? <A $sid/> : <B $sid/>}`:
   // each guarded element, by its JSX node, with the test it renders under.
@@ -341,10 +380,13 @@ export function analyze(
     const { open, selfClosing, element } = parts;
     const tagName = open.tagName.getText(sf);
 
-    // Classify: primitive (imported from a primitive module) vs Custom.
-    const origin = imports.get(tagName);
+    // Classify: primitive (imported from a primitive module) vs Custom. A
+    // member tag (`<Animated.View>`) is always a Custom of its import.
+    const origin = tagOrigin(tagName, imports);
     const isPrimitive =
-      origin !== undefined && primitiveModules.has(origin.module);
+      origin !== undefined &&
+      !tagName.includes('.') &&
+      primitiveModules.has(origin.module);
 
     let type: string;
     const props: Record<string, unknown> = {};
@@ -731,6 +773,7 @@ export function analyze(
       parent.info.childSids.push(sid);
     } else {
       roots.push(dom);
+      rootElements.set(sid, element);
     }
     return { dom, info: elInfo };
   };
@@ -832,6 +875,14 @@ export function analyze(
   };
 
   visit(sf, null);
+  const rootCauses = new Map<string, RootCause>();
+  const first = roots[0] ? rootElements.get(roots[0].sid) : undefined;
+  if (first) {
+    for (const root of roots.slice(1)) {
+      const element = rootElements.get(root.sid);
+      if (element) rootCauses.set(root.sid, rootCauseOf(sf, first, element));
+    }
+  }
   const dictFor = (name: string): StyleDict | undefined => styleDicts.get(name);
   return {
     roots,
@@ -840,6 +891,7 @@ export function analyze(
     warnings,
     states,
     imports,
+    rootCauses,
     styleEntrySpan: (dict, key) =>
       dictFor(dict)?.entries.get(key)?.span ?? null,
     styleRefCount: (dict, key) => {
@@ -847,4 +899,76 @@ export function analyze(
       return d ? countStyleRefs(sf, d, key) : 0;
     },
   };
+}
+
+const isFunctionLike = (n: ts.Node): boolean =>
+  ts.isFunctionDeclaration(n) ||
+  ts.isFunctionExpression(n) ||
+  ts.isArrowFunction(n) ||
+  ts.isMethodDeclaration(n);
+
+function enclosing(
+  node: ts.Node,
+  test: (n: ts.Node) => boolean,
+): ts.Node | undefined {
+  let cur: ts.Node | undefined = node.parent;
+  while (cur && !test(cur)) cur = cur.parent;
+  return cur;
+}
+
+/** Why `other`, a `$sid` root, does not sit under `first`, the root extraction reads. */
+function rootCauseOf(
+  sf: ts.SourceFile,
+  first: ts.Node,
+  other: ts.Node,
+): RootCause {
+  if (enclosing(first, isFunctionLike) !== enclosing(other, isFunctionLike)) {
+    return { kind: 'helper' };
+  }
+  if (
+    enclosing(first, ts.isReturnStatement) !==
+    enclosing(other, ts.isReturnStatement)
+  ) {
+    return { kind: 'return' };
+  }
+  // The same return: what holds both, nearest first.
+  const contains = (outer: ts.Node, inner: ts.Node): boolean =>
+    outer.getStart(sf) <= inner.getStart(sf) &&
+    inner.getEnd() <= outer.getEnd();
+  let common: ts.Node | undefined = other.parent;
+  while (common && !contains(common, first)) common = common.parent;
+  // An untagged element between the common ancestor and `other` is the
+  // parent the canvas cannot read.
+  let parent: ts.Node | undefined = other.parent;
+  while (parent && parent !== common) {
+    if (ts.isJsxElement(parent) || ts.isJsxSelfClosingElement(parent)) break;
+    parent = parent.parent;
+  }
+  const untagged =
+    parent && parent !== common
+      ? parent
+      : common &&
+          (ts.isJsxElement(common) || ts.isJsxSelfClosingElement(common))
+        ? common
+        : undefined;
+  if (
+    untagged &&
+    (ts.isJsxElement(untagged) || ts.isJsxSelfClosingElement(untagged))
+  ) {
+    const open = ts.isJsxElement(untagged) ? untagged.openingElement : untagged;
+    return {
+      kind: 'parent',
+      parentTag: open.tagName.getText(sf),
+      parentLine:
+        sf.getLineAndCharacterOfPosition(untagged.getStart(sf)).line + 1,
+    };
+  }
+  if (common && ts.isJsxFragment(common)) return { kind: 'fragment' };
+  if (
+    common &&
+    (ts.isConditionalExpression(common) || ts.isBinaryExpression(common))
+  ) {
+    return { kind: 'conditional' };
+  }
+  return { kind: 'helper' };
 }
