@@ -2,6 +2,7 @@ import {
   FC,
   PropsWithChildren,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -16,6 +17,8 @@ import {
   useVariablesState,
 } from '@mapples/state';
 import { NavigationDocument, RouteNode } from '@mapples/types';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { useNavigationHooks } from './backend';
 import { NavigationActionType } from './constants';
@@ -105,6 +108,13 @@ export const RouteGuard: FC<PropsWithChildren<RouteScreenProps>> = ({
  * root handlers read), the `onEnter` action emitted on every focus, and the
  * access guard — a screen whose guard fails renders nothing and sends the
  * user to the route's fallback.
+ *
+ * The page is kept inside the left and right safe-area insets. The top and
+ * bottom ones belong to the header, the tab bar and the page's own
+ * `SafeAreaView`; the side ones belong to nobody else, and a device that has
+ * them (a phone in landscape, the iPhone Duo's system rail) would otherwise
+ * draw its camera and clock over the page. Inside, the insets read as
+ * having no sides left to apply.
  */
 const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
   route,
@@ -172,11 +182,36 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
     routeParams,
   ]);
 
+  const insets = useContext(SafeAreaInsetsContext);
+  const sides = useMemo(
+    () => ({
+      paddingLeft: insets?.left ?? 0,
+      paddingRight: insets?.right ?? 0,
+    }),
+    [insets?.left, insets?.right],
+  );
+  // What the page is told: the sides are already taken, so a `SafeAreaView`
+  // inside it does not pad them a second time.
+  const pageInsets = useMemo(
+    () => (insets ? { ...insets, left: 0, right: 0 } : null),
+    [insets],
+  );
+
   if (!hydrated || !allowed) return null;
 
   return (
-    <RouteParamsProvider value={routeParams}>{children}</RouteParamsProvider>
+    <RouteParamsProvider value={routeParams}>
+      <View style={[styles.page, sides]}>
+        <SafeAreaInsetsContext value={pageInsets}>
+          {children}
+        </SafeAreaInsetsContext>
+      </View>
+    </RouteParamsProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  page: { flex: 1 },
+});
 
 export default RouteScreen;

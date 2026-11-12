@@ -17,24 +17,11 @@ import {
 } from 'react-native';
 
 import { useNavigationHooks } from '../backend';
-import type { BottomTabBarProps as ReactNavigationTabBarProps } from '../reactNavigation';
-import type { BottomTabBarProps as ExpoRouterTabBarProps } from '../vendor';
 
-import { chromeItemsOf, routeByKey } from './chromeItems';
+import { chromeItemsOf } from './chromeItems';
+import useTabBarSelect, { AnyTabBarProps } from './useTabBarSelect';
 
-/**
- * What expo-router 58's tab bar adds over its older props. The peer range still
- * takes 56, whose type doesn't have them, so they are read through this.
- */
-interface ExpoRouterTabSwitch {
-  navigateToTab: (routeKey: string) => void;
-  emitter: ReactNavigationTabBarProps['navigation'];
-}
-
-export type TabBarHostProps = (
-  | ExpoRouterTabBarProps
-  | ReactNavigationTabBarProps
-) & {
+export type TabBarHostProps = AnyTabBarProps & {
   /** The saved component that draws the bar (it contains a `TabTemplate` or `TabBarItems`). */
   Chrome: ComponentType;
   /**
@@ -74,15 +61,7 @@ const TabBarHost: FC<TabBarHostProps> = ({
   ...tabBar
 }) => {
   const { state, descriptors, insets } = tabBar;
-  const tabSwitch =
-    'navigateToTab' in tabBar
-      ? (tabBar as unknown as ExpoRouterTabSwitch)
-      : undefined;
-  const events = tabSwitch
-    ? tabSwitch.emitter
-    : (tabBar as unknown as ReactNavigationTabBarProps).navigation;
-  const navigateToTab = tabSwitch?.navigateToTab;
-  const navigation = 'navigateToTab' in tabBar ? undefined : tabBar.navigation;
+  const select = useTabBarSelect(tabBar);
   const { BottomTabBarHeightCallbackContext } = useNavigationHooks();
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
@@ -99,25 +78,6 @@ const TabBarHost: FC<TabBarHostProps> = ({
   useEffect(() => {
     if (hidden) onHeightChange?.(0);
   }, [hidden, onHeightChange]);
-
-  const select = useCallback(
-    (routeId: string) => {
-      const route = routeByKey<{ key: string; name: string; params?: object }>(
-        state.routes,
-        routeId,
-      );
-      const event = events.emit({
-        type: 'tabPress',
-        target: route.key,
-        canPreventDefault: true,
-      });
-      if (route.key === focused?.key || event.defaultPrevented) return;
-      // expo-router's tabs switch by route key, React Navigation's by name.
-      if (navigateToTab) navigateToTab(route.key);
-      else if (navigation) navigation.navigate(route.name, route.params);
-    },
-    [state.routes, events, navigateToTab, navigation, focused?.key],
-  );
 
   const chrome = useMemo<NavigatorChrome>(
     () => ({
