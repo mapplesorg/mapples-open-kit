@@ -292,6 +292,18 @@ export interface HeaderOptions {
  *
  * @interface TabBarOptions
  */
+/** Where a tabs navigator draws its bar — see `TabBarOptions.placement`. */
+export type TabBarPlacement = 'bottom' | 'sidebar' | 'automatic';
+
+export const TAB_BAR_PLACEMENTS: TabBarPlacement[] = [
+  'bottom',
+  'sidebar',
+  'automatic',
+];
+
+/** The window width from which an `automatic` tab bar becomes a sidebar. */
+export const TAB_BAR_SIDEBAR_MIN_WIDTH = 768;
+
 export interface TabBarOptions {
   /** Whether the tab bar is shown. */
   visible?: boolean;
@@ -318,6 +330,16 @@ export interface TabBarOptions {
    * on the stock and the native bar.
    */
   floating?: boolean;
+  /**
+   * Where the stock bar sits: along the `bottom` (the default), down the
+   * left side as a `sidebar`, or `automatic` — a sidebar when the window is
+   * at least {@link TAB_BAR_SIDEBAR_MIN_WIDTH} wide (a tablet, an unfolded
+   * foldable) and a bottom bar otherwise. Inert on a designed bar
+   * ({@link componentUuid}), which is drawn for the bottom edge. With
+   * {@link native} the platform decides within the same preference
+   * (expo-router `NativeTabs` `preferredPlacement`).
+   */
+  placement?: TabBarPlacement;
   /** Tab bar background colour. */
   backgroundColor?: string;
   /** Tint for the active tab. */
@@ -443,6 +465,23 @@ export const routeTitle = (
  * `drawerLabel`, else the route name — never the header title, which a
  * navigator-wide title would otherwise put on every item.
  */
+/**
+ * The side of the window a tabs navigator's bar is drawn on, for a window
+ * `width` points wide. One rule for the runtime, the canvas frame chrome and
+ * the generated layouts, so a screen is designed against the bar it gets.
+ */
+export const tabBarSide = (
+  tabBar: TabBarOptions | undefined,
+  width: number,
+): 'bottom' | 'left' => {
+  if (!tabBar || tabBar.componentUuid) return 'bottom';
+  if (tabBar.placement === 'sidebar') return 'left';
+  if (tabBar.placement === 'automatic') {
+    return width >= TAB_BAR_SIDEBAR_MIN_WIDTH ? 'left' : 'bottom';
+  }
+  return 'bottom';
+};
+
 export const routeItemLabel = (
   kind: 'tabs' | 'drawer',
   route: RouteNode,
