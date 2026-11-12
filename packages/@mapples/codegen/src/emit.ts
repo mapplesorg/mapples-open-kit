@@ -275,7 +275,13 @@ export function emitTree(
     : printNode(root, '    ', { styleRef: styles.refFor, states });
   const componentName = pageComponentName(
     name,
-    [...imports.uiNames, ...imports.customs.keys(), styles.dictName, 'Styler'],
+    [
+      ...imports.uiNames,
+      ...imports.customs.keys(),
+      ...imports.locals,
+      styles.dictName,
+      'Styler',
+    ],
     suffix,
   );
   const props = fileProps(root, states);

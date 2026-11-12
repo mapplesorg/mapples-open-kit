@@ -100,6 +100,14 @@ export function instanceLinker(
     if (linked.uuid) byUuid.set(linked.uuid, linked);
   }
 
+  /**
+   * The name each file imports a component under, by file and component
+   * file — learned from the file as `link` reads it, so `unlink` writes the
+   * instance back under the developer's name (`import MyIcon from …`), not
+   * the Creator's, which would add a second import and rename the tags.
+   */
+  const fileNames = new Map<string, Map<string, string>>();
+
   const componentFor = (
     origin: { module: string; exportName: string },
     file: string,
@@ -124,6 +132,19 @@ export function instanceLinker(
         if (typeof name !== 'string' || typeof importRef !== 'string') return;
         const component = componentFor(parseImportRef(importRef), file);
         if (!component) return;
+        let names = fileNames.get(file);
+        if (!names) fileNames.set(file, (names = new Map()));
+        names.set(component.file, name);
+        if (node.children.length > 0) {
+          // A Creator instance has no children slot yet: linked, its
+          // children would leave the tree and the file with them.
+          warn({
+            kind: 'UNKNOWN_ELEMENT_WITH_SID',
+            sid: node.sid,
+            detail: `<${name}> is used with children, which a Creator component instance cannot hold yet — kept as a placeholder holding them, not linked to the component “${component.name}”`,
+          });
+          return;
+        }
         if (!component.uuid) {
           warn({
             kind: 'UNKNOWN_ELEMENT_WITH_SID',
@@ -136,15 +157,6 @@ export function instanceLinker(
         // signature names them); `styled` keeps its own slot.
         const attrs = (layout ?? {}) as Record<string, unknown>;
         const { styled, ...instanceProps } = attrs;
-        if (node.children.length > 0) {
-          warn({
-            kind: 'NON_LITERAL_PROP',
-            sid: node.sid,
-            prop: 'children',
-            severity: 'info',
-            detail: `children of <${name}> stay in code only — a Creator component instance has no children`,
-          });
-        }
         node.type = 'ComponentInstance';
         node.props = {
           ...instanceProps,
@@ -152,7 +164,6 @@ export function instanceLinker(
           componentName: component.name,
           ...(styled !== undefined ? { styled } : {}),
         };
-        node.children = [];
       };
       walk(dom);
     },
@@ -169,6 +180,7 @@ export function instanceLinker(
       };
       collectTypes(dom);
       const localName = (component: LinkedComponent): string =>
+        fileNames.get(file)?.get(component.file) ??
         pageComponentName(component.name, primitiveTypes, 'Component');
 
       const convert = (node: RenderDomNode): RenderDomNode => {
