@@ -13,6 +13,11 @@ import {
 import {
   API_NAMESPACE,
   DataProp,
+  formatMessage,
+  formatValue,
+  LOCALE_NAMESPACE,
+  MESSAGES_NAMESPACE,
+  parseValueFormat,
   ROUTE_NAMESPACE,
   TAB_NAMESPACE,
   VARIABLES_NAMESPACE,
@@ -21,6 +26,7 @@ import { get, join } from 'lodash';
 
 import { useApiState } from '../api/context';
 import StateContext from '../context';
+import { useLocaleState } from '../locale/context';
 import { useActiveRoute, useRouteParams } from '../route/context';
 import { useTabScope } from '../tab/context';
 import { useVariablesState } from '../writable/context';
@@ -29,6 +35,8 @@ const NS_PREFIX = `${VARIABLES_NAMESPACE}.`;
 const API_PREFIX = `${API_NAMESPACE}.`;
 const ROUTE_PREFIX = `${ROUTE_NAMESPACE}.`;
 const TAB_PREFIX = `${TAB_NAMESPACE}.`;
+const LOCALE_PREFIX = `${LOCALE_NAMESPACE}.`;
+const MESSAGES_PREFIX = `${MESSAGES_NAMESPACE}.`;
 
 /** Whether a binding path targets the writable variables store. */
 const isVariablesKey = (key: string) =>
@@ -45,6 +53,13 @@ const isRouteKey = (key: string) =>
 /** Whether a binding path targets the tab a designed tab bar repeats. */
 const isTabKey = (key: string) =>
   key === TAB_NAMESPACE || key.startsWith(TAB_PREFIX);
+
+/** Whether a binding path targets the active locale. */
+const isLocaleKey = (key: string) =>
+  key === LOCALE_NAMESPACE || key.startsWith(LOCALE_PREFIX);
+
+/** Whether a binding path targets a translated message. */
+const isMessageKey = (key: string) => key.startsWith(MESSAGES_PREFIX);
 
 /**
  * Hook for accessing and retrieving values from the application state.
@@ -83,17 +98,22 @@ const useDataState = () => {
   const activeRoute = useActiveRoute();
   const routeValue = screenParams ?? activeRoute?.params ?? null;
   const tabValue = useTabScope();
+  const localeState = useLocaleState();
+  const localeValue = localeState?.value;
+  const activeLocale = localeValue?.current;
+  const message = localeState?.message;
 
   /**
    * Resolve one key segment: `vars.*` keys route to the writable variables
    * store, `api.*` keys to the API response state, `route.*` keys to the
    * screen's params and `tab.*` keys to the tab a designed tab bar repeats
-   * (parallel contexts that scope providers never shadow); everything else
-   * reads the nearest `StateProvider` as before. With no `VariablesProvider`
-   * / request runtime / routed screen / tab scope mounted, those keys fall
-   * through to `altValue`.
+   * (parallel contexts that scope providers never shadow), `locale.*` keys
+   * to the active locale; everything else reads the nearest `StateProvider`
+   * as before. With no `VariablesProvider` / request runtime / routed screen
+   * / tab scope / `LocaleProvider` mounted, those keys fall through to
+   * `altValue`.
    */
-  const resolveKey = useCallback(
+  const resolveData = useCallback(
     (key: string, altValue?: unknown) => {
       if (isVariablesKey(key)) {
         if (key === VARIABLES_NAMESPACE) return variablesValue ?? altValue;
@@ -111,9 +131,30 @@ const useDataState = () => {
         if (key === TAB_NAMESPACE) return tabValue ?? altValue;
         return get(tabValue, key.slice(TAB_PREFIX.length), altValue);
       }
+      if (isLocaleKey(key)) {
+        if (key === LOCALE_NAMESPACE) return localeValue ?? altValue;
+        return get(localeValue, key.slice(LOCALE_PREFIX.length), altValue);
+      }
       return get(value, key, altValue);
     },
-    [value, variablesValue, apiValue, routeValue, tabValue],
+    [value, variablesValue, apiValue, routeValue, tabValue, localeValue],
+  );
+
+  /**
+   * {@link resolveData}, plus `t.*` keys: the message's template in the
+   * active locale, formatted with its placeholders read as binding paths
+   * (`{vars.name}`, `{api.cart.count, plural, …}`). An unknown key — or no
+   * `LocaleProvider` — falls through to `altValue`, so the element shows
+   * its literal text.
+   */
+  const resolveKey = useCallback(
+    (key: string, altValue?: unknown) => {
+      if (!isMessageKey(key)) return resolveData(key, altValue);
+      const parts = message?.(key.slice(MESSAGES_PREFIX.length));
+      if (!parts || !activeLocale) return altValue;
+      return formatMessage(parts, activeLocale, (arg) => resolveData(arg));
+    },
+    [resolveData, message, activeLocale],
   );
 
   /**
@@ -157,6 +198,8 @@ const useDataState = () => {
    * - Simple keys: 'user.name' - retrieves nested property
    * - Multiple keys with separator: 'key1;key2;separator' - joins multiple values
    * - Special key '(this)': returns the entire state object
+   * - Message keys: 't.home.title' - the translated message
+   * - With `format`: the value written for the active locale
    *
    * @param dataProp - The data property configuration
    * @param dataProp.key - The key path(s) to retrieve from state
@@ -177,9 +220,17 @@ const useDataState = () => {
    * ```
    */
   const getValue = useCallback(
-    ({ key, active }: DataProp, altValue: unknown = 'N/A') => {
+    ({ key, active, format }: DataProp, altValue: unknown = 'N/A') => {
       if (!active) {
         return;
+      }
+
+      // A formatted binding shows its value the way the active locale writes
+      // numbers, money and dates; an unset value keeps its fallback.
+      if (format) {
+        const raw = resolveKey(key);
+        if (raw === undefined || raw === null) return altValue;
+        return formatValue(raw, parseValueFormat(format), activeLocale);
       }
 
       // A binding whose key is a condition (`props.isActive::eq::true`)
@@ -206,7 +257,7 @@ const useDataState = () => {
 
       return resolveKey(key, altValue);
     },
-    [value, resolveKey, evaluateCondition],
+    [value, resolveKey, evaluateCondition, activeLocale],
   );
 
   /**
