@@ -50,10 +50,13 @@ export type RegisteredComponents = Record<string, RegisteredComponent>;
  * @interface DataProp
  * @property key - The key identifier for the data property
  * @property active - Whether this data property is currently active
+ * @property format - Locale-aware format applied to the resolved value
+ *   (`number`, `number, currency/USD`, `date, long` — see `parseValueFormat`)
  */
 export interface DataProp {
   key: string;
   active: boolean;
+  format?: string;
 }
 
 /**
