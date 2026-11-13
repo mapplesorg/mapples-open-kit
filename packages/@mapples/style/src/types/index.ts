@@ -6,3 +6,4 @@ export * from './style';
 export * from './system';
 export * from './responsive';
 export * from './hinge';
+export * from './motion';

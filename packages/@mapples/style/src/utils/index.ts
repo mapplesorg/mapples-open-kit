@@ -4,3 +4,4 @@ export * from './styled';
 export * from './system';
 
 export { default as Styler } from './style';
+export * from './motion';

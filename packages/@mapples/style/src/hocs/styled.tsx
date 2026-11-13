@@ -1,7 +1,10 @@
 import { ComponentType, forwardRef } from 'react';
 
+import Animated, { useReducedMotion } from 'react-native-reanimated';
+
 import useStyledProps from '../hooks/useStyledProps';
 import { WithStyledProps } from '../types';
+import { flattenStyleProp, hasMotion, resolveMotionStyle } from '../utils';
 
 /**
  * Higher-order component that wraps a React Native component with styled-props support.
@@ -32,13 +35,43 @@ import { WithStyledProps } from '../types';
  *   />
  * );
  * ```
+ *
+ * A style that carries motion keys (`transitionDuration`, `animationName`, …;
+ * see `MOTION_STYLE_KEYS`) is rendered through Reanimated's animated version
+ * of the component, which runs CSS-style transitions and keyframe animations
+ * natively. `animationName` may name a preset from `ANIMATION_PRESETS`. With
+ * the OS's reduced-motion setting on, the motion keys are dropped.
  */
 const styled = <T extends object>(Component: ComponentType<T>) => {
+  // Built on first use: most elements never animate, and Reanimated need not
+  // wrap a component nothing animates.
+  let AnimatedComponent: ComponentType<T> | undefined;
+
   const ComponentWithRef = forwardRef<unknown, WithStyledProps<T>>(
     ({ styled, ...props }, ref) => {
       const styledProps = useStyledProps(styled);
+      const reducedMotion = useReducedMotion();
 
-      return <Component ref={ref} {...(props as T)} {...styledProps} />;
+      const style = flattenStyleProp<Record<string, unknown>>(
+        (styledProps as { style?: Record<string, unknown> }).style,
+      );
+
+      if (!hasMotion(style)) {
+        return <Component ref={ref} {...(props as T)} {...styledProps} />;
+      }
+
+      AnimatedComponent ??= Animated.createAnimatedComponent(
+        Component,
+      ) as unknown as ComponentType<T>;
+
+      return (
+        <AnimatedComponent
+          ref={ref}
+          {...(props as T)}
+          {...styledProps}
+          style={resolveMotionStyle(style, reducedMotion)}
+        />
+      );
     },
   );
   ComponentWithRef.displayName = `Styled(${Component.displayName})`;

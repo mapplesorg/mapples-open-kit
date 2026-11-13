@@ -1,5 +1,7 @@
 import { DimensionValue } from 'react-native';
 
+import { MotionStyleProps } from './motion';
+
 /** Multiplier value format: `*number` (e.g., `*2` for 2 times base size) */
 export type MultiplyValue = `*${number}`;
 
@@ -92,4 +94,7 @@ export type SizableStyleProps<T> = Partial<
   Omit<T, StyledSizingKeys | 'boxShadow'> &
   ('boxShadow' extends keyof T
     ? { boxShadow?: T['boxShadow'] | StyledBoxShadow }
-    : unknown);
+    : unknown) &
+  // Expo's web types already declare these keys on the React Native styles
+  // (with wider value types); where they do, theirs stand.
+  Omit<MotionStyleProps, keyof T>;

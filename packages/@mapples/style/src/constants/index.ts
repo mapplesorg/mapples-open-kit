@@ -59,3 +59,5 @@ export const DefaultResponsiveConfig: ResponsiveConfig = {
     },
   },
 };
+
+export * from './motion';
