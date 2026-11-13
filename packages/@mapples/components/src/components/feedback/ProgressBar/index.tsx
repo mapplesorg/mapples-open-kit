@@ -7,11 +7,11 @@ import {
   type RefAttributes,
 } from 'react';
 
+import { useIsRTL } from '@mapples/render';
 import { StyledProp, StyledView, Typography, useStyled } from '@mapples/style';
 import { Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
 import {
   Animated,
-  I18nManager,
   LayoutChangeEvent,
   TextStyle,
   View,
@@ -134,6 +134,7 @@ const ProgressBar: ForwardRefExoticComponent<
         : progressFraction(markerValue, max, 'ProgressBar');
 
     const tones = useTones();
+    const isRTL = useIsRTL();
     const palette = tones.tone(tone);
     const [trackWidth, setTrackWidth] = useState(0);
     const reduceMotion = useReduceMotion();
@@ -160,7 +161,6 @@ const ProgressBar: ForwardRefExoticComponent<
 
     const thickness = PROGRESS_BAR_TRACK[size];
     const radius = rounded ? thickness / 2 : 0;
-    const isRTL = I18nManager.isRTL;
     const sweepWidth = PROGRESS_BAR_INDETERMINATE_WIDTH * trackWidth;
     // The sweep enters from the reading start and leaves at the reading end.
     const translateX = slide.interpolate({

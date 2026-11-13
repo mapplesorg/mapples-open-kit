@@ -6,6 +6,7 @@ import {
   type RefAttributes,
 } from 'react';
 
+import { useIsRTL } from '@mapples/render';
 import {
   StyledPressable,
   StyledProp,
@@ -23,13 +24,7 @@ import {
   useTones,
 } from '@mapples/ui';
 import { ImageProps } from 'expo-image';
-import {
-  I18nManager,
-  TextStyle,
-  View,
-  ViewProps,
-  ViewStyle,
-} from 'react-native';
+import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { useSlotColor } from '../../../internal';
 
@@ -165,6 +160,7 @@ const TopAppBar: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const isRTL = useIsRTL();
     const shape = useShape();
     const elevation = useElevation();
     const items = readTopAppBarActions(actions);
@@ -344,7 +340,7 @@ const TopAppBar: ForwardRefExoticComponent<
                 name="arrowBack"
                 color={glyphColor}
                 accessibilityLabel={backLabel}
-                mirrored={I18nManager.isRTL}
+                mirrored={isRTL}
                 styled={styled?.styleAction}
                 onPress={onBackPress}
               />
