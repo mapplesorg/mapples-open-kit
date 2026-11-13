@@ -47,9 +47,10 @@ export interface MapplesAppProps {
   /** Font loaded callback **/
   onFontLoaded?: () => void;
   /**
-   * The navigation, API and variables documents the behaviour runtime
-   * executes. Defaults to the files `mapples sync` writes
-   * (`navigation.ts`, `api.ts`, `variables.ts` in the CLI's mapplesDir).
+   * The navigation, API, variables and locales documents the behaviour
+   * runtime executes. Defaults to the files `mapples sync` writes
+   * (`navigation.ts`, `api.ts`, `variables.ts`, `locales.ts` in the CLI's
+   * mapplesDir).
    */
   project?: MapplesProject;
   /** Persistence for `persist: true` app variables. */
@@ -58,6 +59,8 @@ export interface MapplesAppProps {
   transport?: MapplesRuntimeProps['transport'];
   /** A state path (`vars.theme`) whose `light` / `dark` / `auto` value switches the theme at runtime. */
   themeVariable?: MapplesRuntimeProps['themeVariable'];
+  /** Pins the app's locale to one the project supports (default: the device's, then the user's choice). */
+  locale?: MapplesRuntimeProps['locale'];
 }
 
 /**
@@ -112,6 +115,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
   variablesStorage,
   transport,
   themeVariable,
+  locale,
 }) => {
   const runtimeProject = useMemo(() => project ?? syncedProject(), [project]);
   const resolved = useMemo(
@@ -164,6 +168,7 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
                 variablesStorage={variablesStorage}
                 transport={transport}
                 themeVariable={themeVariable}
+                locale={locale}
               >
                 {children}
               </MapplesRuntime>

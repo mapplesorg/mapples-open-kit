@@ -10,6 +10,9 @@ import {
 import {
   ActiveRouteProvider,
   ConditionActionHandler,
+  LocaleActionHandler,
+  LocaleDirection,
+  LocaleProvider,
   StateActionHandler,
   VariablesProvider,
   VariablesStorage,
@@ -40,6 +43,11 @@ export interface MapplesRuntimeProps {
    * variable with `persist` to keep the choice across launches.
    */
   themeVariable?: string;
+  /**
+   * Pins the app's locale to one the project supports, over the device's
+   * and the user's own choice.
+   */
+  locale?: string;
 }
 
 /**
@@ -73,14 +81,17 @@ const withEnvironment = (
  * The behaviour runtime of an exported app — what Creator's Play mounts
  * around a prototype: the action bus, the project variables (`vars.*`) with
  * their `mapples:setState` handler, the API runtime (`api.*`, real requests)
- * with its `mapples:request` handler, the focused route's params for the
- * root handlers, and navigation actions driving expo-router.
+ * with its `mapples:request` handler, the active locale and its translated
+ * messages (`locale.*`, `t.*`) with their `mapples:setLocale` handler and
+ * layout direction, the focused route's params for the root handlers, and
+ * navigation actions driving expo-router.
  */
 const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
   project,
   variablesStorage,
   transport,
   themeVariable,
+  locale,
   children,
 }) => {
   const focusedRouteRef = useRef<string | null>(null);
@@ -119,27 +130,34 @@ const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
   return (
     <MapplesRuntimeContext.Provider value={runtime}>
       <ActionProvider>
-        <VariablesProvider
-          document={project.variables ?? null}
+        <LocaleProvider
+          document={project.locales ?? null}
+          locale={locale}
           storage={variablesStorage}
         >
-          <RequestProvider
-            document={api}
-            mode="fetch"
-            transport={requestTransport}
+          <VariablesProvider
+            document={project.variables ?? null}
+            storage={variablesStorage}
           >
-            <ActiveRouteProvider>
-              <StateActionHandler />
-              <RequestActionHandler />
-              <ConditionActionHandler />
-              <RouterActionHandler />
-              {themeVariable ? (
-                <ThemeVariableBinding path={themeVariable} />
-              ) : null}
-              {children}
-            </ActiveRouteProvider>
-          </RequestProvider>
-        </VariablesProvider>
+            <RequestProvider
+              document={api}
+              mode="fetch"
+              transport={requestTransport}
+            >
+              <ActiveRouteProvider>
+                <StateActionHandler />
+                <RequestActionHandler />
+                <ConditionActionHandler />
+                <RouterActionHandler />
+                <LocaleActionHandler />
+                {themeVariable ? (
+                  <ThemeVariableBinding path={themeVariable} />
+                ) : null}
+                <LocaleDirection>{children}</LocaleDirection>
+              </ActiveRouteProvider>
+            </RequestProvider>
+          </VariablesProvider>
+        </LocaleProvider>
       </ActionProvider>
     </MapplesRuntimeContext.Provider>
   );
