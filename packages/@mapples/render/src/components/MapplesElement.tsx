@@ -5,6 +5,7 @@ import { DataProps } from '@mapples/types';
 import { useElementBindings } from '../hooks/useElementBindings';
 import { ActionPropsMap, RefPropsMap } from '../types';
 import { applyRefProps } from '../utils/applyRefProps';
+import { applyStateVariants } from '../utils/applyStateVariants';
 
 import ElementErrorBoundary from './ElementErrorBoundary';
 
@@ -85,13 +86,31 @@ const MapplesElement = forwardRef<unknown, MapplesElementProps>(
 
     if (hidden) return null;
 
+    // A code-written element has no document conditions to evaluate: only
+    // interaction states (`style::$pressed`) are resolved here, into the
+    // selector values the style runtime switches on.
+    const styled = props.styled;
+    const elementPropsWithStates =
+      typeof styled === 'object' && styled !== null && !Array.isArray(styled)
+        ? {
+            ...props,
+            styled: applyStateVariants(
+              styled as Record<string, unknown>,
+              () => false,
+            ),
+          }
+        : props;
+
     return (
       <ElementErrorBoundary
         label={`<${elementName(As)}${sid ? ` $sid="${String(sid)}"` : ''}>`}
       >
         <As
           ref={ref}
-          {...applyRefProps({ ...props, ...dataProps }, refProps)}
+          {...applyRefProps(
+            { ...elementPropsWithStates, ...dataProps },
+            refProps,
+          )}
           {...actionHandlers}
         />
       </ElementErrorBoundary>
