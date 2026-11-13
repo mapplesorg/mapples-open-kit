@@ -85,3 +85,22 @@ export const ANIMATION_PRESETS = {
     '100%': { opacity: 1 },
   },
 } as const satisfies Record<string, MotionKeyframes>;
+
+/**
+ * What each preset is for: `enter` plays once when the element appears and
+ * ends on the element's own style; `loop` is meant to repeat.
+ */
+export const ANIMATION_PRESET_KINDS = {
+  fadeIn: 'enter',
+  fadeInUp: 'enter',
+  fadeInDown: 'enter',
+  slideInLeft: 'enter',
+  slideInRight: 'enter',
+  zoomIn: 'enter',
+  bounceIn: 'enter',
+  pulse: 'loop',
+  spin: 'loop',
+  shake: 'loop',
+  bounce: 'loop',
+  blink: 'loop',
+} as const satisfies Record<keyof typeof ANIMATION_PRESETS, 'enter' | 'loop'>;

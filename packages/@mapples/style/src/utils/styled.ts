@@ -4,6 +4,8 @@ import { Dimensions } from 'react-native';
 
 import { CanvasDimensions } from '../types';
 
+import { isSelectorValue } from './motion';
+
 /**
  * Type guard to check if a value is a boxShadow object with the expected structure.
  *
@@ -98,7 +100,17 @@ export const processExoticKeys = (
   }
 
   if (isObject(obj) && !isArray(obj)) {
-    return mapValues(obj, (value, key) => {
+    return mapValues(obj, (value, key): unknown => {
+      // A selector value (`{ default, ':active' }`) holds one value per
+      // interaction state; each is processed as the key's own value.
+      if (isSelectorValue(value)) {
+        return mapValues(
+          value,
+          (stateValue) =>
+            processExoticKeys({ [key]: stateValue }, getColor, _canvas)[key],
+        );
+      }
+
       if (key === 'boxShadow' && isBoxShadowObject(value)) {
         return parseBoxShadow(value, getColor);
       }

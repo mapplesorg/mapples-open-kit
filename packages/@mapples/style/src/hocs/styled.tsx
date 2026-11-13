@@ -4,7 +4,12 @@ import Animated, { useReducedMotion } from 'react-native-reanimated';
 
 import useStyledProps from '../hooks/useStyledProps';
 import { WithStyledProps } from '../types';
-import { flattenStyleProp, hasMotion, resolveMotionStyle } from '../utils';
+import {
+  flattenStyleProp,
+  hasMotion,
+  hasSelectorValues,
+  resolveMotionStyle,
+} from '../utils';
 
 /**
  * Higher-order component that wraps a React Native component with styled-props support.
@@ -41,6 +46,10 @@ import { flattenStyleProp, hasMotion, resolveMotionStyle } from '../utils';
  * of the component, which runs CSS-style transitions and keyframe animations
  * natively. `animationName` may name a preset from `ANIMATION_PRESETS`. With
  * the OS's reduced-motion setting on, the motion keys are dropped.
+ *
+ * The same holds for a style with selector values (`opacity: { default: 1,
+ * ':active': 0.4 }`): how the element looks while it is pressed, hovered or
+ * focused. `@mapples/render` writes them from `style::$pressed` variants.
  */
 const styled = <T extends object>(Component: ComponentType<T>) => {
   // Built on first use: most elements never animate, and Reanimated need not
@@ -56,7 +65,7 @@ const styled = <T extends object>(Component: ComponentType<T>) => {
         (styledProps as { style?: Record<string, unknown> }).style,
       );
 
-      if (!hasMotion(style)) {
+      if (!hasMotion(style) && !hasSelectorValues(style)) {
         return <Component ref={ref} {...(props as T)} {...styledProps} />;
       }
 
