@@ -1,6 +1,6 @@
 import { ComponentType, ReactNode } from 'react';
 
-import { NavigationDocument } from '@mapples/types';
+import { NavigationDocument, RouteAnimation } from '@mapples/types';
 import { ColorValue } from 'react-native';
 
 import type { NavigationBackend } from './backend';
@@ -37,9 +37,10 @@ export interface StackHeaderOptionsPatch {
   headerShadowVisible?: boolean;
 }
 
-/** Per-route native-stack options (header overrides + presentation). */
+/** Per-route native-stack options (header overrides, presentation, transition). */
 export interface StackScreenOptionsPatch extends StackHeaderOptionsPatch {
   presentation?: 'card' | 'modal' | 'transparentModal';
+  animation?: RouteAnimation;
 }
 
 /** Subset of bottom-tabs navigator options the runtime sets. */

@@ -12,7 +12,7 @@ import { mapHeaderOptions } from './headerOptions';
 /**
  * Per-route native-stack options: the route's header overrides
  * ({@link RouteNode.options} extends `Partial<HeaderOptions>`) plus its
- * `presentation`.
+ * `presentation` and its `animation`.
  */
 export const mapStackScreenOptions = (
   route: RouteNode,
@@ -22,6 +22,7 @@ export const mapStackScreenOptions = (
     ...mapHeaderOptions(route.options, resolvers),
   };
   if (route.presentation !== undefined) patch.presentation = route.presentation;
+  if (route.animation !== undefined) patch.animation = route.animation;
   return patch;
 };
 
