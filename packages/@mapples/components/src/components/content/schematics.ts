@@ -12,6 +12,7 @@ import { ImageCarouselSchematic } from './ImageCarousel/schematic';
 import { LineChartSchematic } from './LineChart/schematic';
 import { ListSchematic } from './List/schematic';
 import { ListItemSchematic } from './ListItem/schematic';
+import { LottieAnimationSchematic } from './LottieAnimation/schematic';
 import { MapViewSchematic } from './MapView/schematic';
 import { MasonryGridSchematic } from './MasonryGrid/schematic';
 import { MediaCardSchematic } from './MediaCard/schematic';
@@ -19,6 +20,7 @@ import { MessageBubbleSchematic } from './MessageBubble/schematic';
 import { MiniPlayerSchematic } from './MiniPlayer/schematic';
 import { PlaybackControlsSchematic } from './PlaybackControls/schematic';
 import { ReorderableListSchematic } from './ReorderableList/schematic';
+import { RiveAnimationSchematic } from './RiveAnimation/schematic';
 import { SectionHeaderSchematic } from './SectionHeader/schematic';
 import { StatTileSchematic } from './StatTile/schematic';
 import { TableSchematic } from './Table/schematic';
@@ -52,5 +54,7 @@ export const ContentSchematics: RegisteredComponents = {
   [WaveformSeekBarSchematic.type]: WaveformSeekBarSchematic,
   [MiniPlayerSchematic.type]: MiniPlayerSchematic,
   [MapViewSchematic.type]: MapViewSchematic,
+  [LottieAnimationSchematic.type]: LottieAnimationSchematic,
+  [RiveAnimationSchematic.type]: RiveAnimationSchematic,
   [TicketCardSchematic.type]: TicketCardSchematic,
 };

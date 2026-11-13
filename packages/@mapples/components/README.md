@@ -22,6 +22,19 @@ Android also needs a Google Maps API key (the `react-native-maps` config
 plugin's `androidGoogleMapsApiKey`). Without it a native `MapView` throws;
 the web build draws a static map and never imports it.
 
+Optional peers for animations, each element throwing without its player:
+
+- `LottieAnimation` (`.json` and `.lottie`): `lottie-react-native` on iOS and
+  Android, `@lottiefiles/dotlottie-react` on web. To bundle `.lottie` files,
+  add `'lottie'` to Metro's `resolver.assetExts`.
+- `RiveAnimation` (`.riv` state machines): `@rive-app/react-native` with
+  `react-native-nitro-modules` on iOS and Android, `@rive-app/canvas` on web.
+  To bundle `.riv` files, add `'riv'` to `resolver.assetExts`.
+
+Both take `mapples:animation` actions (`AnimationActionType.Control`, from
+`@mapples/action`'s store) addressed to their `name`: `play`, `pause`, `stop`,
+`seek` (Lottie), `setInput` and `fireTrigger` (Rive).
+
 ## Usage
 
 ```tsx
@@ -51,7 +64,7 @@ import { InputField, Switch, Card } from '@mapples/components';
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Actions    | `Fab`, `Chip`, `ChipGroup`, `SegmentedControl`, `ButtonGroup`, `BottomActionBar` (plus the themed `Button` / `IconButton` of `@mapples/ui`)                                                                                                                                                                                               |
 | Inputs     | `InputField`, `SearchBar`, `PinInput`, `SelectField`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `RangeSlider`, `NumberStepper`, `Rating`, `DayPicker`, `Calendar`, `TimePicker`, `ChatComposer`, `NumericKeypad`, `ChoiceGrid`                                                                                                        |
-| Content    | `Card`, `MediaCard`, `TicketCard`, `ListItem`, `List`, `ReorderableList`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `BarChart`, `LineChart`, `CalendarHeatmap`, `DateTile`, `MessageBubble`, `ImageCarousel`, `MasonryGrid`, `PlaybackControls`, `WaveformSeekBar`, `MiniPlayer`, `MapView` |
+| Content    | `Card`, `MediaCard`, `TicketCard`, `ListItem`, `List`, `ReorderableList`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `BarChart`, `LineChart`, `CalendarHeatmap`, `DateTile`, `MessageBubble`, `ImageCarousel`, `MasonryGrid`, `PlaybackControls`, `WaveformSeekBar`, `MiniPlayer`, `MapView`, `LottieAnimation`, `RiveAnimation` |
 | Navigation | `TopAppBar`, `BottomNavigationBar`, `Tabs`, `Breadcrumbs`, `PageControl`, `Steps`, `TextLink`                                                                                                                                                                                                                                             |
 | Feedback   | `Badge`, `ProgressBar`, `ProgressCircle`, `CountdownTimer`, `ActivityRings`, `BreathingGuide`, `Spinner`, `Skeleton`, `Banner`, `Snackbar`, `EmptyState`                                                                                                                                                                                  |
 | Overlays   | `Dialog`, `BottomSheet`, `ActionSheet`                                                                                                                                                                                                                                                                                                    |

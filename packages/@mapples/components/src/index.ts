@@ -11,6 +11,7 @@
  */
 
 export * from './schematics';
+export * from './animationControl';
 export * from './components/actions';
 export * from './components/inputs';
 export * from './components/content';

@@ -121,4 +121,12 @@ export { default as MapView } from './MapView';
 export * from './MapView/schematic';
 export * from './MapView/types';
 
+export { default as LottieAnimation } from './LottieAnimation';
+export * from './LottieAnimation/schematic';
+export * from './LottieAnimation/types';
+
+export { default as RiveAnimation } from './RiveAnimation';
+export * from './RiveAnimation/schematic';
+export * from './RiveAnimation/types';
+
 export * from './schematics';
