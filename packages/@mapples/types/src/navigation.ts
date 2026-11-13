@@ -121,6 +121,27 @@ export interface NavigatorNode {
 }
 
 /**
+ * The transitions a stack screen can open with: the names the native stack
+ * takes as its `animation` option. `default` is the platform's own.
+ */
+export const ROUTE_ANIMATIONS = [
+  'default',
+  'fade',
+  'fade_from_bottom',
+  'flip',
+  'none',
+  'simple_push',
+  'slide_from_bottom',
+  'slide_from_right',
+  'slide_from_left',
+  'ios_from_right',
+  'ios_from_left',
+] as const;
+
+/** How a stack screen animates in and out (see {@link ROUTE_ANIMATIONS}). */
+export type RouteAnimation = (typeof ROUTE_ANIMATIONS)[number];
+
+/**
  * A single route within a navigator — either a page leaf or a nested navigator.
  *
  * @interface RouteNode
@@ -136,6 +157,12 @@ export interface RouteNode {
     | { kind: 'navigator'; navigatorId: string };
   /** How the screen is presented. Valid only when the parent navigator is a `stack`. */
   presentation?: 'card' | 'modal' | 'transparentModal';
+  /**
+   * The transition the screen opens and closes with. Valid only when the
+   * parent navigator is a `stack`; absent means the platform's default.
+   * Native only: a web stack has no screen transition.
+   */
+  animation?: RouteAnimation;
   /** Per-screen option overrides (header, tab/drawer label & icon). */
   options?: ScreenOptions;
   /**
