@@ -20,6 +20,9 @@
     "url": "https://github.com/mapplesorg/mapples-open-kit.git",
     "directory": "packages/@mapples/types"
   },
+  "dependencies": {
+    "intl-pluralrules": "^2.0.1"
+  },
   "peerDependencies": {
     "react": ">=18.0.0 <20.0.0",
     "react-native": ">=0.71.0"

@@ -13,7 +13,28 @@
  *
  * The same value formats are exposed on their own through
  * {@link formatValue}, which is what a binding's `format` uses.
+ *
+ * What it needs from the JavaScript engine: `Intl.NumberFormat` and
+ * `Intl.DateTimeFormat` (with `dateStyle` / `timeStyle`). `Intl.PluralRules`
+ * is used where the engine has it; Hermes (iOS and Android apps) has none,
+ * so there the `intl-pluralrules` implementation is used. One known limit:
+ * Hermes on iOS ignores `notation: 'compact'`, so `compact` prints the full
+ * number there (1,234,567, not 1.2M).
  */
+
+import PluralRulesImplementation from 'intl-pluralrules/plural-rules';
+
+/**
+ * The engine's `Intl.PluralRules` when it has one, the `intl-pluralrules`
+ * implementation of the same class when it does not.
+ */
+const PluralRules: new (
+  locale: string,
+  options: Intl.PluralRulesOptions,
+) => Intl.PluralRules =
+  typeof Intl.PluralRules === 'function'
+    ? Intl.PluralRules
+    : PluralRulesImplementation;
 
 /** A value format: what `{arg, kind, style}` and a binding format name. */
 export interface ValueFormat {
@@ -393,7 +414,7 @@ const formatParts = (
       const category = cached(
         `plural|${locale}|${part.ordinal}`,
         () =>
-          new Intl.PluralRules(locale, {
+          new PluralRules(locale, {
             type: part.ordinal ? 'ordinal' : 'cardinal',
           }),
       ).select(shifted);
