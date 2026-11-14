@@ -6,7 +6,9 @@ import {
   useMemo,
 } from 'react';
 
+import { useMessageText } from '@mapples/state';
 import {
+  MessageText,
   NavigationDocument,
   routeHeaderVisible,
   routeItemLabel,
@@ -214,14 +216,16 @@ const useScreenComponents = (model: NavigatorModel): ComponentType[] =>
  * generated layouts apply too. A route entering a nested navigator draws no
  * header (the nested one does), so Play never stacks two bars. The title is
  * always set: left unset, React Navigation would show the navigator-qualified
- * screen name (`<navigator>:<route>`).
+ * screen name (`<navigator>:<route>`). `text` reads a title's message key in
+ * the active locale, so the header follows a locale switch.
  */
 const sharedScreenOptions = (
   model: NavigatorModel,
   screen: ScreenModel,
+  text: MessageText,
 ): { headerShown: boolean; title: string } => ({
   headerShown: routeHeaderVisible(model.node, screen.route),
-  title: routeTitle(model.node, screen.route),
+  title: routeTitle(model.node, screen.route, text),
 });
 
 const StackNavigatorView = ({
@@ -237,6 +241,7 @@ const StackNavigatorView = ({
     [createNativeStackNavigator],
   );
   const screens = useScreenComponents(model);
+  const text = useMessageText();
   // With the navigation drawn in the device's vertical bar there is no
   // horizontal header: the back button is in the bar (see `screenComponent`).
   const headerless = useVerticalBar()?.navigation === true;
@@ -251,7 +256,7 @@ const StackNavigatorView = ({
       {model.screens.length ? (
         model.screens.map((screen, index) => {
           const options = mapStackScreenOptions(screen.route, ctx.resolvers);
-          Object.assign(options, sharedScreenOptions(model, screen));
+          Object.assign(options, sharedScreenOptions(model, screen, text));
           if (headerless) Object.assign(options, { headerShown: false });
           return (
             <Stack.Screen
@@ -286,6 +291,7 @@ const TabsNavigatorView = ({
     [createBottomTabNavigator],
   );
   const screens = useScreenComponents(model);
+  const text = useMessageText();
   const Chrome = chromeComponent(
     ctx,
     model,
@@ -339,8 +345,8 @@ const TabsNavigatorView = ({
             screen.route,
             ctx.resolvers,
           ) as BottomTabNavigationOptions;
-          Object.assign(options, sharedScreenOptions(model, screen), {
-            tabBarLabel: routeItemLabel('tabs', screen.route),
+          Object.assign(options, sharedScreenOptions(model, screen, text), {
+            tabBarLabel: routeItemLabel('tabs', screen.route, text),
           });
           if (headerless) Object.assign(options, { headerShown: false });
           return (
@@ -376,6 +382,7 @@ const DrawerNavigatorView = ({
     [createDrawerNavigator],
   );
   const screens = useScreenComponents(model);
+  const text = useMessageText();
   const Chrome = chromeComponent(
     ctx,
     model,
@@ -405,8 +412,8 @@ const DrawerNavigatorView = ({
             screen.route,
             ctx.resolvers,
           ) as DrawerNavigationOptions;
-          Object.assign(options, sharedScreenOptions(model, screen), {
-            drawerLabel: routeItemLabel('drawer', screen.route),
+          Object.assign(options, sharedScreenOptions(model, screen, text), {
+            drawerLabel: routeItemLabel('drawer', screen.route, text),
           });
           return (
             <Drawer.Screen
