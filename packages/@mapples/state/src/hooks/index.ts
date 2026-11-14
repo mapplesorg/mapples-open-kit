@@ -7,5 +7,6 @@
 
 import { default as useDataProps } from './useDataProps';
 import { default as useDataState } from './useDataState';
+import { default as useMessageText } from './useMessageText';
 
-export { useDataProps, useDataState };
+export { useDataProps, useDataState, useMessageText };
