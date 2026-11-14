@@ -302,6 +302,12 @@ export interface HeaderOptions {
   visible?: boolean;
   /** Header title text. */
   title?: string;
+  /**
+   * The message key of the title in the project's locales document
+   * (`home.title`, read as `t.home.title`). While the key resolves in the
+   * active locale its message is shown; otherwise {@link title} is.
+   */
+  titleKey?: string;
   /** Header background — raw value or `ref(theme:<uuid>:<name>)`. */
   backgroundColor?: string;
   /** Tint applied to header buttons/icons. */
@@ -421,10 +427,14 @@ export interface ScreenOptions extends Partial<HeaderOptions> {
   tabIcon?: string;
   /** Tab bar label override. */
   tabLabel?: string;
+  /** Message key of the tab label; shown instead of {@link tabLabel} while it resolves. */
+  tabLabelKey?: string;
   /** Drawer icon — `ref(icon:<uuid>:<name>)` or `ref(glyph:<family>:<name>)`. */
   drawerIcon?: string;
   /** Drawer label override. */
   drawerLabel?: string;
+  /** Message key of the drawer label; shown instead of {@link drawerLabel} while it resolves. */
+  drawerLabelKey?: string;
 }
 
 /**
@@ -478,18 +488,44 @@ export const routeHeaderVisible = (
     : (navigator.options?.header?.visible ?? true));
 
 /**
+ * Reads a message of the project's locales document in the active locale:
+ * the formatted text of a message key, `undefined` when the key does not
+ * resolve (an unknown key, or a host with no locale runtime).
+ */
+export type MessageText = (key: string) => string | undefined;
+
+/** The message of `key` when it resolves, else the literal text. */
+const localizedText = (
+  key: string | undefined,
+  literal: string | undefined,
+  text: MessageText | undefined,
+): string | undefined => {
+  const translated = key && text ? text(key) : undefined;
+  return translated ?? literal;
+};
+
+/**
  * The title a route's screen shows in its header: the route's own, else the
- * navigator's, else the route name.
+ * navigator's, else the route name. At each level a title's message key
+ * (`titleKey`) wins over its literal while `text` resolves it.
  */
 export const routeTitle = (
   navigator: NavigatorNode,
   route: RouteNode,
+  text?: MessageText,
 ): string =>
-  route.options?.title ?? navigator.options?.header?.title ?? route.name;
+  localizedText(route.options?.titleKey, route.options?.title, text) ??
+  localizedText(
+    navigator.options?.header?.titleKey,
+    navigator.options?.header?.title,
+    text,
+  ) ??
+  route.name;
 
 /**
- * The label a route's tab or drawer item shows: the route's `tabLabel` /
- * `drawerLabel`, else the route name — never the header title, which a
+ * The label a route's tab or drawer item shows ({@link routeItemLabel}): the
+ * route's `tabLabel` / `drawerLabel` (its message key first, while `text`
+ * resolves it), else the route name — never the header title, which a
  * navigator-wide title would otherwise put on every item.
  */
 /**
@@ -512,6 +548,12 @@ export const tabBarSide = (
 export const routeItemLabel = (
   kind: 'tabs' | 'drawer',
   route: RouteNode,
+  text?: MessageText,
 ): string =>
-  (kind === 'tabs' ? route.options?.tabLabel : route.options?.drawerLabel) ??
-  route.name;
+  (kind === 'tabs'
+    ? localizedText(route.options?.tabLabelKey, route.options?.tabLabel, text)
+    : localizedText(
+        route.options?.drawerLabelKey,
+        route.options?.drawerLabel,
+        text,
+      )) ?? route.name;
