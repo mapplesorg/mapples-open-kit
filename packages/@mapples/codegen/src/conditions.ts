@@ -123,11 +123,15 @@ export function adoptPropConditions(
     return out;
   };
 
+  // The file's `$states` only repeat the document's data states (and may be
+  // behind it): the document stays the truth for those.
   const states: States = {};
   for (const [key, state] of Object.entries(docStates)) {
     if (propOfCondition(state.condition) === null) states[key] = state;
   }
-  Object.assign(states, fileStates);
+  for (const [key, state] of Object.entries(fileStates)) {
+    if (propOfCondition(state.condition) !== null) states[key] = state;
+  }
 
   return { tree: adopt(tree), states };
 }
