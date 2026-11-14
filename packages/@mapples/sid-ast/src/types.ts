@@ -68,9 +68,11 @@ export interface ExtractResult {
   warnings: ExtractWarning[];
   spans: Map<string, Span>;
   /**
-   * Render states the file's prop tests declare, by state key — the
-   * conditions its `style::<key>` variants render under
-   * (`{ isActive: { name: 'isActive', condition: 'props.isActive::eq::true' } }`).
+   * Render states the file declares, by state key — the conditions its
+   * `style::<key>` variants render under: the ones its prop tests stand for
+   * (`{ isActive: { name: 'isActive', condition: 'props.isActive::eq::true' } }`)
+   * and the data states its elements name in `$states`
+   * (`{ high: { name: 'High', condition: 'vars.count::gt::3' } }`).
    */
   states: Record<string, RenderState>;
 }
@@ -93,7 +95,8 @@ export interface PatchOptions extends ExtractOptions {
   /**
    * The document's render states. A `styled` variant under a state that
    * tests a component prop prints as that test (`isActive && {…}`) instead of
-   * a literal `'style::isActive'` key.
+   * a literal `'style::isActive'` key; every element with variants under
+   * another state ends up naming it in `$states` (`syncElementStates`).
    */
   states?: Record<string, RenderState>;
 }

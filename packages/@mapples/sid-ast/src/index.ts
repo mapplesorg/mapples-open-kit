@@ -1,6 +1,7 @@
 export * from './types.js';
 export { extract } from './extract.js';
-export { patch } from './patch.js';
+export { patch, syncElementStates } from './patch.js';
+export { elementStates, STATES_ATTR } from './states.js';
 export {
   printChild,
   printElement,

@@ -7,6 +7,7 @@ import {
   propTestCode,
   PROPS_SCOPE,
 } from './propConditions.js';
+import { elementStates, STATES_ATTR } from './states.js';
 import {
   SIDECAR_FIELDS,
   type RenderDomNode,
@@ -91,7 +92,8 @@ export function printAttr(
  * vary: `style` + `style::isActive` under `props.isActive::eq::true` prints
  * `style: [styles.card, isActive && styles.cardActive]` — the code the
  * parser reads the variant back from. Variants under any other state stay
- * literal `'style::key'` entries.
+ * literal `'style::key'` entries; the element names those states in
+ * `$states` (see states.ts).
  */
 function printStyled(
   value: unknown,
@@ -168,7 +170,9 @@ export interface PrintOptions {
   ) => string | undefined;
   /**
    * The document's render states: `styled` variants under a state that tests
-   * a component prop print as that test (`isActive && styles.cardActive`).
+   * a component prop print as that test (`isActive && styles.cardActive`),
+   * and an element with variants under any other state declares it in
+   * `$states`.
    */
   states?: Record<string, RenderState>;
 }
@@ -244,9 +248,19 @@ interface Emittable {
 /**
  * Element name, ordered attribute list and text child for a node. `guarded`:
  * the node sits among JSX children, where a prop-test `_visible` prints as
- * `{test && <X/>}` rather than inside `$data`.
+ * `{test && <X/>}` rather than inside `$data`. `states`: the document's
+ * render states, for the `$states` attribute of a node with data-state
+ * variants.
  */
-export function emittable(node: RenderDomNode, guarded = false): Emittable {
+export function emittable(
+  node: RenderDomNode,
+  guarded = false,
+  states?: Record<string, RenderState>,
+): Emittable {
+  const declared = elementStates(node, states);
+  const stateAttrs: [string, unknown][] = declared
+    ? [[STATES_ATTR, declared]]
+    : [];
   if (node.type === 'Custom') {
     const { name, importRef, layout, fallbackSize, ...rest } = node.props as {
       name?: unknown;
@@ -264,7 +278,7 @@ export function emittable(node: RenderDomNode, guarded = false): Emittable {
     const attrs: [string, unknown][] = [['$sid', node.sid], ...layoutEntries];
     // A linked Creator component carries no fallback: the canvas renders it.
     if (fallbackSize !== undefined) attrs.push(['$fallback', fallbackSize]);
-    attrs.push(...sidecarAttrs(node, guarded));
+    attrs.push(...sidecarAttrs(node, guarded), ...stateAttrs);
     const restKeys = Object.keys(rest);
     if (restKeys.length > 0) {
       throw new Error(
@@ -286,6 +300,7 @@ export function emittable(node: RenderDomNode, guarded = false): Emittable {
     ['$sid', node.sid],
     ...entries,
     ...sidecarAttrs(node, guarded),
+    ...stateAttrs,
   ];
   return {
     elementName: node.type,
@@ -306,6 +321,7 @@ export function printAttrsText(
   const { attrs } = emittable(
     dataProps === node.dataProps ? node : { ...node, dataProps },
     guarded,
+    options?.states,
   );
   const styledAt = styledExprAt(node, options);
   const parts = attrs.map(([n, v]) =>

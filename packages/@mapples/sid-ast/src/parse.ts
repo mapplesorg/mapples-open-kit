@@ -14,6 +14,7 @@ import {
   type PropState,
 } from './propConditions.js';
 import { signatureOf } from './signature.js';
+import { readStates, STATES_ATTR } from './states.js';
 import {
   collectStyleDicts,
   countStyleRefs,
@@ -80,7 +81,10 @@ export interface Analysis {
   nodes: Map<string, RenderDomNode>;
   info: Map<string, ElementInfo>;
   warnings: ExtractWarning[];
-  /** Render states the file's prop tests declare (`isActive && styles.x`), by state key. */
+  /**
+   * Render states the file declares, by state key: the ones its prop tests
+   * stand for (`isActive && styles.x`) and the ones elements name in `$states`.
+   */
   states: Map<string, PropState>;
   imports: Map<string, ImportedName>; // local identifier -> origin
   /**
@@ -478,6 +482,50 @@ export function analyze(
               ? `$refs on <${tagName}> must be an object literal of ref(...) strings; the canvas keeps the references it last had`
               : `${name} on <${tagName}> must be a plain object literal; the canvas keeps the value it last had`,
         });
+        continue;
+      }
+      if (name === STATES_ATTR) {
+        // The data states this element's `key::state` variants render under:
+        // the document's, not a prop of the node.
+        const declared =
+          prop.initializer &&
+          ts.isJsxExpression(prop.initializer) &&
+          prop.initializer.expression
+            ? readStates(evalLiteral(prop.initializer.expression))
+            : null;
+        if (declared === null) {
+          attrs.push({ name, span: attrSpan, literal: false, raw });
+          warnings.push({
+            kind: 'NON_LITERAL_PROP',
+            sid,
+            prop: name,
+            detail: `${name} on <${tagName}> must be an object literal like {{ high: { condition: 'vars.count::gt::3', name: 'High' } }}; the canvas keeps the states it last had`,
+          });
+          continue;
+        }
+        attrs.push({
+          name,
+          span: attrSpan,
+          literal: true,
+          value: declared,
+          raw,
+        });
+        for (const [key, state] of Object.entries(declared)) {
+          const known = states.get(key);
+          if (known === undefined) {
+            states.set(key, { key, ...state });
+          } else if (
+            known.condition !== state.condition ||
+            known.name !== state.name
+          ) {
+            warnings.push({
+              kind: 'NON_LITERAL_PROP',
+              sid,
+              prop: name,
+              detail: `${name} on <${tagName}> declares the state \`${key}\` as \`${state.condition}\` (“${state.name}”), but the file already has it as \`${known.condition}\` (“${known.name}”) — a state has one condition, so the first one is kept`,
+            });
+          }
+        }
         continue;
       }
       if (name.startsWith('$')) {
