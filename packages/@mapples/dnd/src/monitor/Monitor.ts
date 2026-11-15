@@ -297,6 +297,8 @@ export class Monitor<
       ?.id;
 
     if (!shallowTarget || !componentId) return;
+    // Selectable-only elements are pointed at, never grabbed.
+    if (shallowTarget.selectOnly) return;
     // Root-level elements (page roots) are not movable.
     if (this.dropElementsTree.has(shallowTarget.id)) return;
 
@@ -348,7 +350,7 @@ export class Monitor<
     // having hovered in. The Drag event still fires (with a null target) so
     // overlays drop their highlight instead of stranding it on the element
     // the pointer last passed over.
-    const target = shallowTarget?.canDrop ? shallowTarget : null;
+    const target = this.acceptsDrop(shallowTarget) ? shallowTarget : null;
 
     this.setDropTarget(target);
     this.setDropTargetIndex(
@@ -407,7 +409,7 @@ export class Monitor<
   hitTest(dropCoords: DragCoords) {
     const dropTargets = this.getDropTargets(dropCoords, this.dropElementsTree);
     const shallowTarget = this.getShallowTarget(dropTargets, dropCoords);
-    const dropTarget = shallowTarget?.canDrop ? shallowTarget : null;
+    const dropTarget = this.acceptsDrop(shallowTarget) ? shallowTarget : null;
 
     return {
       dropTarget,
@@ -620,6 +622,7 @@ export class Monitor<
           flexDirection: config?.flexDirection || FlexDirection.Column,
         },
         canDrop: config?.canDrop,
+        selectOnly: config?.selectOnly,
         data,
         frameKey: config?.frameKey,
       };
@@ -646,6 +649,7 @@ export class Monitor<
           flexDirection: config?.flexDirection || FlexDirection.Column,
         },
         canDrop: config?.canDrop,
+        selectOnly: config?.selectOnly,
         data,
       };
 
@@ -714,6 +718,9 @@ export class Monitor<
       target.layout.flexDirection = nextFlexDirection;
       target.data = data || target.data;
       target.canDrop = config?.canDrop || target.canDrop;
+      // A plain re-measure passes no config and keeps the flag; a config
+      // update sets it either way (read-only views turn on and off).
+      if (config) target.selectOnly = config.selectOnly;
 
       // Layout listeners (selection overlays, highlight rects) only react to
       // geometry/order. Re-measures land here at input rate and are usually
@@ -732,6 +739,7 @@ export class Monitor<
           index: target.layout.index,
           layout: target.layout,
           canDrop: target.canDrop,
+          selectOnly: target.selectOnly,
           data: target.data,
           frameKey,
         },
@@ -799,6 +807,7 @@ export class Monitor<
           layout: target.layout,
           index,
           canDrop: target.canDrop,
+          selectOnly: target.selectOnly,
           children: target.children,
           data: target.data,
           frameKey: targetFrameKey,
@@ -863,6 +872,15 @@ export class Monitor<
   }
 
   /**
+   * Whether a hit-tested target takes drops: it accepts them and is not
+   * selectable-only.
+   * @private
+   */
+  private acceptsDrop(target: DropTarget<DropData> | null): boolean {
+    return !!target?.canDrop && !target.selectOnly;
+  }
+
+  /**
    * Gets all drop targets that contain the given coordinates.
    * @param dropCoords - The coordinates to check
    * @param tree - The tree to search in
@@ -909,6 +927,7 @@ export class Monitor<
           layout: target.layout,
           index,
           canDrop: target.canDrop,
+          selectOnly: target.selectOnly,
           children: target.children,
           data: target.data,
           frameKey: targetFrameKey,
