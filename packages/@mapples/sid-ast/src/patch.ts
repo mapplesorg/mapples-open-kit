@@ -77,6 +77,14 @@ function codeOwnedDataProps(
   return out;
 }
 
+/** Canvas `text` as the element's children (the prop goes; children carry it). */
+function textAsChildren(
+  props: Record<string, unknown>,
+): Record<string, unknown> {
+  const { text, ...rest } = props;
+  return text === undefined ? rest : { ...rest, children: text };
+}
+
 function applySetProps(
   source: string,
   analysis: Analysis,
@@ -133,10 +141,17 @@ function applySetProps(
     );
   }
 
+  // A @mapples/style Typography keeps its copy as children; the canvas holds
+  // it as `text` (see styleElements.ts): write it back where the file has it.
+  const textKey = info.textChildren ? 'text' : 'children';
+  const written: RenderDomNode = info.textChildren
+    ? { ...desired, props: textAsChildren(desired.props) }
+    : desired;
+
   // 1. Attributes — surgical, one at a time. User expression props (non-literal
   //    attrs) are never touched; only canvas-owned literal attrs are rewritten.
   const { attrs: desiredList } = emittable(
-    { ...desired, children: [] },
+    { ...written, children: [] },
     guarded,
   );
   const desiredMap = new Map(
@@ -248,14 +263,14 @@ function applySetProps(
 
   // 2. Text children (only when the node has no $sid children, and its text
   //    is not a prop the code passes on).
-  const { text } = emittable(desired);
+  const { text } = emittable(written);
   const currentText =
-    typeof current.props.children === 'string' ? current.props.children : null;
-  if (text !== currentText && info.propBindings.includes('children')) {
+    typeof current.props[textKey] === 'string' ? current.props[textKey] : null;
+  if (text !== currentText && info.propBindings.includes(textKey)) {
     warnings.push({
       kind: 'NON_LITERAL_PROP',
       sid: edit.sid,
-      prop: 'children',
+      prop: textKey,
       detail: `the text of <${info.tagName}> is a prop in code, so the Creator's text change was not written to the file`,
     });
   } else if (text !== currentText && info.childSids.length === 0) {
@@ -272,7 +287,7 @@ function applySetProps(
     } else if (text !== null) {
       // Self-closing element gaining text: rewrite `<X … />` -> `<X …>{'text'}</X>`.
       const shell = printElement(
-        { ...desired, children: [] },
+        { ...written, children: [] },
         '',
         print,
         guarded,
@@ -283,7 +298,7 @@ function applySetProps(
     warnings.push({
       kind: 'NON_LITERAL_PROP',
       sid: edit.sid,
-      prop: 'children',
+      prop: textKey,
       detail: `<${info.tagName}> has child elements, so the Creator's text change was not written to the file`,
     });
   }

@@ -75,6 +75,12 @@ export interface ExtractResult {
    * (`{ high: { name: 'High', condition: 'vars.count::gt::3' } }`).
    */
   states: Record<string, RenderState>;
+  /**
+   * Elements the file writes as a @mapples/style element (`<StyledView>`,
+   * `<Typography>`), read as their @mapples/ui type: they need no
+   * @mapples/ui import (see `importNeedsFor`'s `writtenAs`).
+   */
+  styleElements: string[];
 }
 
 /** A document render state: what a `style::<key>` variant renders under. */

@@ -24,6 +24,7 @@ import ts from 'typescript';
 import { isInstanceWrapper } from './instanceStyled.js';
 import { DEFAULT_PRIMITIVE_MODULES, evalLiteral } from './parse.js';
 import { collectStyleDicts as collectSharedStyleDicts } from './styleDicts.js';
+import { styleElementOf } from './styleElements.js';
 import type { Span } from './types.js';
 
 export interface ScanInfo {
@@ -796,6 +797,17 @@ export function codemodAdopt(
             originalName: name,
             kind: 'primitive',
             mappedName: mapped,
+          });
+        } else if (origin && styleElementOf(origin)) {
+          // A @mapples/style element (`<StyledView>`, `<Typography>`): the
+          // canvas reads it as its @mapples/ui type, so it is tagged as it is
+          // written — no swap, no prop translation, no placeholder.
+          edits.push(sidEdit(source, sf, open, ` $sid="${sid}"`));
+          adopted.push({
+            sid,
+            originalName: name,
+            kind: 'primitive',
+            mappedName: styleElementOf(origin)!.type,
           });
         } else if (origin && primitiveModules.has(origin.module)) {
           // Already a Mapples primitive in code: tag it, and translate the

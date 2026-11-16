@@ -23,6 +23,7 @@ import {
   type StyleDict,
   type StyleRef,
 } from './styleDicts.js';
+import { styleElementOf } from './styleElements.js';
 import type {
   ExtractOptions,
   ExtractWarning,
@@ -66,6 +67,13 @@ export interface ElementInfo {
    * `{title}` as the text → `children`) — never written into `$data`.
    */
   propBindings: string[];
+  /**
+   * The canvas holds the element's text children as its `text` prop (a
+   * @mapples/style `Typography`); see `styleElements.ts`.
+   */
+  textChildren: boolean;
+  /** Written as a @mapples/style element and read as its @mapples/ui type. */
+  styleElement: boolean;
 }
 
 export interface ElementGuard {
@@ -384,13 +392,16 @@ export function analyze(
     const { open, selfClosing, element } = parts;
     const tagName = open.tagName.getText(sf);
 
-    // Classify: primitive (imported from a primitive module) vs Custom. A
+    // Classify: primitive (imported from a primitive module, or a
+    // @mapples/style element read as its @mapples/ui type) vs Custom. A
     // member tag (`<Animated.View>`) is always a Custom of its import.
     const origin = tagOrigin(tagName, imports);
+    const styleElement = tagName.includes('.') ? null : styleElementOf(origin);
     const isPrimitive =
       origin !== undefined &&
       !tagName.includes('.') &&
-      primitiveModules.has(origin.module);
+      (primitiveModules.has(origin.module) || styleElement !== null);
+    const textKey = styleElement?.textChildren ? 'text' : 'children';
 
     let type: string;
     const props: Record<string, unknown> = {};
@@ -681,7 +692,7 @@ export function analyze(
           ? passedOn(only.expression)
           : null;
       if (textBinding !== null) {
-        passed.children = { key: textBinding, active: true };
+        passed[textKey] = { key: textBinding, active: true };
       }
       for (const child of element.children) {
         if (ts.isJsxText(child))
@@ -700,7 +711,7 @@ export function analyze(
             warnings.push({
               kind: 'NON_LITERAL_PROP',
               sid,
-              prop: 'children',
+              prop: textKey,
               detail: `the text of <${tagName}> is computed in code; the canvas shows the text it last had in the Creator`,
             });
           }
@@ -710,8 +721,8 @@ export function analyze(
     text = text.trimEnd();
 
     if (isPrimitive) {
-      type = tagName;
-      if (text) props.children = text;
+      type = styleElement?.type ?? tagName;
+      if (text) props[textKey] = text;
     } else {
       type = 'Custom';
       if (!origin) {
@@ -812,6 +823,8 @@ export function analyze(
       jsxChild: ts.isJsxElement(element.parent),
       guard,
       propBindings,
+      textChildren: textKey === 'text',
+      styleElement: styleElement !== null,
     };
 
     nodes.set(sid, dom);

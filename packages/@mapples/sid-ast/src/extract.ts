@@ -34,6 +34,9 @@ export function extract(
     warnings: [...analysis.warnings, ...extraRoots],
     spans,
     states,
+    styleElements: [...analysis.info.values()]
+      .filter((info) => info.styleElement)
+      .map((info) => info.sid),
   };
 }
 
