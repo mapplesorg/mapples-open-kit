@@ -1,4 +1,12 @@
-import { FC, PropsWithChildren, JSX, useEffect, useMemo } from 'react';
+import {
+  createContext,
+  FC,
+  PropsWithChildren,
+  JSX,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 
 import { Components } from '@mapples/components';
 import { AnyObject, RenderProvider } from '@mapples/render';
@@ -29,6 +37,14 @@ import { MapplesProject, syncedProject } from './runtime/project';
 import { resolveAssets, toStyleContext } from './utils';
 
 const rootStyle = { flex: 1 } as const;
+
+/**
+ * Set by the outermost MapplesApp. A MapplesApp below one (the CLI's
+ * generated root layout inside an app whose own root layout mounts
+ * MapplesApp) passes its children through, so the providers and any style
+ * context override made between the two keep reaching the screens.
+ */
+const MapplesAppMounted = createContext(false);
 
 /**
  * Props for the MapplesApp component.
@@ -70,6 +86,11 @@ export interface MapplesAppProps {
  * that are required for all Mapples applications. It handles font loading and provides
  * a unified entry point for the Mapples ecosystem.
  *
+ * Mount it once. A MapplesApp inside another one (an app's root layout and
+ * the `mapples` CLI's generated navigator layout below it) passes its
+ * children through, so whatever the outer one provides — and any style
+ * context override made between the two — reaches every screen.
+ *
  * @component
  * @param props - The component props
  * @param props.children - The application content to render inside the Mapples providers
@@ -104,7 +125,31 @@ export interface MapplesAppProps {
  * }
  * ```
  */
-const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
+const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = (props) => {
+  const mounted = useContext(MapplesAppMounted);
+  return mounted ? (
+    <MapplesAppPassThrough {...props} />
+  ) : (
+    <MapplesAppRoot {...props} />
+  );
+};
+
+/** A MapplesApp inside another: the outer one's providers serve its children. */
+const MapplesAppPassThrough: FC<PropsWithChildren<MapplesAppProps>> = ({
+  children,
+  ...props
+}) => {
+  const ignored = Object.keys(props).join(', ');
+  useEffect(() => {
+    if (ignored === '') return;
+    console.warn(
+      `[@mapples/app] MapplesApp is already mounted above this one, which passes its children through and ignores ${ignored} — set them on the outer MapplesApp`,
+    );
+  }, [ignored]);
+  return <>{children}</>;
+};
+
+const MapplesAppRoot: FC<PropsWithChildren<MapplesAppProps>> = ({
   children,
   style,
   assets,
@@ -156,26 +201,28 @@ const MapplesApp: FC<PropsWithChildren<MapplesAppProps>> = ({
     // Gesture-driven library components (Slider, BottomSheet) need the
     // gesture-handler root; the canvas provides its own through DnDRootView.
     <GestureHandlerRootView style={rootStyle}>
-      <ThemeVariantProvider>
-        <StyleProvider style={styleContext}>
-          <RenderProvider
-            components={{ ...Components, ...UIComponents }}
-            assets={resolved.assets}
-          >
-            <NavigationProvider navigation={navigation}>
-              <MapplesRuntime
-                project={runtimeProject}
-                variablesStorage={variablesStorage}
-                transport={transport}
-                themeVariable={themeVariable}
-                locale={locale}
-              >
-                {children}
-              </MapplesRuntime>
-            </NavigationProvider>
-          </RenderProvider>
-        </StyleProvider>
-      </ThemeVariantProvider>
+      <MapplesAppMounted.Provider value>
+        <ThemeVariantProvider>
+          <StyleProvider style={styleContext}>
+            <RenderProvider
+              components={{ ...Components, ...UIComponents }}
+              assets={resolved.assets}
+            >
+              <NavigationProvider navigation={navigation}>
+                <MapplesRuntime
+                  project={runtimeProject}
+                  variablesStorage={variablesStorage}
+                  transport={transport}
+                  themeVariable={themeVariable}
+                  locale={locale}
+                >
+                  {children}
+                </MapplesRuntime>
+              </NavigationProvider>
+            </RenderProvider>
+          </StyleProvider>
+        </ThemeVariantProvider>
+      </MapplesAppMounted.Provider>
     </GestureHandlerRootView>
   );
 };
