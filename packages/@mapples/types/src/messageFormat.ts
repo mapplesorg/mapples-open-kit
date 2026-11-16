@@ -294,6 +294,19 @@ class Parser {
   }
 }
 
+/**
+ * The plural categories a language distinguishes (`one`, `few`, `many`,
+ * `other`, …), cardinal or ordinal, in the engine's order: the options a
+ * `plural` / `selectordinal` of that language is expected to have.
+ */
+export const pluralCategories = (
+  locale: string,
+  ordinal = false,
+): Intl.LDMLPluralRule[] =>
+  new PluralRules(locale, {
+    type: ordinal ? 'ordinal' : 'cardinal',
+  }).resolvedOptions().pluralCategories;
+
 /** Parse a message template; throws {@link MessageSyntaxError}. */
 export const parseMessage = (source: string): MessagePart[] =>
   new Parser(source).parse();
