@@ -243,9 +243,17 @@ export function printImports(resolved: ResolvedImports): string {
   return lines.join('\n');
 }
 
-/** ImportNeeds for @mapples/sid-ast upsertImports, from a merged tree. */
-export function importNeedsFor(root: RenderDomNode): ImportNeed[] {
-  const { primitives, customs } = collectImportsTolerant(root);
+/**
+ * ImportNeeds for @mapples/sid-ast upsertImports, from a merged tree.
+ * `writtenAs`: sids the file already writes as an element of its own import
+ * (a @mapples/style `<StyledView>`, `ExtractResult.styleElements`) — their
+ * type needs no @mapples/ui import.
+ */
+export function importNeedsFor(
+  root: RenderDomNode,
+  writtenAs: ReadonlySet<string> = new Set(),
+): ImportNeed[] {
+  const { primitives, customs } = collectImportsTolerant(root, writtenAs);
   const needs: ImportNeed[] = [];
   for (const [module, named] of primitives) needs.push({ module, named });
   for (const [local, origin] of customs) {
@@ -260,7 +268,10 @@ export function importNeedsFor(root: RenderDomNode): ImportNeed[] {
 }
 
 /** Like collectImports but tolerant of local (#Name) customs — used for healing. */
-function collectImportsTolerant(root: RenderDomNode): ResolvedImports {
+function collectImportsTolerant(
+  root: RenderDomNode,
+  writtenAs: ReadonlySet<string>,
+): ResolvedImports {
   const uiNames = new Set<string>();
   const customs = new Map<string, { module: string; exportName: string }>();
   const walk = (node: RenderDomNode): void => {
@@ -274,7 +285,7 @@ function collectImportsTolerant(root: RenderDomNode): ResolvedImports {
         );
         if (!customs.has(local)) customs.set(local, origin);
       }
-    } else {
+    } else if (!writtenAs.has(node.sid)) {
       uiNames.add(node.type);
     }
     for (const child of node.children) walk(child);
