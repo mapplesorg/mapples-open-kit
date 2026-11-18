@@ -41,6 +41,7 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'ButtonGroup',
   'Calendar',
   'CalendarHeatmap',
+  'CameraView',
   'Card',
   'ChatComposer',
   'Checkbox',
