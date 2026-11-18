@@ -6,6 +6,7 @@ import {
   type StyledFlatListProps,
   StyledProp,
   StyledView,
+  useScreenScrollHandler,
 } from '@mapples/style';
 import type { ListRenderItem, View as RNView, ViewStyle } from 'react-native';
 
@@ -34,6 +35,9 @@ export type FlatListProps<T extends object> = Omit<
   };
 };
 
+/** Milliseconds between the scroll events a screen's chrome reacts to. */
+const SCREEN_SCROLL_THROTTLE = 16;
+
 /**
  * A data-driven list component with built-in styling support.
  *
@@ -41,6 +45,11 @@ export type FlatListProps<T extends object> = Omit<
  * each item in a `StateProvider` so that child components can access item state
  * directly. The outer container and the inner list accept independent `styled`
  * entries, enabling separate layout and scroll-area styling.
+ *
+ * With `animateChanges` the rows animate when the data changes (a new row
+ * fades in, a removed one fades out, the rest slide); the items then need an
+ * `id` or `key`. A vertical list also drives the elements of its screen that
+ * react to scrolling (a `TopAppBar` with a `scrollBehavior`).
  *
  * @example
  * ```tsx
@@ -60,9 +69,20 @@ export type FlatListProps<T extends object> = Omit<
  */
 const FlatListComponent = forwardRef(
   <T extends object>(
-    { styled, children, ...props }: FlatListProps<T>,
+    {
+      styled,
+      children,
+      onScroll,
+      scrollEventThrottle,
+      ...props
+    }: FlatListProps<T>,
     ref: Ref<RNView>,
   ) => {
+    // A vertical list tells its screen where it stands while an element
+    // there reacts to scrolling; otherwise the handler is the author's own.
+    const handleScroll = useScreenScrollHandler(onScroll, !props.horizontal);
+    const reporting = handleScroll !== (onScroll ?? undefined);
+
     const containerStyled = { style: styled?.style } as any;
     const listStyled = {
       style: styled?.styleList,
@@ -84,6 +104,11 @@ const FlatListComponent = forwardRef(
           {...(props as any)}
           renderItem={renderItem}
           styled={listStyled}
+          onScroll={handleScroll}
+          scrollEventThrottle={
+            scrollEventThrottle ??
+            (reporting ? SCREEN_SCROLL_THROTTLE : undefined)
+          }
         />
       </StyledView>
     );

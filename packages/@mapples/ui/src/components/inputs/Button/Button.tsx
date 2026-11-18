@@ -17,6 +17,7 @@ import {
   Styler,
   SvgStyle,
   Typography,
+  useMotionEnabled,
 } from '@mapples/style';
 import {
   ActivityIndicator,
@@ -202,6 +203,7 @@ const Button: ForwardRefExoticComponent<
   ) => {
     const { styleTypography, styleIcon, ...styledPressableProps } = styled;
     const tones = useTones();
+    const motionEnabled = useMotionEnabled();
     const shape = useShape();
     const elevation = useElevation();
     const [pressed, setPressed] = useState(false);
@@ -340,7 +342,13 @@ const Button: ForwardRefExoticComponent<
           />
         )}
         {loading ? (
-          <ActivityIndicator size="small" color={labelColor} />
+          <ActivityIndicator
+            size="small"
+            color={labelColor}
+            // Still where a `MotionProvider` turned motion off (a design canvas).
+            animating={motionEnabled}
+            hidesWhenStopped={false}
+          />
         ) : (
           renderGlyph(leadingIconName)
         )}
