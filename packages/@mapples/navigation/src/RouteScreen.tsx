@@ -16,6 +16,7 @@ import {
   useDataState,
   useVariablesState,
 } from '@mapples/state';
+import { ScreenMotionProvider } from '@mapples/style';
 import { NavigationDocument, RouteNode } from '@mapples/types';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
@@ -149,6 +150,11 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
     }, [releaseActiveParams, routeParams, setActiveParams]),
   );
 
+  // How often the screen was shown: its own count, because an entry is also
+  // a param change, and an animation that replays on focus should not.
+  const [shown, setShown] = useState(0);
+  useFocusEffect(useCallback(() => setShown((count) => count + 1), []));
+
   const paramsPublished = !activeRoute || activeRoute.params === routeParams;
   // One emission per entry: a state change while focused (which changes
   // `allowed`) re-runs the effect but finds the entry already handled.
@@ -203,7 +209,9 @@ const RouteScreen: FC<PropsWithChildren<RouteScreenProps>> = ({
     <RouteParamsProvider value={routeParams}>
       <View style={[styles.page, sides]}>
         <SafeAreaInsetsContext value={pageInsets}>
-          {children}
+          <ScreenMotionProvider focusCount={Math.max(0, shown - 1)}>
+            {children}
+          </ScreenMotionProvider>
         </SafeAreaInsetsContext>
       </View>
     </RouteParamsProvider>
