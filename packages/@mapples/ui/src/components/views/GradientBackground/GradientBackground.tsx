@@ -1,7 +1,7 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
 import { StyledView, WithStyledProps } from '@mapples/style';
-import type { LinearGradient } from '@mapples/types';
+import type { Gradient } from '@mapples/types';
 import { ViewProps as RNViewProps } from 'react-native';
 
 import GradientLayer from './GradientLayer';
@@ -14,7 +14,7 @@ import GradientLayer from './GradientLayer';
 export type GradientBackgroundProps = PropsWithChildren<
   WithStyledProps<RNViewProps> & {
     /** The linear gradient painted behind the container's children. */
-    gradient?: LinearGradient;
+    gradient?: Gradient;
   }
 >;
 

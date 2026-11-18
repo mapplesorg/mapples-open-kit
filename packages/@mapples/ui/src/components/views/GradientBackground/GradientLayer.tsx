@@ -1,7 +1,14 @@
-import { ComponentType } from 'react';
+import { ComponentType, useState } from 'react';
 
-import type { LinearGradient as LinearGradientData } from '@mapples/types';
-import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import type {
+  ConicGradient,
+  Gradient,
+  RadialGradient as RadialGradientData,
+} from '@mapples/types';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import Svg, { Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
+
+import { conicWedges, parseStopColor } from './conic';
 
 /**
  * Minimal prop shape of `expo-linear-gradient`'s `LinearGradient` — the subset
@@ -39,7 +46,7 @@ try {
  */
 export interface GradientLayerProps {
   /** The gradient payload from a node's `props.gradient`. */
-  gradient?: LinearGradientData;
+  gradient?: Gradient;
   /**
    * Corner radius to clip the gradient layer to, matching the host container's
    * `borderRadius`. Optional — when omitted, the host must set
@@ -48,38 +55,131 @@ export interface GradientLayerProps {
   borderRadius?: number;
 }
 
+interface Box {
+  width: number;
+  height: number;
+}
+
 /**
- * Renders a linear gradient as an absolutely-positioned fill layer that a
+ * A radial or conic gradient drawn with SVG. Both need the box's size in
+ * points (a conic sweep keeps true angles, a radial one stays round), so
+ * the layer measures itself and draws once it knows.
+ */
+const SvgGradientLayer = ({
+  gradient,
+  style,
+}: {
+  gradient: RadialGradientData | ConicGradient;
+  style: StyleProp<ViewStyle>;
+}) => {
+  const [box, setBox] = useState<Box>();
+
+  return (
+    <View
+      pointerEvents="none"
+      style={[style, styles.clip]}
+      onLayout={(event) => {
+        const { width, height } = event.nativeEvent.layout;
+        setBox({ width, height });
+      }}
+    >
+      {box && box.width > 0 && box.height > 0 ? (
+        <Svg width={box.width} height={box.height}>
+          {gradient.type === 'radial' ? (
+            <>
+              <Defs>
+                <RadialGradient
+                  id="gradient"
+                  gradientUnits="userSpaceOnUse"
+                  cx={gradient.center.x * box.width}
+                  cy={gradient.center.y * box.height}
+                  r={gradient.radius * Math.max(box.width, box.height)}
+                >
+                  {gradient.stops.map((stop, index) => {
+                    const [r, g, b, a] = parseStopColor(stop.color);
+                    return (
+                      <Stop
+                        key={index}
+                        offset={stop.position}
+                        stopColor={`rgb(${r}, ${g}, ${b})`}
+                        stopOpacity={a}
+                      />
+                    );
+                  })}
+                </RadialGradient>
+              </Defs>
+              <Rect
+                width={box.width}
+                height={box.height}
+                fill="url(#gradient)"
+              />
+            </>
+          ) : (
+            conicWedges(
+              gradient.stops,
+              box.width,
+              box.height,
+              gradient.center,
+              gradient.angle ?? 0,
+              gradient.repeat ?? 1,
+            ).map((wedge, index) => (
+              <Path
+                key={index}
+                d={wedge.path}
+                fill={wedge.color}
+                fillOpacity={wedge.opacity}
+              />
+            ))
+          )}
+        </Svg>
+      ) : null}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  clip: { overflow: 'hidden' },
+});
+
+/**
+ * Renders a gradient as an absolutely-positioned fill layer that a
  * container paints behind its children. This is an **internal layer**, not a
  * standalone canvas component — it has no ref and no intrinsic size. Containers
  * (`View`, `GradientBackground`) mount it as their first child.
  *
  * React Native has no native gradient style, so a gradient travels as data on
- * `props.gradient` (see `@mapples/types`' `LinearGradient`) and is painted here.
+ * `props.gradient` (see `@mapples/types`' `Gradient`) and is painted here: a
+ * linear one by `expo-linear-gradient`, a radial or conic one with
+ * `react-native-svg`.
  * The layer is `pointerEvents="none"` so it never intercepts touches.
  *
  * Degrades to `null` (the container keeps its solid `backgroundColor`) when:
  * - no gradient is supplied,
- * - `expo-linear-gradient` isn't installed,
+ * - the gradient is linear and `expo-linear-gradient` isn't installed,
  * - the gradient has fewer than two stops (RN requires ≥2 colors).
  *
  * @public
  */
 const GradientLayer = ({ gradient, borderRadius }: GradientLayerProps) => {
-  if (!gradient || !LinearGradient || gradient.type !== 'linear') {
+  if (!gradient || gradient.stops.length < 2) {
     return null;
   }
-
-  const colors = gradient.stops.map((stop) => stop.color);
-  if (colors.length < 2) {
-    return null;
-  }
-  const locations = gradient.stops.map((stop) => stop.position);
 
   const style: StyleProp<ViewStyle> = [
     StyleSheet.absoluteFill,
     borderRadius ? { borderRadius } : null,
   ];
+
+  if (gradient.type === 'radial' || gradient.type === 'conic') {
+    return <SvgGradientLayer gradient={gradient} style={style} />;
+  }
+
+  if (!LinearGradient) {
+    return null;
+  }
+
+  const colors = gradient.stops.map((stop) => stop.color);
+  const locations = gradient.stops.map((stop) => stop.position);
 
   return (
     <LinearGradient

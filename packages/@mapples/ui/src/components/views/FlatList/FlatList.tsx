@@ -2,6 +2,9 @@ import { forwardRef, Fragment, ReactElement, Ref } from 'react';
 
 import StateProvider from '@mapples/state';
 import {
+  flattenStyleProp,
+  MotionStagger,
+  staggerRowDelay,
   StyledFlatList,
   type StyledFlatListProps,
   StyledProp,
@@ -50,6 +53,8 @@ const SCREEN_SCROLL_THROTTLE = 16;
  * fades in, a removed one fades out, the rest slide); the items then need an
  * `id` or `key`. A vertical list also drives the elements of its screen that
  * react to scrolling (a `TopAppBar` with a `scrollBehavior`).
+ * `animationStagger` in `styled.style` starts each row's animations one step
+ * later than the row before it.
  *
  * @example
  * ```tsx
@@ -90,10 +95,19 @@ const FlatListComponent = forwardRef(
       columnWrapperStyle: (styled as any)?.columnWrapperStyle,
     } as any;
 
-    const renderItem: ListRenderItem<any> = ({ item }) => {
+    // `animationStagger` on the list: each row's animations start one step
+    // later than the row before it (the rows are not the container's
+    // children, so `styled()` cannot spread them itself).
+    const staggerStep = flattenStyleProp<{ animationStagger?: unknown }>(
+      styled?.style as never,
+    )?.animationStagger;
+
+    const renderItem: ListRenderItem<any> = ({ item, index }) => {
       return (
         <Fragment>
-          <StateProvider state={item}>{children}</StateProvider>
+          <MotionStagger delay={staggerRowDelay(index, staggerStep)}>
+            <StateProvider state={item}>{children}</StateProvider>
+          </MotionStagger>
         </Fragment>
       );
     };
