@@ -20,3 +20,11 @@ export {
   default as ThemeVariantProvider,
   type ThemeVariantProviderProps,
 } from './ThemeVariantProvider';
+export {
+  default as ScreenMotionProvider,
+  type ScreenMotionProviderProps,
+} from './ScreenMotionProvider';
+export {
+  default as MotionProvider,
+  type MotionProviderProps,
+} from './MotionProvider';

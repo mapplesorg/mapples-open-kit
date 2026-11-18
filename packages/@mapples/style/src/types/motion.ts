@@ -1,4 +1,4 @@
-import { ANIMATION_PRESETS } from '../constants/motion';
+import { ANIMATION_PRESETS, EXIT_ANIMATION_PRESETS } from '../constants/motion';
 
 /**
  * One keyframe set: a style per offset (`from`, `to`, or a percentage such
@@ -8,6 +8,9 @@ export type MotionKeyframes = Record<string, Record<string, unknown>>;
 
 /** A keyframe set that ships with `@mapples/style`. */
 export type AnimationPresetName = keyof typeof ANIMATION_PRESETS;
+
+/** A leave animation that ships with `@mapples/style`. */
+export type ExitAnimationPresetName = keyof typeof EXIT_ANIMATION_PRESETS;
 
 /**
  * The motion a style can carry: CSS-style transitions (animate a style
@@ -58,6 +61,36 @@ export interface MotionStyleProps {
   animationFillMode?: string | string[];
   /** `running` or `paused`. */
   animationPlayState?: string | string[];
+  /**
+   * When an enter or loop animation plays again besides the mount: `focus`
+   * replays it each time the element's screen gains focus (a tab that stays
+   * mounted). Not a CSS key; `styled()` reads it and keeps it off the view.
+   */
+  animationReplay?: 'focus';
+  /**
+   * The name motion commands address the element by (`sendMotionCommand`,
+   * the `mapples:animation` action): play, pause or restart its animation,
+   * or play a preset on it once. Not a CSS key; `styled()` listens under it.
+   */
+  motionName?: string;
+  /**
+   * How the element leaves when it stops being rendered (hidden by a state,
+   * removed from a list): a preset's name (see `EXIT_ANIMATION_PRESETS`) or
+   * keyframes written in place. Not a CSS key; `styled()` turns it into
+   * Reanimated's `exiting` animation, which keeps the view until it ends.
+   */
+  exitAnimationName?: string | Record<string, unknown>;
+  /** `'200ms'`, `'0.2s'`, or milliseconds as a number. Defaults to 200 ms. */
+  exitAnimationDuration?: string | number;
+  /** `'100ms'`, `'0.1s'`, or milliseconds as a number. */
+  exitAnimationDelay?: string | number;
+  /**
+   * Animates the element to its new position and size when the layout
+   * around it changes (a sibling appears, leaves or resizes): `'300ms'`,
+   * `'0.3s'`, or milliseconds as a number. Not a CSS key; `styled()` turns
+   * it into Reanimated's `layout` transition.
+   */
+  layoutTransitionDuration?: string | number;
 }
 
 /** A style key that describes motion (`transitionDuration`, `animationName`, …). */

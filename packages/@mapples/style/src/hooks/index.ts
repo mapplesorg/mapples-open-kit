@@ -5,3 +5,7 @@ export { default as useSizing } from './useSizing';
 export { default as useStyled } from './useStyled';
 export { default as useResponsive } from './useResponsive';
 export { default as useHinge } from './useHinge';
+export { default as useScreenScroll } from './useScreenScroll';
+export { default as useScreenFocusCount } from './useScreenFocusCount';
+export { default as useScreenScrollHandler } from './useScreenScrollHandler';
+export { default as useMotionEnabled } from './useMotionEnabled';

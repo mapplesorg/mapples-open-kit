@@ -9,3 +9,6 @@ export * from './ThemeVariantContext';
 
 export { default as HingeContext } from './HingeContext';
 export * from './HingeContext';
+
+export { default as ScreenMotionContext } from './ScreenMotionContext';
+export { default as MotionEnabledContext } from './MotionEnabledContext';

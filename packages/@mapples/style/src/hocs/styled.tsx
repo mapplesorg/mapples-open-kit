@@ -2,6 +2,9 @@ import { ComponentType, forwardRef } from 'react';
 
 import Animated, { useReducedMotion } from 'react-native-reanimated';
 
+import useHostMotion from '../hooks/useHostMotion';
+import useMotionControl from '../hooks/useMotionControl';
+import useMotionEnabled from '../hooks/useMotionEnabled';
 import useStyledProps from '../hooks/useStyledProps';
 import { WithStyledProps } from '../types';
 import {
@@ -45,7 +48,17 @@ import {
  * see `MOTION_STYLE_KEYS`) is rendered through Reanimated's animated version
  * of the component, which runs CSS-style transitions and keyframe animations
  * natively. `animationName` may name a preset from `ANIMATION_PRESETS`. With
- * the OS's reduced-motion setting on, the motion keys are dropped.
+ * the OS's reduced-motion setting on, or inside a `MotionProvider` that
+ * turned motion off, the motion keys are dropped.
+ *
+ * Three motion keys are not CSS and become props of the animated component:
+ * `exitAnimationName` (how the element leaves when it stops being rendered;
+ * a preset from `EXIT_ANIMATION_PRESETS`), `layoutTransitionDuration` (the
+ * element moves to its new place when the layout around it changes) and
+ * `animationReplay` (`'focus'` plays the animation again each time the
+ * element's screen is shown; needs a `ScreenMotionProvider`, which
+ * `@mapples/navigation` puts around every route's page). `motionName` names
+ * the element for motion commands (`sendMotionCommand`).
  *
  * The same holds for a style with selector values (`opacity: { default: 1,
  * ':active': 0.4 }`): how the element looks while it is pressed, hovered or
@@ -59,11 +72,21 @@ const styled = <T extends object>(Component: ComponentType<T>) => {
   const ComponentWithRef = forwardRef<unknown, WithStyledProps<T>>(
     ({ styled, ...props }, ref) => {
       const styledProps = useStyledProps(styled);
-      const reducedMotion = useReducedMotion();
+      // No motion with the OS's reduced-motion setting, nor where a
+      // `MotionProvider` turned it off (a design canvas).
+      const motionEnabled = useMotionEnabled();
+      const reducedMotion = useReducedMotion() || !motionEnabled;
 
-      const style = flattenStyleProp<Record<string, unknown>>(
-        (styledProps as { style?: Record<string, unknown> }).style,
+      // The style as motion commands and the focus of the screen leave it.
+      const style = useMotionControl(
+        flattenStyleProp<Record<string, unknown>>(
+          (styledProps as { style?: Record<string, unknown> }).style,
+        ),
       );
+
+      // Called for every element so the hook order holds when the first
+      // motion key is added or removed; it builds nothing without the keys.
+      const hostMotion = useHostMotion(style, reducedMotion);
 
       if (!hasMotion(style) && !hasSelectorValues(style)) {
         return <Component ref={ref} {...(props as T)} {...styledProps} />;
@@ -78,6 +101,7 @@ const styled = <T extends object>(Component: ComponentType<T>) => {
           ref={ref}
           {...(props as T)}
           {...styledProps}
+          {...hostMotion}
           style={resolveMotionStyle(style, reducedMotion)}
         />
       );
