@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren, useEffect, useMemo, useRef } from 'react';
 
 import ActionProvider from '@mapples/action';
+import { MotionActionHandler } from '@mapples/components';
 import {
   createFetchTransport,
   RequestActionHandler,
@@ -150,6 +151,7 @@ const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
                 <ConditionActionHandler />
                 <RouterActionHandler />
                 <LocaleActionHandler />
+                <MotionActionHandler />
                 {themeVariable ? (
                   <ThemeVariableBinding path={themeVariable} />
                 ) : null}
