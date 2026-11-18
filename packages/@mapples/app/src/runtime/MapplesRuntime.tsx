@@ -1,7 +1,7 @@
 import { FC, PropsWithChildren, useEffect, useMemo, useRef } from 'react';
 
 import ActionProvider from '@mapples/action';
-import { MotionActionHandler } from '@mapples/components';
+import { DeviceActionHandler, MotionActionHandler } from '@mapples/components';
 import {
   createFetchTransport,
   RequestActionHandler,
@@ -11,6 +11,7 @@ import {
 import {
   ActiveRouteProvider,
   ConditionActionHandler,
+  DelayActionHandler,
   LocaleActionHandler,
   LocaleDirection,
   LocaleProvider,
@@ -84,8 +85,10 @@ const withEnvironment = (
  * their `mapples:setState` handler, the API runtime (`api.*`, real requests)
  * with its `mapples:request` handler, the active locale and its translated
  * messages (`locale.*`, `t.*`) with their `mapples:setLocale` handler and
- * layout direction, the focused route's params for the root handlers, and
- * navigation actions driving expo-router.
+ * layout direction, the focused route's params for the root handlers,
+ * navigation actions driving expo-router, and the handlers of
+ * `mapples:delay` (wait, then go on) and of the device actions
+ * (`mapples:haptic`, `mapples:copy`, `mapples:share`).
  */
 const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
   project,
@@ -152,6 +155,8 @@ const MapplesRuntime: FC<PropsWithChildren<MapplesRuntimeProps>> = ({
                 <RouterActionHandler />
                 <LocaleActionHandler />
                 <MotionActionHandler />
+                <DelayActionHandler />
+                <DeviceActionHandler />
                 {themeVariable ? (
                   <ThemeVariableBinding path={themeVariable} />
                 ) : null}
