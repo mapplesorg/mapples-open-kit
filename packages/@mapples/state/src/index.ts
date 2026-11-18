@@ -72,5 +72,6 @@ export {
 export { default as VariablesScope } from './writable/VariablesScope';
 export { default as StateActionHandler } from './StateActionHandler';
 export { default as ConditionActionHandler } from './ConditionActionHandler';
+export { default as DelayActionHandler } from './DelayActionHandler';
 
 export default StateProvider;

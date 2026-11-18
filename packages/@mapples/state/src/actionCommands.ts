@@ -192,3 +192,64 @@ export const toConditionCommand = (action: Action): ConditionCommand | null => {
     else: asFollowUp(data.else),
   };
 };
+
+export const DelayActionType = {
+  /**
+   * Wait, then go on. `payload.data: { duration, then }`: `duration` is
+   * milliseconds as a number or a time (`'1800ms'`, `'1.8s'`), `then` a
+   * follow-up like a request's `onSuccess`. A "Copied" label that flips back
+   * is `setState` → `onDone: delay` → `then: setState`. The follow-up goes
+   * out with the triggering action's event.
+   */
+  Delay: 'mapples:delay',
+} as const;
+
+/** A resolved `mapples:delay`: how long to wait and what follows. */
+export interface DelayCommand {
+  /** Milliseconds. */
+  duration: number;
+  then: SetStateFollowUp;
+}
+
+/** The longest a `mapples:delay` waits: one minute. A longer wait is a timer, not a step. */
+export const DELAY_MAX_DURATION = 60000;
+
+const readDuration = (value: unknown): number | undefined => {
+  if (typeof value === 'number') return value;
+  if (typeof value !== 'string') return undefined;
+  const match = /^(\d*\.?\d+)(ms|s)?$/.exec(value.trim());
+  if (!match) return undefined;
+  return Number(match[1]) * (match[2] === 's' ? 1000 : 1);
+};
+
+/**
+ * Resolve a `mapples:delay` action into a {@link DelayCommand}. Returns
+ * `null` for any other action type. A delay without a valid duration or
+ * without a follow-up throws: a step that silently never continues is a
+ * wiring defect nobody can see.
+ */
+export const toDelayCommand = (action: Action): DelayCommand | null => {
+  if (action.type !== DelayActionType.Delay) return null;
+  const data = (action.payload?.data ?? {}) as {
+    duration?: unknown;
+    then?: unknown;
+  };
+  const duration = readDuration(data.duration);
+  if (
+    duration === undefined ||
+    !Number.isFinite(duration) ||
+    duration < 0 ||
+    duration > DELAY_MAX_DURATION
+  ) {
+    throw new Error(
+      `A "${DelayActionType.Delay}" action needs a duration from 0 to ${DELAY_MAX_DURATION} ms ('1800ms', '1.8s' or a number), got ${JSON.stringify(data.duration)}`,
+    );
+  }
+  const then = asFollowUp(data.then);
+  if (!then) {
+    throw new Error(
+      `A "${DelayActionType.Delay}" action has no "then" follow-up to run after the wait`,
+    );
+  }
+  return { duration, then };
+};
