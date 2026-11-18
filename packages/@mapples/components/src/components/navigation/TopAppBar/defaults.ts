@@ -1,5 +1,7 @@
 import { Styler } from '@mapples/style';
 
+import { TOP_APP_BAR_SCROLL_DURATION } from './types';
+
 /** Runtime defaults — author slots merge over these. */
 export const defaults = Styler.create({
   root: {
@@ -62,6 +64,18 @@ export const defaults = Styler.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  // A bar with a `scrollBehavior`: its lift, height and background ease
+  // over, and what no longer fits while it shrinks is clipped.
+  scrolling: {
+    overflow: 'hidden',
+    transitionProperty: 'all',
+    transitionDuration: TOP_APP_BAR_SCROLL_DURATION,
+  },
+  hidden: { opacity: 0, borderBottomWidth: 0 },
+  titlesMoving: {
+    animationName: 'fadeIn',
+    animationDuration: TOP_APP_BAR_SCROLL_DURATION,
   },
   mirrored: {
     transform: [{ scaleX: -1 }],

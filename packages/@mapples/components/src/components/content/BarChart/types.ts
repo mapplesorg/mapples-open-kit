@@ -16,6 +16,15 @@ export const BAR_CHART_VALUE_SPACE = 20;
 /** Thickness of the baseline and the guide lines. */
 export const BAR_CHART_LINE = 1;
 
+/** With `animate`: how much later each bar starts growing than the one before, in ms. */
+export const BAR_CHART_STAGGER = 40;
+
+/** With `animate`: how a bar grows out of the baseline when the chart appears. */
+export const BAR_CHART_GROW_KEYFRAMES = {
+  from: { transform: [{ scaleY: 0 }] },
+  to: { transform: [{ scaleY: 1 }] },
+} as const;
+
 /**
  * The bars a chart renders. No data — absent, or an empty array, as a bound
  * request leaves it until it answers — draws an empty plot. A malformed

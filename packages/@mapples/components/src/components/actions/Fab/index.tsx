@@ -11,6 +11,7 @@ import {
   StyledProp,
   StyledView,
   Typography,
+  useScreenScroll,
 } from '@mapples/style';
 import {
   DISABLED_OPACITY,
@@ -47,6 +48,12 @@ export interface FabProps extends Omit<PressableProps, 'children' | 'style'> {
   tone?: FabTone;
   /** Floats on a shadow (and a hairline on dark themes). Defaults to `true`. */
   elevated?: boolean;
+  /**
+   * Shrinks the button away while the screen's ScrollView or FlatList moves
+   * down and brings it back as soon as the content moves up. Needs the Fab
+   * and the scroll view on the same screen. Defaults to `false`.
+   */
+  hideOnScroll?: boolean;
   /** Disables interaction and dims the button. */
   disabled?: boolean;
   /** Styled slots for every visual part. */
@@ -89,6 +96,7 @@ const Fab: ForwardRefExoticComponent<
       size = 'md',
       tone = 'primary',
       elevated = true,
+      hideOnScroll = false,
       disabled,
       accessibilityLabel,
       onPressIn,
@@ -107,6 +115,10 @@ const Fab: ForwardRefExoticComponent<
     const elevation = useElevation();
     const isDisabled = !!disabled;
     const extended = !!label;
+    // Subscribes to the screen's scroll state only with `hideOnScroll`.
+    const scroll = useScreenScroll(hideOnScroll);
+    const hidden =
+      hideOnScroll && scroll.scrolled && scroll.direction === 'down';
     const geometry = FAB_GEOMETRY[size];
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -146,6 +158,9 @@ const Fab: ForwardRefExoticComponent<
         accessibilityState={{ disabled: isDisabled }}
         disabled={isDisabled}
         hitSlop={hitSlop}
+        pointerEvents={hidden ? 'none' : undefined}
+        accessibilityElementsHidden={hidden}
+        importantForAccessibility={hidden ? 'no-hide-descendants' : undefined}
         {...interaction.handlers}
         styled={{
           style: [
@@ -166,6 +181,8 @@ const Fab: ForwardRefExoticComponent<
             elevated && { boxShadow: elevation },
             styled?.style,
             isDisabled && { opacity: DISABLED_OPACITY },
+            hideOnScroll && defaults.scrolling,
+            hidden && defaults.hidden,
           ],
         }}
         {...rest}

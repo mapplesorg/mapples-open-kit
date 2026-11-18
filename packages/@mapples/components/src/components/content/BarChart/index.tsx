@@ -24,6 +24,7 @@ import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 import { defaults } from './defaults';
 import {
   BAR_CHART_LINE,
+  BAR_CHART_STAGGER,
   BAR_CHART_VALUE_SPACE,
   BarChartDatum,
   barChartGridFractions,
@@ -58,6 +59,12 @@ export interface BarChartProps extends Omit<ViewProps, 'children'> {
   showBaseline?: boolean;
   /** Number of horizontal guide lines spaced evenly up to `max`. Defaults to `0`. */
   gridLines?: number;
+  /**
+   * Animates the bars: they grow from the baseline one after another when
+   * the chart appears, and ease to their new height when the data changes.
+   * Off with the OS's reduced-motion setting. Defaults to `false`.
+   */
+  animate?: boolean;
   /** Fires with the bar's index when a bar is pressed. */
   onBarPress?: (index: number) => void;
   /** Screen-reader summary. Defaults to "Bar chart, 7 bars, highest Sat 48". */
@@ -118,6 +125,7 @@ const BarChart: ForwardRefExoticComponent<
       highlightTone = 'accent',
       showBaseline = true,
       gridLines = 0,
+      animate = false,
       onBarPress,
       accessibilityLabel,
       styled,
@@ -230,6 +238,10 @@ const BarChart: ForwardRefExoticComponent<
                         backgroundColor: highlighted
                           ? accent.main
                           : palette.main,
+                      },
+                      animate && defaults.barAnimated,
+                      animate && {
+                        animationDelay: `${index * BAR_CHART_STAGGER}ms`,
                       },
                       styled?.styleBar,
                       highlighted && styled?.styleBarHighlight,

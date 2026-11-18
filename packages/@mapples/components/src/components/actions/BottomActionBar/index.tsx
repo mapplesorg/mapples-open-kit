@@ -1,6 +1,6 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
-import { StyledProp, StyledView } from '@mapples/style';
+import { StyledProp, StyledView, useScreenScroll } from '@mapples/style';
 import { Tokens, useElevation, useShape, useTones } from '@mapples/ui';
 import { View, ViewProps, ViewStyle } from 'react-native';
 
@@ -22,6 +22,12 @@ export interface BottomActionBarProps extends ViewProps {
   safeArea?: boolean;
   /** Draws a top hairline and a shadow above the bar. Defaults to `true`. */
   elevated?: boolean;
+  /**
+   * Slides the bar off the bottom edge while the screen's ScrollView or
+   * FlatList moves down and brings it back as soon as the content moves up.
+   * Needs the bar and the scroll view on the same screen. Defaults to `false`.
+   */
+  hideOnScroll?: boolean;
   /** Styled slots. */
   styled?: {
     /** The bar. */
@@ -62,6 +68,7 @@ const BottomActionBar = forwardRef<
       direction = 'row',
       safeArea = true,
       elevated = true,
+      hideOnScroll = false,
       styled,
       children,
       ...rest
@@ -73,11 +80,18 @@ const BottomActionBar = forwardRef<
     // The elevation cast upwards for a bar that sits on the bottom edge.
     const elevation = useElevation('up');
     const safeInset = useBottomSafeInset(BOTTOM_ACTION_BAR_SAFE_INSET);
+    // Subscribes to the screen's scroll state only with `hideOnScroll`.
+    const scroll = useScreenScroll(hideOnScroll);
+    const hidden =
+      hideOnScroll && scroll.scrolled && scroll.direction === 'down';
 
     return (
       <StyledView
         ref={ref}
         accessibilityRole="toolbar"
+        pointerEvents={hidden ? 'none' : undefined}
+        accessibilityElementsHidden={hidden}
+        importantForAccessibility={hidden ? 'no-hide-descendants' : undefined}
         styled={{
           style: [
             defaults.root,
@@ -94,6 +108,8 @@ const BottomActionBar = forwardRef<
               boxShadow: elevation,
             },
             styled?.style,
+            hideOnScroll && defaults.scrolling,
+            hidden && defaults.hidden,
           ],
         }}
         {...rest}
