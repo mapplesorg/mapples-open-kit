@@ -29,6 +29,10 @@ export {
   type MotionProviderProps,
 } from './MotionProvider';
 export {
+  default as LiveMediaProvider,
+  type LiveMediaProviderProps,
+} from './LiveMediaProvider';
+export {
   default as MotionStagger,
   type MotionStaggerProps,
 } from './MotionStagger';

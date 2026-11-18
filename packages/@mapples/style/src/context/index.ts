@@ -12,4 +12,5 @@ export * from './HingeContext';
 
 export { default as ScreenMotionContext } from './ScreenMotionContext';
 export { default as MotionEnabledContext } from './MotionEnabledContext';
+export { default as LiveMediaContext } from './LiveMediaContext';
 export { default as MotionStaggerContext } from './MotionStaggerContext';
