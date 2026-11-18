@@ -5,6 +5,7 @@ import { AvatarSchematic } from './Avatar/schematic';
 import { AvatarGroupSchematic } from './AvatarGroup/schematic';
 import { BarChartSchematic } from './BarChart/schematic';
 import { CalendarHeatmapSchematic } from './CalendarHeatmap/schematic';
+import { CameraViewSchematic } from './CameraView/schematic';
 import { CardSchematic } from './Card/schematic';
 import { DateTileSchematic } from './DateTile/schematic';
 import { DividerSchematic } from './Divider/schematic';
@@ -56,5 +57,6 @@ export const ContentSchematics: RegisteredComponents = {
   [MapViewSchematic.type]: MapViewSchematic,
   [LottieAnimationSchematic.type]: LottieAnimationSchematic,
   [RiveAnimationSchematic.type]: RiveAnimationSchematic,
+  [CameraViewSchematic.type]: CameraViewSchematic,
   [TicketCardSchematic.type]: TicketCardSchematic,
 };

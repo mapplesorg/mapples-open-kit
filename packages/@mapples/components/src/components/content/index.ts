@@ -130,3 +130,8 @@ export * from './RiveAnimation/schematic';
 export * from './RiveAnimation/types';
 
 export * from './schematics';
+
+export { default as CameraView } from './CameraView';
+export * from './CameraView';
+export * from './CameraView/schematic';
+export * from './CameraView/types';
