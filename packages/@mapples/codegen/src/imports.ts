@@ -27,6 +27,7 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'Accordion',
   'ActionSheet',
   'ActivityRings',
+  'AnimatedNumber',
   'Avatar',
   'AvatarGroup',
   'Badge',
@@ -59,6 +60,7 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'LineChart',
   'List',
   'ListItem',
+  'LiveIndicator',
   'LottieAnimation',
   'MapView',
   'MasonryGrid',
@@ -75,7 +77,9 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'RadioGroup',
   'RangeSlider',
   'Rating',
+  'ReactionButton',
   'ReorderableList',
+  'ResultMark',
   'RiveAnimation',
   'SearchBar',
   'SectionHeader',
@@ -99,6 +103,7 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'Timeline',
   'TimePicker',
   'TopAppBar',
+  'TypewriterText',
   'WaveformSeekBar',
 ]);
 
