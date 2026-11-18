@@ -28,3 +28,7 @@ export {
   default as MotionProvider,
   type MotionProviderProps,
 } from './MotionProvider';
+export {
+  default as MotionStagger,
+  type MotionStaggerProps,
+} from './MotionStagger';

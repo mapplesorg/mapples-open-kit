@@ -9,3 +9,4 @@ export { default as useScreenScroll } from './useScreenScroll';
 export { default as useScreenFocusCount } from './useScreenFocusCount';
 export { default as useScreenScrollHandler } from './useScreenScrollHandler';
 export { default as useMotionEnabled } from './useMotionEnabled';
+export { default as useMotionTokens } from './useMotionTokens';

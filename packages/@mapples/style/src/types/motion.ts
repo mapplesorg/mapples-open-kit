@@ -6,6 +6,29 @@ import { ANIMATION_PRESETS, EXIT_ANIMATION_PRESETS } from '../constants/motion';
  */
 export type MotionKeyframes = Record<string, Record<string, unknown>>;
 
+/**
+ * The project's easing tokens: a name and the curve it stands for
+ * (`{ spring: 'cubic-bezier(0.3, 1.4, 0.5, 1)' }`). A style refers to one as
+ * `easing.spring` wherever a timing function goes.
+ */
+export type MotionEasings = Record<string, string>;
+
+/**
+ * The project's own keyframe sets by name. A style plays one by naming it in
+ * `animationName` (or `exitAnimationName`), like a preset; a project set
+ * with a preset's name takes that preset's place.
+ */
+export type MotionKeyframeSets = Record<string, MotionKeyframes>;
+
+/**
+ * The motion part of a project's style: what `animationName` and a timing
+ * function may refer to besides what `@mapples/style` ships.
+ */
+export interface MotionTokens {
+  easings?: MotionEasings;
+  keyframes?: MotionKeyframeSets;
+}
+
 /** A keyframe set that ships with `@mapples/style`. */
 export type AnimationPresetName = keyof typeof ANIMATION_PRESETS;
 
@@ -30,9 +53,11 @@ export interface MotionStyleProps {
   transitionDuration?: string | string[] | number;
   /**
    * `linear`, `ease`, `ease-in`, `ease-out`, `ease-in-out`, `step-start` or
-   * `step-end` (the only form project data can hold); in code also an easing
-   * built with Reanimated's `cubicBezier`, `steps` or `linear`. `Function` is
-   * what Expo's web types use here, and the two must stay assignable.
+   * `step-end`; a curve as text, `cubic-bezier(0.3, 1.4, 0.5, 1)` (`y` may
+   * overshoot) or `steps(4)`; or one of the project's easing tokens,
+   * `easing.spring`. In code also an easing built with Reanimated's
+   * `cubicBezier`, `steps` or `linear`. `Function` is what Expo's web types
+   * use here, and the two must stay assignable.
    */
   transitionTimingFunction?: string | Function | (string | Function)[];
   /** `'300ms'` or `'0.3s'`. */
@@ -40,9 +65,11 @@ export interface MotionStyleProps {
   /** `normal` or `allow-discrete`. */
   transitionBehavior?: string | string[];
   /**
-   * A preset's name (see `ANIMATION_PRESETS`) or keyframes written in place
-   * ({@link MotionKeyframes}). A name that is not a preset throws when the
-   * element renders.
+   * The name of one of the project's keyframe sets or of a preset (see
+   * `ANIMATION_PRESETS`), or keyframes written in place
+   * ({@link MotionKeyframes}). A name that is neither throws when the
+   * element renders. A keyframe may carry its own `animationTimingFunction`
+   * (the curve from that stop to the next).
    */
   animationName?:
     | string
@@ -50,7 +77,7 @@ export interface MotionStyleProps {
     | (string | Record<string, unknown>)[];
   /** `'300ms'`, `'0.3s'`, or milliseconds as a number. */
   animationDuration?: string | string[] | number | number[];
-  /** The timing function names of `transitionTimingFunction`. */
+  /** The same values as `transitionTimingFunction`. */
   animationTimingFunction?: string | string[];
   /** `'300ms'`, `'0.3s'`, or milliseconds as a number. */
   animationDelay?: string | string[] | number | number[];
@@ -67,6 +94,14 @@ export interface MotionStyleProps {
    * mounted). Not a CSS key; `styled()` reads it and keeps it off the view.
    */
   animationReplay?: 'focus';
+  /**
+   * Set on a parent: each child starts its animation this much later than
+   * the one before it (`'60ms'`, `'0.06s'`, or milliseconds as a number), on
+   * top of the child's own `animationDelay`. It reaches the animated
+   * elements inside each child too, so a card and its contents enter as one
+   * step. The rows of a `FlatList` count as its children. Not a CSS key.
+   */
+  animationStagger?: string | number;
   /**
    * The name motion commands address the element by (`sendMotionCommand`,
    * the `mapples:animation` action): play, pause or restart its animation,

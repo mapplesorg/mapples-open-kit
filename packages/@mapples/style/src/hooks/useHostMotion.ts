@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Keyframe, LinearTransition } from 'react-native-reanimated';
 
 import { EXIT_ANIMATION_DURATION } from '../constants/motion';
+import { MotionTokens } from '../types';
 import { parseMotionTime, resolveExitKeyframes } from '../utils/motion';
 
 type Style = Record<string, unknown>;
@@ -23,10 +24,12 @@ export interface HostMotion {
  *
  * @param style - The flattened style of the element
  * @param reducedMotion - Whether the OS asks for reduced motion
+ * @param tokens - The project's keyframe sets, which an exit may name
  */
 const useHostMotion = (
   style: Style | undefined,
   reducedMotion: boolean,
+  tokens?: MotionTokens,
 ): HostMotion => {
   const exitName = style?.exitAnimationName;
   // Keyframes written in place are a new object on every render.
@@ -45,13 +48,14 @@ const useHostMotion = (
     // wants `from` / `to` spelled out, which data cannot promise statically.
     const keyframes = resolveExitKeyframes(
       exitKey.startsWith('{') ? JSON.parse(exitKey) : exitKey,
+      tokens,
     ) as unknown as ConstructorParameters<typeof Keyframe>[0];
     const keyframe = new Keyframe(keyframes).duration(
       exitDuration ?? EXIT_ANIMATION_DURATION,
     );
 
     return exitDelay ? keyframe.delay(exitDelay) : keyframe;
-  }, [exitDelay, exitDuration, exitKey, reducedMotion]);
+  }, [exitDelay, exitDuration, exitKey, reducedMotion, tokens]);
 
   const layout = useMemo(
     () =>

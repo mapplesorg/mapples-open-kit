@@ -1,3 +1,5 @@
+import { MotionTokens } from './motion';
+
 /** RGB color format: `rgb(red, green, blue)` */
 export type RGB = `rgb(${number}, ${number}, ${number})`;
 
@@ -45,6 +47,12 @@ export interface ThemeConfig {
   dark: ThemeMap;
   /** Project-wide icon settings (absent in documents saved before icons existed) */
   icons?: IconsConfig;
+  /**
+   * The project's motion tokens: easing curves a timing function refers to
+   * as `easing.<name>` and keyframe sets `animationName` plays by name.
+   * Absent in a project that defines none.
+   */
+  motion?: MotionTokens;
   /** Internal property for display theme tracking */
   _displayTheme: 'light' | 'dark';
 }
