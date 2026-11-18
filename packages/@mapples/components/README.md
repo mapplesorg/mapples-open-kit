@@ -35,6 +35,29 @@ Both take `mapples:animation` actions (`AnimationActionType.Control`, from
 `@mapples/action`'s store) addressed to their `name`: `play`, `pause`, `stop`,
 `seek` (Lottie), `setInput` and `fireTrigger` (Rive).
 
+## Device actions
+
+`DeviceActionHandler` (mount it once inside `ActionProvider`, next to the
+other handlers; `MapplesApp` does) handles three actions that reach the
+device:
+
+- `mapples:haptic` `{ style?, then? }`: haptic feedback through the optional
+  peer `expo-haptics` (`selection`, `light`, `medium`, `heavy`, `success`,
+  `warning`, `error`). Nothing happens on the web.
+- `mapples:copy` `{ text, then? }`: text to the clipboard through the
+  optional peer `expo-clipboard` (the browser's clipboard on the web).
+- `mapples:share` `{ text?, url?, title?, then? }`: the system share sheet.
+
+`text` and `url` are literals or value sources
+(`{ kind: 'state', dataProp: 'vars.code' }`). `then` is a follow-up action
+(`{ type, staticData }`) emitted once the device has answered; together with
+`mapples:delay` from `@mapples/state` a button can copy a code, show "Copied"
+and flip back.
+
+`CodeScanner` reads QR codes and barcodes through the optional peer
+`expo-camera`; on the web it is a pressable stand-in that reports its
+`sampleValue`.
+
 ## Usage
 
 ```tsx

@@ -13,6 +13,8 @@
 export * from './schematics';
 export * from './animationControl';
 export { default as MotionActionHandler } from './MotionActionHandler';
+export * from './deviceActions';
+export { default as DeviceActionHandler } from './DeviceActionHandler';
 export * from './components/actions';
 export * from './components/inputs';
 export * from './components/content';

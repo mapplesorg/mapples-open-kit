@@ -33,8 +33,10 @@ import {
   PROGRESS_BAR_MARKER_WIDTH,
   PROGRESS_BAR_SEGMENT_GAP,
   PROGRESS_BAR_TRACK,
+  PROGRESS_FILL_DURATION,
   ProgressBarSize,
   progressFraction,
+  readProgressTime,
   readSegmentCount,
 } from './types';
 
@@ -46,6 +48,15 @@ export interface ProgressBarProps extends Omit<ViewProps, 'children'> {
   max?: number;
   /** Shows a sliding fill instead of a value (unknown duration). */
   indeterminate?: boolean;
+  /**
+   * The fill grows from empty when the indicator appears and eases to each
+   * new value. Off with the OS's reduced-motion setting.
+   */
+  animate?: boolean;
+  /** With `animate`: how long the first fill waits, in ms (after a card has landed). Defaults to `0`. */
+  animateDelay?: number;
+  /** With `animate`: how long the fill takes, in ms. Defaults to `1200`. */
+  animateDuration?: number;
   /** Colour role of the fill. Defaults to `primary`. */
   tone?: Tone;
   /** Track thickness: `xs` 2 (a hairline), `sm` 4, `md` 8, `lg` 12. Defaults to `md`. */
@@ -84,7 +95,8 @@ export interface ProgressBarProps extends Omit<ViewProps, 'children'> {
 
 /**
  * A linear progress indicator: a track with a tone-coloured fill that eases
- * to `value / max`, or an `indeterminate` sweep while the duration is
+ * to `value / max` (from empty when it appears, with `animate`), or an
+ * `indeterminate` sweep while the duration is
  * unknown. The track can split into equal `segments` and carry a
  * `markerValue` tick. Stretches across its parent; an optional percentage or
  * custom label sits after the track.
@@ -107,6 +119,9 @@ const ProgressBar: ForwardRefExoticComponent<
       value = 0,
       max = 100,
       indeterminate = false,
+      animate = false,
+      animateDelay = 0,
+      animateDuration = PROGRESS_FILL_DURATION,
       tone = 'primary',
       size = 'md',
       showLabel = false,
@@ -139,7 +154,23 @@ const ProgressBar: ForwardRefExoticComponent<
     const [trackWidth, setTrackWidth] = useState(0);
     const reduceMotion = useReduceMotion();
 
-    const scaleX = useTimingValue(fraction);
+    const fillDelay = readProgressTime(
+      animateDelay,
+      'animateDelay',
+      'ProgressBar',
+    );
+    const fillDuration = readProgressTime(
+      animateDuration,
+      'animateDuration',
+      'ProgressBar',
+    );
+    // Always eases to a new value; with `animate` it also starts empty.
+    const scaleX = useTimingValue(
+      fraction,
+      animate
+        ? { from: 0, delay: fillDelay, duration: fillDuration }
+        : undefined,
+    );
     const slide = useLoopValue({
       duration: 1200,
       running: indeterminate && trackWidth > 0,

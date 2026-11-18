@@ -61,3 +61,26 @@ export const readSegmentCount = (
   }
   return segments;
 };
+
+/** With `animate`: how long the fill takes to grow from empty when the indicator appears, in ms. */
+export const PROGRESS_FILL_DURATION = 1200;
+
+/**
+ * Reads `animateDelay` / `animateDuration`: milliseconds, zero or more.
+ *
+ * @param value - The prop as passed
+ * @param prop - Its name, for the error
+ * @param component - The component's name, for the error
+ */
+export const readProgressTime = (
+  value: number,
+  prop: string,
+  component: string,
+): number => {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+    throw new Error(
+      `${component}: ${prop} (${String(value)}) must be milliseconds, 0 or more`,
+    );
+  }
+  return value;
+};

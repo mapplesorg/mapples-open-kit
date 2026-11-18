@@ -26,8 +26,12 @@
     "@lottiefiles/dotlottie-react": ">=0.13.5",
     "@mapples/action": "*",
     "@mapples/render": "*",
+    "@mapples/state": "*",
     "@rive-app/canvas": ">=2.39.0",
     "@rive-app/react-native": ">=0.5.0",
+    "expo-camera": ">=16.0.0",
+    "expo-clipboard": ">=7.0.0",
+    "expo-haptics": ">=14.0.0",
     "expo-image": ">=1.0.0",
     "lottie-react-native": ">=7.0.0",
     "react": ">=18.0.0 <20.0.0",
@@ -47,6 +51,15 @@
     "@rive-app/react-native": {
       "optional": true
     },
+    "expo-camera": {
+      "optional": true
+    },
+    "expo-clipboard": {
+      "optional": true
+    },
+    "expo-haptics": {
+      "optional": true
+    },
     "lottie-react-native": {
       "optional": true
     },
@@ -60,6 +73,9 @@
     "@rive-app/react-native": "0.5.14",
     "@types/lodash": "^4.17.0",
     "@types/react": ">=18.0.0 <20.0.0",
+    "expo-camera": "~58.0.11",
+    "expo-clipboard": "~58.0.3",
+    "expo-haptics": "~58.0.7",
     "lottie-react-native": "~7.5.0",
     "react-native-maps": "1.29.11",
     "react-native-nitro-modules": "0.36.5",
