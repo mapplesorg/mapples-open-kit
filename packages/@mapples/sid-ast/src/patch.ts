@@ -358,11 +358,20 @@ function valueAt(value: unknown, path: string[]): unknown {
 
 function applyRemove(source: string, analysis: Analysis, sid: string): string {
   const info = requireInfo(analysis, sid);
+  // A direct child, or the only element of its `{…}` (`{test && (<X/>)}`):
+  // the whole slot goes. A branch of a ternary (or any other expression)
+  // becomes `null` — cutting just the element left `? ( ) :`, which does not
+  // parse, and the file's later elements lost their place with it.
+  const ownsSlot = info.jsxChild || info.guard?.kind === 'and';
+  if (!ownsSlot) {
+    return splice(source, info.span.start, info.span.end, 'null');
+  }
+  const span = info.jsxChild ? info.span : info.slot;
   // Swallow the whitespace-only prefix on the element's own line.
-  let start = info.span.start;
+  let start = span.start;
   const lineStart = source.lastIndexOf('\n', start - 1) + 1;
   if (/^[ \t]*$/.test(source.slice(lineStart, start))) start = lineStart;
-  return splice(source, start, info.span.end, '');
+  return splice(source, start, span.end, '');
 }
 
 function childAnchor(
@@ -374,10 +383,12 @@ function childAnchor(
   const childInfos = info.childSids.map((s) => requireInfo(analysis, s));
   if (at < childInfos.length) {
     const target = childInfos[at]!;
-    const lineStart = source.lastIndexOf('\n', target.span.start - 1) + 1;
-    return /^[ \t]*$/.test(source.slice(lineStart, target.span.start))
+    // Before the sibling's whole slot: inside its `{…}` the new element
+    // would land in another element's guard or ternary branch.
+    const lineStart = source.lastIndexOf('\n', target.slot.start - 1) + 1;
+    return /^[ \t]*$/.test(source.slice(lineStart, target.slot.start))
       ? lineStart
-      : target.span.start;
+      : target.slot.start;
   }
   if (info.innerSpan === null)
     throw new Error(`cannot append into self-closing element ${info.sid}`);
@@ -444,11 +455,22 @@ function applyMove(
     return source;
   }
   const childInfo = requireInfo(analysis, edit.sid);
-  // Cut the child's line-extended span…
-  let cutStart = childInfo.span.start;
+  // A guarded child moves with its guard; a branch of a ternary shares its
+  // `{…}` with the other branches, so it cannot move on its own.
+  if (!childInfo.jsxChild && childInfo.guard?.kind !== 'and') {
+    warnings.push({
+      kind: 'NON_LITERAL_PROP',
+      sid: edit.sid,
+      detail: `the Creator's move of $sid="${edit.sid}" was not written: it is a branch of a conditional in the file — move the whole {…} expression in the code`,
+    });
+    return source;
+  }
+  const slot = childInfo.jsxChild ? childInfo.span : childInfo.slot;
+  // Cut the child's line-extended slot…
+  let cutStart = slot.start;
   const lineStart = source.lastIndexOf('\n', cutStart - 1) + 1;
   if (/^[ \t]*$/.test(source.slice(lineStart, cutStart))) cutStart = lineStart;
-  let cutEnd = childInfo.span.end;
+  let cutEnd = slot.end;
   if (source[cutEnd] === '\n') cutEnd += 1;
   const chunk = source.slice(cutStart, cutEnd);
   const removed = splice(source, cutStart, cutEnd, '');

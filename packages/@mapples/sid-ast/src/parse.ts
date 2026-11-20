@@ -61,6 +61,13 @@ export interface ElementInfo {
   attrs: AttrInfo[];
   /** The element is a direct JSX child (`<A><X/></A>`), where a guard can wrap it. */
   jsxChild: boolean;
+  /**
+   * The element's place among its parent's children: the element itself for
+   * a direct JSX child, else the `{…}` expression it sits in (a guard, a
+   * ternary, a `map`). Moves and inserts anchor on it, so nothing lands
+   * inside another element's expression.
+   */
+  slot: Span;
   /** The prop test the element renders under: `{isActive && <X/>}` or a ternary branch. */
   guard: ElementGuard | null;
   /**
@@ -297,6 +304,18 @@ export function analyze(
    * the test as written, so the element's warning can name it.
    */
   const unreadGuards = new Map<ts.Node, string>();
+  /** See {@link ElementInfo.slot}. */
+  const slotOf = (element: ts.Node): Span => {
+    if (!ts.isJsxElement(element.parent)) {
+      for (let up = element.parent; up; up = up.parent) {
+        if (ts.isJsxExpression(up) && ts.isJsxElement(up.parent)) {
+          return { start: up.getStart(sf), end: up.getEnd() };
+        }
+        if (ts.isJsxElement(up) || ts.isJsxSelfClosingElement(up)) break;
+      }
+    }
+    return { start: element.getStart(sf), end: element.getEnd() };
+  };
   const sidElement = (expr: ts.Expression): ts.Node | null => {
     let e = expr;
     while (ts.isParenthesizedExpression(e)) e = e.expression;
@@ -868,6 +887,7 @@ export function analyze(
       childSids: [],
       attrs,
       jsxChild: ts.isJsxElement(element.parent),
+      slot: slotOf(element),
       guard,
       propBindings,
       textChildren: textKey === 'text',
