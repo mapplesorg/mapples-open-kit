@@ -47,7 +47,12 @@ export type ExtractWarningKind =
    * A `ref(…)` asset reference in a prop's literal data instead of `$refs`:
    * nothing resolves it there (a `$refs` key may be a dotted path into it).
    */
-  | 'INLINE_ASSET_REF';
+  | 'INLINE_ASSET_REF'
+  /**
+   * An `iconName` on a `Vector`: Vector draws an SVG from `uri` only, so the
+   * name is ignored and the image placeholder shows. Glyphs are `Icon`.
+   */
+  | 'ICON_NAME_ON_VECTOR';
 
 export interface ExtractWarning {
   kind: ExtractWarningKind;

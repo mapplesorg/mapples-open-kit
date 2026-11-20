@@ -824,6 +824,18 @@ export function analyze(
       };
     }
 
+    if (
+      type === 'Vector' &&
+      ('iconName' in props || dataProps?.iconName !== undefined)
+    ) {
+      warnings.push({
+        kind: 'ICON_NAME_ON_VECTOR',
+        sid,
+        prop: 'iconName',
+        detail: `<${tagName}> is a Vector, which draws an SVG from \`uri\` and ignores \`iconName\` — it shows the image placeholder. Use <Icon iconName=…> for a glyph`,
+      });
+    }
+
     const dom: RenderDomNode = {
       sid,
       type,
