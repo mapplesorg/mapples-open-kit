@@ -40,8 +40,7 @@ export interface NavigationDocument {
 
 /**
  * Editor-only preferences about how the navigation is *drawn on the canvas*.
- * The runtime never reads this, the same way it never reads
- * {@link NavigatorNode.canvas} — it lives here so the choice travels with the
+ * The runtime never reads this — it lives here so the choice travels with the
  * project rather than with one editor.
  *
  * @interface NavigationCanvasSettings
@@ -54,25 +53,6 @@ export interface NavigationCanvasSettings {
    * the chrome is claiming space the screen will not actually have.
    */
   chrome?: boolean;
-}
-
-/**
- * Editor-only world-space rectangle of a navigator's section on the Creator
- * canvas. The runtime ignores it entirely — it exists so the canvas can
- * persist where the section is drawn, the same way pages persist their frame
- * placement in `_canvasProps`.
- *
- * @interface NavigatorCanvasRect
- */
-export interface NavigatorCanvasRect {
-  /** World-space left edge. */
-  x: number;
-  /** World-space top edge. */
-  y: number;
-  /** Width in world units. */
-  width: number;
-  /** Height in world units. */
-  height: number;
 }
 
 /**
@@ -111,13 +91,6 @@ export interface NavigatorNode {
   options?: NavigatorOptions;
   /** Editor-only storyboard cell. Ignored by the runtime. */
   cell?: StoryboardCell;
-  /**
-   * Editor-only canvas placement from before the storyboard grid. Ignored by
-   * the runtime and by the Creator, kept so older documents still parse.
-   *
-   * @deprecated Sections sit in a {@link cell} now.
-   */
-  canvas?: NavigatorCanvasRect;
 }
 
 /**
