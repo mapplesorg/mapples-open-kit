@@ -5,6 +5,7 @@ import ts from 'typescript';
 
 import { evalLiteral, NON_LITERAL, type LiteralResolver } from './literal.js';
 import {
+  excludesEquality,
   handlerBindingOf,
   negateCondition,
   propBindingOf,
@@ -320,36 +321,70 @@ export function analyze(
         unreadGuards.set(element, e.left.getText(sf));
       }
     } else if (ts.isConditionalExpression(e)) {
-      const state = propStateOf(e.condition, propScope);
-      const whenTrue = sidElement(e.whenTrue);
-      const whenFalse = sidElement(e.whenFalse);
-      if (state === null) {
-        const test = e.condition.getText(sf);
-        if (whenTrue) unreadGuards.set(whenTrue, test);
-        if (whenFalse) unreadGuards.set(whenFalse, `!(${test})`);
-        return;
+      readChain(e, span);
+    }
+  };
+  /**
+   * `{a ? <X/> : b ? <Y/> : <Z/>}`: every branch of the chain renders under
+   * all the earlier tests failing and its own holding. A condition is one
+   * prop test, so a later branch is guarded only when that one test is the
+   * whole rule — `p === 'v'` after earlier `p === 'w'` tests on the same prop
+   * (the earlier ones then cannot hold). Any other branch is reported, never
+   * left unguarded without a word: the canvas would show it in every case.
+   */
+  const readChain = (head: ts.ConditionalExpression, span: Span): void => {
+    if (propScope === null) return;
+    const earlier: { condition: string | null; text: string }[] = [];
+    const notEarlier = (): string =>
+      earlier.map((test) => `!(${test.text})`).join(' && ');
+    let current: ts.Expression = head;
+    for (;;) {
+      while (ts.isParenthesizedExpression(current)) {
+        current = current.expression;
       }
+      if (!ts.isConditionalExpression(current)) break;
+      const state = propStateOf(current.condition, propScope);
+      const text = current.condition.getText(sf);
+      const whenTrue = sidElement(current.whenTrue);
       if (whenTrue) {
-        guards.set(whenTrue, {
-          span,
-          kind: 'ternary',
-          condition: state.condition,
-        });
-        states.set(state.key, state);
-      }
-      if (whenFalse) {
-        const negated = propStateForCondition(negateCondition(state.condition));
-        if (negated !== null) {
-          guards.set(whenFalse, {
+        const exact =
+          state !== null &&
+          earlier.every(
+            (test) =>
+              test.condition !== null &&
+              excludesEquality(test.condition, state.condition),
+          );
+        if (state !== null && exact) {
+          guards.set(whenTrue, {
             span,
             kind: 'ternary',
-            condition: negated.condition,
+            condition: state.condition,
           });
-          states.set(negated.key, negated);
+          states.set(state.key, state);
         } else {
-          unreadGuards.set(whenFalse, `!(${e.condition.getText(sf)})`);
+          unreadGuards.set(
+            whenTrue,
+            earlier.length === 0 ? text : `${notEarlier()} && ${text}`,
+          );
         }
       }
+      earlier.push({ condition: state?.condition ?? null, text });
+      current = current.whenFalse;
+    }
+    const otherwise = sidElement(current);
+    if (otherwise === null) return;
+    const only = earlier.length === 1 ? earlier[0]!.condition : null;
+    const negated =
+      only === null ? null : propStateForCondition(negateCondition(only));
+    if (negated !== null) {
+      guards.set(otherwise, {
+        span,
+        kind: 'ternary',
+        condition: negated.condition,
+      });
+      states.set(negated.key, negated);
+    } else {
+      unreadGuards.set(otherwise, notEarlier());
     }
   };
 

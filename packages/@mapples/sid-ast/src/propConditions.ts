@@ -243,6 +243,28 @@ export function propStateForCondition(condition: string): PropState | null {
   return { key, name, condition };
 }
 
+/**
+ * Whether `earlier` can never hold while `later` does: both test the same
+ * prop for equality with two different literals (`props.icon::eq::"a"` and
+ * `props.icon::eq::"b"`). A chain's `later` branch then needs only its own
+ * test.
+ */
+export function excludesEquality(earlier: string, later: string): boolean {
+  const [pathA, opA, ...restA] = earlier.split('::');
+  const [pathB, opB, ...restB] = later.split('::');
+  const valueA = restA.join('::');
+  const valueB = restB.join('::');
+  return (
+    opA === 'eq' &&
+    opB === 'eq' &&
+    pathA === pathB &&
+    propOfCondition(earlier) !== null &&
+    valueA !== '' &&
+    valueB !== '' &&
+    valueA !== valueB
+  );
+}
+
 /** The prop a prop condition tests, or null. */
 export function propOfCondition(condition: string): string | null {
   return PROP_PATH.exec(condition.split('::')[0] ?? '')?.[1] ?? null;
