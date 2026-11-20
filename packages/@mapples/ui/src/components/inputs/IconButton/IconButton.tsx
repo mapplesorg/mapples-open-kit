@@ -1,5 +1,4 @@
 import {
-  ComponentType,
   forwardRef,
   PropsWithChildren,
   useCallback,
@@ -10,8 +9,6 @@ import {
 } from 'react';
 
 import {
-  styled as makeStyled,
-  styled,
   StyledPressable,
   StyledProp,
   StyledProps,
@@ -21,7 +18,6 @@ import {
   Typography,
   WithStyledProps,
 } from '@mapples/style';
-import { SvgSource } from '@mapples/types';
 import {
   GestureResponderEvent,
   MouseEvent,
@@ -31,7 +27,6 @@ import {
   ViewProps,
   ViewStyle,
 } from 'react-native';
-import { SvgProps, SvgUri } from 'react-native-svg';
 
 import useShape from '../../../hooks/useShape';
 import useTones from '../../../hooks/useTones';
@@ -45,8 +40,6 @@ import {
   Tone,
 } from '../../../tokens';
 import Icon from '../../media/Icon';
-
-import MockIcon from './MockIcon';
 
 /**
  * Props for the IconButton component.
@@ -66,13 +59,7 @@ export type IconProps = PropsWithChildren<
     };
   }
 > & {
-  /** URI for the SVG icon to display (legacy vector icons) */
-  uri?: string | SvgSource;
-  /**
-   * Glyph name from the project icon family. Set, the button renders as a
-   * themed icon button (`variant`, `size`, `tone`, toggle state, badge);
-   * unset, it renders the legacy `uri` vector exactly as before.
-   */
+  /** Glyph name from the project icon family; unset, the Icon placeholder shows. */
   iconName?: string;
   /** Themed appearance: `standard` (no fill), `filled`, `tonal` or `outlined`. */
   variant?: IconButtonVariant;
@@ -99,16 +86,13 @@ export type IconProps = PropsWithChildren<
   badgeCount?: number;
 };
 
-const StyledSvgUri = styled(SvgUri);
-
 const BADGE_MAX = 99;
 
 /**
  * An icon-only button.
  *
- * With `iconName` it is a themed control: a square of `size`, painted by
- * `variant` and `tone`, optionally a toggle (`selected`) with its own glyph,
- * and a count badge. With only `uri` it renders the legacy SVG vector.
+ * A themed control: a square of `size`, painted by `variant` and `tone`,
+ * optionally a toggle (`selected`) with its own glyph, and a count badge.
  * Icon-only controls need an `accessibilityLabel`.
  *
  * @example
@@ -123,15 +107,6 @@ const BADGE_MAX = 99;
  * />
  * ```
  *
- * @example
- * ```tsx
- * <IconButton
- *   uri="https://example.com/icon.svg"
- *   onPress={() => console.log('Icon pressed')}
- *   styled={{ styleSvg: { width: 24, height: 24, color: 'blue' } }}
- * />
- * ```
- *
  * @public
  */
 const IconButton: ForwardRefExoticComponent<
@@ -140,7 +115,6 @@ const IconButton: ForwardRefExoticComponent<
   (
     {
       styled,
-      uri,
       iconName,
       variant = 'standard',
       size = 'md',
@@ -213,65 +187,6 @@ const IconButton: ForwardRefExoticComponent<
       },
       [onHoverOut],
     );
-
-    if (iconName === undefined) {
-      const getUriComponent = (Uri: { default: ComponentType<SvgProps> }) => {
-        const StyledSvg = makeStyled(Uri.default);
-
-        return (
-          <StyledSvg
-            styled={{
-              width: ejectStyle?.width as string | number,
-              height: ejectStyle?.height as string | number,
-              color: ejectStyle?.color,
-              style: styleSvg,
-            }}
-          />
-        );
-      };
-
-      return (
-        <StyledPressable
-          ref={ref}
-          styled={styledViewProps}
-          disabled={disabled}
-          onPress={onPress}
-          onPressIn={onPressIn}
-          onPressOut={onPressOut}
-          onHoverIn={onHoverIn}
-          onHoverOut={onHoverOut}
-          {...props}
-        >
-          {uri ? (
-            <>
-              {typeof uri === 'string' ? (
-                <StyledSvgUri
-                  uri={uri}
-                  styled={{
-                    width: ejectStyle?.width as string | number,
-                    height: ejectStyle?.height as string | number,
-                    color: ejectStyle?.color,
-                    style: styleSvg,
-                  }}
-                />
-              ) : (
-                getUriComponent(uri)
-              )}
-            </>
-          ) : (
-            <MockIcon
-              styled={{
-                width: ejectStyle?.width as string | number,
-                height: ejectStyle?.height as string | number,
-                color: ejectStyle?.color,
-                style: styleSvg,
-              }}
-            />
-          )}
-          {children}
-        </StyledPressable>
-      );
-    }
 
     if (!ICON_BUTTON_SIZES.includes(size)) {
       throw new Error(
