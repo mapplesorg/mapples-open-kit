@@ -11782,7 +11782,7 @@ __metadata:
     react-native-json-tree: "npm:^1.5.0"
     react-native-qrcode-svg: "npm:^6.3.21"
     react-native-reanimated: "npm:4.7.1"
-    react-native-safe-area-context: "npm:~5.10.1"
+    react-native-safe-area-context: "npm:~5.11.1"
     react-native-svg: "npm:15.16.0"
     reanimated-color-picker: "npm:^4.0.1"
     rxjs: "npm:^7.8.2"
@@ -13545,13 +13545,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:~5.10.1":
-  version: 5.10.1
-  resolution: "react-native-safe-area-context@npm:5.10.1"
+"react-native-safe-area-context@npm:~5.11.1":
+  version: 5.11.1
+  resolution: "react-native-safe-area-context@npm:5.11.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/8aebfa832d483e385f9848b5ea92ce3e525a44cad5b3b363b5b190c1f559f3f01176f745ff7a2ad0e2191cb3fb2d0be26c8650956640f086562440c869713ec5
+  checksum: 10c0/f44fc57567ab47ac257aa1344ffca4aa001ba91db9542209bb36447eaa9694df6da41cd2b389786272cfa90dbb2a6aa83a969c5e3175e77e4125f3cadce90ec2
   languageName: node
   linkType: hard
 
