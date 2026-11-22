@@ -1,6 +1,6 @@
 {
   "name": "@mapples/types",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -19,6 +19,9 @@
     "type": "git",
     "url": "https://github.com/mapplesorg/mapples-open-kit.git",
     "directory": "packages/@mapples/types"
+  },
+  "dependencies": {
+    "intl-pluralrules": "^2.0.1"
   },
   "peerDependencies": {
     "react": ">=18.0.0 <20.0.0",

@@ -27,6 +27,12 @@ export const LINE_CHART_MARKER_RADIUS = 4;
 /** Width of the surface-coloured ring around a marker. */
 export const LINE_CHART_MARKER_RING = 2;
 
+/** With `animate`: how the window over the line opens when the chart appears. */
+export const LINE_CHART_WIPE_KEYFRAMES = {
+  from: { width: '0%' },
+  to: { width: '100%' },
+} as const;
+
 /** Opacity of the area fill at the line; it fades to transparent at the bottom. */
 export const LINE_CHART_AREA_OPACITY = 0.24;
 

@@ -11,8 +11,12 @@ import { Icon, Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
 import { Animated, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { useLoopValue, useSlotColor } from '../../../internal';
-import { progressFraction } from '../ProgressBar/types';
+import { useFrameValue, useLoopValue, useSlotColor } from '../../../internal';
+import {
+  PROGRESS_FILL_DURATION,
+  progressFraction,
+  readProgressTime,
+} from '../ProgressBar/types';
 
 import { defaults } from './defaults';
 import {
@@ -35,6 +39,15 @@ export interface ProgressCircleProps extends Omit<ViewProps, 'children'> {
   variant?: ProgressCircleVariant;
   /** Spins a short arc instead of showing a value (unknown duration). */
   indeterminate?: boolean;
+  /**
+   * The fill grows from empty when the indicator appears and eases to each
+   * new value. Off with the OS's reduced-motion setting.
+   */
+  animate?: boolean;
+  /** With `animate`: how long the first fill waits, in ms (after a card has landed). Defaults to `0`. */
+  animateDelay?: number;
+  /** With `animate`: how long the fill takes, in ms. Defaults to `1200`. */
+  animateDuration?: number;
   /** Colour role of the fill. Defaults to `primary`. */
   tone?: Tone;
   /** Shows the percentage in the centre. */
@@ -60,7 +73,8 @@ export interface ProgressCircleProps extends Omit<ViewProps, 'children'> {
  * A circular progress indicator drawn with SVG: a ring (or a gauge open at
  * the bottom) whose tone-coloured stroke covers `value / max`, with the
  * percentage, a custom label or a glyph in the centre. `indeterminate` spins
- * a short arc while the duration is unknown.
+ * a short arc while the duration is unknown. With `animate` the stroke
+ * grows from empty when the circle appears and eases to each new value.
  *
  * @example
  * ```tsx
@@ -85,6 +99,9 @@ const ProgressCircle: ForwardRefExoticComponent<
       strokeWidth = 4,
       variant = 'ring',
       indeterminate = false,
+      animate = false,
+      animateDelay = 0,
+      animateDuration = PROGRESS_FILL_DURATION,
       tone = 'primary',
       showLabel = false,
       label,
@@ -107,6 +124,18 @@ const ProgressCircle: ForwardRefExoticComponent<
     const fraction = indeterminate
       ? PROGRESS_CIRCLE_INDETERMINATE_ARC
       : progressFraction(value, max, 'ProgressCircle');
+
+    // The arc on screen: the fraction itself, or on its way there.
+    const drawn = useFrameValue(fraction, {
+      animate: animate && !indeterminate,
+      from: 0,
+      duration: readProgressTime(
+        animateDuration,
+        'animateDuration',
+        'ProgressCircle',
+      ),
+      delay: readProgressTime(animateDelay, 'animateDelay', 'ProgressCircle'),
+    });
 
     const tones = useTones();
     const palette = tones.tone(tone);
@@ -177,9 +206,9 @@ const ProgressCircle: ForwardRefExoticComponent<
                 fill="none"
                 stroke={fillColor}
                 strokeWidth={strokeWidth}
-                strokeLinecap={fraction > 0 ? 'round' : 'butt'}
+                strokeLinecap={drawn > 0 ? 'round' : 'butt'}
                 strokeDasharray={[arc, circumference]}
-                strokeDashoffset={arc * (1 - fraction)}
+                strokeDashoffset={arc * (1 - drawn)}
               />
             </Svg>
           </Animated.View>

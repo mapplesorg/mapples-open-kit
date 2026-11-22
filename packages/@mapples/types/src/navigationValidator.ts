@@ -2,6 +2,7 @@ import {
   isValidRoutePath,
   NavigationDocument,
   NavigatorNode,
+  ROUTE_ANIMATIONS,
 } from './navigation';
 
 /**
@@ -13,6 +14,8 @@ import {
  * - `INITIAL_ROUTE_INVALID` — `initialRouteId` is not one of the navigator's routes.
  * - `DUPLICATE_ROUTE_NAME` — two routes share a name within one navigator.
  * - `PRESENTATION_NOT_STACK` — a `presentation` is set on a non-stack navigator's route.
+ * - `ANIMATION_NOT_STACK` — an `animation` is set on a non-stack navigator's route.
+ * - `ANIMATION_UNKNOWN` — an `animation` is not one of `ROUTE_ANIMATIONS`.
  * - `ROUTE_PATH_INVALID` — a route `path` has a malformed segment.
  * - `GUARD_FALLBACK_INVALID` — a guarded route names no fallback, itself, an absent route,
  *   or (on a navigator route) a route inside the area it guards.
@@ -24,6 +27,8 @@ export type NavigationValidationCode =
   | 'INITIAL_ROUTE_INVALID'
   | 'DUPLICATE_ROUTE_NAME'
   | 'PRESENTATION_NOT_STACK'
+  | 'ANIMATION_NOT_STACK'
+  | 'ANIMATION_UNKNOWN'
   | 'ROUTE_PATH_INVALID'
   | 'GUARD_FALLBACK_INVALID';
 
@@ -137,6 +142,26 @@ function validateNavigator(
         navigatorId: navigator.id,
         routeId: route.id,
       });
+    }
+
+    // animation only valid under a stack parent, and only a known name.
+    if (route.animation !== undefined) {
+      if (navigator.type !== 'stack') {
+        errors.push({
+          code: 'ANIMATION_NOT_STACK',
+          message: `Route "${route.name}" sets animation but parent navigator "${navigator.name}" is "${navigator.type}", not "stack"`,
+          navigatorId: navigator.id,
+          routeId: route.id,
+        });
+      }
+      if (!(ROUTE_ANIMATIONS as readonly string[]).includes(route.animation)) {
+        errors.push({
+          code: 'ANIMATION_UNKNOWN',
+          message: `Route "${route.name}" sets animation "${route.animation}"; expected one of ${ROUTE_ANIMATIONS.join(', ')}`,
+          navigatorId: navigator.id,
+          routeId: route.id,
+        });
+      }
     }
 
     // A path is the exported app's deep link and the source of the params

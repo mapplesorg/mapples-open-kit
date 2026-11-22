@@ -75,6 +75,12 @@ export interface LineChartProps extends Omit<ViewProps, 'children'> {
   xLabelCount?: number;
   /** Colour role of the line, area and markers. Defaults to `primary`. */
   tone?: Tone;
+  /**
+   * Draws the line in from its first point when the chart appears, and
+   * again whenever the values change. The guide lines stay put. Off with
+   * the OS's reduced-motion setting. Defaults to `false`.
+   */
+  animate?: boolean;
   /** Screen-reader summary. Defaults to "Line chart, 30 points, from 1240 to 1860". */
   accessibilityLabel?: string;
   /** Styled slots for every visual part. */
@@ -133,6 +139,7 @@ const LineChart: ForwardRefExoticComponent<
       xLabels,
       xLabelCount = 4,
       tone = 'primary',
+      animate = false,
       accessibilityLabel,
       styled,
       // The canvas injects a drop area as children; leaf components ignore them.
@@ -241,6 +248,62 @@ const LineChart: ForwardRefExoticComponent<
       />
     );
 
+    const areaGradient = area ? (
+      <Defs>
+        <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <Stop
+            offset="0"
+            stopColor={areaColor}
+            stopOpacity={LINE_CHART_AREA_OPACITY}
+          />
+          <Stop offset="1" stopColor={areaColor} stopOpacity={0} />
+        </LinearGradient>
+      </Defs>
+    ) : null;
+    const grid = lineChartGridYs(gridLines, height, inset).map((y) => (
+      <Line
+        key={y}
+        x1={0}
+        y1={y}
+        x2={width}
+        y2={y}
+        stroke={gridColor}
+        strokeWidth={1}
+      />
+    ));
+    // The line with its area fill and markers.
+    const series = (
+      <>
+        {area ? (
+          <Path
+            d={lineChartAreaPath(xy, smooth, height - inset)}
+            fill={`url(#${gradientId})`}
+          />
+        ) : null}
+        <Path
+          d={lineChartPath(xy, smooth)}
+          fill="none"
+          stroke={lineColor}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {marked ? (
+          <Line
+            x1={marked.x}
+            y1={inset}
+            x2={marked.x}
+            y2={height - inset}
+            stroke={tones.outlineStrong}
+            strokeWidth={1}
+            strokeDasharray={LINE_CHART_GUIDE_DASH}
+          />
+        ) : null}
+        {marked ? dot(marked) : null}
+        {showEndMarker && markerIndex !== xy.length - 1 ? dot(last) : null}
+      </>
+    );
+
     return (
       <StyledView
         ref={ref}
@@ -254,60 +317,28 @@ const LineChart: ForwardRefExoticComponent<
           onLayout={onLayout}
           styled={{ style: [defaults.plot, { height }] }}
         >
-          {width > 0 ? (
+          {width > 0 && animate ? (
+            <>
+              <Svg width={width} height={height} style={defaults.gridLayer}>
+                {grid}
+              </Svg>
+              {/* Keyed by the values: new data draws the line in again. */}
+              <StyledView
+                key={points.map((point) => point.value).join(',')}
+                styled={{ style: [defaults.wipe, { height }] }}
+              >
+                <Svg width={width} height={height}>
+                  {areaGradient}
+                  {series}
+                </Svg>
+              </StyledView>
+            </>
+          ) : null}
+          {width > 0 && !animate ? (
             <Svg width={width} height={height}>
-              {area ? (
-                <Defs>
-                  <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                    <Stop
-                      offset="0"
-                      stopColor={areaColor}
-                      stopOpacity={LINE_CHART_AREA_OPACITY}
-                    />
-                    <Stop offset="1" stopColor={areaColor} stopOpacity={0} />
-                  </LinearGradient>
-                </Defs>
-              ) : null}
-              {lineChartGridYs(gridLines, height, inset).map((y) => (
-                <Line
-                  key={y}
-                  x1={0}
-                  y1={y}
-                  x2={width}
-                  y2={y}
-                  stroke={gridColor}
-                  strokeWidth={1}
-                />
-              ))}
-              {area ? (
-                <Path
-                  d={lineChartAreaPath(xy, smooth, height - inset)}
-                  fill={`url(#${gradientId})`}
-                />
-              ) : null}
-              <Path
-                d={lineChartPath(xy, smooth)}
-                fill="none"
-                stroke={lineColor}
-                strokeWidth={strokeWidth}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {marked ? (
-                <Line
-                  x1={marked.x}
-                  y1={inset}
-                  x2={marked.x}
-                  y2={height - inset}
-                  stroke={tones.outlineStrong}
-                  strokeWidth={1}
-                  strokeDasharray={LINE_CHART_GUIDE_DASH}
-                />
-              ) : null}
-              {marked ? dot(marked) : null}
-              {showEndMarker && markerIndex !== xy.length - 1
-                ? dot(last)
-                : null}
+              {areaGradient}
+              {grid}
+              {series}
             </Svg>
           ) : null}
         </StyledView>

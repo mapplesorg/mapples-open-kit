@@ -7,12 +7,12 @@ import {
   type RefAttributes,
 } from 'react';
 
+import { useIsRTL } from '@mapples/render';
 import { StyledProp, StyledView } from '@mapples/style';
 import { DISABLED_OPACITY, Tone, useTones } from '@mapples/ui';
 import {
   AccessibilityActionEvent,
   GestureResponderEvent,
-  I18nManager,
   Pressable,
   View,
   ViewProps,
@@ -104,6 +104,7 @@ const Rating: ForwardRefExoticComponent<
     }
 
     const tones = useTones();
+    const isRTL = useIsRTL();
     const palette = tones.tone(tone);
     const field = useOptionalFormField<number>(fieldName);
     const [current, setCurrent] = useControllableState<number>({
@@ -129,10 +130,10 @@ const Rating: ForwardRefExoticComponent<
     const press = useCallback(
       (index: number, event: GestureResponderEvent) => {
         const x = event.nativeEvent.locationX;
-        const leadingHalf = I18nManager.isRTL ? x > star / 2 : x < star / 2;
+        const leadingHalf = isRTL ? x > star / 2 : x < star / 2;
         setCurrent(index + (allowHalf && leadingHalf ? 0.5 : 1));
       },
-      [allowHalf, setCurrent, star],
+      [allowHalf, isRTL, setCurrent, star],
     );
     const onAccessibilityAction = (event: AccessibilityActionEvent) => {
       const direction = event.nativeEvent.actionName === 'increment' ? 1 : -1;

@@ -1,15 +1,21 @@
 import type {
   ApiDocument,
+  LocalesDocument,
   NavigationDocument,
   VariablesDocument,
 } from '@mapples/types';
 // The documents `mapples sync` writes next to theme.ts — resolved by
-// `mapplesResolver` (`@mapples/app/expo`) to navigation.ts, api.ts and
-// variables.ts in the app's mapplesDir, or to an empty module before the
-// first sync (the runtime is then inert: no routes, requests or variables).
+// `mapplesResolver` (`@mapples/app/expo`) to navigation.ts, api.ts,
+// variables.ts and locales.ts in the app's mapplesDir, or to an empty module
+// before the first sync (the runtime is then inert: no routes, requests,
+// variables or translations). locales.ts exists only for a multilingual
+// project.
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import * as apiModule from 'mapples::api';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import * as localesModule from 'mapples::locales';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import * as navigationModule from 'mapples::navigation';
@@ -57,13 +63,24 @@ export interface CliVariablesModule {
   variables?: VariablesDocument;
 }
 
+/** The module `mapples sync` writes as `<mapplesDir>/locales.ts`. */
+export interface CliLocalesModule {
+  /** The Creator locales document; absent for a single-language project. */
+  locales?: LocalesDocument;
+}
+
 /** Everything the app runtime executes, as `mapples sync` generated it. */
 export interface MapplesProject
-  extends CliNavigationModule, CliApiModule, CliVariablesModule {}
+  extends
+    CliNavigationModule,
+    CliApiModule,
+    CliVariablesModule,
+    CliLocalesModule {}
 
 /** The synced project documents, from the files the CLI wrote. */
 export const syncedProject = (): MapplesProject => ({
   ...(navigationModule as CliNavigationModule),
   ...(apiModule as CliApiModule),
   ...(variablesModule as CliVariablesModule),
+  ...(localesModule as CliLocalesModule),
 });

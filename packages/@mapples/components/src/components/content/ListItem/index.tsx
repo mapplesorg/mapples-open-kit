@@ -2,11 +2,14 @@ import {
   forwardRef,
   PropsWithChildren,
   useContext,
+  useRef,
+  useState,
   type ComponentRef,
   type ForwardRefExoticComponent,
   type RefAttributes,
 } from 'react';
 
+import { useIsRTL } from '@mapples/render';
 import {
   StyledImage,
   StyledPressable,
@@ -33,6 +36,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import Swipeable, {
+  type SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 import {
   CONTAINER_PRESS_ROLE,
@@ -49,6 +55,7 @@ import Avatar from '../Avatar';
 import { ListContext } from '../List/types';
 
 import { defaults } from './defaults';
+import SwipeActions from './SwipeActions';
 import {
   LIST_ITEM_HEIGHT,
   LIST_ITEM_RADIO_DIAMETER,
@@ -56,7 +63,9 @@ import {
   ListItemLeadingShape,
   ListItemSize,
   ListItemTone,
+  ListItemSwipeAction,
   ListItemTrailing,
+  readListItemSwipeActions,
 } from './types';
 
 /** Props for {@link ListItem}. */
@@ -110,6 +119,16 @@ export interface ListItemProps extends Omit<
   size?: ListItemSize;
   /** Draws a bottom divider (a `List` sets this for its rows). */
   divider?: boolean;
+  /**
+   * Actions a horizontal swipe on the row reveals:
+   * `[{ value, label?, iconName?, tone?, side? }]`, each with a label or a
+   * glyph, at most three per side. `side` is `end` (the default; the right
+   * edge in a left-to-right app) or `start`. Pressing one fires
+   * `onSwipeAction` with its `value` and closes the row.
+   */
+  swipeActions?: ListItemSwipeAction[];
+  /** Fires with the `value` of the pressed swipe action. */
+  onSwipeAction?: (value: string) => void;
   /** Styled slots for every visual part. */
   styled?: {
     /** The row. */
@@ -190,7 +209,8 @@ const rowPadding = (style: ViewStyle | undefined): ViewStyle => ({
  * title with supporting text; a trailing chevron, text, glyph, switch,
  * checkbox, radio, link or badge (text, link and badge can take a chevron
  * after them). Rows compose inside `List`, which adds the dividers and the
- * surface.
+ * surface. `swipeActions` puts actions behind the row that a horizontal
+ * swipe reveals (delete, archive, pin).
  *
  * @example
  * ```tsx
@@ -234,6 +254,8 @@ const ListItem: ForwardRefExoticComponent<
       tone = 'default',
       size = 'md',
       divider,
+      swipeActions,
+      onSwipeAction,
       disabled,
       onPress,
       onPressIn,
@@ -249,7 +271,17 @@ const ListItem: ForwardRefExoticComponent<
   ) => {
     const tones = useTones();
     const shape = useShape();
+    const isRTL = useIsRTL();
     const list = useContext(ListContext);
+    // Decided once, when the row mounts: a row that joins an animated list
+    // after the list was first shown fades in; its first rows do not.
+    const [joins] = useState(
+      () => !!list?.animateChanges && !!list.isSettled?.(),
+    );
+    const swipeable = useRef<SwipeableMethods>(null);
+    const swipes = readListItemSwipeActions(swipeActions);
+    const swipeStart = swipes.filter((action) => action.side === 'start');
+    const swipeEnd = swipes.filter((action) => action.side !== 'start');
     const isDisabled = !!disabled;
     const interaction = useInteractionState(
       { onPressIn, onPressOut, onHoverIn, onHoverOut },
@@ -498,7 +530,12 @@ const ListItem: ForwardRefExoticComponent<
       }
     };
 
-    return (
+    const handleSwipeAction = (value: string) => {
+      swipeable.current?.close();
+      onSwipeAction?.(value);
+    };
+
+    const row = (
       <StyledPressable
         ref={ref}
         accessibilityRole={
@@ -521,6 +558,16 @@ const ListItem: ForwardRefExoticComponent<
         styled={{
           style: [
             defaults.root,
+            // A row that swipes covers the actions behind it.
+            swipes.length > 0 && {
+              backgroundColor: tones.resolve(
+                list?.variant && list.variant !== 'plain'
+                  ? Tokens.color.surface
+                  : Tokens.color.background,
+              ),
+            },
+            list?.animateChanges && defaults.changing,
+            joins && defaults.joining,
             selected && { backgroundColor: tones.tone('primary').container },
             rootStyle,
             selected && styled?.styleSelected,
@@ -635,6 +682,34 @@ const ListItem: ForwardRefExoticComponent<
           />
         ) : null}
       </StyledPressable>
+    );
+
+    if (swipes.length === 0) return row;
+
+    // The gesture's sides are physical; `start` and `end` follow the
+    // reading direction.
+    const left = isRTL ? swipeEnd : swipeStart;
+    const right = isRTL ? swipeStart : swipeEnd;
+
+    return (
+      <Swipeable
+        ref={swipeable}
+        enabled={!isDisabled}
+        overshootLeft={false}
+        overshootRight={false}
+        renderLeftActions={
+          left.length > 0
+            ? () => <SwipeActions actions={left} onPress={handleSwipeAction} />
+            : undefined
+        }
+        renderRightActions={
+          right.length > 0
+            ? () => <SwipeActions actions={right} onPress={handleSwipeAction} />
+            : undefined
+        }
+      >
+        {row}
+      </Swipeable>
     );
   },
 );

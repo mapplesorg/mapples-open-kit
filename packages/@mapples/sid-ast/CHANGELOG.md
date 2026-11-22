@@ -1,5 +1,38 @@
 # @mapples/sid-ast
 
+## 2.1.0
+
+### Minor Changes
+
+- 6976f74: The release after 2.0.1 is 2.1.0 (owner, 2026-11-12). This minor changeset moves the whole fixed group, every `@mapples/*` and `@mapplesorg/*` package, from 2.0.4 to 2.1.0.
+
+### Patch Changes
+
+- d6dc247: Style variants under a data state work in generated code. A page element whose style changes while a Creator state holds (`'style::<state>'` under a state such as `vars.count::gt::3`) was printed without the condition, so an app built from the file never applied it.
+  - `@mapples/sid-ast`: an element with such a variant declares the state in a new `$states` attribute, `$states={{ '<state>': { condition: 'vars.count::gt::3', name: 'High' } }}`, next to the unchanged `'style::<state>'` entry. Generated output changes only for elements that have these variants; prop states still print as code (`[styles.card, isActive && styles.cardActive]`) and `style::$pressed` needs no declaration. `extract` returns the declared states in `states` (never as a node prop), so `extract(emit(dom))` gives the same tree and the same states. New `syncElementStates(source, states)` sets every element's `$states` from a document's states (`patch` runs it when given `states`), new exports `elementStates` and `STATES_ATTR`.
+  - `@mapples/codegen`: `adoptPropConditions` takes only the file's prop states from the file; a data state stays as the document has it.
+  - `@mapples/render`: `MapplesElement` takes `$states` and applies a `key::state` variant while that state's condition holds on the app's data state.
+
+- 4478367: Adoption fixes from linking an existing Expo Router app:
+  - `scanComponents` names a file after its default export: it resolves `export default Foo`, `memo(Foo)`, `forwardRef(Foo)` and `export { Foo as default }`, lists the default export first, and no longer counts a SCREAMING_CASE or literal constant (`export const ICON_STROKE_WIDTH = 1`) as a component. New field `anonymousDefault`: the default export has no name in code, so the caller names it.
+  - `codemodAdopt` tags member-expression elements (`<Animated.View>`) as a `Custom` whose importRef carries the member path (`react-native-reanimated#default.View`), so their children keep a parent in the tree; extraction resolves such a tag the same way.
+  - A `MULTIPLE_ROOTS` warning names why the tree is split: another `return`, JSX in a helper or variable, a fragment root, a conditional around the root, or an element the canvas cannot read as the parent.
+  - A react-native name the swap replaces but the file also uses as a type (`useRef<ScrollView>`) keeps react-native's under a type-only alias (`type ScrollView as RNScrollView`), so the file still compiles. A swapped `ScrollView` gets `showsVerticalScrollIndicator={true}` unless it sets it (the `@mapples/ui` one hides the indicator by default). New result field `changed`: swaps to a different component (`Pressable` -> `Button`).
+  - A linked component used with children is tagged as a `Custom` holding them: a component instance has no children slot.
+
+  **Breaking:** adoption output changes (component names, the `showsVerticalScrollIndicator` attribute, the type alias, unlinked uses with children). A member-tag `Custom` stores an importRef like `react-native-reanimated#default.View`, which `@mapples/codegen` 2.0.x and `mapples` 2.0.1 turn into an invalid `import { default.View }`: every client syncing such a project needs this version or later.
+
+- 647b81f: - A chained conditional (`a ? <X/> : b ? <Y/> : <Z/>`) guards each branch it can express as one prop test — `prop === 'v'` after earlier tests of the same prop against other values — and warns `UNSUPPORTED_CONDITION` for every other branch. The later branches used to come out unguarded and unwarned, so the canvas drew all of them at once.
+  - New warning `ICON_NAME_ON_VECTOR`: an `iconName` (literal or bound) on a `Vector`, which draws an SVG from `uri` only and shows the image placeholder.
+  - `patch` keeps the file valid when the Creator removes or moves an element inside a `{…}` expression: a removed ternary branch becomes `null`, an `&&`-guarded element is removed or moved with its guard, inserts and moves anchor before a sibling's whole expression, and a ternary branch is not moved on its own (reported instead). Cutting only the element used to leave `cond ? ( ) :`, which does not parse.
+- ffd671f: `@mapples/style` elements are read as their `@mapples/ui` types instead of placeholders (mapplesorg/mapples#97).
+
+  `@mapples/sid-ast`: a `$sid` element imported from `@mapples/style` as `StyledView`, `StyledSafeAreaView`, `StyledScrollView`, `StyledPressable`, `StyledTextInput`, `StyledText` or `Typography` extracts as `View`, `SafeAreaView`, `ScrollView`, `Pressable`, `TextInput`, `Text` or `Typography`, with no `fallbackSize`. The file keeps the element as written: a Creator prop change is patched onto it in place. The text children of a `Typography` are its `text` prop on the canvas (the `@mapples/ui` `Typography` renders only `text`), and a Creator text change is written back as the children. `codemodAdopt` tags these elements as they are, with no swap and no `$fallback`. `ExtractResult.styleElements` lists the sids written this way. An element adopted earlier as a `Custom` placeholder is read under its new type on the next sync, and its leftover `$fallback` attribute is dropped.
+
+  `@mapples/codegen`: `importNeedsFor(root, writtenAs)` skips the `@mapples/ui` import of the sids in `writtenAs`, so healing never adds an unused `View` import to a file that writes `<StyledView>`.
+
+  Breaking (included in 2.1.0, owner 2026-11-16): `ExtractResult` gains the required `styleElements`, and extraction and adoption output change for `@mapples/style` elements (an element adopted earlier as a `Custom` placeholder changes type on the next sync).
+
 ## 2.0.4
 
 ## 2.0.3

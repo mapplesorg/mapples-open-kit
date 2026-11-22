@@ -1,7 +1,10 @@
 import {
   forwardRef,
   PropsWithChildren,
+  useCallback,
+  useEffect,
   useMemo,
+  useRef,
   type ComponentRef,
   type ForwardRefExoticComponent,
   type RefAttributes,
@@ -29,6 +32,13 @@ export interface ListProps extends ViewProps {
   dividerInset?: number;
   /** Small heading above the rows. */
   header?: string;
+  /**
+   * Animates the rows when one is shown, hidden or removed: it fades in or
+   * out and the rows after it slide to their new place. The rows the list
+   * starts with do not animate. Off with the OS's reduced-motion setting.
+   * Defaults to `false`.
+   */
+  animateChanges?: boolean;
   /** Styled slots. */
   styled?: {
     /** The list surface. */
@@ -41,7 +51,8 @@ export interface ListProps extends ViewProps {
 /**
  * A container for `ListItem` rows: dividers, an optional header and a plain,
  * inset or card surface. Static rows only — data-bound lists use `FlatList`
- * with a `ListItem` template.
+ * with a `ListItem` template. With `animateChanges`, a row that is shown or
+ * hidden (a `_visible` binding) fades and its neighbours slide.
  *
  * @example
  * ```tsx
@@ -62,6 +73,7 @@ const List: ForwardRefExoticComponent<
       dividers = true,
       dividerInset = 16,
       header,
+      animateChanges = false,
       styled,
       children,
       ...rest
@@ -71,9 +83,15 @@ const List: ForwardRefExoticComponent<
     const tones = useTones();
     const shape = useShape();
     const elevation = useElevation();
+    // Rows that mount with the list are its first rows; later ones are new.
+    const settled = useRef(false);
+    useEffect(() => {
+      settled.current = true;
+    }, []);
+    const isSettled = useCallback(() => settled.current, []);
     const context = useMemo<ListContextValue>(
-      () => ({ dividers, dividerInset }),
-      [dividerInset, dividers],
+      () => ({ dividers, dividerInset, variant, animateChanges, isSettled }),
+      [animateChanges, dividerInset, dividers, isSettled, variant],
     );
 
     return (

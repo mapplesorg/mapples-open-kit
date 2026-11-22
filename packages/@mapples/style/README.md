@@ -213,6 +213,28 @@ const responsiveStyle = getResponsiveStyle({
 });
 ```
 
+#### `useHinge()`
+
+Returns the hinge of a foldable device, `{ angle, status }`, or `null` on a device with no hinge. The shape matches [`expo-hinge`](https://docs.expo.dev/versions/latest/sdk/hinge/), which is where the value comes from on a real device: hand its `useHinge()` to `HingeProvider` near the root of the app.
+
+```tsx
+import { HingeProvider, useHinge } from '@mapples/style';
+import { useHinge as useDeviceHinge } from 'expo-hinge';
+
+const App = () => (
+  <HingeProvider value={useDeviceHinge()}>
+    <Screens />
+  </HingeProvider>
+);
+
+const Player = () => {
+  const hinge = useHinge();
+  return <Video controlsBelow={hinge?.status === 'partiallyOpen'} />;
+};
+```
+
+Use the hinge for interactions and effects. Layout follows the window size, which already changes when the device folds (`useResponsive`).
+
 #### `useStyled(styled)`
 
 Process styled objects with theme and sizing interpolation.

@@ -7,6 +7,12 @@ export const defaults = Styler.create({
     gap: 12,
     zIndex: 10,
   },
+  // With `hideOnScroll`: the bar eases off the bottom edge and back.
+  scrolling: {
+    transitionProperty: ['opacity', 'transform'],
+    transitionDuration: '200ms',
+  },
+  hidden: { opacity: 0, transform: [{ translateY: '100%' }] },
   sticky: {
     position: 'absolute',
     left: 0,

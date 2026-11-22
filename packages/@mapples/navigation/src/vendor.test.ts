@@ -4,13 +4,15 @@
 // release. We assert each specifier *resolves* rather than importing `./vendor`
 // directly: importing pulls in react-native, which the node test environment
 // can't transform. The named exports themselves are covered by the TS build.
+// From SDK 58 expo-router's `exports` map appends `.js` to `./build/*`, so the
+// paths carry an explicit `/index`, as in `./vendor`.
 // See https://docs.expo.dev/router/migrate/sdk-55-to-56/.
 describe('vendored expo-router react-navigation paths', () => {
   it.each([
     'expo-router/react-navigation',
-    'expo-router/build/react-navigation/bottom-tabs',
-    'expo-router/build/react-navigation/drawer',
-    'expo-router/build/react-navigation/native-stack',
+    'expo-router/build/react-navigation/bottom-tabs/index',
+    'expo-router/build/react-navigation/core/index',
+    'expo-router/build/react-navigation/drawer/index',
   ])('resolves "%s"', (specifier) => {
     expect(() => require.resolve(specifier)).not.toThrow();
   });

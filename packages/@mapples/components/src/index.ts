@@ -11,9 +11,14 @@
  */
 
 export * from './schematics';
+export * from './animationControl';
+export { default as MotionActionHandler } from './MotionActionHandler';
+export * from './deviceActions';
+export { default as DeviceActionHandler } from './DeviceActionHandler';
 export * from './components/actions';
 export * from './components/inputs';
 export * from './components/content';
 export * from './components/navigation';
 export * from './components/feedback';
 export * from './components/overlays';
+export * from './components/animated';

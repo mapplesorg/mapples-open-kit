@@ -15,11 +15,14 @@ import {
   visibilityGuard,
 } from './print.js';
 import { propTestCode } from './propConditions.js';
+import { elementStates, STATES_ATTR } from './states.js';
 import type {
+  ExtractOptions,
   ExtractWarning,
   PatchOptions,
   PatchResult,
   RenderDomNode,
+  RenderState,
   SidEdit,
 } from './types.js';
 
@@ -72,6 +75,14 @@ function codeOwnedDataProps(
     delete out[key];
   }
   return out;
+}
+
+/** Canvas `text` as the element's children (the prop goes; children carry it). */
+function textAsChildren(
+  props: Record<string, unknown>,
+): Record<string, unknown> {
+  const { text, ...rest } = props;
+  return text === undefined ? rest : { ...rest, children: text };
 }
 
 function applySetProps(
@@ -130,10 +141,17 @@ function applySetProps(
     );
   }
 
+  // A @mapples/style Typography keeps its copy as children; the canvas holds
+  // it as `text` (see styleElements.ts): write it back where the file has it.
+  const textKey = info.textChildren ? 'text' : 'children';
+  const written: RenderDomNode = info.textChildren
+    ? { ...desired, props: textAsChildren(desired.props) }
+    : desired;
+
   // 1. Attributes — surgical, one at a time. User expression props (non-literal
   //    attrs) are never touched; only canvas-owned literal attrs are rewritten.
   const { attrs: desiredList } = emittable(
-    { ...desired, children: [] },
+    { ...written, children: [] },
     guarded,
   );
   const desiredMap = new Map(
@@ -141,7 +159,10 @@ function applySetProps(
   );
   const textEdits: { start: number; end: number; replacement: string }[] = [];
   for (const attr of info.attrs) {
-    if (!attr.literal || attr.name === '$sid') continue;
+    // `$states` follows the document's states, not this node's props:
+    // `syncElementStates` writes it once every edit is in.
+    if (!attr.literal || attr.name === '$sid' || attr.name === STATES_ATTR)
+      continue;
     if (desiredMap.has(attr.name)) {
       const value = desiredMap.get(attr.name);
       desiredMap.delete(attr.name);
@@ -242,14 +263,14 @@ function applySetProps(
 
   // 2. Text children (only when the node has no $sid children, and its text
   //    is not a prop the code passes on).
-  const { text } = emittable(desired);
+  const { text } = emittable(written);
   const currentText =
-    typeof current.props.children === 'string' ? current.props.children : null;
-  if (text !== currentText && info.propBindings.includes('children')) {
+    typeof current.props[textKey] === 'string' ? current.props[textKey] : null;
+  if (text !== currentText && info.propBindings.includes(textKey)) {
     warnings.push({
       kind: 'NON_LITERAL_PROP',
       sid: edit.sid,
-      prop: 'children',
+      prop: textKey,
       detail: `the text of <${info.tagName}> is a prop in code, so the Creator's text change was not written to the file`,
     });
   } else if (text !== currentText && info.childSids.length === 0) {
@@ -266,7 +287,7 @@ function applySetProps(
     } else if (text !== null) {
       // Self-closing element gaining text: rewrite `<X … />` -> `<X …>{'text'}</X>`.
       const shell = printElement(
-        { ...desired, children: [] },
+        { ...written, children: [] },
         '',
         print,
         guarded,
@@ -277,7 +298,7 @@ function applySetProps(
     warnings.push({
       kind: 'NON_LITERAL_PROP',
       sid: edit.sid,
-      prop: 'children',
+      prop: textKey,
       detail: `<${info.tagName}> has child elements, so the Creator's text change was not written to the file`,
     });
   }
@@ -337,11 +358,20 @@ function valueAt(value: unknown, path: string[]): unknown {
 
 function applyRemove(source: string, analysis: Analysis, sid: string): string {
   const info = requireInfo(analysis, sid);
+  // A direct child, or the only element of its `{…}` (`{test && (<X/>)}`):
+  // the whole slot goes. A branch of a ternary (or any other expression)
+  // becomes `null` — cutting just the element left `? ( ) :`, which does not
+  // parse, and the file's later elements lost their place with it.
+  const ownsSlot = info.jsxChild || info.guard?.kind === 'and';
+  if (!ownsSlot) {
+    return splice(source, info.span.start, info.span.end, 'null');
+  }
+  const span = info.jsxChild ? info.span : info.slot;
   // Swallow the whitespace-only prefix on the element's own line.
-  let start = info.span.start;
+  let start = span.start;
   const lineStart = source.lastIndexOf('\n', start - 1) + 1;
   if (/^[ \t]*$/.test(source.slice(lineStart, start))) start = lineStart;
-  return splice(source, start, info.span.end, '');
+  return splice(source, start, span.end, '');
 }
 
 function childAnchor(
@@ -353,10 +383,12 @@ function childAnchor(
   const childInfos = info.childSids.map((s) => requireInfo(analysis, s));
   if (at < childInfos.length) {
     const target = childInfos[at]!;
-    const lineStart = source.lastIndexOf('\n', target.span.start - 1) + 1;
-    return /^[ \t]*$/.test(source.slice(lineStart, target.span.start))
+    // Before the sibling's whole slot: inside its `{…}` the new element
+    // would land in another element's guard or ternary branch.
+    const lineStart = source.lastIndexOf('\n', target.slot.start - 1) + 1;
+    return /^[ \t]*$/.test(source.slice(lineStart, target.slot.start))
       ? lineStart
-      : target.span.start;
+      : target.slot.start;
   }
   if (info.innerSpan === null)
     throw new Error(`cannot append into self-closing element ${info.sid}`);
@@ -423,11 +455,22 @@ function applyMove(
     return source;
   }
   const childInfo = requireInfo(analysis, edit.sid);
-  // Cut the child's line-extended span…
-  let cutStart = childInfo.span.start;
+  // A guarded child moves with its guard; a branch of a ternary shares its
+  // `{…}` with the other branches, so it cannot move on its own.
+  if (!childInfo.jsxChild && childInfo.guard?.kind !== 'and') {
+    warnings.push({
+      kind: 'NON_LITERAL_PROP',
+      sid: edit.sid,
+      detail: `the Creator's move of $sid="${edit.sid}" was not written: it is a branch of a conditional in the file — move the whole {…} expression in the code`,
+    });
+    return source;
+  }
+  const slot = childInfo.jsxChild ? childInfo.span : childInfo.slot;
+  // Cut the child's line-extended slot…
+  let cutStart = slot.start;
   const lineStart = source.lastIndexOf('\n', cutStart - 1) + 1;
   if (/^[ \t]*$/.test(source.slice(lineStart, cutStart))) cutStart = lineStart;
-  let cutEnd = childInfo.span.end;
+  let cutEnd = slot.end;
   if (source[cutEnd] === '\n') cutEnd += 1;
   const chunk = source.slice(cutStart, cutEnd);
   const removed = splice(source, cutStart, cutEnd, '');
@@ -443,6 +486,77 @@ function applyMove(
     anchor,
     chunk.endsWith('\n') ? chunk : chunk + '\n',
   );
+}
+
+/**
+ * `source` with every element's `$states` naming exactly the data states its
+ * `key::state` style variants render under, as `states` (the document's) has
+ * them: added where a variant has none, rewritten where the state's
+ * condition or name changed, removed where no variant needs it. States are
+ * the document's, not a node's, so no tree edit carries them — this is the
+ * whole-file pass that does. An element whose `styled` or `$states` is
+ * computed in code is the code's and stays as written.
+ */
+export function syncElementStates(
+  source: string,
+  states: Record<string, RenderState>,
+  options: ExtractOptions = {},
+): PatchResult {
+  const analysis = analyze(source, options);
+  const warnings: ExtractWarning[] = [];
+  const textEdits: { start: number; end: number; replacement: string }[] = [];
+  for (const [sid, info] of analysis.info) {
+    const styledAttr = info.attrs.find((a) => a.name === 'styled');
+    if (styledAttr && !styledAttr.literal) continue;
+    const desired = elementStates(analysis.nodes.get(sid)!, states);
+    const attr = info.attrs.find((a) => a.name === STATES_ATTR);
+    if (attr && !attr.literal) {
+      if (desired !== undefined) {
+        warnings.push({
+          kind: 'NON_LITERAL_PROP',
+          sid,
+          prop: STATES_ATTR,
+          detail: `\`${STATES_ATTR}\` on <${info.tagName}> is set in code, so the Creator's states for it were not written to the file`,
+        });
+      }
+      continue;
+    }
+    if (attr === undefined) {
+      if (desired === undefined) continue;
+      const insertAt = info.attrs.reduce(
+        (end, a) => Math.max(end, a.span.end),
+        info.attrsSpan.start,
+      );
+      textEdits.push({
+        start: insertAt,
+        end: insertAt,
+        replacement: ' ' + printAttr(STATES_ATTR, desired),
+      });
+    } else if (desired === undefined) {
+      let start = attr.span.start;
+      while (
+        start > 0 &&
+        (source[start - 1] === ' ' ||
+          source[start - 1] === '\n' ||
+          source[start - 1] === '\t')
+      ) {
+        start -= 1;
+      }
+      textEdits.push({ start, end: attr.span.end, replacement: '' });
+    } else if (!deepEqual(attr.value, desired)) {
+      textEdits.push({
+        start: attr.span.start,
+        end: attr.span.end,
+        replacement: printAttr(STATES_ATTR, desired),
+      });
+    }
+  }
+  // Attribute regions of different elements never overlap: back to front.
+  textEdits.sort((a, b) => b.start - a.start);
+  let out = source;
+  for (const te of textEdits)
+    out = splice(out, te.start, te.end, te.replacement);
+  return { source: out, warnings };
 }
 
 export function patch(
@@ -490,6 +604,11 @@ export function patch(
         break;
       }
     }
+  }
+  if (options.states !== undefined) {
+    const synced = syncElementStates(out, options.states, options);
+    out = synced.source;
+    warnings.push(...synced.warnings);
   }
   return { source: out, warnings };
 }

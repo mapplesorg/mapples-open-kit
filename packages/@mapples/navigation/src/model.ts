@@ -124,22 +124,19 @@ export const routeNameForId = (
 };
 
 /**
- * The route a navigation target names — an exact `<navigator>:<route>` match,
- * or the first route with a bare legacy name. What an editor reads to learn
- * the params (`route.path`) a target expects.
+ * The route a qualified `<navigator>:<route>` target names. What an editor
+ * reads to learn the params (`route.path`) a target expects.
  */
 export const resolveRoute = (
   document: NavigationDocument,
   target: string,
 ): RouteNode | null => {
-  let bareMatch: RouteNode | null = null;
   for (const navigator of Object.values(document.navigators)) {
     for (const route of navigator.routes) {
       if (qualifyRouteName(navigator.name, route.name) === target) return route;
-      if (route.name === target && bareMatch === null) bareMatch = route;
     }
   }
-  return bareMatch;
+  return null;
 };
 
 export const findRouteNameForPage = (
@@ -157,41 +154,19 @@ export const findRouteNameForPage = (
 };
 
 /**
- * Resolve a navigation target to the qualified screen name the runtime
- * navigates to.
- *
- * - An exact `<navigator>:<route>` match is returned as-is.
- * - A bare legacy route name (no navigator prefix) resolves to the first route
- *   with that name, qualified, with a one-time warning — backward compatibility
- *   for documents authored before targets were qualified.
- *
- * Returns `null` when nothing matches.
+ * The qualified screen name the runtime navigates to: the target itself when
+ * a route is named `<navigator>:<route>`, `null` otherwise.
  */
 export const resolveScreenName = (
   document: NavigationDocument,
   target: string,
 ): string | null => {
-  let firstBareMatch: string | null = null;
-
   for (const navigator of Object.values(document.navigators)) {
     for (const route of navigator.routes) {
       const qualified = qualifyRouteName(navigator.name, route.name);
       if (qualified === target) return qualified;
-      if (route.name === target && firstBareMatch === null) {
-        firstBareMatch = qualified;
-      }
     }
   }
-
-  if (firstBareMatch) {
-    console.warn(
-      `[mapples-navigation] navigation target "${target}" is a bare route name ` +
-        `and was resolved to "${firstBareMatch}". Re-save the navigation ` +
-        `document to store the qualified "navigator:route" target.`,
-    );
-    return firstBareMatch;
-  }
-
   return null;
 };
 

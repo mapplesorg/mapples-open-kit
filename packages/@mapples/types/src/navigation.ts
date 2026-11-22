@@ -40,8 +40,7 @@ export interface NavigationDocument {
 
 /**
  * Editor-only preferences about how the navigation is *drawn on the canvas*.
- * The runtime never reads this, the same way it never reads
- * {@link NavigatorNode.canvas} — it lives here so the choice travels with the
+ * The runtime never reads this — it lives here so the choice travels with the
  * project rather than with one editor.
  *
  * @interface NavigationCanvasSettings
@@ -54,25 +53,6 @@ export interface NavigationCanvasSettings {
    * the chrome is claiming space the screen will not actually have.
    */
   chrome?: boolean;
-}
-
-/**
- * Editor-only world-space rectangle of a navigator's section on the Creator
- * canvas. The runtime ignores it entirely — it exists so the canvas can
- * persist where the section is drawn, the same way pages persist their frame
- * placement in `_canvasProps`.
- *
- * @interface NavigatorCanvasRect
- */
-export interface NavigatorCanvasRect {
-  /** World-space left edge. */
-  x: number;
-  /** World-space top edge. */
-  y: number;
-  /** Width in world units. */
-  width: number;
-  /** Height in world units. */
-  height: number;
 }
 
 /**
@@ -111,14 +91,28 @@ export interface NavigatorNode {
   options?: NavigatorOptions;
   /** Editor-only storyboard cell. Ignored by the runtime. */
   cell?: StoryboardCell;
-  /**
-   * Editor-only canvas placement from before the storyboard grid. Ignored by
-   * the runtime and by the Creator, kept so older documents still parse.
-   *
-   * @deprecated Sections sit in a {@link cell} now.
-   */
-  canvas?: NavigatorCanvasRect;
 }
+
+/**
+ * The transitions a stack screen can open with: the names the native stack
+ * takes as its `animation` option. `default` is the platform's own.
+ */
+export const ROUTE_ANIMATIONS = [
+  'default',
+  'fade',
+  'fade_from_bottom',
+  'flip',
+  'none',
+  'simple_push',
+  'slide_from_bottom',
+  'slide_from_right',
+  'slide_from_left',
+  'ios_from_right',
+  'ios_from_left',
+] as const;
+
+/** How a stack screen animates in and out (see {@link ROUTE_ANIMATIONS}). */
+export type RouteAnimation = (typeof ROUTE_ANIMATIONS)[number];
 
 /**
  * A single route within a navigator — either a page leaf or a nested navigator.
@@ -136,6 +130,12 @@ export interface RouteNode {
     | { kind: 'navigator'; navigatorId: string };
   /** How the screen is presented. Valid only when the parent navigator is a `stack`. */
   presentation?: 'card' | 'modal' | 'transparentModal';
+  /**
+   * The transition the screen opens and closes with. Valid only when the
+   * parent navigator is a `stack`; absent means the platform's default.
+   * Native only: a web stack has no screen transition.
+   */
+  animation?: RouteAnimation;
   /** Per-screen option overrides (header, tab/drawer label & icon). */
   options?: ScreenOptions;
   /**
@@ -275,6 +275,12 @@ export interface HeaderOptions {
   visible?: boolean;
   /** Header title text. */
   title?: string;
+  /**
+   * The message key of the title in the project's locales document
+   * (`home.title`, read as `t.home.title`). While the key resolves in the
+   * active locale its message is shown; otherwise {@link title} is.
+   */
+  titleKey?: string;
   /** Header background — raw value or `ref(theme:<uuid>:<name>)`. */
   backgroundColor?: string;
   /** Tint applied to header buttons/icons. */
@@ -292,6 +298,18 @@ export interface HeaderOptions {
  *
  * @interface TabBarOptions
  */
+/** Where a tabs navigator draws its bar — see `TabBarOptions.placement`. */
+export type TabBarPlacement = 'bottom' | 'sidebar' | 'automatic';
+
+export const TAB_BAR_PLACEMENTS: TabBarPlacement[] = [
+  'bottom',
+  'sidebar',
+  'automatic',
+];
+
+/** The window width from which an `automatic` tab bar becomes a sidebar. */
+export const TAB_BAR_SIDEBAR_MIN_WIDTH = 768;
+
 export interface TabBarOptions {
   /** Whether the tab bar is shown. */
   visible?: boolean;
@@ -318,6 +336,16 @@ export interface TabBarOptions {
    * on the stock and the native bar.
    */
   floating?: boolean;
+  /**
+   * Where the stock bar sits: along the `bottom` (the default), down the
+   * left side as a `sidebar`, or `automatic` — a sidebar when the window is
+   * at least {@link TAB_BAR_SIDEBAR_MIN_WIDTH} wide (a tablet, an unfolded
+   * foldable) and a bottom bar otherwise. Inert on a designed bar
+   * ({@link componentUuid}), which is drawn for the bottom edge. With
+   * {@link native} the platform decides within the same preference
+   * (expo-router `NativeTabs` `preferredPlacement`).
+   */
+  placement?: TabBarPlacement;
   /** Tab bar background colour. */
   backgroundColor?: string;
   /** Tint for the active tab. */
@@ -372,10 +400,14 @@ export interface ScreenOptions extends Partial<HeaderOptions> {
   tabIcon?: string;
   /** Tab bar label override. */
   tabLabel?: string;
+  /** Message key of the tab label; shown instead of {@link tabLabel} while it resolves. */
+  tabLabelKey?: string;
   /** Drawer icon — `ref(icon:<uuid>:<name>)` or `ref(glyph:<family>:<name>)`. */
   drawerIcon?: string;
   /** Drawer label override. */
   drawerLabel?: string;
+  /** Message key of the drawer label; shown instead of {@link drawerLabel} while it resolves. */
+  drawerLabelKey?: string;
 }
 
 /**
@@ -429,23 +461,72 @@ export const routeHeaderVisible = (
     : (navigator.options?.header?.visible ?? true));
 
 /**
+ * Reads a message of the project's locales document in the active locale:
+ * the formatted text of a message key, `undefined` when the key does not
+ * resolve (an unknown key, or a host with no locale runtime).
+ */
+export type MessageText = (key: string) => string | undefined;
+
+/** The message of `key` when it resolves, else the literal text. */
+const localizedText = (
+  key: string | undefined,
+  literal: string | undefined,
+  text: MessageText | undefined,
+): string | undefined => {
+  const translated = key && text ? text(key) : undefined;
+  return translated ?? literal;
+};
+
+/**
  * The title a route's screen shows in its header: the route's own, else the
- * navigator's, else the route name.
+ * navigator's, else the route name. At each level a title's message key
+ * (`titleKey`) wins over its literal while `text` resolves it.
  */
 export const routeTitle = (
   navigator: NavigatorNode,
   route: RouteNode,
+  text?: MessageText,
 ): string =>
-  route.options?.title ?? navigator.options?.header?.title ?? route.name;
+  localizedText(route.options?.titleKey, route.options?.title, text) ??
+  localizedText(
+    navigator.options?.header?.titleKey,
+    navigator.options?.header?.title,
+    text,
+  ) ??
+  route.name;
 
 /**
- * The label a route's tab or drawer item shows: the route's `tabLabel` /
- * `drawerLabel`, else the route name — never the header title, which a
+ * The label a route's tab or drawer item shows ({@link routeItemLabel}): the
+ * route's `tabLabel` / `drawerLabel` (its message key first, while `text`
+ * resolves it), else the route name — never the header title, which a
  * navigator-wide title would otherwise put on every item.
  */
+/**
+ * The side of the window a tabs navigator's bar is drawn on, for a window
+ * `width` points wide. One rule for the runtime, the canvas frame chrome and
+ * the generated layouts, so a screen is designed against the bar it gets.
+ */
+export const tabBarSide = (
+  tabBar: TabBarOptions | undefined,
+  width: number,
+): 'bottom' | 'left' => {
+  if (!tabBar || tabBar.componentUuid) return 'bottom';
+  if (tabBar.placement === 'sidebar') return 'left';
+  if (tabBar.placement === 'automatic') {
+    return width >= TAB_BAR_SIDEBAR_MIN_WIDTH ? 'left' : 'bottom';
+  }
+  return 'bottom';
+};
+
 export const routeItemLabel = (
   kind: 'tabs' | 'drawer',
   route: RouteNode,
+  text?: MessageText,
 ): string =>
-  (kind === 'tabs' ? route.options?.tabLabel : route.options?.drawerLabel) ??
-  route.name;
+  (kind === 'tabs'
+    ? localizedText(route.options?.tabLabelKey, route.options?.tabLabel, text)
+    : localizedText(
+        route.options?.drawerLabelKey,
+        route.options?.drawerLabel,
+        text,
+      )) ?? route.name;

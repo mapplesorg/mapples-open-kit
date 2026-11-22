@@ -43,6 +43,24 @@ export {
 export type { ActiveRouteState, RouteParams } from './route/context';
 export { TabScopeProvider, useTabScope } from './tab/context';
 export type { TabScope } from './tab/context';
+export { useLocaleState } from './locale/context';
+export { deviceLocales } from './locale/deviceLocales';
+export {
+  default as LocaleActionHandler,
+  LocaleActionType,
+} from './locale/LocaleActionHandler';
+export type { SetLocaleData } from './locale/LocaleActionHandler';
+export { default as LocaleDirection } from './locale/LocaleDirection';
+export {
+  default as LocaleProvider,
+  LOCALE_STORAGE_KEY,
+} from './locale/LocaleProvider';
+export type {
+  LocaleContextType,
+  LocaleDirectionProps,
+  LocaleProviderProps,
+  LocaleValue,
+} from './locale/types';
 export { isValueSource, resolveValueSource } from './valueSource';
 // The data-state context itself, for hosts that re-provide it elsewhere in
 // the tree (a native portal cannot carry context across).
@@ -54,5 +72,6 @@ export {
 export { default as VariablesScope } from './writable/VariablesScope';
 export { default as StateActionHandler } from './StateActionHandler';
 export { default as ConditionActionHandler } from './ConditionActionHandler';
+export { default as DelayActionHandler } from './DelayActionHandler';
 
 export default StateProvider;

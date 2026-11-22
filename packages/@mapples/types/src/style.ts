@@ -48,9 +48,45 @@ export interface LinearGradient {
 }
 
 /**
- * Any gradient payload a node may carry. Currently only linear gradients are
- * supported; widening this union (radial, angular) is the extension point.
+ * A radial gradient: colours spread from a centre outwards. `center` is in
+ * the same normalized object space as a linear gradient's `start` / `end`
+ * (`{x: 0.5, y: 0.5}` is the middle of the box); `radius` is a fraction of
+ * the box's larger side (`0.5` reaches the edges of a square from its
+ * middle).
  *
  * @public
  */
-export type Gradient = LinearGradient;
+export interface RadialGradient {
+  type: 'radial';
+  stops: GradientStop[];
+  center: { x: number; y: number };
+  radius: number;
+}
+
+/**
+ * An angular (conic) gradient: colours sweep around a centre, clockwise
+ * from `angle` (degrees; `0` points up). `repeat` plays the stops that many
+ * times around the circle, which is how rays are drawn: two colours with a
+ * hard edge between them (the same `position` twice) and `repeat: 12` give
+ * twelve rays.
+ *
+ * @public
+ */
+export interface ConicGradient {
+  type: 'conic';
+  stops: GradientStop[];
+  center: { x: number; y: number };
+  /** Degrees the sweep starts at; `0` points up. Defaults to `0`. */
+  angle?: number;
+  /** How many times the stops repeat around the circle. Defaults to `1`. */
+  repeat?: number;
+}
+
+/**
+ * Any gradient payload a node may carry: linear (painted by
+ * `expo-linear-gradient`), radial or conic (both painted with
+ * `react-native-svg`).
+ *
+ * @public
+ */
+export type Gradient = LinearGradient | RadialGradient | ConicGradient;

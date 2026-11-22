@@ -6,17 +6,27 @@ import {
   useMemo,
 } from 'react';
 
+import { useMessageText } from '@mapples/state';
 import {
+  MessageText,
   NavigationDocument,
   routeHeaderVisible,
   routeItemLabel,
   routeTitle,
+  tabBarSide,
 } from '@mapples/types';
 import { Text, View } from 'react-native';
+import { SafeAreaFrameContext } from 'react-native-safe-area-context';
 
 // The navigators come from the host's React Navigation (`ctx.backend`).
 import { NavigationBackend } from './backend';
-import { DrawerContentHost, TabBarHost } from './chrome';
+import {
+  DrawerContentHost,
+  RailBackButton,
+  RailTabBar,
+  TabBarHost,
+  useVerticalBar,
+} from './chrome';
 import { EMPTY_ROUTE_NAME } from './constants';
 import {
   mapDrawerItemOptions,
@@ -116,7 +126,19 @@ const EmptyNavigatorScreen: ComponentType = () => (
  * action and guard. It reads the build context at render, so it depends on
  * the screen alone.
  */
-const screenComponent = (screen: ScreenModel): ComponentType => {
+/** What React Navigation hands a screen's component of its navigator. */
+interface ScreenProps {
+  navigation?: {
+    canGoBack: () => boolean;
+    goBack: () => void;
+    getState: () => { index: number };
+  };
+}
+
+const screenComponent = (
+  screen: ScreenModel,
+  inStack: boolean,
+): ComponentType => {
   if (screen.target.kind === 'navigator') {
     const child = screen.target.child;
     const Child: ComponentType = () => {
@@ -136,14 +158,29 @@ const screenComponent = (screen: ScreenModel): ComponentType => {
   }
 
   const { pageUuid } = screen.target;
-  const Routed: ComponentType = () => {
+  const Routed = (({ navigation }: ScreenProps) => {
     const ctx = useNavigatorBuildContext();
+    const bar = useVerticalBar();
     const Page = ctx.pages[pageUuid];
     if (Page) {
+      // On a device with a vertical bar whose host draws the navigation
+      // there, a pushed stack screen gets its back button in the bar: the
+      // horizontal header, where it would have been, is left out.
+      const back =
+        bar?.navigation &&
+        inStack &&
+        navigation &&
+        navigation.getState().index > 0 &&
+        navigation.canGoBack()
+          ? navigation.goBack
+          : undefined;
       return (
-        <RouteScreen route={screen.route} document={ctx.document}>
-          <Page />
-        </RouteScreen>
+        <>
+          <RouteScreen route={screen.route} document={ctx.document}>
+            <Page />
+          </RouteScreen>
+          {bar && back && <RailBackButton bar={bar} onPress={back} />}
+        </>
       );
     }
     if (ctx.fallback) {
@@ -151,7 +188,7 @@ const screenComponent = (screen: ScreenModel): ComponentType => {
       return <Fallback pageUuid={pageUuid} />;
     }
     return null;
-  };
+  }) as ComponentType;
   Routed.displayName = `RouteScreen(${screen.routeName})`;
   return Routed;
 };
@@ -165,7 +202,13 @@ const screenComponent = (screen: ScreenModel): ComponentType => {
  * it loads after mount.
  */
 const useScreenComponents = (model: NavigatorModel): ComponentType[] =>
-  useMemo(() => model.screens.map(screenComponent), [model.screens]);
+  useMemo(
+    () =>
+      model.screens.map((screen) =>
+        screenComponent(screen, model.node.type === 'stack'),
+      ),
+    [model.screens, model.node.type],
+  );
 
 /**
  * The header visibility and title every navigator type gives a screen — the
@@ -173,14 +216,16 @@ const useScreenComponents = (model: NavigatorModel): ComponentType[] =>
  * generated layouts apply too. A route entering a nested navigator draws no
  * header (the nested one does), so Play never stacks two bars. The title is
  * always set: left unset, React Navigation would show the navigator-qualified
- * screen name (`<navigator>:<route>`).
+ * screen name (`<navigator>:<route>`). `text` reads a title's message key in
+ * the active locale, so the header follows a locale switch.
  */
 const sharedScreenOptions = (
   model: NavigatorModel,
   screen: ScreenModel,
+  text: MessageText,
 ): { headerShown: boolean; title: string } => ({
   headerShown: routeHeaderVisible(model.node, screen.route),
-  title: routeTitle(model.node, screen.route),
+  title: routeTitle(model.node, screen.route, text),
 });
 
 const StackNavigatorView = ({
@@ -196,6 +241,10 @@ const StackNavigatorView = ({
     [createNativeStackNavigator],
   );
   const screens = useScreenComponents(model);
+  const text = useMessageText();
+  // With the navigation drawn in the device's vertical bar there is no
+  // horizontal header: the back button is in the bar (see `screenComponent`).
+  const headerless = useVerticalBar()?.navigation === true;
   return (
     <Stack.Navigator
       initialRouteName={model.initialRouteName}
@@ -207,7 +256,8 @@ const StackNavigatorView = ({
       {model.screens.length ? (
         model.screens.map((screen, index) => {
           const options = mapStackScreenOptions(screen.route, ctx.resolvers);
-          Object.assign(options, sharedScreenOptions(model, screen));
+          Object.assign(options, sharedScreenOptions(model, screen, text));
+          if (headerless) Object.assign(options, { headerShown: false });
           return (
             <Stack.Screen
               key={screen.routeId}
@@ -241,25 +291,45 @@ const TabsNavigatorView = ({
     [createBottomTabNavigator],
   );
   const screens = useScreenComponents(model);
+  const text = useMessageText();
   const Chrome = chromeComponent(
     ctx,
     model,
     model.node.options?.tabBar?.componentUuid,
   );
   const floating = model.node.options?.tabBar?.floating === true;
+  // The frame, not the window: a host that previews a device (Play) binds
+  // the frame to that device, and the bar must follow it.
+  const frame = useContext(SafeAreaFrameContext);
+  const tabBarPosition = tabBarSide(
+    model.node.options?.tabBar,
+    frame?.width ?? 0,
+  );
+  // A device with a vertical bar takes the stock tabs into it, unless the
+  // navigator asks for a sidebar outright. A designed bar keeps its place:
+  // it was drawn for the bottom edge.
+  const bar = useVerticalBar();
+  const railed =
+    bar !== null &&
+    !Chrome &&
+    model.node.options?.tabBar?.placement !== 'sidebar';
+  const headerless = bar?.navigation === true;
   const tabBar = useCallback(
-    (props: BottomTabBarProps) =>
-      Chrome ? (
-        <TabBarHost {...props} Chrome={Chrome} floating={floating} />
-      ) : null,
-    [Chrome, floating],
+    (props: BottomTabBarProps) => {
+      if (Chrome) {
+        return <TabBarHost {...props} Chrome={Chrome} floating={floating} />;
+      }
+      return railed && bar ? <RailTabBar {...props} bar={bar} /> : null;
+    },
+    [Chrome, floating, railed, bar],
   );
   return (
     <Tabs.Navigator
       initialRouteName={model.initialRouteName}
-      tabBar={Chrome ? tabBar : undefined}
+      tabBar={Chrome || railed ? tabBar : undefined}
       screenOptions={{
         ...mapTabBarOptions(model.node.options?.tabBar, ctx.resolvers),
+        tabBarPosition: railed ? 'bottom' : tabBarPosition,
         // Bottom tabs draw a header of their own. Until these were mapped, a
         // tabs navigator nested in a stack always stacked a second header
         // under its parent's, with no option that could turn it off.
@@ -275,9 +345,10 @@ const TabsNavigatorView = ({
             screen.route,
             ctx.resolvers,
           ) as BottomTabNavigationOptions;
-          Object.assign(options, sharedScreenOptions(model, screen), {
-            tabBarLabel: routeItemLabel('tabs', screen.route),
+          Object.assign(options, sharedScreenOptions(model, screen, text), {
+            tabBarLabel: routeItemLabel('tabs', screen.route, text),
           });
+          if (headerless) Object.assign(options, { headerShown: false });
           return (
             <Tabs.Screen
               key={screen.routeId}
@@ -311,6 +382,7 @@ const DrawerNavigatorView = ({
     [createDrawerNavigator],
   );
   const screens = useScreenComponents(model);
+  const text = useMessageText();
   const Chrome = chromeComponent(
     ctx,
     model,
@@ -340,8 +412,8 @@ const DrawerNavigatorView = ({
             screen.route,
             ctx.resolvers,
           ) as DrawerNavigationOptions;
-          Object.assign(options, sharedScreenOptions(model, screen), {
-            drawerLabel: routeItemLabel('drawer', screen.route),
+          Object.assign(options, sharedScreenOptions(model, screen, text), {
+            drawerLabel: routeItemLabel('drawer', screen.route, text),
           });
           return (
             <Drawer.Screen

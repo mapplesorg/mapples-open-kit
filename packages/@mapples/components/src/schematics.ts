@@ -1,6 +1,7 @@
 import { RegisteredComponents } from '@mapples/types';
 
 import { ActionsSchematics } from './components/actions/schematics';
+import { AnimatedSchematics } from './components/animated/schematics';
 import { ContentSchematics } from './components/content/schematics';
 import { FeedbackSchematics } from './components/feedback/schematics';
 import { InputsSchematics } from './components/inputs/schematics';
@@ -30,4 +31,5 @@ export const Components: RegisteredComponents = {
   ...NavigationSchematics,
   ...FeedbackSchematics,
   ...OverlaysSchematics,
+  ...AnimatedSchematics,
 };

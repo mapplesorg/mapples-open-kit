@@ -35,6 +35,7 @@ export type {
   CliApiModule,
   CliNavigationModule,
   CliVariablesModule,
+  CliLocalesModule,
   MapplesProject,
   RouteScreens,
 } from './runtime/project';

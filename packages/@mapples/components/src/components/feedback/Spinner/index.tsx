@@ -6,7 +6,12 @@ import {
   type RefAttributes,
 } from 'react';
 
-import { StyledProp, StyledView, Typography } from '@mapples/style';
+import {
+  StyledProp,
+  StyledView,
+  Typography,
+  useMotionEnabled,
+} from '@mapples/style';
 import { Tokens, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
 import {
   ActivityIndicator,
@@ -65,6 +70,7 @@ const Spinner: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const motionEnabled = useMotionEnabled();
     const geometry = SPINNER_GEOMETRY[size];
     const primary = tones.tone('primary');
     const color =
@@ -95,7 +101,14 @@ const Spinner: ForwardRefExoticComponent<
             ],
           }}
         >
-          <ActivityIndicator size={geometry.indicator} color={color} />
+          {/* Still where a `MotionProvider` turned motion off (a design
+              canvas): the ring shows, it does not spin. */}
+          <ActivityIndicator
+            size={geometry.indicator}
+            color={color}
+            animating={motionEnabled}
+            hidesWhenStopped={false}
+          />
         </StyledView>
         {label ? (
           <Typography

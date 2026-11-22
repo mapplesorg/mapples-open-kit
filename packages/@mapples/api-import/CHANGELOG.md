@@ -1,5 +1,20 @@
 # @mapples/api-import
 
+## 2.1.0
+
+### Patch Changes
+
+- Updated dependencies [5fdf9ed]
+- Updated dependencies [094ce71]
+- Updated dependencies [d2ce13d]
+- Updated dependencies [dcfd14b]
+- Updated dependencies [aabcfd4]
+- Updated dependencies [ea76bd9]
+- Updated dependencies [dd68ce2]
+- Updated dependencies [b62a721]
+- Updated dependencies [dcc48bf]
+  - @mapples/types@2.1.0
+
 ## 2.0.4
 
 ### Patch Changes

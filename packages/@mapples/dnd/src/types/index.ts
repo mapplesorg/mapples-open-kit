@@ -220,8 +220,17 @@ export interface DropTargetConfig extends DropTargetLayoutConfig {
    * an already-mounted tree between editable and inert (e.g. an editor's
    * preview mode) WITHOUT remounting it: registration follows the flag while
    * the component identity — and therefore its rendered subtree — stays put.
+   * For an element that can be selected but not edited, see `selectOnly`.
    */
   enabled?: boolean;
+  /**
+   * When `true`, the element stays registered for hit-testing and selection
+   * (taps still emit `Select` for it) but is never a drag source nor a drop
+   * target: a drag that starts on it moves nothing, and drags or external
+   * drops over it resolve to no target, whatever `canDrop` says. For a
+   * read-only view whose elements can still be pointed at.
+   */
+  selectOnly?: boolean;
   /**
    * Marks a root-level drop element as the root of a frame coordinate space:
    * its own layout and every descendant's layout are stored relative to the
@@ -267,6 +276,8 @@ export interface DropItem<T> {
   children?: DropTree<T>;
   /** Whether this item can accept drops */
   canDrop?: boolean;
+  /** Selectable only: never moved nor dropped into (see `DropTargetConfig`) */
+  selectOnly?: boolean;
   /** Optional data associated with this drop item */
   data?: T;
   /** Frame space this subtree's layouts are relative to (root items only) */
@@ -305,6 +316,8 @@ export interface DropTarget<T> {
   index: number;
   /** Whether this target can accept drops */
   canDrop?: boolean;
+  /** Selectable only: never moved nor dropped into (see `DropTargetConfig`) */
+  selectOnly?: boolean;
   /** Optional child drop targets */
   children?: DropTree<T>;
   /** Optional data associated with this drop target */

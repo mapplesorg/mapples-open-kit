@@ -81,6 +81,7 @@ export const FONT_FILES: Record<string, number> = {
   'Syne-SemiBold': require('../assets/Syne/Syne-SemiBold.ttf'),
   'Syne-Bold': require('../assets/Syne/Syne-Bold.ttf'),
   'InstrumentSerif-Regular': require('../assets/InstrumentSerif/InstrumentSerif-Regular.ttf'),
+  'Anton-Regular': require('../assets/Anton/Anton-Regular.ttf'),
   'CormorantGaramond-Regular': require('../assets/CormorantGaramond/CormorantGaramond-Regular.ttf'),
   'CormorantGaramond-Medium': require('../assets/CormorantGaramond/CormorantGaramond-Medium.ttf'),
   'CormorantGaramond-SemiBold': require('../assets/CormorantGaramond/CormorantGaramond-SemiBold.ttf'),

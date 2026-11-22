@@ -7,16 +7,10 @@ import {
   type RefAttributes,
 } from 'react';
 
+import { useIsRTL } from '@mapples/render';
 import { StyledProp, StyledView, Typography } from '@mapples/style';
 import { Tokens, Tone, TYPOGRAPHY_PARTS, useTones } from '@mapples/ui';
-import {
-  I18nManager,
-  Pressable,
-  TextStyle,
-  View,
-  ViewProps,
-  ViewStyle,
-} from 'react-native';
+import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { Glyph, useSlotColor } from '../../../internal';
 
@@ -109,6 +103,7 @@ const Breadcrumbs: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const isRTL = useIsRTL();
     const crumbs = readBreadcrumbItems(items);
     const visible = collapse(crumbs, maxItems);
     const lastIndex = crumbs.length - 1;
@@ -135,7 +130,7 @@ const Breadcrumbs: ForwardRefExoticComponent<
           name="chevronRight"
           size={BREADCRUMB_GLYPH_SIZE}
           color={separatorColor}
-          style={I18nManager.isRTL ? defaults.mirrored : undefined}
+          style={isRTL ? defaults.mirrored : undefined}
         />
       ) : (
         <Typography

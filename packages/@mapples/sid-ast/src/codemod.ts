@@ -24,13 +24,82 @@ import ts from 'typescript';
 import { isInstanceWrapper } from './instanceStyled.js';
 import { DEFAULT_PRIMITIVE_MODULES, evalLiteral } from './parse.js';
 import { collectStyleDicts as collectSharedStyleDicts } from './styleDicts.js';
+import { styleElementOf } from './styleElements.js';
 import type { Span } from './types.js';
 
 export interface ScanInfo {
   hasSid: boolean;
   hasJsx: boolean;
-  exportedComponents: string[]; // PascalCase exported function/const components
+  /**
+   * Exported components by name, the default export first: PascalCase
+   * functions, and consts holding a function or a call (`memo(…)`,
+   * `forwardRef(…)`, `styled(…)`) — never a literal like
+   * `export const CARD_GAP = 8`, nor a SCREAMING_CASE constant.
+   */
+  exportedComponents: string[];
+  /**
+   * The file has a default export whose name the code does not give
+   * (`export default function () {}`, `export default memo(() => …)`): the
+   * caller names it, e.g. after the file.
+   */
+  anonymousDefault: boolean;
   markers: string[]; // mapples-route / generated markers found in the header
+}
+
+/** PascalCase, not a SCREAMING_CASE constant (`ICON_STROKE_WIDTH`, `TAG_KEYS`). */
+function isComponentName(name: string): boolean {
+  return /^[A-Z]/.test(name) && !/^[A-Z0-9]+_[A-Z0-9_]*$/.test(name);
+}
+
+/** `memo(X)`, `React.forwardRef(function X() {…})`: the wrapped component. */
+const COMPONENT_WRAPPERS = new Set(['memo', 'forwardRef']);
+
+/**
+ * The name a default-exported expression gives its component: the identifier
+ * behind `export default Foo` or `memo(Foo)`, a named function expression —
+ * or null when the code names nothing.
+ */
+function defaultExportName(expr: ts.Expression): string | null {
+  let e = expr;
+  while (
+    ts.isParenthesizedExpression(e) ||
+    ts.isAsExpression(e) ||
+    ts.isSatisfiesExpression(e)
+  )
+    e = e.expression;
+  if (ts.isIdentifier(e)) return e.text;
+  if ((ts.isFunctionExpression(e) || ts.isClassExpression(e)) && e.name)
+    return e.name.text;
+  if (ts.isCallExpression(e) && e.arguments.length > 0) {
+    const callee = ts.isPropertyAccessExpression(e.expression)
+      ? e.expression.name.text
+      : ts.isIdentifier(e.expression)
+        ? e.expression.text
+        : null;
+    if (callee !== null && COMPONENT_WRAPPERS.has(callee))
+      return defaultExportName(e.arguments[0]!);
+  }
+  return null;
+}
+
+/** A const that can hold a component: a function, or what a call returns. */
+function holdsComponent(init: ts.Expression | undefined): boolean {
+  if (!init) return false;
+  let e = init;
+  while (
+    ts.isParenthesizedExpression(e) ||
+    ts.isAsExpression(e) ||
+    ts.isSatisfiesExpression(e)
+  )
+    e = e.expression;
+  return (
+    ts.isArrowFunction(e) ||
+    ts.isFunctionExpression(e) ||
+    ts.isClassExpression(e) ||
+    ts.isCallExpression(e) ||
+    ts.isIdentifier(e) ||
+    ts.isPropertyAccessExpression(e)
+  );
 }
 
 export function scanComponents(source: string): ScanInfo {
@@ -41,34 +110,56 @@ export function scanComponents(source: string): ScanInfo {
     true,
     ts.ScriptKind.TSX,
   );
-  const exported: string[] = [];
-  const isComponentName = (name: string): boolean => /^[A-Z]/.test(name);
+  const named: string[] = [];
+  let defaultName: string | null = null;
+  let anonymousDefault = false;
 
   for (const stmt of sf.statements) {
-    const isExport = ts.canHaveModifiers(stmt)
-      ? (ts
-          .getModifiers(stmt)
-          ?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword) ?? false)
-      : false;
-    if (
-      ts.isFunctionDeclaration(stmt) &&
-      stmt.name &&
-      isExport &&
-      isComponentName(stmt.name.text)
-    ) {
-      exported.push(stmt.name.text);
+    const modifiers = ts.canHaveModifiers(stmt) ? ts.getModifiers(stmt) : [];
+    const isExport =
+      modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword) ?? false;
+    const isDefault =
+      modifiers?.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword) ?? false;
+    if (ts.isFunctionDeclaration(stmt) && isExport) {
+      if (isDefault) {
+        if (stmt.name) defaultName = stmt.name.text;
+        else anonymousDefault = true;
+      } else if (stmt.name && isComponentName(stmt.name.text)) {
+        named.push(stmt.name.text);
+      }
     }
     if (ts.isVariableStatement(stmt) && isExport) {
       for (const decl of stmt.declarationList.declarations) {
-        if (ts.isIdentifier(decl.name) && isComponentName(decl.name.text)) {
-          exported.push(decl.name.text);
+        if (
+          ts.isIdentifier(decl.name) &&
+          isComponentName(decl.name.text) &&
+          holdsComponent(decl.initializer)
+        ) {
+          named.push(decl.name.text);
         }
       }
     }
     if (ts.isExportAssignment(stmt) && !stmt.isExportEquals) {
-      exported.push('default');
+      defaultName = defaultExportName(stmt.expression);
+      if (defaultName === null) anonymousDefault = true;
+    }
+    // `export { Foo as default }`
+    if (
+      ts.isExportDeclaration(stmt) &&
+      !stmt.moduleSpecifier &&
+      stmt.exportClause &&
+      ts.isNamedExports(stmt.exportClause)
+    ) {
+      for (const el of stmt.exportClause.elements) {
+        if (el.name.text === 'default')
+          defaultName = (el.propertyName ?? el.name).text;
+      }
     }
   }
+  const exported =
+    defaultName !== null
+      ? [defaultName, ...named.filter((n) => n !== defaultName)]
+      : named;
   const markers: string[] = [];
   const headMatch =
     /\/\/\s*(mapples-route:[^\n]*|GENERATED by Mapples[^\n]*)/.exec(source);
@@ -77,6 +168,7 @@ export function scanComponents(source: string): ScanInfo {
     hasSid: /\$sid\s*=/.test(source),
     hasJsx: containsJsx(sf),
     exportedComponents: exported,
+    anonymousDefault,
     markers,
   };
 }
@@ -130,7 +222,22 @@ export interface CodemodResult {
   source: string;
   adopted: AdoptedElement[];
   skipped: { name: string; reason: string }[];
+  /**
+   * Swaps that change what the element is (`<Pressable>` -> `<Button>`): the
+   * code now renders the Mapples component, with its own behaviour.
+   */
+  changed: { name: string; detail: string }[];
 }
+
+/**
+ * Props a Mapples primitive defaults differently from react-native's, set
+ * back on a swapped element that does not set them, so adoption does not
+ * change what the app renders.
+ */
+const RN_DEFAULTS: Record<string, Record<string, unknown>> = {
+  // @mapples/ui ScrollView hides the vertical indicator unless told otherwise.
+  ScrollView: { showsVerticalScrollIndicator: true },
+};
 
 interface Edit {
   start: number;
@@ -226,6 +333,7 @@ export function codemodAdopt(
   const edits: Edit[] = [];
   const adopted: AdoptedElement[] = [];
   const skipped: { name: string; reason: string }[] = [];
+  const changed: { name: string; detail: string }[] = [];
   const usedUiNames = new Set<string>();
   const swappedRnNames = new Set<string>();
   const renamedTagStarts = new Set<number>();
@@ -581,14 +689,49 @@ export function codemodAdopt(
     }
 
     let skipChildren = false;
+    // `<Animated.View>`: a component reached through an import, tagged as a
+    // Custom of that import so its children keep a parent in the tree.
+    const memberTag =
+      open !== null &&
+      ts.isPropertyAccessExpression(open.tagName) &&
+      memberTagHead(open.tagName) !== null &&
+      /^[A-Z]/.test(open.tagName.name.text);
     if (
       open &&
-      ts.isIdentifier(open.tagName) &&
+      (ts.isIdentifier(open.tagName) || memberTag) &&
       !hasSidAttr(open.attributes) &&
       // A component's `<View styled={styled}>` is code around its root.
       !isInstanceWrapper(node, sf)
     ) {
-      const name = open.tagName.text;
+      if (memberTag) {
+        const name = open.tagName.getText(sf);
+        const head = memberTagHead(
+          open.tagName as ts.PropertyAccessExpression,
+        )!;
+        const origin = importOrigin.get(head);
+        const sid = options.mintSid();
+        const fallbackSize = measureFallback(open.attributes);
+        const member = name.slice(head.length);
+        const importRef = origin
+          ? `${origin.module}#${origin.exportName}${member}`
+          : `#${name}`;
+        edits.push(
+          sidEdit(
+            source,
+            sf,
+            open,
+            ` $sid="${sid}" $fallback={{ h: ${fallbackSize.h}, w: ${fallbackSize.w} }}`,
+          ),
+        );
+        adopted.push({
+          sid,
+          originalName: name,
+          kind: 'custom',
+          importRef,
+          fallbackSize,
+        });
+      }
+      const name = ts.isIdentifier(open.tagName) ? open.tagName.text : '';
       if (/^[A-Z]/.test(name)) {
         const origin = importOrigin.get(name);
         const sid = options.mintSid();
@@ -613,6 +756,18 @@ export function codemodAdopt(
         if (origin?.module === rnModule && mappedRn) {
           const mapped = mappedRn;
           const translated = translateProps(element, open, mapped);
+          for (const [prop, value] of Object.entries(
+            RN_DEFAULTS[mapped] ?? {},
+          )) {
+            if (!hasAttr(open.attributes, prop))
+              translated.attrText += ` ${prop}={${printInline(value)}}`;
+          }
+          if (mapped !== origin.exportName) {
+            changed.push({
+              name,
+              detail: `<${name}> (line ${sf.getLineAndCharacterOfPosition(open.getStart(sf)).line + 1}) is now the ${uiModule} ${mapped}, which behaves as a ${mapped}: check its press feedback and defaults`,
+            });
+          }
           edits.push({
             start: nameSpan.start,
             end: nameSpan.end,
@@ -643,6 +798,17 @@ export function codemodAdopt(
             kind: 'primitive',
             mappedName: mapped,
           });
+        } else if (origin && styleElementOf(origin)) {
+          // A @mapples/style element (`<StyledView>`, `<Typography>`): the
+          // canvas reads it as its @mapples/ui type, so it is tagged as it is
+          // written — no swap, no prop translation, no placeholder.
+          edits.push(sidEdit(source, sf, open, ` $sid="${sid}"`));
+          adopted.push({
+            sid,
+            originalName: name,
+            kind: 'primitive',
+            mappedName: styleElementOf(origin)!.type,
+          });
         } else if (origin && primitiveModules.has(origin.module)) {
           // Already a Mapples primitive in code: tag it, and translate the
           // react-native-style props a developer writes from habit
@@ -668,7 +834,13 @@ export function codemodAdopt(
             name,
             reason: `react-native ${name} has no Mapples mapping — left as-is`,
           });
-        } else if (origin && options.isLinked?.(origin)) {
+        } else if (
+          origin &&
+          options.isLinked?.(origin) &&
+          // An instance holds no children: a use with children stays a
+          // Custom holding them (the linker leaves it unlinked, too).
+          !hasElementChildren(element)
+        ) {
           // A Creator component used from code: a linked instance, not an
           // opaque Custom — `style` becomes the instance's `styled`.
           const translated = translateProps(element, open, 'ComponentInstance');
@@ -719,7 +891,7 @@ export function codemodAdopt(
   visit(sf);
 
   if (adopted.length === 0) {
-    return { source, adopted, skipped };
+    return { source, adopted, skipped, changed: [] };
   }
 
   // ---- dead style dictionaries ----
@@ -764,7 +936,26 @@ export function codemodAdopt(
         keep.push(el.getText(sf));
         continue;
       }
-      const mapped = options.mapping[(el.propertyName ?? el.name).text];
+      const exportName = (el.propertyName ?? el.name).text;
+      const mapped = options.mapping[exportName];
+      if (mapped === name) {
+        // The swapped name now binds the Mapples element. Its uses as a TYPE
+        // (`useRef<ScrollView>`) still mean react-native's: they get the
+        // react-native one under a type-only alias.
+        const typeRefs = typeReferences(sf, name);
+        if (typeRefs.length > 0) {
+          const alias = freeName(sf, `RN${name}`);
+          keep.push(`type ${exportName} as ${alias}`);
+          for (const ref of typeRefs) {
+            edits.push({
+              start: ref.getStart(sf),
+              end: ref.getEnd(),
+              replacement: alias,
+            });
+          }
+        }
+        continue;
+      }
       if (
         mapped !== name &&
         stillReferenced(sf, el.name, rnImportDecl, renamedTagStarts)
@@ -814,7 +1005,55 @@ export function codemodAdopt(
   let out = source;
   for (const e of edits)
     out = out.slice(0, e.start) + e.replacement + out.slice(e.end);
-  return { source: out, adopted, skipped };
+  return { source: out, adopted, skipped, changed };
+}
+
+/** `Name` where it is a type: `useRef<Name>`, `x: Name`, `Name[]` (not `typeof Name`). */
+function typeReferences(sf: ts.SourceFile, name: string): ts.Identifier[] {
+  const found: ts.Identifier[] = [];
+  const walk = (n: ts.Node): void => {
+    if (
+      ts.isTypeReferenceNode(n) &&
+      ts.isIdentifier(n.typeName) &&
+      n.typeName.text === name
+    ) {
+      found.push(n.typeName);
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(sf);
+  return found;
+}
+
+/** `base`, or `base2`, `base3`… — the first no identifier in the file uses. */
+function freeName(sf: ts.SourceFile, base: string): string {
+  const used = new Set<string>();
+  const walk = (n: ts.Node): void => {
+    if (ts.isIdentifier(n)) used.add(n.text);
+    ts.forEachChild(n, walk);
+  };
+  walk(sf);
+  if (!used.has(base)) return base;
+  let i = 2;
+  while (used.has(`${base}${i}`)) i += 1;
+  return `${base}${i}`;
+}
+
+/** Anything but whitespace between the tags. */
+function hasElementChildren(
+  element: ts.JsxElement | ts.JsxSelfClosingElement,
+): boolean {
+  return (
+    ts.isJsxElement(element) &&
+    element.children.some((c) => !(ts.isJsxText(c) && c.text.trim() === ''))
+  );
+}
+
+/** `Animated` in `Animated.View` / `UI.Forms.Field`; null unless the chain starts at an identifier. */
+function memberTagHead(tag: ts.PropertyAccessExpression): string | null {
+  let e: ts.Expression = tag;
+  while (ts.isPropertyAccessExpression(e)) e = e.expression;
+  return ts.isIdentifier(e) ? e.text : null;
 }
 
 function isRecord(v: unknown): v is Literal {

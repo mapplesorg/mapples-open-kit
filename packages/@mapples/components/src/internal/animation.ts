@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useMotionEnabled } from '@mapples/style';
 import { AccessibilityInfo, Easing, Platform } from 'react-native';
 
 /** Standard transition length in ms. */
@@ -16,11 +17,13 @@ export const EASING = Easing.bezier(0.2, 0, 0, 1);
 export const NATIVE_DRIVER = Platform.OS !== 'web';
 
 /**
- * Whether the person asked the OS to reduce motion. Loops and decorative
- * transitions are skipped while it is on.
+ * Whether motion should be left out: the person asked the OS to reduce it,
+ * or a `MotionProvider` turned it off where the component renders. Loops
+ * and decorative transitions are skipped while it holds.
  */
 export const useReduceMotion = (): boolean => {
   const [reduce, setReduce] = useState(false);
+  const motionEnabled = useMotionEnabled();
 
   useEffect(() => {
     let active = true;
@@ -37,5 +40,6 @@ export const useReduceMotion = (): boolean => {
     };
   }, []);
 
-  return reduce;
+  // Also where a `MotionProvider` turned motion off (a design canvas).
+  return reduce || !motionEnabled;
 };

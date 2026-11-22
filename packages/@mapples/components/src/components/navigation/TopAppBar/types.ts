@@ -3,6 +3,25 @@ export const TOP_APP_BAR_VARIANTS = ['small', 'center', 'large'] as const;
 export type TopAppBarVariant = (typeof TOP_APP_BAR_VARIANTS)[number];
 
 /**
+ * How the bar reacts when the screen's content scrolls under it: `elevate`
+ * lifts it (shadow, hairline, a solid background over a transparent bar);
+ * `collapse` also shrinks a `large` bar to one row, the title moving into
+ * it; `hide` also slides the bar away while the content moves down and
+ * brings it back as soon as it moves up.
+ */
+export const TOP_APP_BAR_SCROLL_BEHAVIORS = [
+  'none',
+  'elevate',
+  'collapse',
+  'hide',
+] as const;
+export type TopAppBarScrollBehavior =
+  (typeof TOP_APP_BAR_SCROLL_BEHAVIORS)[number];
+
+/** How long the bar takes to lift, collapse or hide, as a motion time. */
+export const TOP_APP_BAR_SCROLL_DURATION = '200ms';
+
+/**
  * One trailing action of the bar: a glyph button (`iconName`) or a text
  * button (`label` without `iconName`, e.g. 'Clear queue').
  */

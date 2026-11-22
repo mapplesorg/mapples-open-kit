@@ -6,11 +6,13 @@ import {
   type RefAttributes,
 } from 'react';
 
+import { useIsRTL } from '@mapples/render';
 import {
   StyledPressable,
   StyledProp,
   StyledView,
   Typography,
+  useScreenScroll,
 } from '@mapples/style';
 import {
   Icon,
@@ -23,13 +25,7 @@ import {
   useTones,
 } from '@mapples/ui';
 import { ImageProps } from 'expo-image';
-import {
-  I18nManager,
-  TextStyle,
-  View,
-  ViewProps,
-  ViewStyle,
-} from 'react-native';
+import { TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import { useSlotColor } from '../../../internal';
 
@@ -44,6 +40,7 @@ import {
   TOP_APP_BAR_LARGE_HEIGHT,
   TOP_APP_BAR_ROW_HEIGHT,
   TopAppBarAction,
+  TopAppBarScrollBehavior,
   TopAppBarVariant,
 } from './types';
 
@@ -75,6 +72,15 @@ export interface TopAppBarProps extends Omit<ViewProps, 'children'> {
   elevated?: boolean;
   /** Removes the background. Defaults to `false`. */
   transparent?: boolean;
+  /**
+   * How the bar reacts when the screen's ScrollView or FlatList scrolls:
+   * `elevate` lifts it once the content has left the top (shadow and
+   * hairline; a `transparent` bar turns solid), `collapse` also shrinks a
+   * `large` bar to one row with the title in it, `hide` also slides the bar
+   * away while the content moves down and back when it moves up. Defaults
+   * to `none`. Needs the bar and the scroll view on the same screen.
+   */
+  scrollBehavior?: TopAppBarScrollBehavior;
   /** Colour role of the glyphs. Defaults to `neutral` (the text colour). */
   tone?: Tone;
   /** Screen-reader label of the leading button. Defaults to `'Back'`. */
@@ -150,6 +156,7 @@ const TopAppBar: ForwardRefExoticComponent<
       variant = 'small',
       elevated = false,
       transparent = false,
+      scrollBehavior = 'none',
       tone = 'neutral',
       backLabel = 'Back',
       leadingLabel = 'Menu',
@@ -165,6 +172,7 @@ const TopAppBar: ForwardRefExoticComponent<
     ref,
   ) => {
     const tones = useTones();
+    const isRTL = useIsRTL();
     const shape = useShape();
     const elevation = useElevation();
     const items = readTopAppBarActions(actions);
@@ -183,8 +191,20 @@ const TopAppBar: ForwardRefExoticComponent<
     const hasLeading = showBack || !!leadingIconName;
     const hasAvatar = !!avatarName || !!avatarSource;
     const trailingCount = items.length + (hasAvatar ? 1 : 0);
-    const large = variant === 'large';
+    // Subscribes to the screen's scroll state only with a behaviour set.
+    const reactsToScroll = scrollBehavior !== 'none';
+    const scroll = useScreenScroll(reactsToScroll);
+    const lifted = elevated || (reactsToScroll && scroll.scrolled);
+    const hidden =
+      scrollBehavior === 'hide' &&
+      scroll.scrolled &&
+      scroll.direction === 'down';
+    // A collapsed large bar is laid out as a small one.
+    const large =
+      variant === 'large' &&
+      !(scrollBehavior === 'collapse' && scroll.scrolled);
     const centred = variant === 'center';
+    const height = large ? TOP_APP_BAR_LARGE_HEIGHT : TOP_APP_BAR_ROW_HEIGHT;
     // Centred titles need balanced flanks: both sides reserve the wider one.
     const flankWidth = centred
       ? TOP_APP_BAR_BUTTON_SIZE * Math.max(hasLeading ? 1 : 0, trailingCount)
@@ -290,6 +310,8 @@ const TopAppBar: ForwardRefExoticComponent<
             large ? defaults.largeTitles : defaults.titles,
             large && { height: TOP_APP_BAR_ROW_HEIGHT },
             centred && defaults.titlesCentred,
+            // The title changes rows when the bar collapses or expands.
+            scrollBehavior === 'collapse' && defaults.titlesMoving,
           ],
         }}
       >
@@ -306,16 +328,19 @@ const TopAppBar: ForwardRefExoticComponent<
           style: [
             defaults.root,
             {
-              height: large ? TOP_APP_BAR_LARGE_HEIGHT : TOP_APP_BAR_ROW_HEIGHT,
-              backgroundColor: transparent
-                ? 'transparent'
-                : tones.resolve(Tokens.color.background),
+              height: hidden ? 0 : height,
+              backgroundColor:
+                transparent && !(reactsToScroll && scroll.scrolled)
+                  ? 'transparent'
+                  : tones.resolve(Tokens.color.background),
             },
-            elevated && {
+            lifted && {
               boxShadow: elevation,
               borderBottomWidth: shape.borderWidth(1),
               borderBottomColor: tones.outline,
             },
+            reactsToScroll && defaults.scrolling,
+            hidden && defaults.hidden,
             styled?.style,
           ],
         }}
@@ -344,7 +369,7 @@ const TopAppBar: ForwardRefExoticComponent<
                 name="arrowBack"
                 color={glyphColor}
                 accessibilityLabel={backLabel}
-                mirrored={I18nManager.isRTL}
+                mirrored={isRTL}
                 styled={styled?.styleAction}
                 onPress={onBackPress}
               />

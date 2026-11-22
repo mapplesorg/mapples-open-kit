@@ -26,6 +26,7 @@ export const FONT_FAMILIES = [
   'Syne',
   'Instrument Serif',
   'Cormorant Garamond',
+  'Anton',
 ] as const;
 
 export type FontFamily = (typeof FONT_FAMILIES)[number];
@@ -186,6 +187,12 @@ export const FONT_META: Record<FontFamily, FontMeta> = {
     weights: STANDARD_FONT_WEIGHTS,
     character: 'high-contrast Garamond, luxury and real estate',
     pairsWith: ['Jost', 'Inter', 'Manrope'],
+  },
+  Anton: {
+    category: 'sans',
+    weights: ['Regular'],
+    character: 'condensed impact display, tall bold headlines and numbers',
+    pairsWith: ['DM Sans', 'Inter', 'Manrope'],
   },
 };
 

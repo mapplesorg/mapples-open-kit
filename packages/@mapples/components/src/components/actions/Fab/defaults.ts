@@ -9,6 +9,12 @@ export const defaults = Styler.create({
     alignSelf: 'flex-start',
     overflow: 'hidden',
   },
+  // With `hideOnScroll`: the button eases out of the way and back.
+  scrolling: {
+    transitionProperty: ['opacity', 'transform'],
+    transitionDuration: '200ms',
+  },
+  hidden: { opacity: 0, transform: [{ scale: 0.6 }] },
   stateLayer: {
     position: 'absolute',
     top: 0,

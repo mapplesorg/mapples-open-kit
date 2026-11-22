@@ -22,6 +22,48 @@ Android also needs a Google Maps API key (the `react-native-maps` config
 plugin's `androidGoogleMapsApiKey`). Without it a native `MapView` throws;
 the web build draws a static map and never imports it.
 
+Optional peers for animations, each element throwing without its player:
+
+- `LottieAnimation` (`.json` and `.lottie`): `lottie-react-native` on iOS and
+  Android, `@lottiefiles/dotlottie-react` on web. To bundle `.lottie` files,
+  add `'lottie'` to Metro's `resolver.assetExts`.
+- `RiveAnimation` (`.riv` state machines): `@rive-app/react-native` with
+  `react-native-nitro-modules` on iOS and Android, `@rive-app/canvas` on web.
+  To bundle `.riv` files, add `'riv'` to `resolver.assetExts`.
+
+Both take `mapples:animation` actions (`AnimationActionType.Control`, from
+`@mapples/action`'s store) addressed to their `name`: `play`, `pause`, `stop`,
+`seek` (Lottie), `setInput` and `fireTrigger` (Rive).
+
+## Device actions
+
+`DeviceActionHandler` (mount it once inside `ActionProvider`, next to the
+other handlers; `MapplesApp` does) handles three actions that reach the
+device:
+
+- `mapples:haptic` `{ style?, then? }`: haptic feedback through the optional
+  peer `expo-haptics` (`selection`, `light`, `medium`, `heavy`, `success`,
+  `warning`, `error`). Nothing happens on the web.
+- `mapples:copy` `{ text, then? }`: text to the clipboard through the
+  optional peer `expo-clipboard` (the browser's clipboard on the web).
+- `mapples:share` `{ text?, url?, title?, then? }`: the system share sheet.
+
+`text` and `url` are literals or value sources
+(`{ kind: 'state', dataProp: 'vars.code' }`). `then` is a follow-up action
+(`{ type, staticData }`) emitted once the device has answered; together with
+`mapples:delay` from `@mapples/state` a button can copy a code, show "Copied"
+and flip back.
+
+`CodeScanner` reads QR codes and barcodes through the optional peer
+`expo-camera`; on the web it is a pressable stand-in that reports its
+`sampleValue`.
+
+`CameraView` shows the live camera picture with its children laid over it:
+the device camera through `expo-camera` on iOS and Android, the webcam
+through `getUserMedia` on the web. Under `<LiveMediaProvider enabled={false}>`
+(from `@mapples/style`; a design canvas uses it) it is a black box that asks
+for no camera.
+
 ## Usage
 
 ```tsx
@@ -47,14 +89,14 @@ import { InputField, Switch, Card } from '@mapples/components';
 
 ## Inventory
 
-| Area       | Components                                                                                                                                                                                                                                                                                                                                |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Actions    | `Fab`, `Chip`, `ChipGroup`, `SegmentedControl`, `ButtonGroup`, `BottomActionBar` (plus the themed `Button` / `IconButton` of `@mapples/ui`)                                                                                                                                                                                               |
-| Inputs     | `InputField`, `SearchBar`, `PinInput`, `SelectField`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `RangeSlider`, `NumberStepper`, `Rating`, `DayPicker`, `Calendar`, `TimePicker`, `ChatComposer`, `NumericKeypad`, `ChoiceGrid`                                                                                                        |
-| Content    | `Card`, `MediaCard`, `TicketCard`, `ListItem`, `List`, `ReorderableList`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `BarChart`, `LineChart`, `CalendarHeatmap`, `DateTile`, `MessageBubble`, `ImageCarousel`, `MasonryGrid`, `PlaybackControls`, `WaveformSeekBar`, `MiniPlayer`, `MapView` |
-| Navigation | `TopAppBar`, `BottomNavigationBar`, `Tabs`, `Breadcrumbs`, `PageControl`, `Steps`, `TextLink`                                                                                                                                                                                                                                             |
-| Feedback   | `Badge`, `ProgressBar`, `ProgressCircle`, `CountdownTimer`, `ActivityRings`, `BreathingGuide`, `Spinner`, `Skeleton`, `Banner`, `Snackbar`, `EmptyState`                                                                                                                                                                                  |
-| Overlays   | `Dialog`, `BottomSheet`, `ActionSheet`                                                                                                                                                                                                                                                                                                    |
+| Area       | Components                                                                                                                                                                                                                                                                                                                                                                               |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Actions    | `Fab`, `Chip`, `ChipGroup`, `SegmentedControl`, `ButtonGroup`, `BottomActionBar` (plus the themed `Button` / `IconButton` of `@mapples/ui`)                                                                                                                                                                                                                                              |
+| Inputs     | `InputField`, `SearchBar`, `PinInput`, `SelectField`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `RangeSlider`, `NumberStepper`, `Rating`, `DayPicker`, `Calendar`, `TimePicker`, `ChatComposer`, `NumericKeypad`, `ChoiceGrid`                                                                                                                                                       |
+| Content    | `Card`, `MediaCard`, `TicketCard`, `ListItem`, `List`, `ReorderableList`, `SectionHeader`, `Divider`, `Avatar`, `AvatarGroup`, `Accordion`, `StatTile`, `Table`, `Timeline`, `BarChart`, `LineChart`, `CalendarHeatmap`, `DateTile`, `MessageBubble`, `ImageCarousel`, `MasonryGrid`, `PlaybackControls`, `WaveformSeekBar`, `MiniPlayer`, `MapView`, `LottieAnimation`, `RiveAnimation` |
+| Navigation | `TopAppBar`, `BottomNavigationBar`, `Tabs`, `Breadcrumbs`, `PageControl`, `Steps`, `TextLink`                                                                                                                                                                                                                                                                                            |
+| Feedback   | `Badge`, `ProgressBar`, `ProgressCircle`, `CountdownTimer`, `ActivityRings`, `BreathingGuide`, `Spinner`, `Skeleton`, `Banner`, `Snackbar`, `EmptyState`                                                                                                                                                                                                                                 |
+| Overlays   | `Dialog`, `BottomSheet`, `ActionSheet`                                                                                                                                                                                                                                                                                                                                                   |
 
 ## Conventions
 

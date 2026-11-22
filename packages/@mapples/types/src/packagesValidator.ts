@@ -1,4 +1,8 @@
-import { PackageReason, PackagesDocument } from './packages';
+import {
+  PACKAGE_PERMISSION_IDS,
+  PackageReason,
+  PackagesDocument,
+} from './packages';
 
 /**
  * Codes for the invariants enforced by {@link validatePackagesDocument}.
@@ -15,7 +19,8 @@ export type PackagesValidationCode =
   | 'ENABLED_INVALID'
   | 'ENABLED_DUPLICATE'
   | 'RESOLVED_INVALID'
-  | 'RESOLVED_DUPLICATE';
+  | 'RESOLVED_DUPLICATE'
+  | 'PERMISSIONS_INVALID';
 
 export interface PackagesValidationError {
   code: PackagesValidationCode;
@@ -41,6 +46,24 @@ const isDependencyList = (value: unknown): boolean =>
       isNonEmptyString(dependency.name) &&
       isNonEmptyString(dependency.version),
   );
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/**
+ * `expoPluginOptions` is absent, or an object of plain objects keyed by
+ * plugins the same entry lists in `expoPlugins`.
+ */
+const isPluginOptions = (
+  value: unknown,
+  plugins: readonly string[] | undefined,
+): boolean =>
+  value === undefined ||
+  (isPlainObject(value) &&
+    Object.entries(value).every(
+      ([name, options]) =>
+        (plugins ?? []).includes(name) && isPlainObject(options),
+    ));
 
 /**
  * Validate the structural invariants of a {@link PackagesDocument}. Collects
@@ -97,12 +120,13 @@ export const validatePackagesDocument = (
         !(
           Array.isArray(entry.expoPlugins) &&
           entry.expoPlugins.every(isNonEmptyString)
-        ))
+        )) ||
+      !isPluginOptions(entry.expoPluginOptions, entry.expoPlugins)
     ) {
       errors.push({
         code: 'RESOLVED_INVALID',
         message:
-          'Resolved entries need `id`, a known `reason` and a `dependencies` list of { name, version }',
+          'Resolved entries need `id`, a known `reason`, a `dependencies` list of { name, version }, and `expoPluginOptions` keyed by listed `expoPlugins`',
         packageId: entry?.id,
       });
       continue;
@@ -121,6 +145,24 @@ export const validatePackagesDocument = (
     errors.push({
       code: 'RESOLVED_INVALID',
       message: '`resolved` must be an array of resolved package entries',
+    });
+  }
+
+  const { permissions } = document;
+  if (
+    permissions !== undefined &&
+    !(
+      isPlainObject(permissions) &&
+      Object.entries(permissions).every(
+        ([id, text]) =>
+          (PACKAGE_PERMISSION_IDS as readonly string[]).includes(id) &&
+          isNonEmptyString(text),
+      )
+    )
+  ) {
+    errors.push({
+      code: 'PERMISSIONS_INVALID',
+      message: `\`permissions\` maps ${PACKAGE_PERMISSION_IDS.join(', ')} to non-empty purpose texts`,
     });
   }
 

@@ -10,7 +10,4 @@ export * from './Pressable';
 export { default as IconButton } from './IconButton';
 export * from './IconButton';
 
-export { default as Select } from './Select';
-export * from './Select';
-
 export * from './schematics';

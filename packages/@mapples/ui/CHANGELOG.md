@@ -1,5 +1,65 @@
 # @mapples/ui
 
+## 2.1.0
+
+### Patch Changes
+
+- d2ce13d: Everything a hand-made motion design needs from project data (kit #538): easing curves and keyframes of the project's own, stagger, transforms, more gradients, new components and device actions.
+  - `@mapples/style`:
+    - A timing function may be a curve written as text, `cubic-bezier(0.3, 1.4, 0.5, 1)` (`y` may overshoot) or `steps(4)`, in `transitionTimingFunction`, `animationTimingFunction` and on a single keyframe. `styled()` turns it into Reanimated's easing, which its native CSS layer needs.
+    - Motion tokens: `ThemeConfig.motion` holds the project's `easings` (`{ spring: 'cubic-bezier(…)' }`, used as `easing.spring`) and `keyframes` (named sets, played by `animationName` / `exitAnimationName` like a preset; a project set with a preset's name replaces it). Keyframes may name theme colours (`theme.primary.main`) and the playing element's own colour (`$color(0.55)`). `useMotionTokens`, `validateMotionTokens`, `resolveTimingFunction`, `isTimingFunctionText`.
+    - New presets: `rise`, `pop`, `stampIn`, `dropIn` (enter) and `float`, `bob`, `pulseRing`, `shine`, `scanLine` (loop); `ANIMATION_PRESET_TIMING` names the duration and curve each is designed for.
+    - `animationStagger` on a parent starts each child's animation that much later than the one before it (the rows of a `FlatList` too). `MotionStagger`, `staggerRowDelay`.
+    - `resolveMotionStyle(style, { reducedMotion, tokens, staggerDelay, getColor })` replaces the positional `reducedMotion` argument.
+  - `@mapples/types`: `Gradient` is `LinearGradient | RadialGradient | ConicGradient`.
+  - `@mapples/ui`: `GradientBackground` and `View` paint radial and conic gradients with `react-native-svg` (a conic one with `repeat` draws rays).
+  - `@mapples/state`: `mapples:delay` (`{ duration, then }`) and `DelayActionHandler`.
+  - `@mapples/components`:
+    - New components: `Marquee`, `Confetti`, `FlipCard`, `CodeScanner` (`expo-camera`, an optional peer; a pressable stand-in on the web).
+    - New actions `mapples:haptic`, `mapples:copy`, `mapples:share`, handled by `DeviceActionHandler`; each takes a `then` follow-up. `expo-haptics` and `expo-clipboard` are optional peers. `@mapples/state` is now a peer.
+    - `ProgressCircle` and `ProgressBar` take `animate`, `animateDelay`, `animateDuration`: the fill grows from empty when it appears.
+  - `@mapples/app`: `MapplesRuntime` mounts `DelayActionHandler` and `DeviceActionHandler`.
+  - `@mapples/codegen`: the four new component types import from `@mapples/components`.
+  - `@mapples/fonts`: Anton (Regular), a condensed display face.
+  - `@mapplesorg/canvas`:
+    - A Transform section (move, scale, rotate, rotate X / Y, skew, perspective, origin, back face) and a border style (solid, dashed, dotted).
+    - The Motion section takes a custom curve, lists the project's easing tokens and keyframe sets, writes each preset's own timing, and sets the stagger of a parent.
+    - The Gradient section sets the kind (linear, radial, angular).
+    - Actions: Haptic feedback, Copy to clipboard, Share and Wait, with chained "Then" steps.
+    - `resolveProjectPackages` counts the packages an element's actions need.
+  - `@mapplesorg/schematics`: the new components' schematics; packages `camera`, `haptics`, `clipboard` and `ACTION_PACKAGES`; `StyleFormType.Transform`; Transform and Motion on text, pressable, image, SVG and code elements; `childrenAsItems`.
+  - `@mapplesorg/ai-tools`: `update_motion_tokens`; `add_connection` takes `haptic`, `copy`, `share`, `delay` and nested `then`; the motion hint covers curves, tokens, the new presets, stagger, transforms and border style; the gradient hint covers radial and conic.
+
+- aabcfd4: **Breaking:** legacy compatibility code is removed; documents and code written by current tools are unaffected.
+  - `@mapples/render`: `migrateLegacyIconNodes` is removed, and the canvas, Play and the AI tools no longer remap `Icon` nodes to `Vector` on load. The remap took every `Icon` whose `iconName` is a data binding (a component file's `<Icon iconName={iconName} />`) for a pre-rename SVG icon, so those glyphs drew the image placeholder and a canvas edit could save the `Vector` back. A document still holding a pre-rename uri `Icon` now draws the Icon placeholder until it is changed to `Vector`.
+  - `@mapples/ui`: the hidden repeat-template `Select` element is removed (use `SelectField`, `SegmentedControl`, `ChipGroup` or `FlatList`), and `IconButton` drops its `uri` SVG mode: it always renders the themed glyph button from `iconName`.
+  - `@mapples/navigation`: a navigation target must be a qualified `navigator:route` name (or a `pageUuid`); bare route names no longer resolve.
+  - `@mapples/types`: the deprecated `NavigatorNode.canvas` placement and `NavigatorCanvasRect` are removed.
+  - `@mapplesorg/canvas`: the unused single-page editor (`Canvas`, `CanvasView`, `DocumentHeader` and the components only they used) is removed, along with old device ids, the pre-grid screen order, the navigator-section free layout and the fabricated-node document repair.
+
+- 3845af0: Motion for production apps: exit and layout animations, animations started by actions and by screen focus, scroll behaviours, swipe actions, animated charts and lists, a set of animated components, and a canvas that stands still until asked.
+  - `@mapples/style`: new motion keys that are not CSS and become props of the animated host: `exitAnimationName` (how an element leaves when it stops being rendered; presets in `EXIT_ANIMATION_PRESETS`: `fadeOut`, `fadeOutUp`, `fadeOutDown`, `slideOutLeft`, `slideOutRight`, `zoomOut`) with `exitAnimationDuration` / `exitAnimationDelay`, `layoutTransitionDuration` (the element slides to its new place when the layout around it changes), `animationReplay: 'focus'` (the animation plays again each time the screen is shown) and `motionName` (the name motion commands address the element by). `sendMotionCommand({ target, command, animation? })` plays, pauses or restarts a named element's animation, or plays a preset on it once. `ScreenMotionProvider`, `useScreenScroll`, `useScreenScrollHandler` and `useScreenFocusCount` let the elements of one screen react to its scroll views and to its focus. `MotionProvider` / `useMotionEnabled` turn the motion of everything inside on or off. `StyledFlatList` takes `animateChanges`.
+  - `@mapples/navigation`: every route's page is wrapped in a `ScreenMotionProvider`.
+  - `@mapples/ui`: a vertical `ScrollView` / `FlatList` reports to its screen while an element there reacts to scrolling; `FlatList` passes `animateChanges` on.
+  - `@mapples/components`:
+    - `TopAppBar` `scrollBehavior` (`elevate`, `collapse`, `hide`); `Fab` and `BottomActionBar` `hideOnScroll`.
+    - `ListItem` `swipeActions` / `onSwipeAction`; `List` `animateChanges`.
+    - `BarChart` and `LineChart` `animate`.
+    - The `mapples:animation` action also reaches any element with a `motionName` (`play`, `pause`, and `play` with a one-off `animation` preset); `MotionActionHandler` forwards it.
+    - New components: `AnimatedNumber`, `TypewriterText`, `ResultMark`, `ReactionButton`, `LiveIndicator`.
+    - Loops and transitions of the library's own components stand still where a `MotionProvider` turned motion off.
+  - `@mapples/app`: `MapplesRuntime` mounts `MotionActionHandler`.
+  - `@mapples/codegen`: the five new component types import from `@mapples/components`.
+  - `@mapplesorg/canvas`:
+    - The frames stand still: motion plays only in Play, or with the new Animate switch in the zoom badge (off by default). Play in the Motion section still plays the selected element. The share link's storyboard has the same switch.
+    - Buttons, inputs, checkboxes and switches take no press on the canvas or on the share storyboard; they work in Play.
+    - The Motion section sets the exit animation, the layout transition, replay on focus and the name for actions; "Control animation" can play a preset once.
+    - The palette's new Animated tab lists the animated components, Lottie and Rive, and motion presets (ordinary elements with motion already set).
+  - `@mapplesorg/schematics`: the `animated-group` palette group, the new components' schematics, `MotionPresets`, the new props of the components above.
+  - `@mapplesorg/ai-tools`: the motion hint covers exit, layout, replay and `motionName`; `add_connection`'s animation action takes a `motionName` target and a one-off `animation`.
+
+- 09dfc8e: `Svg` renders its markup with react-native-svg's `SvgXml` instead of a `data:` URI through `SvgUri`, which fell back to `fetch` and failed on Android ("unknown protocol: data").
+
 ## 2.0.4
 
 ## 2.0.3

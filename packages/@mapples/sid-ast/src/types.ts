@@ -47,7 +47,12 @@ export type ExtractWarningKind =
    * A `ref(…)` asset reference in a prop's literal data instead of `$refs`:
    * nothing resolves it there (a `$refs` key may be a dotted path into it).
    */
-  | 'INLINE_ASSET_REF';
+  | 'INLINE_ASSET_REF'
+  /**
+   * An `iconName` on a `Vector`: Vector draws an SVG from `uri` only, so the
+   * name is ignored and the image placeholder shows. Glyphs are `Icon`.
+   */
+  | 'ICON_NAME_ON_VECTOR';
 
 export interface ExtractWarning {
   kind: ExtractWarningKind;
@@ -68,11 +73,19 @@ export interface ExtractResult {
   warnings: ExtractWarning[];
   spans: Map<string, Span>;
   /**
-   * Render states the file's prop tests declare, by state key — the
-   * conditions its `style::<key>` variants render under
-   * (`{ isActive: { name: 'isActive', condition: 'props.isActive::eq::true' } }`).
+   * Render states the file declares, by state key — the conditions its
+   * `style::<key>` variants render under: the ones its prop tests stand for
+   * (`{ isActive: { name: 'isActive', condition: 'props.isActive::eq::true' } }`)
+   * and the data states its elements name in `$states`
+   * (`{ high: { name: 'High', condition: 'vars.count::gt::3' } }`).
    */
   states: Record<string, RenderState>;
+  /**
+   * Elements the file writes as a @mapples/style element (`<StyledView>`,
+   * `<Typography>`), read as their @mapples/ui type: they need no
+   * @mapples/ui import (see `importNeedsFor`'s `writtenAs`).
+   */
+  styleElements: string[];
 }
 
 /** A document render state: what a `style::<key>` variant renders under. */
@@ -93,7 +106,8 @@ export interface PatchOptions extends ExtractOptions {
   /**
    * The document's render states. A `styled` variant under a state that
    * tests a component prop prints as that test (`isActive && {…}`) instead of
-   * a literal `'style::isActive'` key.
+   * a literal `'style::isActive'` key; every element with variants under
+   * another state ends up naming it in `$states` (`syncElementStates`).
    */
   states?: Record<string, RenderState>;
 }

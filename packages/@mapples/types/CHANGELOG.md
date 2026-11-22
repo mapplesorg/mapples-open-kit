@@ -1,5 +1,90 @@
 # @mapples/types
 
+## 2.1.0
+
+### Patch Changes
+
+- 5fdf9ed: Languages and translations for apps built with Mapples (#469).
+
+  `@mapples/types`: the locales document (`LocalesDocument`: a default locale, the supported ones and a message table per locale), `validateLocalesDocument`, `matchLocale`, `isRtlLocale`, and the message format: an ICU subset (`{path}` placeholders, `plural`, `selectordinal`, `select`, `number`, `date`, `time`) with `parseMessage`, `formatMessage`, `formatValue` and `parseValueFormat`. `DataProp` gains an optional `format` (`number`, `number, currency/USD`, `date, long`) that writes the bound value for the active locale. A project without the document is single-language and behaves as before.
+
+  `@mapples/state`: `LocaleProvider` (device locale, closest supported, default; `inherit` starts a session over the surrounding project), `LocaleActionHandler` for the new `mapples:setLocale` action, `LocaleDirection`, `useLocaleState` and `deviceLocales`. Bindings resolve `t.<key>` to the translated message (placeholders are binding paths) and `locale.current | language | direction | isRTL | default | supported` to the active locale.
+
+  `@mapples/app`: `MapplesApp` and `MapplesRuntime` mount the locale runtime from `project.locales` (the CLI's `locales.ts`, resolved as `mapples::locales`), keep the user's choice in `variablesStorage`, take a `locale` prop that pins it, and lay the app out right-to-left for an RTL locale (`direction` style on native, `dir` on web; Android also records it in `I18nManager` for the next launch).
+
+  `@mapples/render` exports `useIsRTL()`; `TopAppBar`, `Breadcrumbs`, `ProgressBar` and `Rating` in `@mapples/components` mirror by it, so they follow a locale switched at runtime.
+
+  `@mapplesorg/canvas`: frames and Play render in the host's `LocaleProvider` locale and direction, the action editor offers "Set language", and `MessageExtractProvider` lets a host turn a literal text into a message key from the inspector. `@mapplesorg/schematics`: the `placeholder` of TextInput and TextField is bindable.
+
+  `@mapplesorg/ai-tools`: `get_translations`, `add_locale`, `remove_locale`, `set_default_locale`, `set_translations`, `remove_translation` and `translate_project`; `add_connection` takes `action.kind: "setLocale"`; `ProjectContext.locales` lists a multilingual project's languages.
+
+  Creator: a Translations panel (languages, texts per language, missing markers, JSON / CSV import and export, a locale preview for the canvas and Play), translation keys in the binding picker, and the same data in the share viewer and the Preview app.
+
+- 094ce71: The camera permission is set per project:
+  - The packages document can carry `permissions.camera`, the project's own prompt text, and each resolved entry an `expoPluginOptions` object (options per plugin in `expoPlugins`). Both are optional, so older documents and older CLIs are unchanged.
+  - The `camera` package registers `expo-camera` with `microphonePermission: false` and `recordAudioAndroid: false`, since neither CodeScanner nor CameraView records sound, and with `cameraPermission` set to the project's text. With no text of its own, the text is derived from the elements that use the camera, e.g. "$(PRODUCT_NAME) uses the camera to scan QR codes and barcodes."
+  - Creator → Project settings → Packages shows the text field on the Camera row.
+
+- d2ce13d: Everything a hand-made motion design needs from project data (kit #538): easing curves and keyframes of the project's own, stagger, transforms, more gradients, new components and device actions.
+  - `@mapples/style`:
+    - A timing function may be a curve written as text, `cubic-bezier(0.3, 1.4, 0.5, 1)` (`y` may overshoot) or `steps(4)`, in `transitionTimingFunction`, `animationTimingFunction` and on a single keyframe. `styled()` turns it into Reanimated's easing, which its native CSS layer needs.
+    - Motion tokens: `ThemeConfig.motion` holds the project's `easings` (`{ spring: 'cubic-bezier(…)' }`, used as `easing.spring`) and `keyframes` (named sets, played by `animationName` / `exitAnimationName` like a preset; a project set with a preset's name replaces it). Keyframes may name theme colours (`theme.primary.main`) and the playing element's own colour (`$color(0.55)`). `useMotionTokens`, `validateMotionTokens`, `resolveTimingFunction`, `isTimingFunctionText`.
+    - New presets: `rise`, `pop`, `stampIn`, `dropIn` (enter) and `float`, `bob`, `pulseRing`, `shine`, `scanLine` (loop); `ANIMATION_PRESET_TIMING` names the duration and curve each is designed for.
+    - `animationStagger` on a parent starts each child's animation that much later than the one before it (the rows of a `FlatList` too). `MotionStagger`, `staggerRowDelay`.
+    - `resolveMotionStyle(style, { reducedMotion, tokens, staggerDelay, getColor })` replaces the positional `reducedMotion` argument.
+  - `@mapples/types`: `Gradient` is `LinearGradient | RadialGradient | ConicGradient`.
+  - `@mapples/ui`: `GradientBackground` and `View` paint radial and conic gradients with `react-native-svg` (a conic one with `repeat` draws rays).
+  - `@mapples/state`: `mapples:delay` (`{ duration, then }`) and `DelayActionHandler`.
+  - `@mapples/components`:
+    - New components: `Marquee`, `Confetti`, `FlipCard`, `CodeScanner` (`expo-camera`, an optional peer; a pressable stand-in on the web).
+    - New actions `mapples:haptic`, `mapples:copy`, `mapples:share`, handled by `DeviceActionHandler`; each takes a `then` follow-up. `expo-haptics` and `expo-clipboard` are optional peers. `@mapples/state` is now a peer.
+    - `ProgressCircle` and `ProgressBar` take `animate`, `animateDelay`, `animateDuration`: the fill grows from empty when it appears.
+  - `@mapples/app`: `MapplesRuntime` mounts `DelayActionHandler` and `DeviceActionHandler`.
+  - `@mapples/codegen`: the four new component types import from `@mapples/components`.
+  - `@mapples/fonts`: Anton (Regular), a condensed display face.
+  - `@mapplesorg/canvas`:
+    - A Transform section (move, scale, rotate, rotate X / Y, skew, perspective, origin, back face) and a border style (solid, dashed, dotted).
+    - The Motion section takes a custom curve, lists the project's easing tokens and keyframe sets, writes each preset's own timing, and sets the stagger of a parent.
+    - The Gradient section sets the kind (linear, radial, angular).
+    - Actions: Haptic feedback, Copy to clipboard, Share and Wait, with chained "Then" steps.
+    - `resolveProjectPackages` counts the packages an element's actions need.
+  - `@mapplesorg/schematics`: the new components' schematics; packages `camera`, `haptics`, `clipboard` and `ACTION_PACKAGES`; `StyleFormType.Transform`; Transform and Motion on text, pressable, image, SVG and code elements; `childrenAsItems`.
+  - `@mapplesorg/ai-tools`: `update_motion_tokens`; `add_connection` takes `haptic`, `copy`, `share`, `delay` and nested `then`; the motion hint covers curves, tokens, the new presets, stagger, transforms and border style; the gradient hint covers radial and conic.
+
+- dcfd14b: Foldable phones. The device presets gain iPhone Duo, Galaxy Z Fold8 and Galaxy Z Flip8, each with two viewports: unfolded (the inner screen) and folded (the outer one). A frame stores the folded posture next to its device (`frame.posture`); frames without one, and every frame saved before, are unchanged. The canvas shows a posture picker beside the device picker for a foldable, Play draws each posture's hardware with the crease of the inner screen and has a Folded switch under the device, beside Bezels, and the share viewer and template preview offer the same devices and postures.
+
+  `@mapples/style` exports `useHinge()`, `HingeProvider` and the `Hinge` type, shaped as `expo-hinge` reports the hinge. `useHinge()` returns `null` until a `HingeProvider` supplies a value: an app passes it `expo-hinge`'s `useHinge()`, and Play passes the played device's posture (closed at 0° folded, fully open at 180° unfolded).
+
+  AI: `DeviceInfo` has an optional `posture`, `devicePresets` lists a foldable once per posture, and `set_frame_device` and `create_page` accept `posture`.
+
+  iPhone Duo follows Apple's and Expo's guides: both postures report an 84 pt right safe-area inset for the system rail (top 0, bottom 34), and Play draws the camera, clock and status icons down that rail. The folded front is drawn with its hinge spine, square hinge corners and corner camera.
+
+  `@mapples/navigation` keeps every page inside the left and right safe-area insets (`RouteScreen`), so a phone in landscape or the iPhone Duo's rail no longer covers page content. Pages on devices without side insets are unchanged.
+
+  Tab navigators have a `tabBar.placement`: `bottom` (default), `sidebar` (down the left side) or `automatic` (a sidebar from 768 pt of width, a bottom bar below). It moves the stock bar only; a designed bar stays at the bottom. The navigator inspector has a Placement field, `set_navigator_options` accepts it, and a canvas frame leaves the bottom bar out when the bar is a sidebar (the sidebar itself is not drawn on the frame yet).
+
+  Vertical bar (Apple's "Designing for iPhone Duo"): `@mapples/navigation` exports `VerticalBarProvider`, `useVerticalBar`, `RailTabBar` and `RailBackButton`. Under a `VerticalBarProvider` a tabs navigator draws its stock bar as a column of icons at the bottom of the device's rail instead of along the bottom of the screen (a designed bar and `placement: 'sidebar'` keep their place), and with `navigation: true` the stack and tab headers are left out and a pushed stack screen gets its back button at the top of the rail. Play provides the bar for iPhone Duo in both postures; nothing changes where no provider is mounted. The unfolded iPhone Duo is drawn without a camera cutout: the inner camera is hidden until it is in use.
+
+- aabcfd4: **Breaking:** legacy compatibility code is removed; documents and code written by current tools are unaffected.
+  - `@mapples/render`: `migrateLegacyIconNodes` is removed, and the canvas, Play and the AI tools no longer remap `Icon` nodes to `Vector` on load. The remap took every `Icon` whose `iconName` is a data binding (a component file's `<Icon iconName={iconName} />`) for a pre-rename SVG icon, so those glyphs drew the image placeholder and a canvas edit could save the `Vector` back. A document still holding a pre-rename uri `Icon` now draws the Icon placeholder until it is changed to `Vector`.
+  - `@mapples/ui`: the hidden repeat-template `Select` element is removed (use `SelectField`, `SegmentedControl`, `ChipGroup` or `FlatList`), and `IconButton` drops its `uri` SVG mode: it always renders the themed glyph button from `iconName`.
+  - `@mapples/navigation`: a navigation target must be a qualified `navigator:route` name (or a `pageUuid`); bare route names no longer resolve.
+  - `@mapples/types`: the deprecated `NavigatorNode.canvas` placement and `NavigatorCanvasRect` are removed.
+  - `@mapplesorg/canvas`: the unused single-page editor (`Canvas`, `CanvasView`, `DocumentHeader` and the components only they used) is removed, along with old device ids, the pre-grid screen order, the navigator-section free layout and the fabricated-node document repair.
+
+- ea76bd9: Navigation texts can be translated. `HeaderOptions.titleKey` and `ScreenOptions.tabLabelKey` / `drawerLabelKey` name a message of the project's locales document (`home.title`, read as `t.home.title`); while the key has a message in the active locale it is shown instead of `title` / `tabLabel` / `drawerLabel`, which stay as the text of a single-language project and the fallback. `routeTitle` and `routeItemLabel` take an optional `MessageText` reader, and `@mapples/state` exports `useMessageText()`, which reads a message key the way a `t.*` binding does. `@mapples/navigation` resolves the keys in every navigator, so headers, tab bars and drawers follow a locale switch; the Creator draws them on the canvas in the previewed language, the navigator inspector picks the key from the project's messages, and the AI navigation tools accept the three fields. The Preview app's single-screen view now provides the project's locales, so `t.*` texts are translated there as in Full flow.
+- dd68ce2: No-code animations.
+  - `@mapples/style`: a style can carry motion: CSS-style transitions (`transitionProperty`, `transitionDuration`, …) and keyframe animations (`animationName` with a preset from `ANIMATION_PRESETS` or keyframes written in place, `animationDuration`, `animationIterationCount`, …). `styled()` renders such an element through Reanimated's animated component and drops the motion keys when the OS asks for reduced motion. A style value may also be a selector value (`{ default, ':active' }`).
+  - `@mapples/render`: interaction states. A `styled` key can name `$pressed`, `$hovered` or `$focused` after `::` (`style::$pressed`); `applyStateVariants` turns it into selector values, and `MapplesElement` applies it in generated apps.
+  - `@mapples/types`, `@mapples/navigation`: `RouteNode.animation` sets the transition a stack screen opens with (`ROUTE_ANIMATIONS`); `validateNavigationDocument` reports `ANIMATION_NOT_STACK` and `ANIMATION_UNKNOWN`.
+  - `@mapplesorg/canvas`, `@mapplesorg/schematics`: a Motion section in the Style tab, Pressed / Hovered / Focused in the State row, a Transition field for stack screens.
+  - `@mapplesorg/ai-tools`: `set_element_style` and the subtree tools describe motion and take interaction states; new tool `set_route_animation`.
+
+  **Breaking for apps on Reanimated 3:** `@mapples/style` now needs `react-native-reanimated` >= 4 as a peer dependency; `@mapples/dnd` moves its peers from Reanimated `~3.17.4` and gesture-handler `~2.24.0` to Reanimated >= 4 and gesture-handler >= 2.24; `@mapples/navigation` declares Reanimated >= 4. Apps created by the `mapples` CLI already have these.
+
+- b62a721: `pluralCategories(locale, ordinal?)` names the plural categories a language distinguishes (`one`, `few`, `many`, `other`, …), cardinal or ordinal, through the same `Intl.PluralRules` (or the `intl-pluralrules` implementation on Hermes) the message formatter uses. The Creator's Translations table uses it to warn when a translated plural lacks a category of its language.
+- dcc48bf: Plural and ordinal messages work in iOS and Android apps. The app's JavaScript engine (Hermes) has no `Intl.PluralRules`, so `{n, plural, …}` and `{n, selectordinal, …}` threw there; `@mapples/types` now uses the `intl-pluralrules` implementation when the engine has none, and the engine's own where it exists. `intl-pluralrules` is a new dependency. Known limit: Hermes on iOS ignores `notation: 'compact'`, so the `compact` number format prints the full number there.
+
 ## 2.0.4
 
 ## 2.0.3

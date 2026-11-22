@@ -1,17 +1,19 @@
 import { ElementType, forwardRef, useEffect } from 'react';
 
+import { useDataState } from '@mapples/state';
 import { DataProps } from '@mapples/types';
 
 import { useElementBindings } from '../hooks/useElementBindings';
-import { ActionPropsMap, RefPropsMap } from '../types';
+import { ActionPropsMap, RefPropsMap, StateCondition } from '../types';
 import { applyRefProps } from '../utils/applyRefProps';
+import { applyStateVariants } from '../utils/applyStateVariants';
 
 import ElementErrorBoundary from './ElementErrorBoundary';
 
 /**
  * Props of {@link MapplesElement}: the element it renders and the Creator
- * sidecars of a synced file, as the `$data` / `$actions` / `$refs` JSX
- * attributes carry them. Every other prop is the element's own.
+ * sidecars of a synced file, as the `$data` / `$actions` / `$refs` /
+ * `$states` JSX attributes carry them. Every other prop is the element's own.
  */
 export interface MapplesElementProps {
   /** The component the element renders (`Button`, a Creator component, …). */
@@ -22,6 +24,11 @@ export interface MapplesElementProps {
   $actions?: ActionPropsMap;
   /** Asset references per prop — the canvas node's `refProps`. */
   $refs?: RefPropsMap;
+  /**
+   * The data states the element's `key::state` style variants render under,
+   * by state key — the document's `state` entries those variants name.
+   */
+  $states?: Record<string, Pick<StateCondition, 'condition'>>;
   [prop: string]: unknown;
 }
 
@@ -43,6 +50,12 @@ const elementName = (As: ElementType): string =>
  * (`useElementBindings`): bound values over the element's own props, a falsy
  * `_visible` hides it, each action emits onto the app's action bus.
  *
+ * Style variants resolve here too (`applyStateVariants`): `style::<key>`
+ * applies while the condition `$states` gives that key holds on the app's
+ * data state, and `style::$pressed` becomes the selector values the style
+ * runtime switches on. The plugin wraps an element with such a variant even
+ * when it carries no other sidecar.
+ *
  * An authored action replaces a code handler for the same event — the
  * canvas never runs the code one — and says so once, so a duplicate
  * `onPress` (an old habit of writing `router.push` next to a navigate
@@ -61,8 +74,10 @@ const MapplesElement = forwardRef<unknown, MapplesElementProps>(
       $data,
       $actions,
       $refs,
+      $states,
       ...props
     } = elementProps as MapplesElementProps;
+    const { getConditionResult } = useDataState();
     const { hidden, dataProps, refProps, actionHandlers } = useElementBindings(
       $data,
       $actions,
@@ -85,13 +100,36 @@ const MapplesElement = forwardRef<unknown, MapplesElementProps>(
 
     if (hidden) return null;
 
+    // A variant under a data state applies while the condition `$states`
+    // gives it holds; an interaction state (`style::$pressed`) is left to the
+    // touch, as the selector values the style runtime switches on.
+    const styled = props.styled;
+    const elementPropsWithStates =
+      typeof styled === 'object' && styled !== null && !Array.isArray(styled)
+        ? {
+            ...props,
+            styled: applyStateVariants(
+              styled as Record<string, unknown>,
+              (state) => {
+                const declared = $states?.[state];
+                return declared !== undefined
+                  ? getConditionResult(declared.condition)
+                  : false;
+              },
+            ),
+          }
+        : props;
+
     return (
       <ElementErrorBoundary
         label={`<${elementName(As)}${sid ? ` $sid="${String(sid)}"` : ''}>`}
       >
         <As
           ref={ref}
-          {...applyRefProps({ ...props, ...dataProps }, refProps)}
+          {...applyRefProps(
+            { ...elementPropsWithStates, ...dataProps },
+            refProps,
+          )}
           {...actionHandlers}
         />
       </ElementErrorBoundary>

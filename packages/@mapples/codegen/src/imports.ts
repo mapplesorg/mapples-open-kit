@@ -6,6 +6,12 @@ export interface ResolvedImports {
   /** The same names by the package they are imported from, packages sorted. */
   primitives: Map<string, string[]>;
   customs: Map<string, { module: string; exportName: string }>; // local name -> origin
+  /**
+   * Custom tags the file defines itself (`#StyledPressable`): nothing to
+   * import, the definition lives in the file's code. A generated file has
+   * no such code, so a caller that generates one has to say so.
+   */
+  locals: string[];
 }
 
 export const UI_MODULE = '@mapples/ui';
@@ -21,6 +27,7 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'Accordion',
   'ActionSheet',
   'ActivityRings',
+  'AnimatedNumber',
   'Avatar',
   'AvatarGroup',
   'Badge',
@@ -34,12 +41,15 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'ButtonGroup',
   'Calendar',
   'CalendarHeatmap',
+  'CameraView',
   'Card',
   'ChatComposer',
   'Checkbox',
   'Chip',
   'ChipGroup',
   'ChoiceGrid',
+  'CodeScanner',
+  'Confetti',
   'CountdownTimer',
   'DateTile',
   'DayPicker',
@@ -48,12 +58,16 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'DrawerItems',
   'EmptyState',
   'Fab',
+  'FlipCard',
   'ImageCarousel',
   'InputField',
   'LineChart',
   'List',
   'ListItem',
+  'LiveIndicator',
+  'LottieAnimation',
   'MapView',
+  'Marquee',
   'MasonryGrid',
   'MediaCard',
   'MessageBubble',
@@ -68,7 +82,10 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'RadioGroup',
   'RangeSlider',
   'Rating',
+  'ReactionButton',
   'ReorderableList',
+  'ResultMark',
+  'RiveAnimation',
   'SearchBar',
   'SectionHeader',
   'SegmentedControl',
@@ -80,17 +97,18 @@ const COMPONENTS_TYPES: ReadonlySet<string> = new Set([
   'StatTile',
   'Steps',
   'Switch',
-  'Table',
   'TabBarItems',
   'TabIcon',
-  'TabTemplate',
   'TabLabel',
+  'TabTemplate',
+  'Table',
   'Tabs',
   'TextLink',
   'TicketCard',
-  'Timeline',
   'TimePicker',
+  'Timeline',
   'TopAppBar',
+  'TypewriterText',
   'WaveformSeekBar',
 ]);
 
@@ -117,9 +135,34 @@ export function parseImportRef(ref: string): {
   return { module: ref.slice(0, idx), exportName: ref.slice(idx + 1) };
 }
 
+/**
+ * The binding a Custom needs: itself, or for a member tag (`Animated.View`,
+ * importRef `react-native-reanimated#default.View`) the head it is reached
+ * through — `Animated`, the default export.
+ */
+function customBinding(
+  name: string,
+  origin: { module: string; exportName: string },
+): { local: string; origin: { module: string; exportName: string } } {
+  const dot = name.indexOf('.');
+  if (dot === -1) return { local: name, origin };
+  const exportDot = origin.exportName.indexOf('.');
+  return {
+    local: name.slice(0, dot),
+    origin: {
+      module: origin.module,
+      exportName:
+        exportDot === -1
+          ? origin.exportName
+          : origin.exportName.slice(0, exportDot),
+    },
+  };
+}
+
 export function collectImports(root: RenderDomNode): ResolvedImports {
   const uiNames = new Set<string>();
   const customs = new Map<string, { module: string; exportName: string }>();
+  const locals = new Set<string>();
 
   const walk = (node: RenderDomNode): void => {
     if (node.type === 'Custom') {
@@ -128,23 +171,26 @@ export function collectImports(root: RenderDomNode): ResolvedImports {
       if (typeof name !== 'string' || typeof importRef !== 'string') {
         throw new Error(`Custom node ${node.sid} is missing name/importRef`);
       }
-      const origin = parseImportRef(importRef);
-      if (origin.module === '') {
-        throw new Error(
-          `Custom node ${node.sid} (${name}) has a local importRef (${importRef}); cannot emit an import for it`,
-        );
+      const parsed = parseImportRef(importRef);
+      if (parsed.module === '') {
+        // Defined in the file (`const StyledPressable = styled(Pressable)`):
+        // the element stays a placeholder on the canvas, the code keeps it.
+        locals.add(name);
+        for (const child of node.children) walk(child);
+        return;
       }
-      const existing = customs.get(name);
+      const { local, origin } = customBinding(name, parsed);
+      const existing = customs.get(local);
       if (
         existing &&
         (existing.module !== origin.module ||
           existing.exportName !== origin.exportName)
       ) {
         throw new Error(
-          `Custom name collision: ${name} maps to both ${existing.module} and ${origin.module}`,
+          `Custom name collision: ${local} maps to both ${existing.module} and ${origin.module}`,
         );
       }
-      customs.set(name, origin);
+      customs.set(local, origin);
     } else {
       uiNames.add(node.type);
     }
@@ -164,6 +210,7 @@ export function collectImports(root: RenderDomNode): ResolvedImports {
     uiNames: [...uiNames].sort(),
     primitives: byModule(uiNames),
     customs,
+    locals: [...locals].sort(),
   };
 }
 
@@ -206,9 +253,17 @@ export function printImports(resolved: ResolvedImports): string {
   return lines.join('\n');
 }
 
-/** ImportNeeds for @mapples/sid-ast upsertImports, from a merged tree. */
-export function importNeedsFor(root: RenderDomNode): ImportNeed[] {
-  const { primitives, customs } = collectImportsTolerant(root);
+/**
+ * ImportNeeds for @mapples/sid-ast upsertImports, from a merged tree.
+ * `writtenAs`: sids the file already writes as an element of its own import
+ * (a @mapples/style `<StyledView>`, `ExtractResult.styleElements`) — their
+ * type needs no @mapples/ui import.
+ */
+export function importNeedsFor(
+  root: RenderDomNode,
+  writtenAs: ReadonlySet<string> = new Set(),
+): ImportNeed[] {
+  const { primitives, customs } = collectImportsTolerant(root, writtenAs);
   const needs: ImportNeed[] = [];
   for (const [module, named] of primitives) needs.push({ module, named });
   for (const [local, origin] of customs) {
@@ -223,7 +278,10 @@ export function importNeedsFor(root: RenderDomNode): ImportNeed[] {
 }
 
 /** Like collectImports but tolerant of local (#Name) customs — used for healing. */
-function collectImportsTolerant(root: RenderDomNode): ResolvedImports {
+function collectImportsTolerant(
+  root: RenderDomNode,
+  writtenAs: ReadonlySet<string>,
+): ResolvedImports {
   const uiNames = new Set<string>();
   const customs = new Map<string, { module: string; exportName: string }>();
   const walk = (node: RenderDomNode): void => {
@@ -231,10 +289,13 @@ function collectImportsTolerant(root: RenderDomNode): ResolvedImports {
       const name = node.props.name;
       const importRef = node.props.importRef;
       if (typeof name === 'string' && typeof importRef === 'string') {
-        const origin = parseImportRef(importRef);
-        if (!customs.has(name)) customs.set(name, origin);
+        const { local, origin } = customBinding(
+          name,
+          parseImportRef(importRef),
+        );
+        if (!customs.has(local)) customs.set(local, origin);
       }
-    } else {
+    } else if (!writtenAs.has(node.sid)) {
       uiNames.add(node.type);
     }
     for (const child of node.children) walk(child);
@@ -244,5 +305,6 @@ function collectImportsTolerant(root: RenderDomNode): ResolvedImports {
     uiNames: [...uiNames].sort(),
     primitives: byModule(uiNames),
     customs,
+    locals: [],
   };
 }

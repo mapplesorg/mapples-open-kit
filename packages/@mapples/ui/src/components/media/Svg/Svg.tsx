@@ -14,9 +14,9 @@ import {
   WithStyledProps,
 } from '@mapples/style';
 import { View, ViewProps, ViewStyle } from 'react-native';
-import { SvgProps as RnsSvgProps, SvgUri } from 'react-native-svg';
+import { SvgProps as RnsSvgProps, SvgXml } from 'react-native-svg';
 
-const StyledSvgUri = styled(SvgUri);
+const StyledSvgXml = styled(SvgXml);
 
 /**
  * Props for the Svg component.
@@ -35,7 +35,8 @@ export type SvgProps = WithStyledProps<ViewProps> & {
 
 /**
  * Renders inline SVG from a string (e.g. from @mapplesorg/figmafile GROUP→Svg conversion).
- * Uses a data URI so react-native-svg's SvgUri can display it.
+ * Parses the markup with react-native-svg's SvgXml, so nothing is fetched (a data URI
+ * through SvgUri falls back to `fetch`, which fails on Android).
  *
  * @example
  * ```tsx
@@ -53,17 +54,14 @@ const Svg: ForwardRefExoticComponent<
   ({ styled, content, ...props }, ref) => {
     const { styleSvg, style, ...styledProps } = styled || {};
 
-    const uri =
-      content && content.trim().length > 0
-        ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content.trim())}`
-        : undefined;
+    const xml = content?.trim() || undefined;
 
     const svgStyle = (styleSvg ?? style) as StyledProp<ViewStyle>;
 
     return (
       <StyledView ref={ref} styled={{ style, ...styledProps }} {...props}>
-        {uri ? (
-          <StyledSvgUri uri={uri} styled={{ style: svgStyle }} />
+        {xml ? (
+          <StyledSvgXml xml={xml} styled={{ style: svgStyle }} />
         ) : (
           <StyledView styled={{ style: styler.placeholder }} />
         )}

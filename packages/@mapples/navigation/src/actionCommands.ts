@@ -64,8 +64,7 @@ export const toNavigationCommand = (
     case NavigationActionType.Navigate: {
       const data = (action.payload?.data ?? {}) as NavigatePayload;
       // `findRouteNameForPage` already returns a qualified name; an explicit
-      // `routeName` may be qualified (current) or bare (legacy), so both pass
-      // through `resolveScreenName`.
+      // `routeName` is checked against the document.
       const target =
         data.routeName ??
         (data.pageUuid ? findRouteNameForPage(document, data.pageUuid) : null);

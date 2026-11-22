@@ -1,5 +1,24 @@
 # @mapples/dnd
 
+## 2.1.0
+
+### Patch Changes
+
+- 34f6885: Easy mode can select elements again (#502).
+
+  `@mapples/dnd`: `DropTargetConfig.selectOnly` keeps an element registered for hit-testing and selection (a tap still emits `Select` for it) but never makes it a drag source or a drop target: a drag that starts on it moves nothing, and drags or external drops over it find no target, whatever `canDrop` says. `DropItem` and `DropTarget` carry the flag. Additive; elements without it behave as before.
+
+  `@mapplesorg/canvas`: in Easy mode, with no host `editLock`, elements register as `selectOnly`, so a click selects one and the chat sends it as the message's subject. The selection shows its outline and a chip with the element type and Deselect; resize, radius and padding handles, the chip's move/detach/create-component actions, inline text, drags, drops and the mutating shortcuts stay off. A host lock (AI turn, plan run, agent) still makes the canvas fully inert. `ProjectCanvasContextType.selectOnly` says which state applies.
+
+- dd68ce2: No-code animations.
+  - `@mapples/style`: a style can carry motion: CSS-style transitions (`transitionProperty`, `transitionDuration`, …) and keyframe animations (`animationName` with a preset from `ANIMATION_PRESETS` or keyframes written in place, `animationDuration`, `animationIterationCount`, …). `styled()` renders such an element through Reanimated's animated component and drops the motion keys when the OS asks for reduced motion. A style value may also be a selector value (`{ default, ':active' }`).
+  - `@mapples/render`: interaction states. A `styled` key can name `$pressed`, `$hovered` or `$focused` after `::` (`style::$pressed`); `applyStateVariants` turns it into selector values, and `MapplesElement` applies it in generated apps.
+  - `@mapples/types`, `@mapples/navigation`: `RouteNode.animation` sets the transition a stack screen opens with (`ROUTE_ANIMATIONS`); `validateNavigationDocument` reports `ANIMATION_NOT_STACK` and `ANIMATION_UNKNOWN`.
+  - `@mapplesorg/canvas`, `@mapplesorg/schematics`: a Motion section in the Style tab, Pressed / Hovered / Focused in the State row, a Transition field for stack screens.
+  - `@mapplesorg/ai-tools`: `set_element_style` and the subtree tools describe motion and take interaction states; new tool `set_route_animation`.
+
+  **Breaking for apps on Reanimated 3:** `@mapples/style` now needs `react-native-reanimated` >= 4 as a peer dependency; `@mapples/dnd` moves its peers from Reanimated `~3.17.4` and gesture-handler `~2.24.0` to Reanimated >= 4 and gesture-handler >= 2.24; `@mapples/navigation` declares Reanimated >= 4. Apps created by the `mapples` CLI already have these.
+
 ## 2.0.4
 
 ## 2.0.3

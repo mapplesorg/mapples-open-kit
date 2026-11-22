@@ -1,5 +1,85 @@
 # @mapples/components
 
+## 2.1.0
+
+### Patch Changes
+
+- 0d82390: Lottie and Rive animations (#471).
+
+  `@mapples/components` has two new elements. `LottieAnimation` plays a `.json` export or a `.lottie` file (`autoPlay`, `loop`, `speed`, `direction`, a `startFrame`–`endFrame` range, `resizeMode`, `colorOverrides` on iOS and Android) and reports `onLoad`, `onComplete`, `onLoop` (web) and `onError`. `RiveAnimation` plays a `.riv` file: an `artboard` and one `stateMachine`, with boolean and number `inputs` by name, `fit` and `alignment`, and Rive events through `onEvent`. It plays state machines only: the native Rive runtime has no linear-animation playback. Both have a bindable `playing` prop and do not start on their own while the OS "reduce motion" setting is on (`respectReduceMotion`).
+
+  Both are controlled by a new `mapples:animation` action (`AnimationActionType.Control`, payload `AnimationActionData`) addressed to the element's `name`: `play`, `pause`, `stop`, `seek` (Lottie), `setInput` and `fireTrigger` (Rive). The elements subscribe to the action store themselves, so nothing is mounted in the app.
+
+  The players are optional peers, loaded lazily: `lottie-react-native` and `@lottiefiles/dotlottie-react` (web) for Lottie; `@rive-app/react-native` with `react-native-nitro-modules`, and `@rive-app/canvas` (web), for Rive. `@mapples/action` is now a peer of `@mapples/components`. `@mapples/codegen` imports both elements from `@mapples/components`.
+
+  Creator: project assets have two new kinds, `lottie` and `rive`. A file's kind is read from its name and content (`detectAnimationAsset`): `.riv` and `.lottie` are checked against their signature, and a `.json` is an animation only when it is a Lottie export, so a data file is never taken for one. The package catalog gains the optional `lottie` and `rive` runtimes, enabled by the element. Dropping an animation file on a frame creates its element, the assets panel lists animations with their first frame, and the action form has "Control animation".
+
+  AI: `list_assets` and `add_asset_from_url` know the two kinds (the URL's content is checked), and `add_connection` accepts `action.kind: "animation"` with `animation: {target, command, progress?, input?, value?}`.
+
+- 5fdf9ed: Languages and translations for apps built with Mapples (#469).
+
+  `@mapples/types`: the locales document (`LocalesDocument`: a default locale, the supported ones and a message table per locale), `validateLocalesDocument`, `matchLocale`, `isRtlLocale`, and the message format: an ICU subset (`{path}` placeholders, `plural`, `selectordinal`, `select`, `number`, `date`, `time`) with `parseMessage`, `formatMessage`, `formatValue` and `parseValueFormat`. `DataProp` gains an optional `format` (`number`, `number, currency/USD`, `date, long`) that writes the bound value for the active locale. A project without the document is single-language and behaves as before.
+
+  `@mapples/state`: `LocaleProvider` (device locale, closest supported, default; `inherit` starts a session over the surrounding project), `LocaleActionHandler` for the new `mapples:setLocale` action, `LocaleDirection`, `useLocaleState` and `deviceLocales`. Bindings resolve `t.<key>` to the translated message (placeholders are binding paths) and `locale.current | language | direction | isRTL | default | supported` to the active locale.
+
+  `@mapples/app`: `MapplesApp` and `MapplesRuntime` mount the locale runtime from `project.locales` (the CLI's `locales.ts`, resolved as `mapples::locales`), keep the user's choice in `variablesStorage`, take a `locale` prop that pins it, and lay the app out right-to-left for an RTL locale (`direction` style on native, `dir` on web; Android also records it in `I18nManager` for the next launch).
+
+  `@mapples/render` exports `useIsRTL()`; `TopAppBar`, `Breadcrumbs`, `ProgressBar` and `Rating` in `@mapples/components` mirror by it, so they follow a locale switched at runtime.
+
+  `@mapplesorg/canvas`: frames and Play render in the host's `LocaleProvider` locale and direction, the action editor offers "Set language", and `MessageExtractProvider` lets a host turn a literal text into a message key from the inspector. `@mapplesorg/schematics`: the `placeholder` of TextInput and TextField is bindable.
+
+  `@mapplesorg/ai-tools`: `get_translations`, `add_locale`, `remove_locale`, `set_default_locale`, `set_translations`, `remove_translation` and `translate_project`; `add_connection` takes `action.kind: "setLocale"`; `ProjectContext.locales` lists a multilingual project's languages.
+
+  Creator: a Translations panel (languages, texts per language, missing markers, JSON / CSV import and export, a locale preview for the canvas and Play), translation keys in the binding picker, and the same data in the share viewer and the Preview app.
+
+- b1a6e46: New `CameraView` element: the live camera picture with children laid over it (device camera through `expo-camera` on iOS and Android, the webcam on the web). `@mapples/style` adds `LiveMediaProvider` / `useLiveMedia`; the canvas turns live media off, so a camera is a black box there, and Play turns it on (a share storyboard keeps it off).
+- d2ce13d: Everything a hand-made motion design needs from project data (kit #538): easing curves and keyframes of the project's own, stagger, transforms, more gradients, new components and device actions.
+  - `@mapples/style`:
+    - A timing function may be a curve written as text, `cubic-bezier(0.3, 1.4, 0.5, 1)` (`y` may overshoot) or `steps(4)`, in `transitionTimingFunction`, `animationTimingFunction` and on a single keyframe. `styled()` turns it into Reanimated's easing, which its native CSS layer needs.
+    - Motion tokens: `ThemeConfig.motion` holds the project's `easings` (`{ spring: 'cubic-bezier(…)' }`, used as `easing.spring`) and `keyframes` (named sets, played by `animationName` / `exitAnimationName` like a preset; a project set with a preset's name replaces it). Keyframes may name theme colours (`theme.primary.main`) and the playing element's own colour (`$color(0.55)`). `useMotionTokens`, `validateMotionTokens`, `resolveTimingFunction`, `isTimingFunctionText`.
+    - New presets: `rise`, `pop`, `stampIn`, `dropIn` (enter) and `float`, `bob`, `pulseRing`, `shine`, `scanLine` (loop); `ANIMATION_PRESET_TIMING` names the duration and curve each is designed for.
+    - `animationStagger` on a parent starts each child's animation that much later than the one before it (the rows of a `FlatList` too). `MotionStagger`, `staggerRowDelay`.
+    - `resolveMotionStyle(style, { reducedMotion, tokens, staggerDelay, getColor })` replaces the positional `reducedMotion` argument.
+  - `@mapples/types`: `Gradient` is `LinearGradient | RadialGradient | ConicGradient`.
+  - `@mapples/ui`: `GradientBackground` and `View` paint radial and conic gradients with `react-native-svg` (a conic one with `repeat` draws rays).
+  - `@mapples/state`: `mapples:delay` (`{ duration, then }`) and `DelayActionHandler`.
+  - `@mapples/components`:
+    - New components: `Marquee`, `Confetti`, `FlipCard`, `CodeScanner` (`expo-camera`, an optional peer; a pressable stand-in on the web).
+    - New actions `mapples:haptic`, `mapples:copy`, `mapples:share`, handled by `DeviceActionHandler`; each takes a `then` follow-up. `expo-haptics` and `expo-clipboard` are optional peers. `@mapples/state` is now a peer.
+    - `ProgressCircle` and `ProgressBar` take `animate`, `animateDelay`, `animateDuration`: the fill grows from empty when it appears.
+  - `@mapples/app`: `MapplesRuntime` mounts `DelayActionHandler` and `DeviceActionHandler`.
+  - `@mapples/codegen`: the four new component types import from `@mapples/components`.
+  - `@mapples/fonts`: Anton (Regular), a condensed display face.
+  - `@mapplesorg/canvas`:
+    - A Transform section (move, scale, rotate, rotate X / Y, skew, perspective, origin, back face) and a border style (solid, dashed, dotted).
+    - The Motion section takes a custom curve, lists the project's easing tokens and keyframe sets, writes each preset's own timing, and sets the stagger of a parent.
+    - The Gradient section sets the kind (linear, radial, angular).
+    - Actions: Haptic feedback, Copy to clipboard, Share and Wait, with chained "Then" steps.
+    - `resolveProjectPackages` counts the packages an element's actions need.
+  - `@mapplesorg/schematics`: the new components' schematics; packages `camera`, `haptics`, `clipboard` and `ACTION_PACKAGES`; `StyleFormType.Transform`; Transform and Motion on text, pressable, image, SVG and code elements; `childrenAsItems`.
+  - `@mapplesorg/ai-tools`: `update_motion_tokens`; `add_connection` takes `haptic`, `copy`, `share`, `delay` and nested `then`; the motion hint covers curves, tokens, the new presets, stagger, transforms and border style; the gradient hint covers radial and conic.
+
+- 3845af0: Motion for production apps: exit and layout animations, animations started by actions and by screen focus, scroll behaviours, swipe actions, animated charts and lists, a set of animated components, and a canvas that stands still until asked.
+  - `@mapples/style`: new motion keys that are not CSS and become props of the animated host: `exitAnimationName` (how an element leaves when it stops being rendered; presets in `EXIT_ANIMATION_PRESETS`: `fadeOut`, `fadeOutUp`, `fadeOutDown`, `slideOutLeft`, `slideOutRight`, `zoomOut`) with `exitAnimationDuration` / `exitAnimationDelay`, `layoutTransitionDuration` (the element slides to its new place when the layout around it changes), `animationReplay: 'focus'` (the animation plays again each time the screen is shown) and `motionName` (the name motion commands address the element by). `sendMotionCommand({ target, command, animation? })` plays, pauses or restarts a named element's animation, or plays a preset on it once. `ScreenMotionProvider`, `useScreenScroll`, `useScreenScrollHandler` and `useScreenFocusCount` let the elements of one screen react to its scroll views and to its focus. `MotionProvider` / `useMotionEnabled` turn the motion of everything inside on or off. `StyledFlatList` takes `animateChanges`.
+  - `@mapples/navigation`: every route's page is wrapped in a `ScreenMotionProvider`.
+  - `@mapples/ui`: a vertical `ScrollView` / `FlatList` reports to its screen while an element there reacts to scrolling; `FlatList` passes `animateChanges` on.
+  - `@mapples/components`:
+    - `TopAppBar` `scrollBehavior` (`elevate`, `collapse`, `hide`); `Fab` and `BottomActionBar` `hideOnScroll`.
+    - `ListItem` `swipeActions` / `onSwipeAction`; `List` `animateChanges`.
+    - `BarChart` and `LineChart` `animate`.
+    - The `mapples:animation` action also reaches any element with a `motionName` (`play`, `pause`, and `play` with a one-off `animation` preset); `MotionActionHandler` forwards it.
+    - New components: `AnimatedNumber`, `TypewriterText`, `ResultMark`, `ReactionButton`, `LiveIndicator`.
+    - Loops and transitions of the library's own components stand still where a `MotionProvider` turned motion off.
+  - `@mapples/app`: `MapplesRuntime` mounts `MotionActionHandler`.
+  - `@mapples/codegen`: the five new component types import from `@mapples/components`.
+  - `@mapplesorg/canvas`:
+    - The frames stand still: motion plays only in Play, or with the new Animate switch in the zoom badge (off by default). Play in the Motion section still plays the selected element. The share link's storyboard has the same switch.
+    - Buttons, inputs, checkboxes and switches take no press on the canvas or on the share storyboard; they work in Play.
+    - The Motion section sets the exit animation, the layout transition, replay on focus and the name for actions; "Control animation" can play a preset once.
+    - The palette's new Animated tab lists the animated components, Lottie and Rive, and motion presets (ordinary elements with motion already set).
+  - `@mapplesorg/schematics`: the `animated-group` palette group, the new components' schematics, `MotionPresets`, the new props of the components above.
+  - `@mapplesorg/ai-tools`: the motion hint covers exit, layout, replay and `motionName`; `add_connection`'s animation action takes a `motionName` target and a one-off `animation`.
+
 ## 2.0.4
 
 ## 2.0.3

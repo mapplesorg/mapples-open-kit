@@ -11,6 +11,8 @@ export * from './option';
 export * from './overlay';
 export { default as useControllableState } from './useControllableState';
 export * from './useControllableState';
+export { default as useFrameValue } from './useFrameValue';
+export * from './useFrameValue';
 export { default as useInteractionState } from './useInteractionState';
 export * from './useInteractionState';
 export { default as useLoopValue } from './useLoopValue';

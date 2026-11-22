@@ -7,6 +7,8 @@
  *
  * - `enabled` is user intent — optional packages the user switched on in the
  *   Creator's Project settings → Packages beyond what the canvas already uses.
+ * - `permissions` is user intent too — the purpose texts of device
+ *   permissions (the camera's prompt line), edited next to the package.
  * - `resolved` is the effective install list. The Creator recomputes it
  *   (required baseline ∪ packages used by canvas elements ∪ `enabled`) on every
  *   toggle and after every successful push, and the `mapples` CLI reads it
@@ -23,6 +25,25 @@ export interface PackageDependencyEntry {
   version: string;
 }
 
+/**
+ * The options object of one Expo config plugin (the second item of an
+ * `app.json` `["plugin", {…}]` entry). JSON values only.
+ */
+export type ExpoPluginOptions = Record<string, unknown>;
+
+/**
+ * Device permissions whose purpose text the project sets itself (the line the
+ * system prompt shows, e.g. iOS `NSCameraUsageDescription`).
+ */
+export type PackagePermissionId = 'camera';
+
+/** The project's own purpose texts, by permission. An absent key uses the default text. */
+export type PackagePermissions = Partial<Record<PackagePermissionId, string>>;
+
+export const PACKAGE_PERMISSION_IDS: readonly PackagePermissionId[] = [
+  'camera',
+];
+
 export interface ResolvedPackageEntry {
   /** Catalog id, e.g. `qrcode` or `icon-pack:feather`. */
   id: string;
@@ -31,6 +52,12 @@ export interface ResolvedPackageEntry {
   dependencies: PackageDependencyEntry[];
   /** Expo config plugins to register in `app.json`, when the package has any. */
   expoPlugins?: string[];
+  /**
+   * Options per plugin in `expoPlugins` (keyed by plugin name), written into
+   * `app.json` as `["plugin", options]`. A plugin with no entry is registered
+   * by name alone.
+   */
+  expoPluginOptions?: Record<string, ExpoPluginOptions>;
 }
 
 export interface PackagesDocument {
@@ -39,6 +66,12 @@ export interface PackagesDocument {
   enabled: string[];
   /** Effective install list, written by the Creator, read by the CLI. */
   resolved: ResolvedPackageEntry[];
+  /**
+   * Purpose texts the user wrote for device permissions (Creator-owned).
+   * The Creator folds them into the matching `expoPluginOptions` of
+   * `resolved`, so the CLI never reads this field.
+   */
+  permissions?: PackagePermissions;
 }
 
 /** An empty document, used before a project has saved any package choice. */

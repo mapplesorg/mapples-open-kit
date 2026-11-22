@@ -105,20 +105,13 @@ describe('toNavigationCommand', () => {
     });
   });
 
-  it('falls back to the first match for a bare legacy route name (with a warning)', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  it('does not resolve a bare route name (only qualified names are accepted)', () => {
     expect(
       toNavigationCommand(
         action(NavigationActionType.Navigate, { routeName: 'index' }),
         doc,
       ),
-    ).toEqual({
-      kind: 'navigate',
-      routeName: 'HomeStack:index',
-      params: undefined,
-    });
-    expect(warn).toHaveBeenCalled();
-    warn.mockRestore();
+    ).toBeNull();
   });
 
   it('resolves a pageUuid navigate target to its qualified route name', () => {
