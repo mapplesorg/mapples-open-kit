@@ -1,5 +1,6 @@
-import { ComponentType, useState } from 'react';
+import { ComponentType, useMemo, useState } from 'react';
 
+import { StyledProp, useStyled } from '@mapples/style';
 import type {
   ConicGradient,
   Gradient,
@@ -9,6 +10,7 @@ import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { conicWedges, parseStopColor } from './conic';
+import { cornerRadii } from './cornerRadii';
 
 /**
  * Minimal prop shape of `expo-linear-gradient`'s `LinearGradient` — the subset
@@ -49,10 +51,15 @@ export interface GradientLayerProps {
   gradient?: Gradient;
   /**
    * Corner radius to clip the gradient layer to, matching the host container's
-   * `borderRadius`. Optional — when omitted, the host must set
-   * `overflow: 'hidden'` for the gradient to respect rounded corners.
+   * `borderRadius`.
    */
   borderRadius?: number;
+  /**
+   * The host container's own style. Its corner radii (`borderRadius` and each
+   * corner's) are given to the layer, less the host's border, so the gradient
+   * follows the host's rounded corners without `overflow: 'hidden'` on it.
+   */
+  hostStyle?: StyledProp<ViewStyle>;
 }
 
 interface Box {
@@ -160,13 +167,27 @@ const styles = StyleSheet.create({
  *
  * @public
  */
-const GradientLayer = ({ gradient, borderRadius }: GradientLayerProps) => {
+const GradientLayer = ({
+  gradient,
+  borderRadius,
+  hostStyle,
+}: GradientLayerProps) => {
+  // Tokens and breakpoints resolved, as the host itself resolves them.
+  const resolved = useStyled({ host: hostStyle }) as {
+    host?: StyleProp<ViewStyle>;
+  };
+  const hostRadii = useMemo(
+    () => cornerRadii(StyleSheet.flatten(resolved.host)),
+    [resolved.host],
+  );
+
   if (!gradient || gradient.stops.length < 2) {
     return null;
   }
 
   const style: StyleProp<ViewStyle> = [
     StyleSheet.absoluteFill,
+    hostRadii,
     borderRadius ? { borderRadius } : null,
   ];
 

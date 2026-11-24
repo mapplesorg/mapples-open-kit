@@ -50,7 +50,9 @@ const View = forwardRef(
   ({ styled, children, gradient, ...props }: ViewProps, ref) => {
     return (
       <StyledView ref={ref} styled={{ ...styled }} {...props}>
-        {gradient ? <GradientLayer gradient={gradient} /> : null}
+        {gradient ? (
+          <GradientLayer gradient={gradient} hostStyle={styled?.style} />
+        ) : null}
         {children}
       </StyledView>
     );
