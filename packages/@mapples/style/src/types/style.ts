@@ -39,14 +39,25 @@ export type SvgStyle = ViewStyle & {
  */
 export type StyledProp<T> = StyleProp<SizableStyleProps<T>>;
 
-/**
- * Props type that transforms all style properties to support enhanced styling.
- * Converts standard style props to styled props with theme and sizing support.
- */
-export type StyledProps<T extends object> = {
+/** Each prop of `T` as a styled prop, without the state variants. */
+type StyledSlots<T extends object> = {
   [P in keyof T]: T[P] extends StyleProp<infer I>
     ? StyledProp<NonNullable<I>>
     : T[P];
+};
+
+/**
+ * Props type that transforms all style properties to support enhanced styling.
+ * Converts standard style props to styled props with theme and sizing support.
+ *
+ * Each slot also takes state variants, written `slot::state` and typed like
+ * the slot: `'style::$pressed'` (also `$hovered`, `$focused`) is how the
+ * element looks while it is touched, `'style::<state>'` how it looks while
+ * the condition of that name in `$states` holds. A variant holds only the
+ * keys that differ from the slot.
+ */
+export type StyledProps<T extends object> = StyledSlots<T> & {
+  [P in keyof T & string as `${P}::${string}`]?: StyledSlots<T>[P];
 };
 
 /**
