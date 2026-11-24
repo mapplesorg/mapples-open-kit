@@ -19,6 +19,8 @@ import {
   ScrollViewProps as RNScrollViewProps,
 } from 'react-native';
 
+import useWebPaging, { PAGES_ON_WEB } from './useWebPaging';
+
 /**
  * Props for the ScrollView component.
  *
@@ -89,6 +91,9 @@ const ScrollView = forwardRef(
     const handleScroll = useScreenScrollHandler(onScroll, !horizontal);
     const reporting = handleScroll !== (onScroll ?? undefined);
 
+    // On the web the pages are snapped here, not by react-native-web.
+    useWebPaging(inner, !!pagingEnabled, !!horizontal);
+
     // A named paging scroll view also tells a `PageControl` its page.
     const pagingName = pagingEnabled ? name : undefined;
     const scrollToOffset = useCallback(
@@ -113,7 +118,7 @@ const ScrollView = forwardRef(
         ref={inner as Ref<unknown>}
         styled={{ ...styled }}
         horizontal={horizontal}
-        pagingEnabled={pagingEnabled}
+        pagingEnabled={PAGES_ON_WEB ? false : pagingEnabled}
         onScroll={paging.onScroll ?? undefined}
         onLayout={paging.onLayout ?? undefined}
         onContentSizeChange={paging.onContentSizeChange ?? undefined}
