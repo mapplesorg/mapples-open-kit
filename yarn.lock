@@ -9905,17 +9905,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:^25.1.1":
-  version: 25.5.1
-  resolution: "i18next@npm:25.5.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.27.6"
+"i18next@npm:^26.3.4":
+  version: 26.3.4
+  resolution: "i18next@npm:26.3.4"
   peerDependencies:
-    typescript: ^5
+    typescript: ^5 || ^6
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/56d35a709356676e72d2ddf7c45f88ccffef27c240a7578428b3692ac3d43368aadb75b06a1a58903ce8eb7e1e0353fb692e94d0f76ca6c8deb69c7a15fca23c
+  checksum: 10c0/09b2e578660b1cdcb284ed00e1f1c8559871fa66cbf85e58f9b78bf782e3b575341f0668ca7230fc80d30104bec42f8ac3ac221096d0f6e6bfbf18255dcccc94
   languageName: node
   linkType: hard
 
@@ -11768,7 +11766,7 @@ __metadata:
     expo-router: "npm:~58.0.24"
     expo-video: "npm:~58.0.12"
     husky: "npm:^9.1.7"
-    i18next: "npm:^25.1.1"
+    i18next: "npm:^26.3.4"
     jest: "npm:~29.7.0"
     jest-expo: "npm:~58.0.15"
     jsbarcode: "npm:^3.12.1"
