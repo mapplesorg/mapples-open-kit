@@ -1,5 +1,7 @@
 import {
   forwardRef,
+  useId,
+  useMemo,
   type ComponentRef,
   type ForwardRefExoticComponent,
   type RefAttributes,
@@ -13,8 +15,10 @@ import {
   Styler,
   WithStyledProps,
 } from '@mapples/style';
-import { View, ViewProps, ViewStyle } from 'react-native';
+import { Platform, View, ViewProps, ViewStyle } from 'react-native';
 import { SvgProps as RnsSvgProps, SvgXml } from 'react-native-svg';
+
+import { scopeSvgIds } from './scopeSvgIds';
 
 const StyledSvgXml = styled(SvgXml);
 
@@ -54,7 +58,15 @@ const Svg: ForwardRefExoticComponent<
   ({ styled, content, ...props }, ref) => {
     const { styleSvg, style, ...styledProps } = styled || {};
 
-    const xml = content?.trim() || undefined;
+    // Ids are scoped to this element on the web, where inline SVGs share the
+    // page's id space (see `scopeSvgIds`). On native each drawing is its own
+    // document and the markup is left as written.
+    const scope = `svg${useId().replace(/[^a-zA-Z0-9]/g, '')}-`;
+    const xml = useMemo(() => {
+      const markup = content?.trim();
+      if (!markup) return undefined;
+      return Platform.OS === 'web' ? scopeSvgIds(markup, scope) : markup;
+    }, [content, scope]);
 
     const svgStyle = (styleSvg ?? style) as StyledProp<ViewStyle>;
 

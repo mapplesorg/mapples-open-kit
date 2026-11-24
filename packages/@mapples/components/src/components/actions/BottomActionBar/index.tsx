@@ -1,7 +1,13 @@
 import { forwardRef, PropsWithChildren } from 'react';
 
 import { StyledProp, StyledView, useScreenScroll } from '@mapples/style';
-import { Tokens, useElevation, useShape, useTones } from '@mapples/ui';
+import {
+  ButtonRowContext,
+  Tokens,
+  useElevation,
+  useShape,
+  useTones,
+} from '@mapples/ui';
 import { View, ViewProps, ViewStyle } from 'react-native';
 
 import { useBottomSafeInset } from '../../../internal';
@@ -38,7 +44,8 @@ export interface BottomActionBarProps extends ViewProps {
 /**
  * A surface pinned to the bottom of the screen for the primary actions — a
  * price beside "Add to cart", "Continue" under a form. Children (Buttons, a
- * `ButtonGroup`, text) lay out on the chosen axis. `sticky` pins the bar to
+ * `ButtonGroup`, text) lay out on the chosen axis; a `fullWidth` Button takes
+ * the width the other children leave, in a row as in a column. `sticky` pins the bar to
  * the parent's bottom edge, so it belongs near the end of the page root with
  * the content padded to clear it.
  *
@@ -51,7 +58,7 @@ export interface BottomActionBarProps extends ViewProps {
  *     variant="filled"
  *     size="lg"
  *     onPress={add}
- *     styled={{ style: { flex: 1 } }}
+ *     fullWidth
  *   />
  * </BottomActionBar>
  * ```
@@ -114,7 +121,9 @@ const BottomActionBar = forwardRef<
         }}
         {...rest}
       >
-        {children}
+        <ButtonRowContext.Provider value={direction}>
+          {children}
+        </ButtonRowContext.Provider>
       </StyledView>
     );
   },

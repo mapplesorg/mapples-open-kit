@@ -1,12 +1,21 @@
 import {
   forwardRef,
   PropsWithChildren,
+  useEffect,
+  useRef,
   type ComponentRef,
   type ForwardRefExoticComponent,
   type RefAttributes,
 } from 'react';
 
-import { StyledProp, StyledView, Typography } from '@mapples/style';
+import {
+  requestScrollPage,
+  StyledProp,
+  StyledView,
+  Typography,
+  useMotionEnabled,
+  useScrollPaging,
+} from '@mapples/style';
 import {
   DISABLED_OPACITY,
   TYPOGRAPHY_PARTS,
@@ -35,7 +44,15 @@ import {
 
 /** Props for {@link PageControl}. */
 export interface PageControlProps extends Omit<ViewProps, 'children'> {
-  /** Number of pages. Defaults to `3`. */
+  /**
+   * The `name` of a paging scroll view on the same screen (a `ScrollView` or
+   * `HorizontalScrollView` with `pagingEnabled`). The control then follows
+   * it: the page count is the scroll view's, the current page moves with the
+   * swipe, and pressing a dot scrolls there. `onValueChange` still fires with
+   * each new page.
+   */
+  target?: string;
+  /** Number of pages; with `target`, what shows on the design canvas and until the scroll view has measured. Defaults to `3`. */
   count?: number;
   /** Index of the current page (controlled). Omit to let the control keep its own state. */
   value?: number;
@@ -71,10 +88,14 @@ const clamp = (value: number, min: number, max: number) =>
  * Page indicators under a carousel or onboarding pager. `value` is the
  * current index, two-way bindable so it can mirror a carousel; dots are
  * pressable and screen readers step through the pages as an adjustable.
+ * With `target` it follows a paging scroll view by itself, no state needed.
  *
  * @example
  * ```tsx
  * <PageControl count={slides.length} value={index} onValueChange={setIndex} />
+ *
+ * <HorizontalScrollView name="gallery" pagingEnabled>…</HorizontalScrollView>
+ * <PageControl target="gallery" variant="bars" />
  * ```
  *
  * @public
@@ -84,6 +105,7 @@ const PageControl: ForwardRefExoticComponent<
 > = forwardRef<ComponentRef<typeof View>, PropsWithChildren<PageControlProps>>(
   (
     {
+      target,
       count = 3,
       value,
       defaultValue = 0,
@@ -107,9 +129,30 @@ const PageControl: ForwardRefExoticComponent<
       defaultValue,
       onChange: onValueChange,
     });
-    const pages = Math.max(0, Math.floor(count));
+    // A scroll view that has measured owns the pages and the current one.
+    // Not where a `MotionProvider` turned motion off (a design canvas): the
+    // pages of a scroll view are laid out for editing there, so the control
+    // shows `count` dots with the first one active.
+    const motionEnabled = useMotionEnabled();
+    const paging = useScrollPaging(target);
+    const following = motionEnabled && paging.count > 0;
+    const pages = following ? paging.count : Math.max(0, Math.floor(count));
     const last = Math.max(pages - 1, 0);
-    const index = clamp(current, 0, last);
+    const index = clamp(following ? paging.page : current, 0, last);
+
+    // Keeps the control's own value (and whatever is bound to it) on the
+    // scroll view's page.
+    const reported = useRef(current);
+    useEffect(() => {
+      if (!following || paging.page === reported.current) return;
+      reported.current = paging.page;
+      setCurrent(paging.page);
+    }, [following, paging.page, setCurrent]);
+
+    const goTo = (page: number) => {
+      if (target && following) requestScrollPage(target, page);
+      else setCurrent(page);
+    };
 
     const inactiveColor = useSlotColor(
       styled?.styleDot,
@@ -125,7 +168,7 @@ const PageControl: ForwardRefExoticComponent<
     const onAccessibilityAction = (event: AccessibilityActionEvent) => {
       if (disabled) return;
       const direction = event.nativeEvent.actionName === 'increment' ? 1 : -1;
-      setCurrent(clamp(index + direction, 0, last));
+      goTo(clamp(index + direction, 0, last));
     };
 
     const label = `${pages === 0 ? 0 : index + 1} / ${pages}`;
@@ -169,7 +212,7 @@ const PageControl: ForwardRefExoticComponent<
                 accessibilityState={{ selected: active, disabled }}
                 disabled={disabled}
                 hitSlop={6}
-                onPress={() => setCurrent(page)}
+                onPress={() => goTo(page)}
               >
                 <StyledView
                   styled={{

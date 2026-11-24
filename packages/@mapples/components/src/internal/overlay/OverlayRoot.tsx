@@ -10,13 +10,7 @@ import {
 
 import { StyledProp, StyledView, useStyle, useStyled } from '@mapples/style';
 import { useTones } from '@mapples/ui';
-import {
-  Animated,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Animated, StyleSheet, View, ViewStyle } from 'react-native';
 
 import useOverlayPresence from '../useOverlayPresence';
 
@@ -54,13 +48,14 @@ const OVERLAY_Z_INDEX = 1000;
 /**
  * The shared root of Dialog, BottomSheet, ActionSheet and Snackbar. It is the
  * component's OWN outer view: `position: absolute` with every inset at 0, so
- * it covers the parent it is placed in — the page root, which the canvas
- * keeps at least a device tall and a built app keeps one screen tall. The
- * layer is also at least one viewport tall (a web page may scroll): the
- * device height when a style provider declares canvas dimensions, the window
- * height otherwise. The window is wrong on the canvas — a browser window is
- * taller than a phone frame, so centred and bottom content landed below the
- * frame. A hidden overlay renders nothing once its exit animation has played.
+ * it covers the parent it is placed in — the page root, which a built app
+ * keeps one screen tall. Inside a tabs navigator that screen ends at the tab
+ * bar, so the layer takes the parent's height and nothing more: forced to the
+ * window's height it ran on under the bar and hid the last rows of a bottom
+ * sheet. Where a style provider declares canvas dimensions (the canvas, Play)
+ * the page root may be shorter than the device, so there the layer is at
+ * least a device tall. A hidden overlay renders nothing once its exit
+ * animation has played.
  */
 const OverlayRoot: ForwardRefExoticComponent<
   PropsWithChildren<OverlayRootProps> & RefAttributes<ComponentRef<typeof View>>
@@ -84,9 +79,7 @@ const OverlayRoot: ForwardRefExoticComponent<
   ) => {
     const { mounted, progress } = useOverlayPresence(visible);
     const tones = useTones();
-    const { height: windowHeight } = useWindowDimensions();
     const { _canvas } = useStyle();
-    const viewportHeight = _canvas ? _canvas.height : windowHeight;
 
     const contentStyle = useMemo(() => {
       const scale = progress.interpolate({
@@ -124,7 +117,7 @@ const OverlayRoot: ForwardRefExoticComponent<
         styled={{
           style: [
             StyleSheet.absoluteFill,
-            { zIndex, minHeight: viewportHeight },
+            { zIndex, minHeight: _canvas?.height },
             alignStyles[align],
             resolvedRoot.root,
           ],

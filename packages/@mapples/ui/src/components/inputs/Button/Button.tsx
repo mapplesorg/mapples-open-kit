@@ -45,6 +45,7 @@ import {
   ButtonGroupContext,
   ButtonGroupContextValue,
 } from './ButtonGroupContext';
+import { ButtonRowContext } from './ButtonRowContext';
 
 /**
  * Props for the Button component.
@@ -81,7 +82,10 @@ export interface ButtonProps extends PressableProps {
   trailingIconName?: string;
   /** Shows an activity indicator in place of the leading glyph and ignores presses. */
   loading?: boolean;
-  /** Stretches the button across its parent (themed variants). */
+  /**
+   * Stretches the button across its parent (themed variants). In a row
+   * `BottomActionBar` it takes the width the other children leave.
+   */
   fullWidth?: boolean;
 }
 
@@ -209,6 +213,7 @@ const Button: ForwardRefExoticComponent<
     const [pressed, setPressed] = useState(false);
     const [hovered, setHovered] = useState(false);
     const inGroup = groupStyle(useContext(ButtonGroupContext));
+    const inRow = useContext(ButtonRowContext) === 'row';
 
     const handlePressIn = useCallback(
       (event: GestureResponderEvent) => {
@@ -316,7 +321,7 @@ const Button: ForwardRefExoticComponent<
               borderColor: colors.border ?? 'transparent',
             },
             colors.elevated && { boxShadow: elevation },
-            fullWidth && styler.fullWidth,
+            fullWidth && (inRow ? styler.fullWidthInRow : styler.fullWidth),
             inGroup,
             styledPressableProps.style,
             isDisabled && styler.disabled,
@@ -380,6 +385,13 @@ const styler = Styler.create({
   },
   fullWidth: {
     alignSelf: 'stretch',
+  },
+  // The rest of a row's width (see `ButtonRowContext`); two share it equally.
+  fullWidthInRow: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    minWidth: 0,
   },
   disabled: {
     opacity: DISABLED_OPACITY,

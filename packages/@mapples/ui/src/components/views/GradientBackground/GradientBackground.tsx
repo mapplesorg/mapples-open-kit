@@ -23,8 +23,9 @@ export type GradientBackgroundProps = PropsWithChildren<
  *
  * Mirrors `ImageBackgroundView`: it `forwardRef`s to a native `View` (via
  * `StyledView`) so the canvas can measure it (`measureInWindow`) and make it
- * selectable, paints the gradient as a full-bleed layer beneath its children,
- * and is sized by its own `styled.style`. Falls back to the solid
+ * selectable, paints the gradient as a full-bleed layer beneath its children
+ * (rounded to the corner radii of its `styled.style`), and is sized by that
+ * style. Falls back to the solid
  * `backgroundColor` when no gradient is present or unrenderable.
  *
  * @example
@@ -39,7 +40,7 @@ export type GradientBackgroundProps = PropsWithChildren<
  *     start: { x: 0, y: 0 },
  *     end: { x: 1, y: 1 },
  *   }}
- *   styled={{ style: { width: 150, height: 150, overflow: 'hidden' } }}
+ *   styled={{ style: { width: 150, height: 150, borderRadius: 24 } }}
  * >
  *   <Text text="On gradient" />
  * </GradientBackground>
@@ -51,7 +52,7 @@ const GradientBackground = forwardRef(
   ({ styled, children, gradient, ...props }: GradientBackgroundProps, ref) => {
     return (
       <StyledView ref={ref} styled={{ ...styled }} {...props}>
-        <GradientLayer gradient={gradient} />
+        <GradientLayer gradient={gradient} hostStyle={styled?.style} />
         {children}
       </StyledView>
     );

@@ -36,7 +36,7 @@ export const parseMotionTime = (value: unknown): number | undefined => {
     return value;
   }
   if (typeof value === 'string') {
-    const match = /^(\d*\.?\d+)(ms|s)$/.exec(value.trim());
+    const match = /^(\d+(?:\.\d+)?|\.\d+)(ms|s)$/.exec(value.trim());
     if (match) return Number(match[1]) * (match[2] === 's' ? 1000 : 1);
   }
   throw new Error(

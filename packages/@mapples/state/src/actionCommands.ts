@@ -217,7 +217,7 @@ export const DELAY_MAX_DURATION = 60000;
 const readDuration = (value: unknown): number | undefined => {
   if (typeof value === 'number') return value;
   if (typeof value !== 'string') return undefined;
-  const match = /^(\d*\.?\d+)(ms|s)?$/.exec(value.trim());
+  const match = /^(\d+(?:\.\d+)?|\.\d+)(ms|s)?$/.exec(value.trim());
   if (!match) return undefined;
   return Number(match[1]) * (match[2] === 's' ? 1000 : 1);
 };
