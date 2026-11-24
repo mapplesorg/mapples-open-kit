@@ -1,5 +1,11 @@
 # @mapples/codegen
 
+## 2.1.1
+
+### Patch Changes
+
+- @mapples/sid-ast@2.1.1
+
 ## 2.1.0
 
 ### Patch Changes
