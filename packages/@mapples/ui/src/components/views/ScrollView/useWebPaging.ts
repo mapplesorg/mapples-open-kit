@@ -7,9 +7,10 @@ const STYLE_ID = 'mapples-scroll-paging';
 
 // The scroll node holds one content container, and that holds the pages.
 const RULES = `
-[${ATTRIBUTE}="x"]{scroll-snap-type:x mandatory}
-[${ATTRIBUTE}="y"]{scroll-snap-type:y mandatory}
+[${ATTRIBUTE}^="x"]{scroll-snap-type:x mandatory}
+[${ATTRIBUTE}^="y"]{scroll-snap-type:y mandatory}
 [${ATTRIBUTE}]>*>*{scroll-snap-align:start}
+[${ATTRIBUTE}$="center"]>*>*{scroll-snap-align:center}
 `;
 
 interface ScrollableHost {
@@ -28,11 +29,13 @@ interface ScrollableHost {
  * @param scrollView - The scroll view (react-native-web's instance)
  * @param enabled - Whether the scroll view pages
  * @param horizontal - The scroll axis
+ * @param centred - Pages rest at the centre of the viewport, not at its start
  */
 const useWebPaging = (
   scrollView: RefObject<ScrollableHost | null>,
   enabled: boolean,
   horizontal: boolean,
+  centred = false,
 ) => {
   useEffect(() => {
     if (Platform.OS !== 'web' || !enabled) return undefined;
@@ -46,9 +49,12 @@ const useWebPaging = (
       style.textContent = RULES;
       root.head.appendChild(style);
     }
-    node.setAttribute(ATTRIBUTE, horizontal ? 'x' : 'y');
+    node.setAttribute(
+      ATTRIBUTE,
+      `${horizontal ? 'x' : 'y'}${centred ? '-center' : ''}`,
+    );
     return () => node.removeAttribute(ATTRIBUTE);
-  }, [scrollView, enabled, horizontal]);
+  }, [scrollView, enabled, horizontal, centred]);
 };
 
 /** Whether the scroll view pages through {@link useWebPaging} instead of the platform. */

@@ -10,6 +10,7 @@ import {
 
 import {
   StyledScrollView,
+  useMotionEnabled,
   useScreenScrollHandler,
   useScrollPagingReporter,
   WithStyledProps,
@@ -19,7 +20,10 @@ import {
   ScrollViewProps as RNScrollViewProps,
 } from 'react-native';
 
+import { ScrollEffect, usableScrollEffect } from './scrollEffect';
+import useNativeScrollEffect from './useNativeScrollEffect';
 import useWebPaging, { PAGES_ON_WEB } from './useWebPaging';
+import useWebScrollEffect from './useWebScrollEffect';
 
 /**
  * Props for the ScrollView component.
@@ -34,6 +38,13 @@ export type ScrollViewProps = PropsWithChildren<
      * and scrolls to the page a dot asks for.
      */
     name?: string;
+    /**
+     * Makes the items follow the scroll: the one at the centre at full size,
+     * its neighbours smaller, turned and dimmed (a coverflow shelf). The
+     * scroll view then snaps item by item, centres the first and last item
+     * and opens on `initialItem`. See {@link ScrollEffect}.
+     */
+    scrollEffect?: ScrollEffect;
   }
 >;
 
@@ -77,6 +88,7 @@ const ScrollView = forwardRef(
       horizontal,
       pagingEnabled,
       name,
+      scrollEffect,
       scrollEventThrottle,
       ...props
     }: ScrollViewProps,
@@ -91,8 +103,19 @@ const ScrollView = forwardRef(
     const handleScroll = useScreenScrollHandler(onScroll, !horizontal);
     const reporting = handleScroll !== (onScroll ?? undefined);
 
-    // On the web the pages are snapped here, not by react-native-web.
-    useWebPaging(inner, !!pagingEnabled, !!horizontal);
+    // Still where a `MotionProvider` turned motion off (a design canvas):
+    // the items of a scroll effect are drawn at rest there.
+    const motionEnabled = useMotionEnabled();
+    const effect = usableScrollEffect(scrollEffect);
+
+    // On the web the pages (or the items of a scroll effect) are snapped
+    // here, not by react-native-web, and the effect is drawn in the DOM.
+    useWebPaging(inner, !!pagingEnabled || !!effect, !!horizontal, !!effect);
+    useWebScrollEffect(inner, effect, !!horizontal, motionEnabled);
+    const items = useNativeScrollEffect(effect, !!horizontal, {
+      onScroll: handleScroll,
+      onLayout,
+    });
 
     // A named paging scroll view also tells a `PageControl` its page.
     const pagingName = pagingEnabled ? name : undefined;
@@ -108,7 +131,11 @@ const ScrollView = forwardRef(
     const paging = useScrollPagingReporter(
       pagingName,
       !!horizontal,
-      { onScroll: handleScroll, onLayout, onContentSizeChange },
+      {
+        onScroll: items.onScroll,
+        onLayout: items.onLayout,
+        onContentSizeChange,
+      },
       scrollToOffset,
     );
 
@@ -116,7 +143,17 @@ const ScrollView = forwardRef(
       <StyledScrollView
         showsVerticalScrollIndicator={false}
         ref={inner as Ref<unknown>}
-        styled={{ ...styled }}
+        styled={
+          items.contentInset
+            ? {
+                ...styled,
+                contentContainerStyle: [
+                  styled?.contentContainerStyle,
+                  items.contentInset,
+                ],
+              }
+            : { ...styled }
+        }
         horizontal={horizontal}
         pagingEnabled={PAGES_ON_WEB ? false : pagingEnabled}
         onScroll={paging.onScroll ?? undefined}
@@ -124,11 +161,14 @@ const ScrollView = forwardRef(
         onContentSizeChange={paging.onContentSizeChange ?? undefined}
         scrollEventThrottle={
           scrollEventThrottle ??
-          (reporting || pagingName ? SCREEN_SCROLL_THROTTLE : undefined)
+          (reporting || pagingName || effect
+            ? SCREEN_SCROLL_THROTTLE
+            : undefined)
         }
+        {...items.props}
         {...props}
       >
-        {children}
+        {items.wrap(children)}
       </StyledScrollView>
     );
   },
