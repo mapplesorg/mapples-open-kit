@@ -1,6 +1,7 @@
 import {
   forwardRef,
   PropsWithChildren,
+  useContext,
   useMemo,
   type ComponentRef,
   type ForwardRefExoticComponent,
@@ -8,7 +9,11 @@ import {
 } from 'react';
 
 import { StyledProp, StyledView } from '@mapples/style';
-import { ButtonGroupContext, ButtonGroupContextValue } from '@mapples/ui';
+import {
+  ButtonGroupContext,
+  ButtonGroupContextValue,
+  ButtonRowContext,
+} from '@mapples/ui';
 import { View, ViewProps, ViewStyle } from 'react-native';
 
 import { ButtonGroupDirection } from './types';
@@ -66,6 +71,10 @@ const ButtonGroup: ForwardRefExoticComponent<
       [direction, equal, fullWidth],
     );
 
+    // In a row that fills its `fullWidth` children (a `BottomActionBar`), the
+    // group takes the row's remaining width; its buttons answer to the group.
+    const fillsRow = useContext(ButtonRowContext) === 'row' && fullWidth;
+
     return (
       <ButtonGroupContext.Provider value={group}>
         <StyledView
@@ -78,12 +87,15 @@ const ButtonGroup: ForwardRefExoticComponent<
                 alignSelf: fullWidth ? 'stretch' : 'flex-start',
                 gap,
               },
+              fillsRow && { flexGrow: 1, flexShrink: 1, flexBasis: 0 },
               styled?.style,
             ],
           }}
           {...rest}
         >
-          {children}
+          <ButtonRowContext.Provider value={null}>
+            {children}
+          </ButtonRowContext.Provider>
         </StyledView>
       </ButtonGroupContext.Provider>
     );
